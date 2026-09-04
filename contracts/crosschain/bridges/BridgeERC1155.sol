@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.26;
 
+import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
 import {IERC1155} from "../../interfaces/IERC1155.sol";
 import {IERC1155Receiver} from "../../interfaces/IERC1155Receiver.sol";
-import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {BridgeMultiToken} from "./abstract/BridgeMultiToken.sol";
 

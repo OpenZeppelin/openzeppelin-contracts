@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.20;
 
+import {Ownable} from "../access/Ownable.sol";
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
-import {Ownable} from "../access/Ownable.sol";
 
 /**
  * @dev A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these

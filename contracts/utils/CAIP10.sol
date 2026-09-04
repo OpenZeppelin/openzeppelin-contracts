@@ -4,8 +4,8 @@
 pragma solidity ^0.8.24;
 
 import {Bytes} from "./Bytes.sol";
-import {Strings} from "./Strings.sol";
 import {CAIP2} from "./CAIP2.sol";
+import {Strings} from "./Strings.sol";
 
 /**
  * @dev Helper library to format and parse CAIP-10 identifiers

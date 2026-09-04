@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {AuthorityUtils} from "./AuthorityUtils.sol";
-import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 
 /**
  * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be

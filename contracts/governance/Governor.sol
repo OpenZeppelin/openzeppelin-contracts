@@ -3,16 +3,16 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
 import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
+import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
+import {Address} from "../utils/Address.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
-import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
-import {Address} from "../utils/Address.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
+import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**

@@ -4,9 +4,9 @@
 pragma solidity ^0.8.20;
 
 import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/IERC4337.sol";
-import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";
 import {LowLevelCall} from "../utils/LowLevelCall.sol";
+import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 
 /**
  * @dev A simple ERC4337 account implementation. This base implementation only includes the minimal logic to process
