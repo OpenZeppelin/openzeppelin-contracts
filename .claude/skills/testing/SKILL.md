@@ -127,7 +127,7 @@ Halmos runs on every PR, needs no credentials. Reach for it when a property can 
 
 ## Certora (rule-based formal verification)
 
-[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. The CI job runs on PRs labeled `formal-verification` or `formal-verification-force-all`. Requires a `CERTORAKEY`.
+[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. CI runs one job per affected config, on any PR whose diff reaches a spec, a harness, or a contract one of them verifies -- no label needed. Label a PR `formal-verification-force-all` to run every config instead. Requires a `CERTORAKEY`, and the `certora` environment gates the job behind a manual approval.
 
 Local workflow:
 
@@ -163,12 +163,12 @@ The generated file in `.changeset/` looks like:
 
 ## CI matrix you should keep in mind
 
-| Job                   | What it runs                                                           | Triggered by                                                        |
-| --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `lint`                | `npm run lint`                                                         | Every push/PR                                                       |
-| `tests`               | `npm test` (JS + Foundry via HH3) + inheritance, pragma, generation    | Every push/PR                                                       |
-| `tests-upgradeable`   | Transpile then re-run the test suite + storage-layout diff             | Every push/PR                                                       |
-| `coverage`            | `npm run coverage` → codecov                                           | Every push/PR                                                       |
-| `slither`             | Slither static analysis for common vulnerabilities                     | Every push/PR                                                       |
-| `halmos`              | `halmos --match-test '^symbolic\|^testSymbolic'`                       | Every push/PR                                                       |
-| `formal verification` | Certora specs for changed `.spec` files (or all, with the force label) | PRs labeled `formal-verification` / `formal-verification-force-all` |
+| Job                   | What it runs                                                        | Triggered by                                      |
+| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
+| `lint`                | `npm run lint`                                                      | Every push/PR                                     |
+| `tests`               | `npm test` (JS + Foundry via HH3) + inheritance, pragma, generation | Every push/PR                                     |
+| `tests-upgradeable`   | Transpile then re-run the test suite + storage-layout diff          | Every push/PR                                     |
+| `coverage`            | `npm run coverage` → codecov                                        | Every push/PR                                     |
+| `slither`             | Slither static analysis for common vulnerabilities                  | Every push/PR                                     |
+| `halmos`              | `halmos --match-test '^symbolic\|^testSymbolic'`                    | Every push/PR                                     |
+| `formal verification` | Certora, one job per affected config (or all, with the force label) | PRs touching a spec, harness or verified contract |
