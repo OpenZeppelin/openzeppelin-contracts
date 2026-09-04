@@ -51,11 +51,14 @@
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
   "homepage": "https://openzeppelin.com/contracts/",
+  "engines": {
+    "node": "^22.12 || ^24 || >=26"
+  },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.26.0",
-    "@changesets/pre": "^2.0.0",
-    "@changesets/read": "^0.6.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
+    "@changesets/pre": "^3.0.0",
+    "@changesets/read": "^1.0.0",
     "@eslint/compat": "^1.2.1",
     "@ethereumjs/mpt": "^10.1.0",
     "@noble/curves": "^2.0.1",
