@@ -56,7 +56,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      * Does NOT emit an {Approval} event.
      */
     function temporaryApprove(address spender, uint256 value) public virtual returns (bool) {
-        _temporaryApprove(_msgSender(), spender, value);
+        _temporaryApprove(msg.sender, spender, value);
         return true;
     }
 

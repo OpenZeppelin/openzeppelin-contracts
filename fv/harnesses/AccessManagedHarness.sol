@@ -15,9 +15,9 @@ contract AccessManagedHarness is AccessManaged {
         // the schedule. This is a reformulation of `msg.data == SOME_FUNCTION_CALLDATA` that focuses on the operation
         // hash for this call.
         require(
-            IAccessManager(authority()).hashOperation(_msgSender(), address(this), msg.data)
+            IAccessManager(authority()).hashOperation(msg.sender, address(this), msg.data)
             ==
-            IAccessManager(authority()).hashOperation(_msgSender(), address(this), SOME_FUNCTION_CALLDATA)
+            IAccessManager(authority()).hashOperation(msg.sender, address(this), SOME_FUNCTION_CALLDATA)
         );
     }
 

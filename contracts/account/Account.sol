@@ -128,9 +128,8 @@ abstract contract Account is AbstractSigner, IAccount {
      * @dev Ensures the caller is the {entrypoint}.
      */
     function _checkEntryPoint() internal view virtual {
-        address sender = msg.sender;
-        if (sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
+        if (msg.sender != address(entryPoint())) {
+            revert AccountUnauthorized(msg.sender);
         }
     }
 
@@ -138,9 +137,8 @@ abstract contract Account is AbstractSigner, IAccount {
      * @dev Ensures the caller is the {entrypoint} or the account itself.
      */
     function _checkEntryPointOrSelf() internal view virtual {
-        address sender = msg.sender;
-        if (sender != address(this) && sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
+        if (msg.sender != address(this) && msg.sender != address(entryPoint())) {
+            revert AccountUnauthorized(msg.sender);
         }
     }
 

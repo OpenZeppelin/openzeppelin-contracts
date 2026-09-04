@@ -4,7 +4,6 @@
 pragma solidity ^0.8.20;
 
 import {IAccessControl} from "./IAccessControl.sol";
-import {Context} from "../utils/Context.sol";
 import {ERC165} from "../utils/introspection/ERC165.sol";
 
 /**
@@ -46,7 +45,7 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
  * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
  * to enforce additional security measures for this role.
  */
-abstract contract AccessControl is Context, IAccessControl, ERC165 {
+abstract contract AccessControl is IAccessControl, ERC165 {
     struct RoleData {
         mapping(address account => bool) hasRole;
         bytes32 adminRole;
@@ -78,11 +77,11 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `msg.sender`
      * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
      */
     function _checkRole(bytes32 role) internal view virtual {
-        _checkRole(role, _msgSender());
+        _checkRole(role, msg.sender);
     }
 
     /**
@@ -152,7 +151,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * May emit a {RoleRevoked} event.
      */
     function renounceRole(bytes32 role, address callerConfirmation) public virtual {
-        if (callerConfirmation != _msgSender()) {
+        if (callerConfirmation != msg.sender) {
             revert AccessControlBadConfirmation();
         }
 
@@ -180,7 +179,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     function _grantRole(bytes32 role, address account) internal virtual returns (bool) {
         if (!hasRole(role, account)) {
             _roles[role].hasRole[account] = true;
-            emit RoleGranted(role, account, _msgSender());
+            emit RoleGranted(role, account, msg.sender);
             return true;
         } else {
             return false;
@@ -197,7 +196,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {
         if (hasRole(role, account)) {
             _roles[role].hasRole[account] = false;
-            emit RoleRevoked(role, account, _msgSender());
+            emit RoleRevoked(role, account, msg.sender);
             return true;
         } else {
             return false;

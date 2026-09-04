@@ -12,8 +12,6 @@ console.log('.API');
 
 function getPageTitle(directory) {
   switch (directory) {
-    case 'metatx':
-      return 'Meta Transactions';
     default:
       return startCase(directory);
   }

@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
-import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
 
 /**
@@ -33,7 +32,7 @@ import {Ownable} from "../access/Ownable.sol";
  * at 50% of the vesting period, the beneficiary can withdraw 50 A as ERC20 and 25 A as native currency (totaling 75 A).
  * Consider disabling one of the withdrawal methods.
  */
-contract VestingWallet is Context, Ownable {
+contract VestingWallet is Ownable {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 

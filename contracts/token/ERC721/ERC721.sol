@@ -6,7 +6,6 @@ pragma solidity ^0.8.24;
 import {IERC721} from "./IERC721.sol";
 import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
 import {ERC721Utils} from "./utils/ERC721Utils.sol";
-import {Context} from "../../utils/Context.sol";
 import {Strings} from "../../utils/Strings.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
@@ -16,7 +15,7 @@ import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
+abstract contract ERC721 is ERC165, IERC721, IERC721Metadata, IERC721Errors {
     using Strings for uint256;
 
     // Token name
@@ -91,7 +90,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /// @inheritdoc IERC721
     function approve(address to, uint256 tokenId) public virtual {
-        _approve(to, tokenId, _msgSender());
+        _approve(to, tokenId, msg.sender);
     }
 
     /// @inheritdoc IERC721
@@ -103,7 +102,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /// @inheritdoc IERC721
     function setApprovalForAll(address operator, bool approved) public virtual {
-        _setApprovalForAll(_msgSender(), operator, approved);
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     /// @inheritdoc IERC721
@@ -118,7 +117,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         }
         // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-        address previousOwner = _update(to, tokenId, _msgSender());
+        address previousOwner = _update(to, tokenId, msg.sender);
         if (previousOwner != from) {
             revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
@@ -132,7 +131,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /// @inheritdoc IERC721
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, from, to, tokenId, data);
     }
 
     /**
@@ -286,7 +285,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), address(0), to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, address(0), to, tokenId, data);
     }
 
     /**
@@ -359,7 +358,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, from, to, tokenId, data);
     }
 
     /**

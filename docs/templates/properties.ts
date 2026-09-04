@@ -38,9 +38,7 @@ export const inheritance = function ({ item, build }) {
     throw new Error('inheritance modifier used on non-contract');
   }
 
-  return item.linearizedBaseContracts
-    .map(id => build.deref('ContractDefinition', id))
-    .filter((c, i) => c.name !== 'Context' || i === 0);
+  return item.linearizedBaseContracts.map(id => build.deref('ContractDefinition', id));
 };
 
 export const hasFunctions = function ({ item }) {

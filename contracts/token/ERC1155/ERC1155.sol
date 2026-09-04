@@ -6,7 +6,6 @@ pragma solidity ^0.8.24;
 import {IERC1155} from "./IERC1155.sol";
 import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
 import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
-import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {Arrays} from "../../utils/Arrays.sol";
 import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
@@ -16,7 +15,7 @@ import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
  */
-abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Errors {
+abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Errors {
     using Arrays for uint256[];
     using Arrays for address[];
 
@@ -87,7 +86,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
     /// @inheritdoc IERC1155
     function setApprovalForAll(address operator, bool approved) public virtual {
-        _setApprovalForAll(_msgSender(), operator, approved);
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     /// @inheritdoc IERC1155
@@ -97,7 +96,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
     /// @inheritdoc IERC1155
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
-        _checkAuthorized(_msgSender(), from);
+        _checkAuthorized(msg.sender, from);
         _safeTransferFrom(from, to, id, value, data);
     }
 
@@ -109,7 +108,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256[] memory values,
         bytes memory data
     ) public virtual {
-        _checkAuthorized(_msgSender(), from);
+        _checkAuthorized(msg.sender, from);
         _safeBatchTransferFrom(from, to, ids, values, data);
     }
 
@@ -139,8 +138,6 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidArrayLength(ids.length, values.length);
         }
 
-        address operator = _msgSender();
-
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids.unsafeMemoryAccess(i);
             uint256 value = values.unsafeMemoryAccess(i);
@@ -164,9 +161,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (ids.length == 1) {
             uint256 id = ids.unsafeMemoryAccess(0);
             uint256 value = values.unsafeMemoryAccess(0);
-            emit TransferSingle(operator, from, to, id, value);
+            emit TransferSingle(msg.sender, from, to, id, value);
         } else {
-            emit TransferBatch(operator, from, to, ids, values);
+            emit TransferBatch(msg.sender, from, to, ids, values);
         }
     }
 
@@ -211,13 +208,12 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     ) internal virtual {
         _update(from, to, ids, values);
         if (to != address(0)) {
-            address operator = _msgSender();
             if (batch) {
-                ERC1155Utils.checkOnERC1155BatchReceived(operator, from, to, ids, values, data);
+                ERC1155Utils.checkOnERC1155BatchReceived(msg.sender, from, to, ids, values, data);
             } else {
                 uint256 id = ids.unsafeMemoryAccess(0);
                 uint256 value = values.unsafeMemoryAccess(0);
-                ERC1155Utils.checkOnERC1155Received(operator, from, to, id, value, data);
+                ERC1155Utils.checkOnERC1155Received(msg.sender, from, to, id, value, data);
             }
         }
     }

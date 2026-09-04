@@ -23,7 +23,7 @@ import {BridgeFungible} from "../../../crosschain/bridges/abstract/BridgeFungibl
 abstract contract ERC20Crosschain is ERC20, BridgeFungible {
     /// @dev Variant of {crosschainTransfer} that allows an authorized account (using ERC20 allowance) to operate on `from`'s assets.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
-        _spendAllowance(from, _msgSender(), amount);
+        _spendAllowance(from, msg.sender, amount);
         return _crosschainTransfer(from, to, amount);
     }
 

@@ -144,7 +144,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     modifier onlyRoleOrOpenRole(bytes32 role) {
         if (!hasRole(role, address(0))) {
-            _checkRole(role, _msgSender());
+            _checkRole(role, msg.sender);
         }
         _;
     }
@@ -445,9 +445,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) public virtual {
-        address sender = _msgSender();
-        if (sender != address(this)) {
-            revert TimelockUnauthorizedCaller(sender);
+        if (msg.sender != address(this)) {
+            revert TimelockUnauthorizedCaller(msg.sender);
         }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
