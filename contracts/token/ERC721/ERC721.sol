@@ -9,7 +9,7 @@ import {ERC721Utils} from "./utils/ERC721Utils.sol";
 import {Context} from "../../utils/Context.sol";
 import {Strings} from "../../utils/Strings.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
-import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
+import {IERC721Errors} from "../../interfaces/IERC6093.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC-721] Non-Fungible Token Standard, including
