@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.27;
 
-import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
+import {IERC7786GatewaySource} from "../interfaces/IERC7786.sol";
 import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../account/utils/draft-ERC7579Utils.sol";
 import {Bytes} from "../utils/Bytes.sol";
