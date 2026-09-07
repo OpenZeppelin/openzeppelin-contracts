@@ -1,13 +1,13 @@
 --- access/manager/AccessManager.sol	2026-09-01 22:31:49.704097988 +0200
 +++ access/manager/AccessManager.sol	2026-09-01 22:33:16.462651202 +0200
 @@ -6,7 +6,6 @@
- import {IAccessManager} from "./IAccessManager.sol";
- import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
--import {Multicall} from "../../utils/Multicall.sol";
- import {Math} from "../../utils/math/Math.sol";
- import {Time} from "../../utils/types/Time.sol";
  import {Hashes} from "../../utils/cryptography/Hashes.sol";
+ import {Math} from "../../utils/math/Math.sol";
+-import {Multicall} from "../../utils/Multicall.sol";
+ import {Time} from "../../utils/types/Time.sol";
+ import {IAccessManaged} from "./IAccessManaged.sol";
+ import {IAccessManager} from "./IAccessManager.sol";
 @@ -58,7 +57,8 @@
   * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
   * {AccessControl-renounceRole}.
