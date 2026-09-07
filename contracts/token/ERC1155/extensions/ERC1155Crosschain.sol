@@ -36,7 +36,7 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
         uint256 value,
         bytes memory data
     ) public virtual returns (bytes32) {
-        _checkAuthorized(_msgSender(), from);
+        _checkAuthorized(msg.sender, from);
 
         uint256[] memory ids = new uint256[](1);
         uint256[] memory values = new uint256[](1);
@@ -66,7 +66,7 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
         uint256[] memory values,
         bytes memory data
     ) public virtual returns (bytes32) {
-        _checkAuthorized(_msgSender(), from);
+        _checkAuthorized(msg.sender, from);
         return _crosschainTransfer(from, to, ids, values, data);
     }
 

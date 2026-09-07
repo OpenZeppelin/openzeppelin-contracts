@@ -224,9 +224,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /// @inheritdoc IAccessControlDefaultAdminRules
     function acceptDefaultAdminTransfer() public virtual {
         (address newDefaultAdmin, ) = pendingDefaultAdmin();
-        if (_msgSender() != newDefaultAdmin) {
+        if (msg.sender != newDefaultAdmin) {
             // Enforce newDefaultAdmin explicit acceptance.
-            revert AccessControlInvalidDefaultAdmin(_msgSender());
+            revert AccessControlInvalidDefaultAdmin(msg.sender);
         }
         _acceptDefaultAdminTransfer();
     }

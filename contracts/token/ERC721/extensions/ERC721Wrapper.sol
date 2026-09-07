@@ -36,7 +36,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
             // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
             // (by design of this contract) and no other contracts expected to be called from there, we are safe.
             // slither-disable-next-line reentrancy-no-eth
-            underlying().transferFrom(_msgSender(), address(this), tokenId); // forge-lint: disable-line(erc20-unchecked-transfer)
+            underlying().transferFrom(msg.sender, address(this), tokenId); // forge-lint: disable-line(erc20-unchecked-transfer)
             _safeMint(account, tokenId);
         }
 
@@ -52,7 +52,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
             uint256 tokenId = tokenIds[i];
             // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
             // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-            _update(address(0), tokenId, _msgSender());
+            _update(address(0), tokenId, msg.sender);
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
             // slither-disable-next-line reentrancy-no-eth
@@ -73,8 +73,8 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * for recovering in that scenario.
      */
     function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual returns (bytes4) {
-        if (address(underlying()) != _msgSender()) {
-            revert ERC721UnsupportedToken(_msgSender());
+        if (address(underlying()) != msg.sender) {
+            revert ERC721UnsupportedToken(msg.sender);
         }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;

@@ -187,7 +187,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 shares = previewDeposit(assets);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _deposit(msg.sender, receiver, assets, shares);
 
         return shares;
     }
@@ -200,7 +200,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 assets = previewMint(shares);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _deposit(msg.sender, receiver, assets, shares);
 
         return assets;
     }
@@ -213,7 +213,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 shares = previewWithdraw(assets);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        _withdraw(msg.sender, receiver, owner, assets, shares);
 
         return shares;
     }
@@ -226,7 +226,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 assets = previewRedeem(shares);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        _withdraw(msg.sender, receiver, owner, assets, shares);
 
         return assets;
     }

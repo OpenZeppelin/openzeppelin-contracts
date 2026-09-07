@@ -4,14 +4,13 @@
 pragma solidity ^0.8.20;
 
 import {IERC6909} from "../../interfaces/IERC6909.sol";
-import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Implementation of ERC-6909.
  * See https://eips.ethereum.org/EIPS/eip-6909
  */
-abstract contract ERC6909 is Context, ERC165, IERC6909 {
+abstract contract ERC6909 is ERC165, IERC6909 {
     mapping(address owner => mapping(uint256 id => uint256)) private _balances;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
@@ -47,19 +46,19 @@ abstract contract ERC6909 is Context, ERC165, IERC6909 {
 
     /// @inheritdoc IERC6909
     function approve(address spender, uint256 id, uint256 amount) public virtual override returns (bool) {
-        _approve(_msgSender(), spender, id, amount);
+        _approve(msg.sender, spender, id, amount);
         return true;
     }
 
     /// @inheritdoc IERC6909
     function setOperator(address spender, bool approved) public virtual override returns (bool) {
-        _setOperator(_msgSender(), spender, approved);
+        _setOperator(msg.sender, spender, approved);
         return true;
     }
 
     /// @inheritdoc IERC6909
     function transfer(address receiver, uint256 id, uint256 amount) public virtual override returns (bool) {
-        _transfer(_msgSender(), receiver, id, amount);
+        _transfer(msg.sender, receiver, id, amount);
         return true;
     }
 
@@ -70,9 +69,8 @@ abstract contract ERC6909 is Context, ERC165, IERC6909 {
         uint256 id,
         uint256 amount
     ) public virtual override returns (bool) {
-        address caller = _msgSender();
-        if (sender != caller && !isOperator(sender, caller)) {
-            _spendAllowance(sender, caller, id, amount);
+        if (sender != msg.sender && !isOperator(sender, msg.sender)) {
+            _spendAllowance(sender, msg.sender, id, amount);
         }
         _transfer(sender, receiver, id, amount);
         return true;
@@ -135,8 +133,6 @@ abstract contract ERC6909 is Context, ERC165, IERC6909 {
      * Emits a {Transfer} event.
      */
     function _update(address from, address to, uint256 id, uint256 amount) internal virtual {
-        address caller = _msgSender();
-
         if (from != address(0)) {
             uint256 fromBalance = _balances[from][id];
             if (fromBalance < amount) {
@@ -151,7 +147,7 @@ abstract contract ERC6909 is Context, ERC165, IERC6909 {
             _balances[to][id] += amount;
         }
 
-        emit Transfer(caller, from, to, id, amount);
+        emit Transfer(msg.sender, from, to, id, amount);
     }
 
     /**

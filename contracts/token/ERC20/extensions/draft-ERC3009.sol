@@ -89,7 +89,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
             keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
         );
         require(from == ECDSA.recover(hash, v, r, s), ERC3009InvalidSignature());
-        require(to == _msgSender(), ERC20InvalidReceiver(to));
+        require(to == msg.sender, ERC20InvalidReceiver(to));
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 

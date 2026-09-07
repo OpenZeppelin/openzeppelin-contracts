@@ -4,13 +4,12 @@
 pragma solidity ^0.8.24;
 
 import {ERC721} from "../ERC721.sol";
-import {Context} from "../../../utils/Context.sol";
 
 /**
  * @title ERC-721 Burnable Token
  * @dev ERC-721 Token that can be burned (destroyed).
  */
-abstract contract ERC721Burnable is Context, ERC721 {
+abstract contract ERC721Burnable is ERC721 {
     /**
      * @dev Burns `tokenId`. See {ERC721-_burn}.
      *
@@ -21,6 +20,6 @@ abstract contract ERC721Burnable is Context, ERC721 {
     function burn(uint256 tokenId) public virtual {
         // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-        _update(address(0), tokenId, _msgSender());
+        _update(address(0), tokenId, msg.sender);
     }
 }

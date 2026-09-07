@@ -52,7 +52,7 @@ contract DoubleEndedQueueHarness {
         return _deque.back();
     }
 
-    function at_(uint256 index) external view returns (bytes32 value) {
-        return _deque.at(index);
+    function pos(uint256 index) external view returns (bytes32 value) {
+        return _deque.pos(index);
     }
 }

@@ -27,15 +27,11 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _validatorAt(uint256 index) external view returns (address) {
-        return _validators.at(index);
-    }
-
-    function _validatorAtFull(uint256 index) external view returns (bytes32) {
-        return _validators._inner._values[index];
+        return _validators.pos(index);
     }
 
     function _validatorPositionOf(address module) external view returns (uint256) {
-        return _validators._inner._positions[bytes32(uint256(uint160(module)))];
+        return _validators._positions[module];
     }
 
     function _executorContains(address module) external view returns (bool) {
@@ -47,14 +43,10 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _executorAt(uint256 index) external view returns (address) {
-        return _executors.at(index);
-    }
-
-    function _executorAtFull(uint256 index) external view returns (bytes32) {
-        return _executors._inner._values[index];
+        return _executors.pos(index);
     }
 
     function _executorPositionOf(address module) external view returns (uint256) {
-        return _executors._inner._positions[bytes32(uint256(uint160(module)))];
+        return _executors._positions[module];
     }
 }

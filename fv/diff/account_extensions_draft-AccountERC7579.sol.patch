@@ -1,6 +1,6 @@
---- account/extensions/draft-AccountERC7579.sol	2025-07-22 11:18:42.944504471 +0200
-+++ account/extensions/draft-AccountERC7579.sol	2025-07-22 13:57:03.670277084 +0200
-@@ -60,8 +60,8 @@
+--- account/extensions/draft-AccountERC7579.sol	2026-09-01 22:08:07.711208235 +0200
++++ account/extensions/draft-AccountERC7579.sol	2026-09-01 22:33:16.459807394 +0200
+@@ -66,8 +66,8 @@
      using EnumerableSet for *;
      using Packing for bytes32;
  
@@ -11,7 +11,7 @@
      mapping(bytes4 selector => address) private _fallbacks;
  
      /// @dev The account's {fallback} was called with a selector that doesn't have an installed handler.
-@@ -308,8 +308,9 @@
+@@ -326,8 +326,9 @@
       * the ERC-2771 format.
       */
      function _fallback() internal virtual returns (bytes memory) {

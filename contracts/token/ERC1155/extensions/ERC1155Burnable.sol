@@ -11,12 +11,12 @@ import {ERC1155} from "../ERC1155.sol";
  */
 abstract contract ERC1155Burnable is ERC1155 {
     function burn(address account, uint256 id, uint256 value) public virtual {
-        _checkAuthorized(_msgSender(), account);
+        _checkAuthorized(msg.sender, account);
         _burn(account, id, value);
     }
 
     function burnBatch(address account, uint256[] memory ids, uint256[] memory values) public virtual {
-        _checkAuthorized(_msgSender(), account);
+        _checkAuthorized(msg.sender, account);
         _burnBatch(account, ids, values);
     }
 }

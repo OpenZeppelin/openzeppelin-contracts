@@ -4,7 +4,6 @@
 pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
-import {Context} from "../../../utils/Context.sol";
 import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
 
@@ -19,7 +18,7 @@ import {CrosschainLinked} from "../../CrosschainLinked.sol";
  * which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}
  * extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeFungible is Context, CrosschainLinked {
+abstract contract BridgeFungible is CrosschainLinked {
     /// @dev Emitted when a crosschain ERC-20 transfer is sent.
     event CrosschainFungibleTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
 
@@ -35,7 +34,7 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
     function crosschainTransfer(bytes memory to, uint256 amount) public virtual returns (bytes32) {
-        return _crosschainTransfer(_msgSender(), to, amount);
+        return _crosschainTransfer(msg.sender, to, amount);
     }
 
     /**

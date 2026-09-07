@@ -8,13 +8,11 @@ methods {
     function _validatorLength()            external returns (uint256) envfree;
     function _validatorContains(address)   external returns (bool)    envfree;
     function _validatorAt(uint256)         external returns (address) envfree;
-    function _validatorAtFull(uint256)     external returns (bytes32) envfree;
     function _validatorPositionOf(address) external returns (uint256) envfree;
 
     function _executorLength()             external returns (uint256) envfree;
     function _executorContains(address)    external returns (bool)    envfree;
     function _executorAt(uint256)          external returns (address) envfree;
-    function _executorAtFull(uint256)      external returns (bytes32) envfree;
     function _executorPositionOf(address)  external returns (uint256) envfree;
 
     function _.onInstall(bytes)            external => NONDET;
@@ -41,26 +39,6 @@ definition isExecutionModule(env e, bytes context) returns bool =
 */
 definition moduleLengthSanity() returns bool =
     _validatorLength() < max_uint256 && _executorLength() < max_uint256;
-
-// Dirty upper bits could cause issues. We need to prove stored values are clean
-invariant cleanStorageValidator(uint256 index)
-    index < _validatorLength() => to_bytes32(_validatorAt(index)) == _validatorAtFull(index)
-    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
-    {
-        preserved {
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
-        }
-    }
-
-// Dirty upper bits could cause issues. We need to prove stored values are clean
-invariant cleanStorageExecutor(uint256 index)
-    index < _executorLength() => to_bytes32(_executorAt(index)) == _executorAtFull(index)
-    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
-    {
-        preserved {
-            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
-        }
-    }
 
 invariant indexedContainedValidator(uint256 index)
     index < _validatorLength() => _validatorContains(_validatorAt(index))

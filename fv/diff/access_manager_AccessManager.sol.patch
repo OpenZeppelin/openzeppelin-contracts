@@ -1,24 +1,24 @@
---- access/manager/AccessManager.sol	2025-08-16 15:15:34
-+++ access/manager/AccessManager.sol	2025-08-16 15:17:51
-@@ -7,7 +7,6 @@
+--- access/manager/AccessManager.sol	2026-09-01 22:31:49.704097988 +0200
++++ access/manager/AccessManager.sol	2026-09-01 22:33:16.462651202 +0200
+@@ -6,7 +6,6 @@
+ import {IAccessManager} from "./IAccessManager.sol";
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
- import {Context} from "../../utils/Context.sol";
 -import {Multicall} from "../../utils/Multicall.sol";
  import {Math} from "../../utils/math/Math.sol";
  import {Time} from "../../utils/types/Time.sol";
  import {Hashes} from "../../utils/cryptography/Hashes.sol";
-@@ -59,7 +58,8 @@
+@@ -58,7 +57,8 @@
   * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
   * {AccessControl-renounceRole}.
   */
--contract AccessManager is Context, Multicall, IAccessManager {
+-contract AccessManager is Multicall, IAccessManager {
 +// NOTE: The FV version of this contract doesn't include Multicall because CVL HAVOCs on any `delegatecall`.
-+contract AccessManager is Context, IAccessManager {
++contract AccessManager is IAccessManager {
      using Time for *;
  
      // Structure that stores the details for a target contract.
-@@ -115,7 +115,7 @@
+@@ -114,7 +114,7 @@
  
      // Used to identify operations that are currently being executed via {execute}.
      // This should be transient storage when supported by the EVM.
@@ -27,7 +27,7 @@
  
      /**
       * @dev Check that the caller is authorized to perform the operation.
-@@ -263,6 +263,11 @@
+@@ -267,6 +267,11 @@
          _setGrantDelay(roleId, newDelay);
      }
  
@@ -39,28 +39,28 @@
      /**
       * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
       *
-@@ -295,6 +300,11 @@
- 
-         emit RoleGranted(roleId, account, executionDelay, since, newMember);
+@@ -301,6 +306,11 @@
          return newMember;
-+    }
-+
+     }
+ 
 +    // Exposed for FV
 +    function _getRoleGrantDelayFull(uint64 roleId) internal view virtual returns (uint32, uint32, uint48) {
 +        return _roles[roleId].grantDelay.getFull();
-     }
- 
++    }
++
      /**
-@@ -596,7 +606,7 @@
+      * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
+      * Returns true if the role was previously granted.
+@@ -594,7 +604,7 @@
       *
       * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
       */
 -    function _checkAuthorized() private {
 +    function _checkAuthorized() internal virtual { // private → internal virtual for FV
-         address caller = _msgSender();
-         (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+         (bool immediate, uint32 delay) = _canCallSelf(msg.sender, msg.data);
          if (!immediate) {
-@@ -619,7 +629,7 @@
+             if (delay == 0) {
+@@ -616,7 +626,7 @@
       */
      function _getAdminRestrictions(
          bytes calldata data
@@ -69,7 +69,7 @@
          if (data.length < 4) {
              return (false, 0, 0);
          }
-@@ -672,7 +682,7 @@
+@@ -669,7 +679,7 @@
          address caller,
          address target,
          bytes calldata data
@@ -78,7 +78,7 @@
          if (target == address(this)) {
              return _canCallSelf(caller, data);
          } else {
-@@ -728,14 +738,14 @@
+@@ -754,14 +764,14 @@
      /**
       * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
       */

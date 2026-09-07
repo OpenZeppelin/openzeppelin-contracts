@@ -42,7 +42,7 @@ contract SampleAccount is IAccount, Ownable {
         require(msg.sender == address(ERC4337Utils.ENTRYPOINT_V07), "only from EP");
         // Check signature
         if (userOpHash.toEthSignedMessageHash().recover(userOp.signature) != owner()) {
-            revert OwnableUnauthorizedAccount(_msgSender());
+            revert OwnableUnauthorizedAccount(msg.sender);
         }
 
         // If this is an execute call with a batch operation, log the call details from the calldata

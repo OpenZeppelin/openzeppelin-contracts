@@ -13,7 +13,7 @@ describe('Checkpoints', function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');
         const methods = {
-          at: (...args) => mock.getFunction(`$at_Checkpoints_Trace${size}`)(0, ...args),
+          pos: (...args) => mock.getFunction(`$pos_Checkpoints_Trace${size}`)(0, ...args),
           latest: (...args) => mock.getFunction(`$latest_Checkpoints_Trace${size}`)(0, ...args),
           latestCheckpoint: (...args) => mock.getFunction(`$latestCheckpoint_Checkpoints_Trace${size}`)(0, ...args),
           length: (...args) => mock.getFunction(`$length_Checkpoints_Trace${size}`)(0, ...args),
@@ -31,9 +31,9 @@ describe('Checkpoints', function () {
       });
 
       describe('without checkpoints', function () {
-        it('at zero reverts', async function () {
+        it('pos zero reverts', async function () {
           // Reverts with array out of bound access, which is unspecified
-          await expect(this.methods.at(0)).to.revert(ethers);
+          await expect(this.methods.pos(0)).to.revert(ethers);
         });
 
         it('returns zero as latest value', async function () {
@@ -66,11 +66,9 @@ describe('Checkpoints', function () {
           }
         });
 
-        it('at keys', async function () {
+        it('at positions', async function () {
           for (const [index, { key, value }] of this.checkpoints.entries()) {
-            const at = await this.methods.at(index);
-            expect(at._value).to.equal(value);
-            expect(at._key).to.equal(key);
+            await expect(this.methods.pos(index)).to.eventually.deep.equal([key, value]);
           }
         });
 

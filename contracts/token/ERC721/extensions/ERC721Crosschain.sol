@@ -17,13 +17,13 @@ import {BridgeNonFungible} from "../../../crosschain/bridges/abstract/BridgeNonF
 abstract contract ERC721Crosschain is BridgeNonFungible, ERC721 {
     /// @dev Crosschain variant of {transferFrom}, using the allowance system from the underlying ERC-721 token.
     function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
-        // operator (_msgSender) permission over `from` is checked in `_onSend`
+        // operator (msg.sender) permission over `from` is checked in `_onSend`
         return _crosschainTransfer(from, to, tokenId);
     }
 
     /// @dev "Locking" tokens is achieved through burning
     function _onSend(address from, uint256 tokenId) internal virtual override {
-        address previousOwner = _update(address(0), tokenId, _msgSender());
+        address previousOwner = _update(address(0), tokenId, msg.sender);
         if (previousOwner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         } else if (previousOwner != from) {

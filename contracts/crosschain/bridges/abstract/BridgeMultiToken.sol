@@ -4,7 +4,6 @@
 pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
-import {Context} from "../../../utils/Context.sol";
 import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
 
@@ -21,7 +20,7 @@ import {CrosschainLinked} from "../../CrosschainLinked.sol";
  * This base contract implements the crosschain transfer operation through internal functions. It is for the "child
  * contracts" that inherit from this to implement the external interfaces and make these functions accessible.
  */
-abstract contract BridgeMultiToken is Context, CrosschainLinked {
+abstract contract BridgeMultiToken is CrosschainLinked {
     using InteroperableAddress for bytes;
 
     event CrosschainMultiTokenTransferSent(

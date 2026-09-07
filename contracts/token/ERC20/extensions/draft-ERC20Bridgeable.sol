@@ -14,8 +14,7 @@ import {IERC7802} from "../../../interfaces/draft-IERC7802.sol";
 abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
     /// @dev Modifier to restrict access to the token bridge.
     modifier onlyTokenBridge() {
-        // Token bridge should never be impersonated using a relayer/forwarder. Using msg.sender is preferable to
-        // _msgSender() for security reasons.
+        // Token bridge should never be impersonated using a relayer/forwarder, so the literal msg.sender is used.
         _checkTokenBridge(msg.sender);
         _;
     }
@@ -30,7 +29,7 @@ abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
      */
     function crosschainMint(address to, uint256 value) public virtual override onlyTokenBridge {
         _mint(to, value);
-        emit CrosschainMint(to, value, _msgSender());
+        emit CrosschainMint(to, value, msg.sender);
     }
 
     /**
@@ -38,7 +37,7 @@ abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
      */
     function crosschainBurn(address from, uint256 value) public virtual override onlyTokenBridge {
         _burn(from, value);
-        emit CrosschainBurn(from, value, _msgSender());
+        emit CrosschainBurn(from, value, msg.sender);
     }
 
     /**

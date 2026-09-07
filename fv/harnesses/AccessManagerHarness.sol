@@ -109,8 +109,8 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function _checkAuthorized() internal override {
-        // We need this hack otherwise certora will assume _checkSelector(_msgData()) can return anything :/
-        require(msg.sig == _checkSelector(_msgData()));
+        // We need this hack otherwise certora will assume _checkSelector(msg.data) can return anything :/
+        require(msg.sig == _checkSelector(msg.data));
         super._checkAuthorized();
     }
 }
