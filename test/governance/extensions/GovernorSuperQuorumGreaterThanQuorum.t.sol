@@ -9,7 +9,7 @@ import {GovernorVotesSuperQuorumFraction} from "@openzeppelin/contracts/governan
 import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
-import {IVotes} from "@openzeppelin/contracts/interfaces/IVotes.sol";
+import {IERC5805} from "@openzeppelin/contracts/interfaces/draft-IERC5805.sol";
 import {ERC20VotesExtendedTimestampMock} from "@openzeppelin/contracts/mocks/token/ERC20VotesAdditionalCheckpointsMock.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -27,7 +27,7 @@ contract GovernorHandler is GovernorVotesSuperQuorumFractionMock {
         uint48 votingDelay_,
         uint32 votingPeriod_,
         uint256 proposalThreshold_,
-        IVotes token_,
+        IERC5805 token_,
         uint256 quorumNumerator_,
         uint256 superQuorumNumerator_
     )

@@ -20,7 +20,7 @@ For a written walkthrough, check out our guide on xref:ROOT:governance.adoc[How 
 
 Votes modules determine the source of voting power, and sometimes quorum number.
 
-* {GovernorVotes}: Extracts voting weight from an {IVotes} contract.
+* {GovernorVotes}: Extracts voting weight from an {IERC5805} contract.
 
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
 
@@ -114,7 +114,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 == Utils
 
-{{IVotes}}
+{{IERC5805}}
 
 {{Votes}}
 

@@ -4,14 +4,14 @@ pragma solidity ^0.8.24;
 
 import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
 import {Math} from "../../utils/math/Math.sol";
-import {IVotes} from "../../interfaces/IVotes.sol";
+import {IERC5805} from "../../interfaces/draft-IERC5805.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 
 /**
  * @dev Copied from the master branch at commit 86de1e8b6c3fa6b4efa4a5435869d2521be0f5f5
  */
-abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
+abstract contract ERC20VotesLegacyMock is IERC5805, ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
@@ -164,7 +164,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Move voting power when tokens are transferred.
      *
-     * Emits a {IVotes-DelegateVotesChanged} event.
+     * Emits a {IERC5805-DelegateVotesChanged} event.
      */
     function _update(address from, address to, uint256 amount) internal virtual override {
         super._update(from, to, amount);
@@ -184,7 +184,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
-     * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
+     * Emits events {IERC5805-DelegateChanged} and {IERC5805-DelegateVotesChanged}.
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);

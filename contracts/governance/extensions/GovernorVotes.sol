@@ -4,8 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {Governor} from "../Governor.sol";
-import {IVotes} from "../../interfaces/IVotes.sol";
-import {IERC5805} from "../../interfaces/IERC5805.sol";
+import {IERC5805} from "../../interfaces/draft-IERC5805.sol";
 import {Time} from "../../utils/types/Time.sol";
 import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 
@@ -16,7 +15,7 @@ import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 abstract contract GovernorVotes is Governor {
     IERC5805 private immutable _token;
 
-    constructor(IVotes tokenAddress) {
+    constructor(IERC5805 tokenAddress) {
         _token = IERC5805(address(tokenAddress));
     }
 

@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (interfaces/IVotes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/draft-IERC5805.sol)
 
 pragma solidity >=0.8.4;
+
+import {IERC6372} from "./IERC6372.sol";
 
 /**
  * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
  */
-interface IVotes {
+interface IERC5805 is IERC6372 {
     /**
      * @dev The signature used has expired.
      */

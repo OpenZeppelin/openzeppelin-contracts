@@ -18,7 +18,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     /**
      * @dev See {ERC721-_update}. Adjusts votes when tokens are transferred.
      *
-     * Emits a {IVotes-DelegateVotesChanged} event.
+     * Emits a {IERC5805-DelegateVotesChanged} event.
      */
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
