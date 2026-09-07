@@ -19,7 +19,7 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
     using Arrays for uint256[];
     using Arrays for address[];
 
-    mapping(uint256 id => mapping(address account => uint256)) private _balances;
+    mapping(address account => mapping(uint256 id => uint256)) private _balances;
 
     mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
 
@@ -57,7 +57,7 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
 
     /// @inheritdoc IERC1155
     function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
-        return _balances[id][account];
+        return _balances[account][id];
     }
 
     /**
@@ -143,18 +143,18 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
             uint256 value = values.unsafeMemoryAccess(i);
 
             if (from != address(0)) {
-                uint256 fromBalance = _balances[id][from];
+                uint256 fromBalance = _balances[from][id];
                 if (fromBalance < value) {
                     revert ERC1155InsufficientBalance(from, fromBalance, value, id);
                 }
                 unchecked {
                     // Overflow not possible: value <= fromBalance
-                    _balances[id][from] = fromBalance - value;
+                    _balances[from][id] = fromBalance - value;
                 }
             }
 
             if (to != address(0)) {
-                _balances[id][to] += value;
+                _balances[to][id] += value;
             }
         }
 
