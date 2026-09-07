@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {AbstractSigner} from "./AbstractSigner.sol";
 import {SignatureChecker} from "../SignatureChecker.sol";
+import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using

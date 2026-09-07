@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.26;
 
-import {ERC20} from "../ERC20.sol";
 import {BridgeFungible} from "../../../crosschain/bridges/abstract/BridgeFungible.sol";
+import {ERC20} from "../ERC20.sol";
 
 /**
  * @dev Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeFungible}.
