@@ -11,7 +11,7 @@ import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 /**
  * @dev Copied from the master branch at commit 86de1e8b6c3fa6b4efa4a5435869d2521be0f5f5
  */
-abstract contract ERC20VotesLegacyMock is IERC5805, ERC20Permit {
+abstract contract ERC20VotesLegacyMock is ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
@@ -191,7 +191,7 @@ abstract contract ERC20VotesLegacyMock is IERC5805, ERC20Permit {
         uint256 delegatorBalance = balanceOf(delegator);
         _delegatee[delegator] = delegatee;
 
-        emit DelegateChanged(delegator, currentDelegate, delegatee);
+        emit IERC5805.DelegateChanged(delegator, currentDelegate, delegatee);
 
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
@@ -200,12 +200,12 @@ abstract contract ERC20VotesLegacyMock is IERC5805, ERC20Permit {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
-                emit DelegateVotesChanged(src, oldWeight, newWeight);
+                emit IERC5805.DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
-                emit DelegateVotesChanged(dst, oldWeight, newWeight);
+                emit IERC5805.DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
     }
