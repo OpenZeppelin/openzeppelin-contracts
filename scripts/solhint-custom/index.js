@@ -117,24 +117,33 @@ module.exports = [
         path: child.path,
       }));
 
-      // Sort imports by ascending rank (lower first). Ordering:
-      // - `@some-project/x.sol`  -> [0, 0]  (external)
-      // - `../../utils/Math.sol` -> [1, -2] (relative, two `..`)
-      // - `../AccessControl.sol` -> [1, -1] (relative, one `..`)
-      // - `./IFoo.sol`           -> [1, 0]  (relative, zero `..`)
-      const rank = p => (p.startsWith('.') ? [1, -p.split('/').filter(part => part === '..').length] : [0, 0]);
-      const sorted = [...entries].sort(
-        (a, b) =>
-          rank(a.path)[0] - rank(b.path)[0] || // external before relative
-          rank(a.path)[1] - rank(b.path)[1] || // deeper (more `..`) first
-          a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }),
-      );
-      if (sorted.every((entry, i) => entry.text === entries[i].text)) return;
+      // Ordering:
+      // - `@some-project/x.sol`  (external, before any relative import)
+      // - `../../utils/Math.sol` (relative, two `..`)
+      // - `../AccessControl.sol` (relative, one `..`)
+      // - `./IFoo.sol`           (relative, zero `..`)
+      // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
+      const collator = new Intl.Collator('en');
+      const sorted = [...entries]
+        .map(entry => ({
+          ...entry,
+          isRelative: entry.path.startsWith('.'),
+          depth: entry.path.split('/').filter(part => part === '..').length,
+        }))
+        .sort(
+          (a, b) =>
+            a.isRelative - b.isRelative || // external before relative
+            b.depth - a.depth || // deeper (more `..`) first
+            collator.compare(a.path, b.path) ||
+            collator.compare(a.text, b.text),
+        )
+        .map(entry => entry.text);
 
-      const range = [imports[0].range[0], imports[imports.length - 1].range[1]];
-      this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
-        fixer.replaceTextRange(range, sorted.map(entry => entry.text).join('\n')),
-      );
+      if (sorted.some((entry, i) => entry !== entries[i].text)) {
+        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
+          fixer.replaceTextRange([imports.at(0).range[0], imports.at(-1).range[1]], sorted.join('\n')),
+        );
+      }
     }
   },
 
