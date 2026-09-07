@@ -29,8 +29,15 @@ const option = (name, fallback) =>
   path.resolve(process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) || fallback);
 
 const ROOT = option('root', path.resolve(import.meta.dirname, '..'));
+const DIFF = option('diff', path.resolve(ROOT, 'fv/diff'));
+const PATCHED = option('patched', path.resolve(ROOT, 'fv/patched'));
 const SPECS = option('specs', path.resolve(ROOT, 'fv/specs'));
 
+// `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
+// `fv/diff`, each named after the file it patches with `/` written as `_` -- the same mapping the
+// Makefile uses, so a name that breaks this breaks `make apply` too, loudly.
+const unpatch = file => path.join(ROOT, 'contracts', path.relative(PATCHED, file));
+const patchOf = file => path.join(DIFF, path.relative(PATCHED, file).replaceAll(path.sep, '_') + '.patch');
 const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
 // How an import is written, per file extension a config can lead to
@@ -41,14 +48,6 @@ const IMPORT = {
   // the first string of the statement. `[^;]` stops the match at the end of the statement.
   '.sol': /^[ \t]*import\b[^;]*?"(?<target>[^"]+)"/gm,
 };
-
-// `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
-// `fv/diff`, each named after the file it patches with `/` written as `_` -- the same mapping the
-// Makefile uses, so a name that breaks this breaks `make apply` too, loudly.
-const PATCHED = path.resolve(ROOT, 'fv/patched');
-const DIFF = path.resolve(ROOT, 'fv/diff');
-const unpatch = file => path.join(ROOT, 'contracts', path.relative(PATCHED, file));
-const patchOf = file => path.join(DIFF, path.relative(PATCHED, file).replaceAll(path.sep, '_') + '.patch');
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
