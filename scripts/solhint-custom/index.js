@@ -129,12 +129,12 @@ module.exports = [
           rank(a.path)[1] - rank(b.path)[1] || // deeper (more `..`) first
           a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }),
       );
-      if (sorted.every((entry, i) => entry.text === entries[i].text)) return;
-
-      const range = [imports[0].range[0], imports[imports.length - 1].range[1]];
-      this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
-        fixer.replaceTextRange(range, sorted.map(entry => entry.text).join('\n')),
-      );
+      if (sorted.some((entry, i) => entry.text !== entries[i].text)) {
+        const range = [imports[0].range[0], imports[imports.length - 1].range[1]];
+        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
+          fixer.replaceTextRange(range, sorted.map(entry => entry.text).join('\n')),
+        );
+    }
     }
   },
 
