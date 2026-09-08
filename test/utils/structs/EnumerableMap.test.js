@@ -34,6 +34,7 @@ async function fixture() {
                 get: `$get(uint256,${key.type})`,
                 tryGet: `$tryGet(uint256,${key.type})`,
                 remove: `$remove(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -46,6 +47,7 @@ async function fixture() {
                 get: `$get_EnumerableMap_${name}(uint256,${key.type})`,
                 tryGet: `$tryGet_EnumerableMap_${name}(uint256,${key.type})`,
                 remove: `$remove_EnumerableMap_${name}(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -54,8 +56,9 @@ async function fixture() {
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },
           fnSig =>
-            (...args) =>
-              mock.getFunction(fnSig)(0, ...args),
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
         ),
         events: {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,

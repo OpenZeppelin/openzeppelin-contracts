@@ -63,9 +63,9 @@ library SlotDerivation {
             result := keccak256(0x00, 0x20)
         }
     }
-<% for (const { type, size } of it.SLOT_TYPES) { %>
-<% if (size) { %>
 
+<%- for (const { type, size } of it.SLOT_TYPES) { %>
+<% if (size) { -%>
     /**
      * @dev Derive the location of a mapping element from the key.
      */
@@ -76,8 +76,7 @@ library SlotDerivation {
             result := keccak256(0x00, 0x40)
         }
     }
-<% } else { %>
-
+<% } else { -%>
     /**
      * @dev Derive the location of a mapping element from the key.
      */
@@ -92,6 +91,6 @@ library SlotDerivation {
             mstore(end, cache)
         }
     }
-<% } %>
-<% } %>
+<% } -%>
+<% } -%>
 }
