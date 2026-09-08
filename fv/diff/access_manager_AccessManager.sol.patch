@@ -1,13 +1,13 @@
 --- access/manager/AccessManager.sol	2025-08-16 15:15:34
 +++ access/manager/AccessManager.sol	2025-08-16 15:17:51
-@@ -7,7 +7,6 @@
- import {Address} from "../../utils/Address.sol";
+@@ -9,7 +9,6 @@
  import {Context} from "../../utils/Context.sol";
  import {Hashes} from "../../utils/cryptography/Hashes.sol";
  import {Math} from "../../utils/math/Math.sol";
 -import {Multicall} from "../../utils/Multicall.sol";
  import {Time} from "../../utils/types/Time.sol";
- import {IAccessManaged} from "./IAccessManaged.sol";
+ 
+ /**
 @@ -59,7 +58,8 @@
   * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
   * {AccessControl-renounceRole}.
