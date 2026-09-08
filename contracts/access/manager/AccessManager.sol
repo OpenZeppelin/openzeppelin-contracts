@@ -3,14 +3,14 @@
 
 pragma solidity ^0.8.20;
 
+import {IAccessManaged} from "./IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 import {Time} from "../../utils/types/Time.sol";
-import {IAccessManaged} from "./IAccessManaged.sol";
-import {IAccessManager} from "./IAccessManager.sol";
 
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.

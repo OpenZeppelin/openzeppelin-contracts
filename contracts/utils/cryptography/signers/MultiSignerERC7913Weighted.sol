@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.26;
 
-import {SafeCast} from "../../math/SafeCast.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
+import {SafeCast} from "../../math/SafeCast.sol";
 
 /**
  * @dev Extension of {MultiSignerERC7913} that supports weighted signatures.

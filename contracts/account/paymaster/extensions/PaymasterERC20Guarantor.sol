@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.20;
 
+import {PaymasterERC20} from "./PaymasterERC20.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
-import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
-import {PaymasterERC20} from "./PaymasterERC20.sol";
 
 /**
  * @dev Extension of {PaymasterERC20} that enables third parties to guarantee user operations.

@@ -4,8 +4,8 @@
 pragma solidity ^0.8.24;
 
 import {Votes} from "../../../governance/utils/Votes.sol";
-import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 import {ERC20} from "../ERC20.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of ERC-20 to support Compound-like voting and delegation. This version is more generic than Compound's,

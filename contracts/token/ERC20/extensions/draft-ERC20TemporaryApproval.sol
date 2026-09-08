@@ -4,10 +4,10 @@
 pragma solidity ^0.8.24;
 
 import {IERC7674} from "../../../interfaces/draft-IERC7674.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {SlotDerivation} from "../../../utils/SlotDerivation.sol";
 import {TransientSlot} from "../../../utils/TransientSlot.sol";
-import {IERC20, ERC20} from "../ERC20.sol";
 
 /**
  * @dev Extension of {ERC20} that adds support for temporary allowances following ERC-7674.

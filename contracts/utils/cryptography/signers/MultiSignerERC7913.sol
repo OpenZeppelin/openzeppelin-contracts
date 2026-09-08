@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.26;
 
-import {EnumerableSet} from "../../structs/EnumerableSet.sol";
 import {SignatureChecker} from "../SignatureChecker.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
+import {EnumerableSet} from "../../structs/EnumerableSet.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using multiple ERC-7913 signers with a threshold-based

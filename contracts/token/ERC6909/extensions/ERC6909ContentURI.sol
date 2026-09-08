@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {IERC6909ContentURI} from "../../../interfaces/IERC6909.sol";
-import {IERC165} from "../../../utils/introspection/IERC165.sol";
 import {ERC6909} from "../ERC6909.sol";
+import {IERC165} from "../../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Implementation of the Content URI extension defined in ERC6909.

@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC721} from "../../../interfaces/IERC721.sol";
-import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {Paymaster} from "../Paymaster.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
+import {IERC721} from "../../../interfaces/IERC721.sol";
 
 /**
  * @dev Extension of {Paymaster} that supports account based on ownership of an ERC-721 token.

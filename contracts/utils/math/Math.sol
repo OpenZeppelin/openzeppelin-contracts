@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {Panic} from "../Panic.sol";
 import {SafeCast} from "./SafeCast.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev Standard math utilities missing in the Solidity language.

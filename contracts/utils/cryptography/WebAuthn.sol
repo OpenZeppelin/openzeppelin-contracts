@@ -5,9 +5,9 @@ pragma solidity ^0.8.24;
 
 import {Base64} from "../Base64.sol";
 import {Bytes} from "../Bytes.sol";
+import {P256} from "./P256.sol";
 import {Math} from "../math/Math.sol";
 import {Strings} from "../Strings.sol";
-import {P256} from "./P256.sol";
 
 /**
  * @dev Library for verifying WebAuthn Authentication Assertions.

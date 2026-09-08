@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {SafeCast} from "../utils/math/SafeCast.sol";
 import {VestingWallet} from "./VestingWallet.sol";
+import {SafeCast} from "../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {VestingWallet} that adds a cliff to the vesting schedule.

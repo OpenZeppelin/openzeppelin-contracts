@@ -11,6 +11,7 @@ class Base {
   constructor(reporter, config, source, fileName) {
     this.reporter = reporter;
     this.source = source;
+    this.fileName = fileName;
     this.ignored = this.constructor.global || ignore.some(p => minimatch(path.normalize(fileName), p));
     this.ruleId = this.constructor.ruleId;
     if (this.ruleId === undefined) {
@@ -114,26 +115,16 @@ module.exports = [
 
       const entries = imports.map(child => ({
         text: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
-        path: child.path,
+        path: path.join(path.dirname(this.fileName), child.path),
+        isRelative: child.path.startsWith('.'),
       }));
 
-      // Ordering:
-      // - `@some-project/x.sol`  (external, before any relative import)
-      // - `../../utils/Math.sol` (relative, two `..`)
-      // - `../AccessControl.sol` (relative, one `..`)
-      // - `./IFoo.sol`           (relative, zero `..`)
-      // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
+      // Ordering by path relative to the contracts repo
       const collator = new Intl.Collator('en');
       const sorted = [...entries]
-        .map(entry => ({
-          ...entry,
-          isRelative: entry.path.startsWith('.'),
-          depth: entry.path.split('/').filter(part => part === '..').length,
-        }))
         .sort(
           (a, b) =>
             a.isRelative - b.isRelative || // external before relative
-            b.depth - a.depth || // deeper (more `..`) first
             collator.compare(a.path, b.path) ||
             collator.compare(a.text, b.text),
         )

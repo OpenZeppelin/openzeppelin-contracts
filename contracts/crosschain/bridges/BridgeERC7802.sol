@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.26;
 
-import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
 import {BridgeFungible} from "./abstract/BridgeFungible.sol";
+import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
 
 /**
  * @dev This is a variant of {BridgeFungible} that implements the bridge logic for ERC-7802 compliant tokens.

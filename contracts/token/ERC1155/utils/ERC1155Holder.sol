@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol";
 import {IERC1155Receiver} from "../IERC1155Receiver.sol";
+import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Simple implementation of `IERC1155Receiver` that will allow a contract to hold ERC-1155 tokens.

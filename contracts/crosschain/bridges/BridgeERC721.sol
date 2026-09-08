@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.26;
 
+import {BridgeNonFungible} from "./abstract/BridgeNonFungible.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 import {IERC721} from "../../interfaces/IERC721.sol";
-import {BridgeNonFungible} from "./abstract/BridgeNonFungible.sol";
 
 /**
  * @dev This is a variant of {BridgeNonFungible} that implements the bridge logic for ERC-721 tokens that do not expose

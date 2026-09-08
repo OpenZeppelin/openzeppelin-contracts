@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {IERC7802} from "../../../interfaces/draft-IERC7802.sol";
-import {ERC165, IERC165} from "../../../utils/introspection/ERC165.sol";
 import {ERC20} from "../ERC20.sol";
+import {ERC165, IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev ERC20 extension that implements the standard token interface according to
