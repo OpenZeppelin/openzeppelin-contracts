@@ -1,43 +1,40 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { ERC7786Bridge } from '../../../helpers/erc7786';
 import { shouldBehaveLikeBridgeERC1155 } from '../../../crosschain/BridgeERC1155.behavior';
 
-const connection = await network.create();
-const {
-  ethers,
-  helpers: { chain, impersonate },
-  networkHelpers: { loadFixture },
-} = connection;
+const chainA = await network.create({ override: { chainId: 17 } });
+const chainB = await network.create({ override: { chainId: 42 } });
+const bridge = await ERC7786Bridge.create(chainA, chainB);
 
 async function fixture() {
-  const accounts = await ethers.getSigners();
-
-  // Mock gateway
-  const gateway = await ethers.deployContract('$ERC7786GatewayMock');
-  const gatewayAsEOA = await impersonate(gateway);
+  const accountsA = await chainA.ethers.getSigners();
+  const accountsB = await chainB.ethers.getSigners();
 
   // Chain A: ERC1155 with native bridge integration
-  const tokenA = await ethers.deployContract('$ERC1155Crosschain', [[], 'https://token-cdn-domain/{id}.json']);
+  const gatewayA = bridge.gateway(chainA);
+  const tokenA = await chainA.ethers.deployContract('$ERC1155Crosschain', [[], 'https://token-cdn-domain/{id}.json']);
   const bridgeA = tokenA; // self bridge
 
-  // Chain B: ERC1155 with native bridge integration
-  const tokenB = await ethers.deployContract('$ERC1155Crosschain', [
-    [[gateway, chain.toErc7930(bridgeA)]],
+  // Chain B: ERC1155 with native bridge integration (preconfigured link to bridgeA, on chain A)
+  const gatewayB = bridge.gateway(chainB);
+  const tokenB = await chainB.ethers.deployContract('$ERC1155Crosschain', [
+    [[gatewayB, chainA.helpers.chain.toErc7930(bridgeA)]],
     'https://token-cdn-domain/{id}.json',
   ]);
   const bridgeB = tokenB; // self bridge
 
   // deployment check + counterpart setup
-  await expect(bridgeA.$_setLink(gateway, chain.toErc7930(bridgeB), false))
+  await expect(bridgeA.$_setLink(gatewayA, chainB.helpers.chain.toErc7930(bridgeB), false))
     .to.emit(bridgeA, 'LinkRegistered')
-    .withArgs(gateway, chain.toErc7930(bridgeB));
+    .withArgs(gatewayA, chainB.helpers.chain.toErc7930(bridgeB));
 
-  return { accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
+  return { accountsA, accountsB, tokenA, tokenB, bridgeA, bridgeB };
 }
 
 describe('ERC1155Crosschain', function () {
   beforeEach(async function () {
-    Object.assign(this, connection, await loadFixture(fixture));
+    Object.assign(this, { chainA, chainB, bridge }, await bridge.loadFixture(fixture));
   });
 
   shouldBehaveLikeBridgeERC1155();
