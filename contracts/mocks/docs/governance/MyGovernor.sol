@@ -7,7 +7,7 @@ import {GovernorVotes} from "../../../governance/extensions/GovernorVotes.sol";
 import {GovernorVotesQuorumFraction} from "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "../../../governance/extensions/GovernorTimelockControl.sol";
 import {TimelockController} from "../../../governance/TimelockController.sol";
-import {IVotes} from "../../../governance/utils/IVotes.sol";
+import {IERC5805} from "../../../interfaces/draft-IERC5805.sol";
 
 contract MyGovernor is
     Governor,
@@ -17,7 +17,7 @@ contract MyGovernor is
     GovernorTimelockControl
 {
     constructor(
-        IVotes _token,
+        IERC5805 _token,
         TimelockController _timelock
     ) Governor("MyGovernor") GovernorVotes(_token) GovernorVotesQuorumFraction(4) GovernorTimelockControl(_timelock) {}
 

@@ -43,7 +43,7 @@ abstract contract ERC20Votes is ERC20, Votes {
     /**
      * @dev Move voting power when tokens are transferred.
      *
-     * Emits a {IVotes-DelegateVotesChanged} event.
+     * Emits a {IERC5805-DelegateVotesChanged} event.
      */
     function _update(address from, address to, uint256 value) internal virtual override {
         super._update(from, to, value);

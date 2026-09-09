@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1155Receiver} from "../../token/ERC1155/IERC1155Receiver.sol";
+import {IERC1155Receiver} from "../../interfaces/IERC1155Receiver.sol";
 import {ERC165} from "../../utils/introspection/ERC165.sol";
 
 contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {

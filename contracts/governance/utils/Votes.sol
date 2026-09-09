@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC5805} from "../../interfaces/IERC5805.sol";
+import {IERC5805} from "../../interfaces/draft-IERC5805.sol";
 import {Nonces} from "../../utils/Nonces.sol";
 import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
@@ -155,7 +155,7 @@ abstract contract Votes is EIP712, Nonces, IERC5805 {
     /**
      * @dev Delegate all of `account`'s voting units to `delegatee`.
      *
-     * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
+     * Emits events {IERC5805-DelegateChanged} and {IERC5805-DelegateVotesChanged}.
      */
     function _delegate(address account, address delegatee) internal virtual {
         address oldDelegate = delegates(account);

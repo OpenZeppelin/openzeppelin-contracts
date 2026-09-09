@@ -50,7 +50,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
-{{IERC20Permit}}
+{{IERC2612}}
 
 {{ERC20Permit}}
 
