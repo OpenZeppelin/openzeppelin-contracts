@@ -4,7 +4,7 @@
 pragma solidity ^0.8.26;
 
 import {Account} from "../Account.sol";
-import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Utils.sol";
 import {
     IERC7579Module,
     IERC7579Validator,

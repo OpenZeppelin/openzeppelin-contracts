@@ -111,13 +111,26 @@ module.exports = [
       if (this.ignored) return;
 
       const imports = node.children.filter(child => child.type === 'ImportDirective');
-      if (imports.length < 2) return;
+      const dirname = path.dirname(this.fileName);
 
-      const entries = imports.map(child => ({
-        text: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
-        path: path.join(path.dirname(this.fileName), child.path),
-        isRelative: child.path.startsWith('.'),
-      }));
+      const entries = imports.map(child => {
+        const isRelative = child.path.startsWith('.');
+        // Resolved path, used for ordering. External (node_modules) paths are kept as-is.
+        const absolutePath = isRelative ? path.join(dirname, child.path) : child.path;
+        // Canonical way of writing this import in this file: shortest relative path, `./` prefixed.
+        const canonicalPath = isRelative ? path.relative(dirname, absolutePath).replace(/^(?!\.)/, './') : child.path;
+        return {
+          isRelative,
+          absolutePath,
+          canonicalPath,
+          actual: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
+          expected: [
+            this.source.slice(child.range[0], child.pathLiteral.range[0] + 1),
+            canonicalPath,
+            this.source.slice(child.pathLiteral.range[1], child.range[1] + 1),
+          ].join(''),
+        };
+      });
 
       // Ordering by path relative to the contracts repo
       const collator = new Intl.Collator('en');
@@ -125,13 +138,13 @@ module.exports = [
         .sort(
           (a, b) =>
             a.isRelative - b.isRelative || // external before relative
-            collator.compare(a.path, b.path) ||
-            collator.compare(a.text, b.text),
+            collator.compare(a.absolutePath, b.absolutePath) ||
+            collator.compare(a.expected, b.expected),
         )
-        .map(entry => entry.text);
+        .map(({ expected }) => expected);
 
-      if (sorted.some((entry, i) => entry !== entries[i].text)) {
-        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
+      if (sorted.some((entry, i) => entry !== entries[i].actual)) {
+        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered or normalized', fixer =>
           fixer.replaceTextRange([imports.at(0).range[0], imports.at(-1).range[1]], sorted.join('\n')),
         );
       }
