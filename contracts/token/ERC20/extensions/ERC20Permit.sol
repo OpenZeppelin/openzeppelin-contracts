@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC20Permit} from "../../../interfaces/IERC20Permit.sol";
+import {IERC2612} from "../../../interfaces/IERC2612.sol";
 import {ERC20} from "../ERC20.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
@@ -17,7 +17,7 @@ import {Nonces} from "../../../utils/Nonces.sol";
  * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
  */
-abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
+abstract contract ERC20Permit is ERC20, IERC2612, EIP712, Nonces {
     bytes32 private constant PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
@@ -38,7 +38,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      */
     constructor(string memory name) EIP712(name, "1") {}
 
-    /// @inheritdoc IERC20Permit
+    /// @inheritdoc IERC2612
     function permit(
         address owner,
         address spender,
@@ -64,12 +64,12 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         _approve(owner, spender, value);
     }
 
-    /// @inheritdoc IERC20Permit
-    function nonces(address owner) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
+    /// @inheritdoc IERC2612
+    function nonces(address owner) public view virtual override(IERC2612, Nonces) returns (uint256) {
         return super.nonces(owner);
     }
 
-    /// @inheritdoc IERC20Permit
+    /// @inheritdoc IERC2612
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
