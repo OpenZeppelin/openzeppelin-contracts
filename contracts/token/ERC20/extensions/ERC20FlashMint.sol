@@ -100,7 +100,9 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @return `true` if the flash loan was successful.
      */
     // This function can reenter, but it doesn't pose a risk because it always preserves the property that the amount
-    // minted at the beginning is always recovered and burned at the end, or else the entire function will revert.
+    // minted at the beginning is always recovered and burned at the end (provided `_mint` and `_burn` are symmetric,
+    // e.g. the token doesn't take a native fee inside `_burn`, which is reasonable considering the flash loan context),
+    // or else the entire function will revert.
     // slither-disable-next-line reentrancy-no-eth
     function flashLoan(
         IERC3156FlashBorrower receiver,
