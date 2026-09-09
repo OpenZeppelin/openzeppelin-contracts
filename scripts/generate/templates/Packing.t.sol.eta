@@ -1,0 +1,25 @@
+pragma solidity ^0.8.20;
+
+import {Test} from "forge-std/Test.sol";
+import {Packing} from "@openzeppelin/contracts/utils/Packing.sol";
+
+contract PackingTest is Test {
+    using Packing for *;
+
+<%- for (const [left, right] of it.product(it.PACKING_SIZES, it.PACKING_SIZES).filter(([left, right]) => it.PACKING_SIZES.includes(left + right))) { %>
+    function testSymbolicPack(bytes<%= left %> left, bytes<%= right %> right) external pure {
+        assertEq(left, Packing.pack_<%= left %>_<%= right %>(left, right).extract_<%= left + right %>_<%= left %>(0));
+        assertEq(right, Packing.pack_<%= left %>_<%= right %>(left, right).extract_<%= left + right %>_<%= right %>(<%= left %>));
+    }
+<% } -%>
+<%- for (const [outer, inner] of it.product(it.PACKING_SIZES, it.PACKING_SIZES).filter(([outer, inner]) => outer > inner)) { %>
+    function testSymbolicReplace(bytes<%= outer %> container, bytes<%= inner %> newValue, uint8 offset) external pure {
+        offset = uint8(bound(offset, 0, <%= outer - inner %>));
+
+        bytes<%= inner %> oldValue = container.extract_<%= outer %>_<%= inner %>(offset);
+
+        assertEq(newValue, container.replace_<%= outer %>_<%= inner %>(newValue, offset).extract_<%= outer %>_<%= inner %>(offset));
+        assertEq(container, container.replace_<%= outer %>_<%= inner %>(newValue, offset).replace_<%= outer %>_<%= inner %>(oldValue, offset));
+    }
+<% } -%>
+}

@@ -125,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.2
+        uses: codespell-project/actions-codespell@v2.4.3
         with:
           check_hidden: true
           check_filenames: true

@@ -9,6 +9,8 @@ on:
 jobs:
   transpile:
     environment: push-upgradeable
+    permissions:
+      contents: read
     if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +18,7 @@ jobs:
         with:
           repository: ${{ github.repository }}-upgradeable
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+          persist-credentials: false
       - name: Fetch current non-upgradeable branch
         run: |
           git fetch "$REMOTE" master # Fetch default branch first for patch to apply cleanly
@@ -29,7 +31,13 @@ jobs:
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
       - name: Transpile to upgradeable
-        run: bash scripts/upgradeable/transpile-onto.sh ${{ github.ref_name }} origin/${{ github.ref_name }}
+        run: bash scripts/upgradeable/transpile-onto.sh "$REF_NAME" "origin/$REF_NAME"
         env:
+          REF_NAME: ${{ github.ref_name }}
           SUBMODULE_REMOTE: https://github.com/${{ github.repository }}.git
-      - run: git push origin ${{ github.ref_name }}
+      - name: Push to upgradeable
+        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}-upgradeable.git" -- "$REF_NAME"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+          REF_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
