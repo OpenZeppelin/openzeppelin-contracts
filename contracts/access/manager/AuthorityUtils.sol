@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IAuthority} from "../../interfaces/IAuthority.sol";
+import {IAuthority} from "./IAuthority.sol";
 
 library AuthorityUtils {
     /**

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessManager} from "../../interfaces/IAccessManager.sol";
-import {IAccessManaged} from "../../interfaces/IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 import {Math} from "../../utils/math/Math.sol";

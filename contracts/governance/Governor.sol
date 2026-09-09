@@ -13,7 +13,7 @@ import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
-import {IGovernor, IERC6372} from "../interfaces/IGovernor.sol";
+import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
  * @dev Core of the governance system, designed to be extended through various modules.

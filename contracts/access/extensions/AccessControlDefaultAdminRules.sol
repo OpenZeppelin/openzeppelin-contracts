@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessControlDefaultAdminRules} from "../../interfaces/IAccessControlDefaultAdminRules.sol";
+import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules.sol";
 import {AccessControl, IAccessControl} from "../AccessControl.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Math} from "../../utils/math/Math.sol";

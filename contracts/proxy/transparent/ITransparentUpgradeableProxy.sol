@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (interfaces/ITransparentUpgradeableProxy.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (proxy/transparent/ITransparentUpgradeableProxy.sol)
 
 pragma solidity >=0.8.4;
 
-import {IERC1967} from "./IERC1967.sol";
+import {IERC1967} from "../../interfaces/IERC1967.sol";
 
 /**
  * @dev Interface for {TransparentUpgradeableProxy}. In order to implement transparency, {TransparentUpgradeableProxy}

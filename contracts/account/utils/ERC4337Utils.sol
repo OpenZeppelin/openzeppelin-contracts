@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
-import {IEntryPointExtra} from "../../interfaces/IEntryPointExtra.sol";
+import {IEntryPointExtra} from "./IEntryPointExtra.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Calldata} from "../../utils/Calldata.sol";

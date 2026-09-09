@@ -5,7 +5,7 @@ pragma solidity ^0.8.22;
 
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 import {ERC1967Proxy} from "../ERC1967/ERC1967Proxy.sol";
-import {ITransparentUpgradeableProxy} from "../../interfaces/ITransparentUpgradeableProxy.sol";
+import {ITransparentUpgradeableProxy} from "./ITransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "./ProxyAdmin.sol";
 
 /**
