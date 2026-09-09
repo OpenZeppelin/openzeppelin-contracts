@@ -87,6 +87,24 @@ Note that, unlike the previous examples, no accounts are granted the 'minter' or
 
 Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
+[[migrating-to-access-control-default-admin-rules]]
+=== Migrating to `AccessControlDefaultAdminRules`
+
+If you are starting a new project or modifying un-deployed contracts, deploying with `AccessControlDefaultAdminRules` instead of `AccessControl` is highly recommended. It mitigates the risk of a single point of failure by adding built-in protections such as a two-step transfer process and delays for the `DEFAULT_ADMIN_ROLE`.
+
+To migrate, replace `AccessControl` with `AccessControlDefaultAdminRules` and update your constructor to set the initial delay and initial default admin:
+
+[source,solidity]
+----
+import {AccessControlDefaultAdminRules} from "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
+
+contract SecureAccess is AccessControlDefaultAdminRules {
+    constructor() AccessControlDefaultAdminRules(3 days, msg.sender) {}
+}
+----
+
+NOTE: Because `AccessControlDefaultAdminRules` relies on inheritance and a custom constructor, it cannot be added retroactively to an already-deployed, non-upgradeable contract. If you need to secure the `DEFAULT_ADMIN_ROLE` of an existing contract, consider transferring the role to a secure governance contract such as a xref:api:governance.adoc#TimelockController[`TimelockController`], a multisig, or migrating to xref:api:access.adoc#AccessManager[`AccessManager`].
+
 [[querying-privileged-accounts]]
 === Querying Privileged Accounts
 
