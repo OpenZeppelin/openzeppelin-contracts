@@ -44,7 +44,7 @@ Timelock extensions add a delay for governance decisions to be executed. The wor
 
 Other extensions can customize the behavior or interface in multiple ways.
 
-* {GovernorCrosschain}: Helps with the execution of crosschain operation using {CrosschainRemoteExector} and ERC-7786 gateways.
+* {GovernorCrosschain}: Helps with the execution of crosschain operation using {CrosschainRemoteExecutor} and ERC-7786 gateways.
 
 * {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
 
