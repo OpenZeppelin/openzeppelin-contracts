@@ -119,8 +119,13 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * must ensure signers are properly validated before adding them. Problematic signers can compromise
      * the multisig's security or functionality. Examples include uncontrolled addresses (e.g., `address(0)`),
      * the account's own address (which may cause recursive validation loops), or contracts that may unintentionally
-     * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which would return the
-     * ERC-1271 magic value for any `isValidSignature` call).
+     * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which echoes staticcall
+     * input and, on the ERC-7913 `verify` dispatch, returns bytes matching the expected selector for any hash
+     * and signature).
+     *
+     * NOTE: Signer identity is the `verifier || key` blob compared byte-for-byte. Two byte-distinct blobs backed
+     * by the same underlying key (e.g. non-canonical ABI encodings, or the same passkey enrolled under two
+     * verifiers) count as two distinct signers.
      */
     function _addSigners(bytes[] memory newSigners) internal virtual {
         for (uint256 i = 0; i < newSigners.length; ++i) {
