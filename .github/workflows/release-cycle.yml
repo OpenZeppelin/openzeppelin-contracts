@@ -136,6 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack

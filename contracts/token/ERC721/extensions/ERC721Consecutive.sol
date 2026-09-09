@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.24;
 
@@ -87,7 +87,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
     /**
      * @dev Mint a batch of tokens of length `batchSize` for `to`. Returns the token id of the first token minted in the
-     * batch; if `batchSize` is 0, returns the number of consecutive ids minted so far.
+     * batch; if `batchSize` is 0, returns the next token id to be minted consecutively.
      *
      * Requirements:
      *

@@ -99,7 +99,7 @@ contract ERC2771ForwarderTest is Test {
     function _tamperRequestData(
         ERC2771Forwarder.ForwardRequestData memory request,
         TamperType tamper
-    ) private returns (ERC2771Forwarder.ForwardRequestData memory) {
+    ) private view returns (ERC2771Forwarder.ForwardRequestData memory) {
         if (tamper == TamperType.FROM) request.from = vm.randomAddress();
         else if (tamper == TamperType.TO) request.to = vm.randomAddress();
         else if (tamper == TamperType.VALUE) request.value = vm.randomUint();
@@ -200,7 +200,7 @@ contract ERC2771ForwarderTest is Test {
         assertEq(refundReceiver.balance, refundExpected);
     }
 
-    function testVerifyTamperedValues(uint8 _tamper) public {
+    function testVerifyTamperedValues(uint8 _tamper) public view {
         TamperType tamper = _asTamper(_tamper);
 
         // create request, sign, tamper

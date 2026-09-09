@@ -1,7 +1,9 @@
-const { ethers } = require('hardhat');
-const types = require('./eip712-types');
+import { ethers } from 'ethers';
+import { EIP712Domain } from './eip712-types';
 
-async function getDomain(contract) {
+export * from './eip712-types';
+
+export async function getDomain(contract) {
   const { fields, name, version, chainId, verifyingContract, salt, extensions } = await contract.eip712Domain();
 
   if (extensions.length > 0) {
@@ -16,7 +18,7 @@ async function getDomain(contract) {
     salt,
   };
 
-  for (const [i, { name }] of types.EIP712Domain.entries()) {
+  for (const [i, { name }] of EIP712Domain.entries()) {
     if (!(fields & (1 << i))) {
       delete domain[name];
     }
@@ -25,21 +27,15 @@ async function getDomain(contract) {
   return domain;
 }
 
-function domainType(domain) {
-  return types.EIP712Domain.filter(({ name }) => domain[name] !== undefined);
+export function domainType(domain) {
+  return EIP712Domain.filter(({ name }) => domain[name] !== undefined);
 }
 
-function hashTypedData(domain, structHash) {
+export const domainSeparator = ethers.TypedDataEncoder.hashDomain;
+
+export function hashTypedData(domain, structHash) {
   return ethers.solidityPackedKeccak256(
     ['bytes', 'bytes32', 'bytes32'],
     ['0x1901', ethers.TypedDataEncoder.hashDomain(domain), structHash],
   );
 }
-
-module.exports = {
-  getDomain,
-  domainType,
-  domainSeparator: ethers.TypedDataEncoder.hashDomain,
-  hashTypedData,
-  ...types,
-};

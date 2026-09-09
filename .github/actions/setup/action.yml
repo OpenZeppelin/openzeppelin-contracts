@@ -8,7 +8,7 @@ inputs:
   foundry:
     description: Whether to set up Foundry
     required: false
-    default: 'on' # 'off' | 'on' | <specific version>
+    default: 'off' # 'off' | 'on' | <specific version>
   java:
     description: Whether to set up Java
     required: false
@@ -21,6 +21,13 @@ inputs:
     description: Path to Python requirements file (if python is true)
     required: false
     default: 'requirements.txt'
+  cache:
+    description: How this job may use the shared dependency cache
+    required: false
+    # 'restore' reads the cache but never writes it back. A job that runs untrusted code MUST use it:
+    # the cache scope is keyed on the branch, so a write from such a job lands where every other
+    # workflow reads from.
+    default: 'on' # 'off' | 'restore' | 'on'
   solc:
     description: Whether to set up solc
     required: false
@@ -59,18 +66,25 @@ runs:
     # Node & npm setup
     - name: Install Node (${{ steps.versions.outputs.node }})
       if: inputs.node != 'off'
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ steps.versions.outputs.node }}
     - name: Try fetch node modules from cache
       id: cache
-      if: inputs.node != 'off'
+      if: inputs.node != 'off' && inputs.cache == 'on'
       uses: actions/cache@v6
       with:
         path: '**/node_modules'
         key: npm-${{ steps.versions.outputs.node }}-${{ hashFiles('**/package-lock.json') }}
+    - name: Try fetch node modules from cache (read only)
+      id: cache-restore
+      if: inputs.node != 'off' && inputs.cache == 'restore'
+      uses: actions/cache/restore@v6
+      with:
+        path: '**/node_modules'
+        key: npm-${{ steps.versions.outputs.node }}-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      if: inputs.node != 'off' && steps.cache.outputs.cache-hit != 'true'
+      if: inputs.node != 'off' && steps.cache.outputs.cache-hit != 'true' && steps.cache-restore.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
     # Foundry setup
@@ -89,10 +103,11 @@ runs:
     # Python setup
     - name: Install python (${{ steps.versions.outputs.python }})
       if: inputs.python != 'off'
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ steps.versions.outputs.python }}
-        cache: 'pip'
+        # `setup-python` has no read-only mode, so any caller that cannot write the cache goes without
+        cache: ${{ inputs.cache == 'on' && 'pip' || '' }}
         cache-dependency-path: ${{ inputs.python-requirements }}
     - name: Install python packages
       if: inputs.python != 'off'

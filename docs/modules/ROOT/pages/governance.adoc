@@ -32,7 +32,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
-For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use xref:defender::module/actions.adoc#transaction-proposals-reference[Defender Transaction Proposals] as an alternative interface.
+For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use xref:defender::module/transaction-proposals.adoc[Defender Transaction Proposals] as an alternative interface.
 
 In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.
 
@@ -105,17 +105,17 @@ A proposal is a sequence of actions that the Governor contract will perform if i
 
 Let’s say we want to create a proposal to give a team a grant, in the form of ERC-20 tokens from the governance treasury. This proposal will consist of a single action where the target is the ERC-20 token, calldata is the encoded function call `transfer(<team wallet>, <grant amount>)`, and with 0 ETH attached.
 
-Generally a proposal will be created with the help of an interface such as Tally or xref:defender::module/actions.adoc#transaction-proposals-reference[Defender Proposals]. Here we will show how to create the proposal using Ethers.js.
+Generally a proposal will be created with the help of an interface such as Tally or xref:defender::module/transaction-proposals.adoc[Defender Proposals]. Here we will show how to create the proposal using Ethers.js.
 
 First we get all the parameters necessary for the proposal action.
 
 ```javascript
 const tokenAddress = ...;
-const token = await ethers.getContractAt(‘ERC20’, tokenAddress);
+const token = await ethers.getContractAt("ERC20", tokenAddress);
 
 const teamAddress = ...;
 const grantAmount = ...;
-const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);
+const transferCalldata = token.interface.encodeFunctionData("transfer", [teamAddress, grantAmount]);
 ```
 
 Now we are ready to call the propose function of the Governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
@@ -125,7 +125,7 @@ await governor.propose(
   [tokenAddress],
   [0],
   [transferCalldata],
-  “Proposal #1: Give grant to team”,
+  "Proposal #1: Give grant to team",
 );
 ```
 
@@ -152,7 +152,7 @@ If a timelock was set up, the first step to execution is queueing. You will noti
 To queue, we call the queue function:
 
 ```javascript
-const descriptionHash = ethers.utils.id(“Proposal #1: Give grant to team”);
+const descriptionHash = ethers.id("Proposal #1: Give grant to team");
 
 await governor.queue(
   [tokenAddress],

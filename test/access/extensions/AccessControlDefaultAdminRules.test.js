@@ -1,13 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const time = require('../../helpers/time');
-
-const {
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
-} = require('../AccessControl.behavior');
+} from '../AccessControl.behavior';
+
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const delay = time.duration.hours(10);
@@ -18,7 +21,7 @@ async function fixture() {
 
 describe('AccessControlDefaultAdminRules', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('initial admin not zero', async function () {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (utils/TransientSlot.sol)
-// This file was procedurally generated from scripts/generate/templates/TransientSlot.js.
+// This file was procedurally generated from scripts/generate/templates/TransientSlot.sol.eta.
 
 pragma solidity ^0.8.24;
 

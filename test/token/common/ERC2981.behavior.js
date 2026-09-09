@@ -1,9 +1,8 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { shouldSupportInterfaces } from '../../utils/introspection/SupportsInterface.behavior';
 
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-
-function shouldBehaveLikeERC2981() {
+export function shouldBehaveLikeERC2981() {
   const royaltyFraction = 10n;
 
   shouldSupportInterfaces(['ERC2981']);
@@ -146,7 +145,3 @@ function shouldBehaveLikeERC2981() {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC2981,
-};

@@ -10,7 +10,7 @@ import {IERC165} from "../../../utils/introspection/IERC165.sol";
 /**
  * @dev Implementation of the Content URI extension defined in ERC6909.
  */
-contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
+abstract contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     string private _contractURI;
     mapping(uint256 id => string) private _tokenURIs;
 

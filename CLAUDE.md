@@ -28,8 +28,9 @@ Before preparing a contribution, also read [`CONTRIBUTING.md`](./CONTRIBUTING.md
 | Task                                     | Command                                                                 |
 | ---------------------------------------- | ----------------------------------------------------------------------- |
 | Compile                                  | `npm run compile`                                                       |
-| Hardhat tests                            | `npm test`                                                              |
-| Foundry tests (includes Halmos symbolic) | `forge test -vvv`                                                       |
+| Tests (JS + Solidity)                    | `npm test`                                                              |
+| Foundry tests only (forge defaults)      | `forge test -vvv`                                                       |
+| Halmos symbolic tests                    | `halmos --match-test '^symbolic\|^testSymbolic' -vv`                    |
 | Lint (JS + Sol)                          | `npm run lint` / `npm run lint:fix`                                     |
 | Coverage                                 | `npm run coverage`                                                      |
 | Inheritance order check                  | `npm run test:inheritance`                                              |

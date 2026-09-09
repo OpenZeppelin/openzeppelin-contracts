@@ -1,8 +1,7 @@
-const { expect } = require('chai');
-const { interfaceId } = require('../../helpers/methods');
-const { mapValues } = require('../../helpers/iterate');
+import { expect } from 'chai';
+import { interfaceId } from '../../helpers/methods';
+import { mapValues } from '../../helpers/iterate';
 
-const INVALID_ID = '0xffffffff';
 const GOVERNOR_INTERFACE = [
   'name()',
   'version()',
@@ -31,7 +30,8 @@ const GOVERNOR_INTERFACE = [
   'castVoteBySig(uint256,uint8,address,bytes)',
   'castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes)',
 ];
-const SIGNATURES = {
+
+export const SIGNATURES = {
   ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
     'balanceOf(address)',
@@ -104,9 +104,10 @@ const SIGNATURES = {
   ERC6909ContentURI: ['contractURI()', 'tokenURI(uint256)'],
 };
 
-const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
+export const INVALID_ID = '0xffffffff';
+export const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
-function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
+export function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
   // case where only signatures are provided
   if (!Array.isArray(interfaces)) {
     signatures = interfaces;
@@ -161,9 +162,3 @@ function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
     });
   });
 }
-
-module.exports = {
-  SIGNATURES,
-  INTERFACE_IDS,
-  shouldSupportInterfaces,
-};

@@ -1,10 +1,14 @@
-const { ethers, predeploy } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { getDomain } from '../../helpers/eip712';
+import { PackedUserOperation } from '../../helpers/eip712-types';
+import { ERC4337Helper } from '../../helpers/erc4337';
+import { shouldBehaveLikePaymaster } from './Paymaster.behavior';
 
-const { getDomain, PackedUserOperation } = require('../../helpers/eip712');
-const { ERC4337Helper } = require('../../helpers/erc4337');
-
-const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 for (const [name, opts] of Object.entries({
   PaymasterERC721Owner: { postOp: true, timeRange: false },
@@ -20,7 +24,7 @@ for (const [name, opts] of Object.entries({
     const accountSigner = ethers.Wallet.createRandom();
 
     // ERC-4337 account
-    const helper = new ERC4337Helper();
+    const helper = new ERC4337Helper(connection);
     const account = await helper.newAccount('$AccountECDSAMock', [accountSigner, 'AccountECDSA', '1']);
     await account.deploy();
 
@@ -28,7 +32,7 @@ for (const [name, opts] of Object.entries({
     const paymaster = await ethers.deployContract(`$${name}Mock`, [token, admin]);
 
     // Domains
-    const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+    const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
 
     const signUserOp = userOp =>
       accountSigner
@@ -56,7 +60,7 @@ for (const [name, opts] of Object.entries({
 
   describe(name, function () {
     beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
+      Object.assign(this, connection, await loadFixture(fixture));
     });
 
     shouldBehaveLikePaymaster(opts);

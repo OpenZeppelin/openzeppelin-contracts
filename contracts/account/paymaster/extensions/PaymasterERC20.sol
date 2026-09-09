@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/extensions/PaymasterERC20.sol)
 
 pragma solidity ^0.8.20;
 
 import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {SafeCast} from "../../../utils/math/SafeCast.sol";
 import {Paymaster} from "../Paymaster.sol";
 
 /**
@@ -57,6 +59,7 @@ import {Paymaster} from "../Paymaster.sol";
 abstract contract PaymasterERC20 is Paymaster {
     using ERC4337Utils for *;
     using Math for *;
+    using SafeCast for *;
     using SafeERC20 for IERC20;
 
     /**
@@ -83,8 +86,8 @@ abstract contract PaymasterERC20 is Paymaster {
      * Attempts to retrieve the `token` and `tokenPerNative` from the user operation (see {_fetchDetails})
      * and prefund the user operation using these values and the `maxCost` argument (see {_prefund}).
      *
-     * Returns `abi.encodePacked(userOpHash, token, tokenPerNative, prefundAmount, prefunder, prefundContext)` in
-     * `context` if the prefund is successful. Otherwise, it returns empty bytes.
+     * Returns `abi.encodePacked(userOpHash, token, tokenPerNative, prefundAmount, prefunder, penaltyGas, prefundContext)`
+     * in `context` if the prefund is successful. Otherwise, it returns empty bytes.
      */
     function _validatePaymasterUserOp(
         PackedUserOperation calldata userOp,
@@ -99,9 +102,29 @@ abstract contract PaymasterERC20 is Paymaster {
         if (uint160(validationData) == ERC4337Utils.SIG_VALIDATION_FAILED || tokenPerNative < _minTokensPerNative())
             return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
+        // Worst-case unused-gas penalty that the EntryPoint may debit from the paymaster's deposit for the
+        // user-controlled `paymasterPostOpGasLimit` (see {_postOpGasPenalty}). The EntryPoint computes this penalty
+        // only after `postOp` returns, so it is absent from the `actualGasCost` reported to {_postOp}. We price it
+        // into the charge here and retain it in {_postOp}, so a user cannot inflate `paymasterPostOpGasLimit` to
+        // drain the paymaster's deposit.
+        //
+        // Only the part of the limit above {_postOpGasBudget} can go unused: the paymaster bills the budget in full
+        // through {_postOpCost}, so charging a penalty on it would bill the sender twice for gas the paymaster
+        // itself demanded.
+        uint256 penaltyGas = _postOpGasPenalty(
+            userOp.paymasterPostOpGasLimit().saturatingSub(_postOpGasBudget(userOp))
+        );
+
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
-        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPerNative);
+        // Saturating arithmetic keeps an overflow in the native cost from wrapping: it saturates to
+        // `type(uint256).max`, which `_erc20Cost` also returns, and fails the prefund instead of undercharging.
+        //
+        // native cost is computed as: maxCost + ((_postOpCost() + penaltyGas) * userOp.maxFeePerGas())
+        uint256 maxTokenCost = _erc20Cost(
+            _postOpCost().saturatingAdd(penaltyGas).saturatingMul(userOp.maxFeePerGas()).saturatingAdd(maxCost),
+            tokenPerNative
+        );
         (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
@@ -114,7 +137,15 @@ abstract contract PaymasterERC20 is Paymaster {
         return
             success
                 ? (
-                    abi.encodePacked(userOpHash, token, tokenPerNative, prefundAmount, prefunder, prefundContext),
+                    abi.encodePacked(
+                        userOpHash,
+                        token,
+                        tokenPerNative,
+                        prefundAmount,
+                        prefunder,
+                        penaltyGas,
+                        prefundContext
+                    ),
                     validationData
                 )
                 : (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
@@ -149,9 +180,11 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * Reverts with {PaymasterERC20FailedRefund} if the refund fails.
      *
-     * IMPORTANT: This function may revert after the user operation has been executed without
-     * reverting the user operation itself. Consider implementing a mechanism to handle
-     * this case gracefully.
+     * IMPORTANT: A revert here does not revert the whole bundle: the user operation is marked as failed and
+     * its execution rolled back, but the validation-phase prefund is not refunded. When a derived contract
+     * delegates the prefund to a third party (e.g. a guarantor), that party must consent to the sender-controlled
+     * `paymasterPostOpGasLimit` before authorizing, otherwise the sender can strand the third party's prefund by
+     * picking a limit below the actual postOp cost.
      */
     function _postOp(
         PostOpMode /* mode */,
@@ -164,11 +197,19 @@ abstract contract PaymasterERC20 is Paymaster {
         uint256 tokenPerNative = uint256(bytes32(context[0x34:0x54]));
         uint256 prefundAmount = uint256(bytes32(context[0x54:0x74]));
         address prefunder = address(bytes20(context[0x74:0x88]));
-        bytes calldata prefundContext = context[0x88:];
+        uint256 penaltyGas = uint256(bytes32(context[0x88:0xA8]));
+        bytes calldata prefundContext = context[0xA8:];
 
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
-        // to charge as a refund. The `trySafeTransferFrom` in the `_refund` will fail, causing success to be false.
-        uint256 actualTokenCost = _erc20Cost(actualGasCost + _postOpCost() * actualUserOpFeePerGas, tokenPerNative);
+        // to charge as a refund. The `trySafeTransfer` in the `_refund` will fail, causing success to be false.
+        // `penaltyGas` covers the EntryPoint's unused-gas penalty on `paymasterPostOpGasLimit`, which is excluded
+        // from `actualGasCost` (the EntryPoint computes it only after `postOp` returns). See {_postOpGasPenalty}.
+        //
+        // native cost is computed as: actualGasCost + ((_postOpCost() + penaltyGas) * actualUserOpFeePerGas)
+        uint256 actualTokenCost = _erc20Cost(
+            _postOpCost().saturatingAdd(penaltyGas).saturatingMul(actualUserOpFeePerGas).saturatingAdd(actualGasCost),
+            tokenPerNative
+        );
         (bool success, uint256 actualAmount) = _refund(
             token,
             tokenPerNative,
@@ -243,9 +284,55 @@ abstract contract PaymasterERC20 is Paymaster {
         bytes32 userOpHash
     ) internal view virtual returns (uint256 validationData, IERC20 token, uint256 tokenPerNative);
 
-    /// @dev Over-estimates the cost of the post-operation logic.
+    /**
+     * @dev Over-estimates the cost of the post-operation logic, which the EntryPoint charges to the paymaster but
+     * excludes from the `actualGasCost` reported to {_postOp}.
+     *
+     * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
+     * underestimate drains the paymaster's deposit.
+     *
+     * NOTE: Extensions that bill extra postOp gas through a separate cost (rather than by widening this virtual)
+     * must also widen {_postOpGasBudget} by the same amount, otherwise the extra gas is billed twice: once as cost
+     * and once as unused-gas penalty.
+     */
     function _postOpCost() internal view virtual returns (uint256) {
         return 30_000;
+    }
+
+    /**
+     * @dev Portion of the user-controlled `paymasterPostOpGasLimit` that this paymaster already bills through
+     * {_postOpCost}, and on which no unused-gas penalty is therefore charged (see {_postOpGasPenalty}).
+     *
+     * Extensions that bill extra postOp gas must widen this by the same amount, otherwise the gas they require the
+     * sender to provision is billed twice: once as cost, once as penalty.
+     *
+     * IMPORTANT: The value returned here MUST NOT exceed the total postOp gas the paymaster bills. Combined with
+     * {_postOpCost} over-estimating the gas `postOp` actually consumes, that keeps the charge computed in
+     * {_validatePaymasterUserOp} above what the EntryPoint debits. A budget larger than what is billed under-prices
+     * the penalty and settles operations at a loss.
+     */
+    function _postOpGasBudget(PackedUserOperation calldata /* userOp */) internal view virtual returns (uint256) {
+        return _postOpCost();
+    }
+
+    /**
+     * @dev Unused-gas penalty (in gas units) that the EntryPoint charges the paymaster's deposit, given
+     * `unusedPostOpGas`: an upper bound on the part of `paymasterPostOpGasLimit` that `postOp` will leave unspent
+     * (see {_postOpGasBudget}). This penalty is excluded from the `actualGasCost` reported to {_postOp} (the
+     * EntryPoint computes it only after `postOp` returns), so it is priced into the charge during validation and
+     * retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and have the paymaster
+     * absorb the resulting penalty on every operation, draining its deposit.
+     *
+     * The default mirrors the 10% penalty the EntryPoint (v0.7-v0.9) applies to unused postOp gas. It deliberately
+     * does not reproduce the EntryPoint's 40_000 gas threshold below which no penalty applies: `unusedPostOpGas` is
+     * an upper bound on the real unused amount, so claiming that relief here can price the charge below the penalty
+     * the EntryPoint actually debits.
+     *
+     * NOTE: Overrides MUST return an upper bound on the real penalty, otherwise the paymaster settles operations at
+     * a loss. Override to return 0 when targeting an EntryPoint that has no unused-gas penalty.
+     */
+    function _postOpGasPenalty(uint256 unusedPostOpGas) internal view virtual returns (uint256) {
+        return unusedPostOpGas / 10;
     }
 
     /// @dev Denominator used for interpreting the `tokenPerNative` returned by {_fetchDetails} as "fixed point" in {_erc20Cost}.
@@ -290,8 +377,13 @@ abstract contract PaymasterERC20 is Paymaster {
     function _erc20Cost(uint256 nativeCost, uint256 tokenPerNative) internal view virtual returns (uint256) {
         uint256 denominator = _tokenPerNativeDenominator();
         (uint256 high, ) = nativeCost.mul512(tokenPerNative);
+        // Round up using a saturating add to avoid possible overflow of the rounding.
         return
-            high < denominator ? nativeCost.mulDiv(tokenPerNative, denominator, Math.Rounding.Ceil) : type(uint256).max;
+            high < denominator
+                ? nativeCost.mulDiv(tokenPerNative, denominator).saturatingAdd(
+                    (mulmod(nativeCost, tokenPerNative, denominator) > 0).toUint()
+                )
+                : type(uint256).max;
     }
 
     /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.

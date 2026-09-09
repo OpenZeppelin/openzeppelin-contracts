@@ -42,10 +42,12 @@ jobs:
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
+          submodules: recursive
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack

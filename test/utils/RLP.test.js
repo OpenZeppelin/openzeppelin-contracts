@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT64 } from '../helpers/constants';
+import { product } from '../helpers/iterate';
+import * as random from '../helpers/random';
 
-const { MAX_UINT64 } = require('../helpers/constants');
-const { product } = require('../helpers/iterate');
-const { generators } = require('../helpers/random');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   const mock = await ethers.deployContract('$RLP');
@@ -43,7 +46,7 @@ describe('RLP', function () {
     for (const addr of [
       ethers.ZeroAddress, // zero address
       '0x0000F90827F1C53a10cb7A02335B175320002935', // address with leading zeros
-      generators.address(), // random address
+      random.address(), // random address
     ]) {
       const expected = ethers.encodeRlp(addr);
       await expect(this.mock.$encode_address(addr)).to.eventually.equal(expected);
@@ -115,7 +118,7 @@ describe('RLP', function () {
       '0x0000000000000000000000000000000000000000000000000000000000000000',
       '0x0000000000000000000000000000000000000000000000000000000000000001',
       '0x1000000000000000000000000000000000000000000000000000000000000000',
-      generators.bytes32(),
+      random.bytes32(),
     ]) {
       const encoded = ethers.encodeRlp(input);
       await expect(this.mock.$encode_bytes32(input)).to.eventually.equal(encoded);
@@ -140,7 +143,7 @@ describe('RLP', function () {
     await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
 
     // Invalid encoding: encoded item length >33 bytes (>32 bytes of data)
-    await expect(this.mock.$decodeBytes32(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
+    await expect(this.mock.$decodeBytes32(ethers.encodeRlp(random.bytes(33)))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
     );
@@ -182,7 +185,7 @@ describe('RLP', function () {
     for (const input of [
       '0xab', // 1 byte
       '0x1234', // 2 bytes
-      generators.bytes(55), // 55 bytes (maximum for short encoding)
+      random.hexBytes(55), // 55 bytes (maximum for short encoding)
     ]) {
       const expected = ethers.encodeRlp(input);
 
@@ -193,8 +196,8 @@ describe('RLP', function () {
 
   it('encode/decode long buffers (>55 bytes)', async function () {
     for (const input of [
-      generators.bytes(56), // 56 bytes (minimum for long encoding)
-      generators.bytes(128), // 128 bytes
+      random.hexBytes(56), // 56 bytes (minimum for long encoding)
+      random.hexBytes(128), // 128 bytes
     ]) {
       const expected = ethers.encodeRlp(input);
 
@@ -263,7 +266,7 @@ describe('RLP', function () {
       [
         ethers.ZeroAddress, // zero address
         '0x0000F90827F1C53a10cb7A02335B175320002935', // address with heading zeros
-        generators.address(), // random address
+        random.address(), // random address
       ],
       [0n, 1n, 42n, 65535n, MAX_UINT64],
     )) {

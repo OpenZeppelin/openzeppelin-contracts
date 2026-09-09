@@ -1,9 +1,7 @@
-const { network } = require('hardhat');
-const { expect } = require('chai');
+import { expect } from 'chai';
+import { unique } from './iterate';
 
-const { unique } = require('./iterate');
-
-async function batchInBlock(txs, provider = network.provider) {
+export async function batchInBlock(txs, provider) {
   try {
     // disable auto-mining
     await provider.send('evm_setAutomine', [false]);
@@ -22,7 +20,3 @@ async function batchInBlock(txs, provider = network.provider) {
     await provider.send('evm_setAutomine', [true]);
   }
 }
-
-module.exports = {
-  batchInBlock,
-};

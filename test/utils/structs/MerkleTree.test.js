@@ -1,11 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
-const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
+import { range } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
 
-const { generators } = require('../../helpers/random');
-const { range } = require('../../helpers/iterate');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const DEPTH = 4; // 16 slots
 
@@ -20,6 +23,15 @@ const makeTree = (leaves = [], length = 2 ** DEPTH, zero = ethers.ZeroHash) =>
     ['bytes32'],
     { sortLeaves: false },
   );
+
+const nonCommutativeHash = (a, b) =>
+  ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32', 'bytes32'], [a, b]));
+
+const computeTreeRoot = (insertedLeaves, depth, zero, fnHash) =>
+  Array.from({ length: depth }).reduce(
+    level => Array.from({ length: level.length / 2 }, (_, i) => fnHash(level[i * 2], level[i * 2 + 1])),
+    Array.from({ length: 2 ** depth }, (_, i) => insertedLeaves[i] ?? zero),
+  )[0];
 
 const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
@@ -49,7 +61,7 @@ describe('MerkleTree', function () {
       // for each leaf slot
       for (const i in range(2 ** DEPTH)) {
         // generate random leaf
-        leaves.push(generators.bytes32());
+        leaves.push(random.bytes32());
 
         // rebuild tree.
         const tree = makeTree(leaves);
@@ -77,7 +89,7 @@ describe('MerkleTree', function () {
     ))
       it(`updating a leaf correctly updates the tree (leaf #${leafIndex + 1}/${leafCount})`, async function () {
         // initial tree
-        const leaves = Array.from({ length: leafCount }, generators.bytes32);
+        const leaves = Array.from({ length: leafCount }, random.bytes32);
         const oldTree = makeTree(leaves);
 
         // fill tree and verify root
@@ -87,7 +99,7 @@ describe('MerkleTree', function () {
         await expect(this.mock.root()).to.eventually.equal(oldTree.root);
 
         // create updated tree
-        leaves[leafIndex] = generators.bytes32();
+        leaves[leafIndex] = random.bytes32();
         const newTree = makeTree(leaves);
 
         const oldLeafHash = oldTree.leafHash(oldTree.at(leafIndex));
@@ -104,7 +116,7 @@ describe('MerkleTree', function () {
         // if there is still room in the tree, fill it
         for (const i of range(leafCount, 2 ** DEPTH)) {
           // push new value and rebuild tree
-          leaves.push(generators.bytes32());
+          leaves.push(random.bytes32());
           const nextTree = makeTree(leaves);
 
           // push and verify root
@@ -124,7 +136,7 @@ describe('MerkleTree', function () {
       const leafCount = 4;
       const leafIndex = 2;
 
-      const leaves = Array.from({ length: leafCount }, generators.bytes32);
+      const leaves = Array.from({ length: leafCount }, random.bytes32);
       const tree = makeTree(leaves);
 
       // fill tree and verify root
@@ -134,10 +146,10 @@ describe('MerkleTree', function () {
       await expect(this.mock.root()).to.eventually.equal(tree.root);
 
       const oldLeafHash = tree.leafHash(tree.at(leafIndex));
-      const newLeafHash = generators.bytes32();
+      const newLeafHash = random.bytes32();
       const proof = tree.getProof(leafIndex);
       // invalid proof (tamper)
-      proof[1] = generators.bytes32();
+      proof[1] = random.bytes32();
 
       await expect(this.mock.update(leafIndex, oldLeafHash, newLeafHash, proof)).to.be.revertedWithCustomError(
         this.mock,
@@ -151,7 +163,7 @@ describe('MerkleTree', function () {
     const emptyTree = makeTree();
 
     // tree with one element
-    const leaves = [generators.bytes32()];
+    const leaves = [random.bytes32()];
     const tree = makeTree(leaves);
     const hash = tree.leafHash(tree.at(0));
 
@@ -176,5 +188,59 @@ describe('MerkleTree', function () {
 
     expect(await this.mock.root()).to.equal(tree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(1n);
+  });
+
+  // Non-commutative hash tests.
+  // Uses Hashes.efficientKeccak256 = keccak256(abi.encode(a, b)) without sorting,
+  // so H(a,b) != H(b,a) and insertion order matters.
+  describe('non-commutative hash', function () {
+    beforeEach(async function () {
+      await this.mock.setupNonCommutative(DEPTH, ZERO);
+    });
+
+    it('initial root matches off-chain computation', async function () {
+      await expect(this.mock.root()).to.eventually.equal(computeTreeRoot([], DEPTH, ZERO, nonCommutativeHash));
+    });
+
+    it('push correctly updates the root (matches off-chain computation)', async function () {
+      const leaves = [];
+
+      // for each leaf slot
+      for (const i in range(2 ** DEPTH)) {
+        // generate random leaf
+        leaves.push(random.bytes32());
+
+        // rebuild tree.
+        const root = computeTreeRoot(leaves, DEPTH, ZERO, nonCommutativeHash);
+        const hash = leaves.at(-1); // leaf
+
+        // push value to tree
+        await expect(this.mock.pushNonCommutative(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, i, root);
+
+        // check tree
+        await expect(this.mock.root()).to.eventually.equal(root);
+        await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
+      }
+    });
+
+    it('root is order-sensitive: push(A,B) != push(B,A)', async function () {
+      const leafA = random.bytes32();
+      const leafB = random.bytes32();
+
+      const mockAB = await ethers.deployContract('MerkleTreeMock');
+      await mockAB.setupNonCommutative(DEPTH, ZERO);
+      await mockAB.pushNonCommutative(leafA);
+      await mockAB.pushNonCommutative(leafB);
+
+      const mockBA = await ethers.deployContract('MerkleTreeMock');
+      await mockBA.setupNonCommutative(DEPTH, ZERO);
+      await mockBA.pushNonCommutative(leafB);
+      await mockBA.pushNonCommutative(leafA);
+
+      const rootAB = await mockAB.root();
+      const rootBA = await mockBA.root();
+
+      expect(rootAB).to.not.equal(rootBA);
+    });
   });
 });
