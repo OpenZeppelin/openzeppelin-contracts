@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1155Receiver} from "../IERC1155Receiver.sol";
 import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
+import {IERC1155Receiver} from "../IERC1155Receiver.sol";
 
 /**
  * @dev Library that provide common ERC-1155 utility functions.
