@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {AccessControl} from "../access/AccessControl.sol";
-import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {Address} from "../utils/Address.sol";
 
 /**

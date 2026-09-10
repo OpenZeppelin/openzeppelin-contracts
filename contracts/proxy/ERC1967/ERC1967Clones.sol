@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.26;
 
+import {IERC1967} from "../../interfaces/IERC1967.sol";
 import {Create2} from "../../utils/Create2.sol";
 import {Errors} from "../../utils/Errors.sol";
 import {ERC1967Utils} from "./ERC1967Utils.sol";
-import {IERC1967} from "../../interfaces/IERC1967.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] is the standard for upgradeable proxies that

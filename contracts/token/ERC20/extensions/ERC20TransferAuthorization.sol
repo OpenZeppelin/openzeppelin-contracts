@@ -2,9 +2,9 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC20TransferAuthorization.sol)
 pragma solidity ^0.8.26;
 
-import {ERC3009} from "./draft-ERC3009.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
 import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
+import {ERC3009} from "./draft-ERC3009.sol";
 
 /**
  * @dev Variant of {ERC-3009} that uses keyed sequential nonces as defined in {NoncesKeyed}.
