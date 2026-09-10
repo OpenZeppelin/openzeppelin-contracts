@@ -11,6 +11,7 @@ class Base {
   constructor(reporter, config, source, fileName) {
     this.reporter = reporter;
     this.source = source;
+    this.path = fileName;
     this.ignored = this.constructor.global || ignore.some(p => minimatch(path.normalize(fileName), p));
     this.ruleId = this.constructor.ruleId;
     if (this.ruleId === undefined) {
@@ -110,37 +111,47 @@ module.exports = [
       if (this.ignored) return;
 
       const imports = node.children.filter(child => child.type === 'ImportDirective');
-      if (imports.length < 2) return;
+      // Import paths are always `/`-separated, regardless of the host platform. Use `path.posix` so that the
+      // normalization below doesn't emit `\`-separated paths (and mis-count `..`) when running on windows.
+      const dirname = path.posix.dirname(this.path.split(path.sep).join('/'));
 
-      const entries = imports.map(child => ({
-        text: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
-        path: child.path,
-      }));
+      const entries = imports.map(child => {
+        const isRelative = child.path.startsWith('.');
+        const relativePath = isRelative
+          ? path.posix.relative(dirname, path.posix.join(dirname, child.path)).replace(/^(?!\.)/, './')
+          : child.path;
+        return {
+          isRelative,
+          relativePath,
+          relativeDepth: relativePath.split('/').filter(part => part === '..').length,
+          current: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
+          expected: [
+            this.source.slice(child.range[0], child.pathLiteral.range[0] + 1),
+            relativePath,
+            this.source.slice(child.pathLiteral.range[1], child.range[1] + 1),
+          ].join(''),
+        };
+      });
 
       // Ordering:
       // - `@some-project/x.sol`  (external, before any relative import)
       // - `../../utils/Math.sol` (relative, two `..`)
       // - `../AccessControl.sol` (relative, one `..`)
       // - `./IFoo.sol`           (relative, zero `..`)
-      // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
+      // then alphabetically.
       const collator = new Intl.Collator('en');
       const sorted = [...entries]
-        .map(entry => ({
-          ...entry,
-          isRelative: entry.path.startsWith('.'),
-          depth: entry.path.split('/').filter(part => part === '..').length,
-        }))
         .sort(
           (a, b) =>
             a.isRelative - b.isRelative || // external before relative
-            b.depth - a.depth || // deeper (more `..`) first
-            collator.compare(a.path, b.path) ||
-            collator.compare(a.text, b.text),
+            b.relativeDepth - a.relativeDepth || // deeper (more `..`) first
+            collator.compare(a.relativePath, b.relativePath) ||
+            collator.compare(a.expected, b.expected),
         )
-        .map(entry => entry.text);
+        .map(entry => entry.expected);
 
-      if (sorted.some((entry, i) => entry !== entries[i].text)) {
-        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
+      if (sorted.some((entry, i) => entry !== entries[i].current)) {
+        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered or normalized', fixer =>
           fixer.replaceTextRange([imports.at(0).range[0], imports.at(-1).range[1]], sorted.join('\n')),
         );
       }

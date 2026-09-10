@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.26;
 
-import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
 import {
     IERC7579Module,
     IERC7579Validator,
@@ -22,6 +21,7 @@ import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 import {Packing} from "../../utils/Packing.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {Account} from "../Account.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Utils.sol";
 
 /**
  * @dev Extension of {Account} that implements support for ERC-7579 modules.
