@@ -3,8 +3,8 @@
 
 pragma solidity >=0.6.2;
 
-import {IERC20} from "./IERC20.sol";
 import {IERC165} from "./IERC165.sol";
+import {IERC20} from "./IERC20.sol";
 
 /**
  * @title IERC1363

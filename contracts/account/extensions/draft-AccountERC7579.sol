@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.26;
 
-import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
-import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {
     IERC7579Module,
     IERC7579Validator,
@@ -15,13 +13,15 @@ import {
     MODULE_TYPE_EXECUTOR,
     MODULE_TYPE_FALLBACK
 } from "../../interfaces/draft-IERC7579.sol";
-import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Utils.sol";
-import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
-import {LowLevelCall} from "../../utils/LowLevelCall.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Bytes} from "../../utils/Bytes.sol";
-import {Packing} from "../../utils/Packing.sol";
 import {Calldata} from "../../utils/Calldata.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
+import {Packing} from "../../utils/Packing.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {Account} from "../Account.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Utils.sol";
 
 /**
  * @dev Extension of {Account} that implements support for ERC-7579 modules.

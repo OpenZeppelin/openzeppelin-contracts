@@ -1,9 +1,9 @@
 pragma solidity ^0.8.24;
 
 import {Comparators} from "./Comparators.sol";
+import {Math} from "./math/Math.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
-import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.
