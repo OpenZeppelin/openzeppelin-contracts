@@ -323,7 +323,7 @@ abstract contract PaymasterERC20 is Paymaster {
      * retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and have the paymaster
      * absorb the resulting penalty on every operation, draining its deposit.
      *
-     * The default mirrors the 10% penalty the EntryPoint (v0.7-v0.9) applies to unused postOp gas. It deliberately
+     * The default mirrors the 10% penalty the EntryPoint (v0.8-v0.9) applies to unused postOp gas. It deliberately
      * does not reproduce the EntryPoint's 40_000 gas threshold below which no penalty applies: `unusedPostOpGas` is
      * an upper bound on the real unused amount, so claiming that relief here can price the charge below the penalty
      * the EntryPoint actually debits.
