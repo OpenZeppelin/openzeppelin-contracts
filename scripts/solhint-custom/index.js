@@ -11,6 +11,7 @@ class Base {
   constructor(reporter, config, source, fileName) {
     this.reporter = reporter;
     this.source = source;
+    this.path = fileName;
     this.ignored = this.constructor.global || ignore.some(p => minimatch(path.normalize(fileName), p));
     this.ruleId = this.constructor.ruleId;
     if (this.ruleId === undefined) {
@@ -110,12 +111,25 @@ module.exports = [
       if (this.ignored) return;
 
       const imports = node.children.filter(child => child.type === 'ImportDirective');
-      if (imports.length < 2) return;
+      const dirname = path.dirname(this.path);
 
-      const entries = imports.map(child => ({
-        text: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
-        path: child.path,
-      }));
+      const entries = imports.map(child => {
+        const isRelative = child.path.startsWith('.');
+        const absolutePath = isRelative ? path.join(dirname, child.path) : child.path;
+        const relativePath = isRelative ? path.relative(dirname, absolutePath).replace(/^(?!\.)/, './') : child.path;
+        return {
+          isRelative,
+          absolutePath,
+          relativePath,
+          relativeDepth: relativePath.split('/').lastIndexOf('..') + 1,
+          current: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
+          expected: [
+            this.source.slice(child.range[0], child.pathLiteral.range[0] + 1),
+            relativePath,
+            this.source.slice(child.pathLiteral.range[1], child.range[1] + 1),
+          ].join(''),
+        };
+      });
 
       // Ordering:
       // - `@some-project/x.sol`  (external, before any relative import)
@@ -125,22 +139,17 @@ module.exports = [
       // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
       const collator = new Intl.Collator('en');
       const sorted = [...entries]
-        .map(entry => ({
-          ...entry,
-          isRelative: entry.path.startsWith('.'),
-          depth: entry.path.split('/').filter(part => part === '..').length,
-        }))
         .sort(
           (a, b) =>
             a.isRelative - b.isRelative || // external before relative
-            b.depth - a.depth || // deeper (more `..`) first
-            collator.compare(a.path, b.path) ||
-            collator.compare(a.text, b.text),
+            b.relativeDepth - a.relativeDepth || // deeper (more `..`) first
+            collator.compare(a.relativePath, b.relativePath) ||
+            collator.compare(a.expected, b.expected),
         )
-        .map(entry => entry.text);
+        .map(entry => entry.expected);
 
-      if (sorted.some((entry, i) => entry !== entries[i].text)) {
-        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered', fixer =>
+      if (sorted.some((entry, i) => entry !== entries[i].current)) {
+        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered or normalized', fixer =>
           fixer.replaceTextRange([imports.at(0).range[0], imports.at(-1).range[1]], sorted.join('\n')),
         );
       }
