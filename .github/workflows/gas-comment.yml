@@ -1,0 +1,74 @@
+name: gas-comment
+
+# Posts the gas comparison produced by the `checks` workflow as a sticky PR comment.
+#
+# This has to live in a separate `workflow_run` workflow: the `checks` workflow is
+# triggered by `pull_request`, and for PRs opened from a fork GitHub hands that run a
+# read-only GITHUB_TOKEN -- a job-level `permissions: pull-requests: write` is silently
+# ignored there, which is what produces
+#   Error: Resource not accessible by integration
+# A `workflow_run` workflow always runs in the context of the base repository, from the
+# default branch, with a token that can actually be granted write scopes.
+
+on:
+  workflow_run:
+    workflows: [checks]
+    types: [completed]
+
+concurrency:
+  group: gas-comment-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  comment:
+    # Not gated on workflow_run.conclusion: `checks` has several jobs, and we still want
+    # the gas comparison posted when an unrelated job failed.
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read # download the artifact from the triggering run
+      pull-requests: write # required by step-security/sticky-pull-request-comment
+    steps:
+      - name: Download comparison
+        id: download
+        continue-on-error: true # no artifact => nothing to compare, not an error
+        uses: actions/download-artifact@v8
+        with:
+          name: gas-comparison
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Read PR number
+        if: steps.download.outcome == 'success'
+        id: pr_number
+        # pr-number.txt comes from a run that executed untrusted PR code: keep digits
+        # only, so it cannot inject extra lines into GITHUB_OUTPUT.
+        run: echo "number=$(head -c 16 pr-number.txt | tr -dc '0-9')" >> "$GITHUB_OUTPUT"
+
+      - name: Read comparison
+        if: steps.download.outcome == 'success'
+        id: gas_report
+        run: |
+          if [ -f gas-report.md ] && [ -s gas-report.md ]; then
+            {
+              echo 'markdown<<__GAS_REPORT_EOF__'
+              echo '<details>'
+              echo '<summary>view gas comparison</summary>'
+              echo ''
+              cat gas-report.md
+              echo ''
+              echo '</details>'
+              echo '__GAS_REPORT_EOF__'
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment comparison
+        if: steps.download.outcome == 'success'
+        uses: step-security/sticky-pull-request-comment@v3
+        with:
+          header: gas-comparison
+          number: ${{ steps.pr_number.outputs.number }}
+          delete: ${{ !steps.gas_report.outputs.markdown }}
+          message: ${{ steps.gas_report.outputs.markdown }}
