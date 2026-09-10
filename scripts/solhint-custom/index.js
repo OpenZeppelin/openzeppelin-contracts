@@ -117,13 +117,15 @@ module.exports = [
 
       const entries = imports.map(child => {
         const isRelative = child.path.startsWith('.');
+        const absolutePath = isRelative ? path.posix.join(dirname, child.path) : child.path;
         const relativePath = isRelative
-          ? path.posix.relative(dirname, path.posix.join(dirname, child.path)).replace(/^(?!\.)/, './')
+          ? path.posix.relative(dirname, absolutePath).replace(/^(?!\.)/, './')
           : child.path;
         return {
           isRelative,
+          absolutePath,
           relativePath,
-          relativeDepth: relativePath.split('/').filter(part => part === '..').length,
+          relativeDepth: relativePath.split('/').lastIndexOf('..') + 1,
           current: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
           expected: [
             this.source.slice(child.range[0], child.pathLiteral.range[0] + 1),
