@@ -28,6 +28,8 @@ type ExposedFile = {
   content: string;
 };
 
+type ParsedRemapping = { prefix: string; target: string };
+
 export function getExposed(
   solidityBuildInfo: SolidityBuildInfo,
   solcOutput: CompilerOutput,
@@ -35,40 +37,38 @@ export function getExposed(
 ): Map<string, string> {
   const res = new Map<string, string>();
   const deref = astDereferencer(solcOutput);
-  const remappings = solidityBuildInfo.input.settings.remappings ?? [];
   const projectSourcePrefixes = getProjectSourcePrefixes(config);
+  const applicableRemappings = parseApplicableRemappings(
+    solidityBuildInfo.input.settings.remappings ?? [],
+    projectSourcePrefixes,
+  );
 
   for (const [sourceName, inputSourceName] of Object.entries(solidityBuildInfo.userSourceNameMap)) {
     const ast = solcOutput.sources[inputSourceName].ast;
 
-    const exposedFile = getExposedFile(
-      sourceName,
-      inputSourceName,
-      ast,
-      deref,
-      config,
-      remappings,
-      projectSourcePrefixes,
-    );
+    const exposedFile = getExposedFile(sourceName, inputSourceName, ast, deref, config, applicableRemappings);
     if (exposedFile !== undefined) {
       res.set(exposedFile.absolutePath, exposedFile.content);
     }
   }
 
   if (config.exposed.imports) {
-    for (const [inputSourceName, contracts] of getImportedContracts(solidityBuildInfo, solcOutput, deref, config)) {
+    for (const [inputSourceName, contracts] of getImportedContracts(
+      solidityBuildInfo,
+      solcOutput,
+      deref,
+      projectSourcePrefixes,
+    )) {
       const ast = solcOutput.sources[inputSourceName].ast;
 
-      // Only files outside of the project sources reach this point, so `sourceName` is only used by `getExposedFile`
-      // for the `project/` files among them (the dependencies vendored in the repository, reached through remappings).
+      // sourceName is a fallback path for vendored `project/` deps not covered by a remapping.
       const exposedFile = getExposedFile(
         inputSourceName.replace(/^project\//, ''),
         inputSourceName,
         ast,
         deref,
         config,
-        remappings,
-        projectSourcePrefixes,
+        applicableRemappings,
         c => contracts.has(c),
       );
       if (exposedFile !== undefined) {
@@ -80,17 +80,14 @@ export function getExposed(
   return res;
 }
 
-// Contracts that the project imports from outside of its own sources, grouped by the input source name of the file
-// that declares them. Only contracts explicitly named in an import (`import {X} from '...'`) are collected: a blanket
-// import gives no symbol to expose. Interfaces are skipped, they have nothing internal to expose.
+// Non-interface contracts named in an import from outside the project sources, grouped by declaring file.
+// Blanket imports contribute nothing: only `import {X} from '...'` symbols count.
 function getImportedContracts(
   solidityBuildInfo: SolidityBuildInfo,
   solcOutput: CompilerOutput,
   deref: ASTDereferencer,
-  config: HardhatConfig,
+  projectSourcePrefixes: string[],
 ): Map<string, Set<ContractDefinition>> {
-  // Input source names of the project's own solidity sources, which `getExposed` already covers on its own.
-  const projectSourcePrefixes = getProjectSourcePrefixes(config);
   const userInputSourceNames = new Set(Object.values(solidityBuildInfo.userSourceNameMap));
   const isCoveredByUserSources = (inputSourceName: string) =>
     userInputSourceNames.has(inputSourceName) || projectSourcePrefixes.some(p => inputSourceName.startsWith(p));
@@ -98,7 +95,6 @@ function getImportedContracts(
   const res = new Map<string, Set<ContractDefinition>>();
 
   for (const inputSourceName of userInputSourceNames) {
-    // Iterating a Set that is written to while iterating: entries added by the body are visited too.
     const queue = new Set(findAll('ImportDirective', solcOutput.sources[inputSourceName].ast));
 
     for (const imp of queue) {
@@ -112,7 +108,7 @@ function getImportedContracts(
       }
 
       for (const { foreign } of imp.symbolAliases) {
-        // The symbol may be re-exported, so dereference it to reach the file that actually declares it.
+        // Symbol may be re-exported: dereference to reach the declaring file.
         const foreignId = importedUnit.exportedSymbols[foreign.name]?.[0];
         assert(foreignId !== undefined, `Symbol ${foreign.name} not exported by ${importedUnit.absolutePath}`);
 
@@ -139,11 +135,10 @@ function getImportPathFromExposedContract(
   exposedFileAbsolutePath: string,
   importedFileInputSourceName: string,
   projectRoot: string,
-  remappings: string[],
-  projectSourcePrefixes: string[],
+  applicableRemappings: ParsedRemapping[],
 ): string {
   return (
-    getRemappedImportPath(importedFileInputSourceName, remappings, projectSourcePrefixes) ??
+    getRemappedImportPath(importedFileInputSourceName, applicableRemappings) ??
     (importedFileInputSourceName.startsWith('project/')
       ? path.relative(
           path.dirname(exposedFileAbsolutePath),
@@ -155,43 +150,41 @@ function getImportPathFromExposedContract(
 
 const remappingRegex = /^(?:(?<context>[^:]*):)?(?<prefix>[^=]*)=(?<target>.*)$/;
 
-// Input source name prefixes of the project's own solidity sources.
 function getProjectSourcePrefixes(config: HardhatConfig): string[] {
   return config.paths.sources.solidity.map(
     dir => `project/${path.relative(config.paths.root, dir).replaceAll(path.sep, '/')}/`,
   );
 }
 
-// Files that the project does not reach by their input source name are referred to by the name the project uses for
-// them: an npm package's `npm/<name>@<version>/<path>` is not a valid import path, and a dependency vendored in the
-// repository (a git submodule, ...) is imported through its alias rather than through its location. Hardhat records
-// these mappings in the solc input remappings, as `[<context>:]<prefix>=<target>` entries (e.g.
-// `project/:hardhat/=npm/hardhat@3.9.1/`), so we invert the ones that apply to the project sources. A missing context
-// is an empty one: the remapping applies to every file, project sources included.
+// Exposed contracts live in the project, so they import dependency files through the project's own aliases rather
+// than the raw input source names (`npm/<name>@<version>/<path>`, `project/lib/<path>`, ...). Hardhat records those
+// aliases as `[<context>:]<prefix>=<target>` remappings we invert here.
 //
-// Remappings whose target overlaps the project's own solidity sources are skipped: they alias the contracts being
-// exposed rather than their dependencies, and inverting them would move the entire exposed tree under the alias.
-function getRemappedImportPath(
-  inputSourceName: string,
-  remappings: string[],
-  projectSourcePrefixes: string[],
-): string | undefined {
-  // Longest target first: multiple remappings may apply, the most specific one is the right one.
-  const item = remappings
-    .map(remapping => remappingRegex.exec(remapping)?.groups ?? {})
+// Skip remappings whose target overlaps a project source: those alias the contracts being exposed rather than their
+// dependencies, so inverting them would move the whole exposed tree under the alias.
+function parseApplicableRemappings(remappings: string[], projectSourcePrefixes: string[]): ParsedRemapping[] {
+  return remappings
+    .flatMap(remapping => {
+      const groups = remappingRegex.exec(remapping)?.groups as
+        | { context: string | undefined; prefix: string; target: string }
+        | undefined;
+      return groups ? [groups] : [];
+    })
     .filter(
       ({ context, target }) =>
         [undefined, '', 'project/'].includes(context) &&
-        inputSourceName.startsWith(target) &&
         !projectSourcePrefixes.some(source => source.startsWith(target) || target.startsWith(source)),
     )
-    .sort((a, b) => b.target.length - a.target.length)
-    .at(0);
+    .sort((a, b) => b.target.length - a.target.length) // Longest target first: most specific remapping wins.
+    .map(({ prefix, target }) => ({ prefix, target }));
+}
 
+function getRemappedImportPath(inputSourceName: string, applicableRemappings: ParsedRemapping[]): string | undefined {
+  const item = applicableRemappings.find(({ target }) => inputSourceName.startsWith(target));
   return item && item.prefix + inputSourceName.slice(item.target.length);
 }
 
-// Fallback for an npm package that no remapping covers: the version is not part of the name it is imported under.
+// Fallback when no remapping matches: strip the `npm/` prefix and `@<version>` from the input source name.
 function getNpmImportPath(inputSourceName: string): string {
   return inputSourceName.replace(/^npm\/(@[^/]+\/[^@/]+|[^@/]+)@[^/]+\//, '$1/');
 }
@@ -202,13 +195,12 @@ function getExposedFile(
   ast: SourceUnit,
   deref: ASTDereferencer,
   config: HardhatConfig,
-  remappings: string[],
-  projectSourcePrefixes: string[],
+  applicableRemappings: ParsedRemapping[],
   filter?: (c: ContractDefinition) => boolean,
 ): ExposedFile | undefined {
   const exposedFileAbsolutePath = path.join(
     config.exposed.outDir,
-    getRemappedImportPath(inputSourceName, remappings, projectSourcePrefixes) ??
+    getRemappedImportPath(inputSourceName, applicableRemappings) ??
       (inputSourceName.startsWith('project/') ? sourceName : getNpmImportPath(inputSourceName)),
   );
 
@@ -219,8 +211,7 @@ function getExposedFile(
     config.exposed.prefix,
     config.exposed.initializers,
     config.paths.root,
-    remappings,
-    projectSourcePrefixes,
+    applicableRemappings,
     filter,
   );
 
@@ -234,8 +225,7 @@ function getExposedContent(
   prefix: string,
   initializers: boolean,
   projectRoot: string,
-  remappings: string[],
-  projectSourcePrefixes: string[],
+  applicableRemappings: ParsedRemapping[],
   filter?: (c: ContractDefinition) => boolean,
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
@@ -244,16 +234,6 @@ function getExposedContent(
 
   const contractPrefix = prefix.replace(/^./, c => c.toUpperCase());
 
-  const imports = Array.from(getNeededImports(ast, deref), u =>
-    getImportPathFromExposedContract(
-      exposedFileAbsolutePath,
-      u.absolutePath,
-      projectRoot,
-      remappings,
-      projectSourcePrefixes,
-    ),
-  );
-
   const contracts = [...findAll('ContractDefinition', ast)].filter(
     c => c.contractKind !== 'interface' && (filter?.(c) ?? true),
   );
@@ -261,6 +241,11 @@ function getExposedContent(
   if (contracts.length === 0) {
     return undefined;
   }
+
+  // Walk only the exposed contracts' bases: siblings we don't wrap would otherwise pull in their own base imports.
+  const imports = Array.from(getNeededImports(ast, contracts, deref), u =>
+    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath, projectRoot, applicableRemappings),
+  );
 
   return formatLines(
     ...spaceBetween(
@@ -843,10 +828,14 @@ function getModifiers(contract: ContractDefinition, deref: ASTDereferencer): Mod
   return res;
 }
 
-function* getNeededImports(ast: SourceUnit, deref: ASTDereferencer): Iterable<SourceUnit> {
+function* getNeededImports(
+  ast: SourceUnit,
+  contracts: ContractDefinition[],
+  deref: ASTDereferencer,
+): Iterable<SourceUnit> {
   const needed = new Set<SourceUnit>(
     [ast].concat(
-      [...findAll('ContractDefinition', ast)].flatMap(c =>
+      contracts.flatMap(c =>
         c.linearizedBaseContracts.map(p => {
           const { sourceUnit } = deref.withSourceUnit('ContractDefinition', p);
           return sourceUnit;
