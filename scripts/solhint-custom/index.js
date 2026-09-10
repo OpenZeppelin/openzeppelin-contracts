@@ -110,26 +110,28 @@ module.exports = [
     SourceUnit(node) {
       if (this.ignored) return;
 
-      const imports = node.children.filter(child => child.type === 'ImportDirective');
       const dirname = path.dirname(this.path);
 
-      const entries = imports.map(child => {
-        const isRelative = child.path.startsWith('.');
-        const absolutePath = isRelative ? path.join(dirname, child.path) : child.path;
-        const relativePath = isRelative ? path.relative(dirname, absolutePath).replace(/^(?!\.)/, './') : child.path;
-        return {
-          isRelative,
-          absolutePath,
-          relativePath,
-          relativeDepth: relativePath.split('/').lastIndexOf('..') + 1,
-          current: this.source.slice(child.range[0], child.range[1] + 1), // trailing `;` captured
-          expected: [
-            this.source.slice(child.range[0], child.pathLiteral.range[0] + 1),
+      const imports = node.children
+        .filter(node => node.type === 'ImportDirective')
+        .map(node => {
+          const isRelative = node.path.startsWith('.');
+          const absolutePath = isRelative ? path.join(dirname, node.path) : node.path;
+          const relativePath = isRelative ? path.relative(dirname, absolutePath).replace(/^(?!\.)/, './') : node.path;
+          return {
+            node,
+            isRelative,
+            absolutePath,
             relativePath,
-            this.source.slice(child.pathLiteral.range[1], child.range[1] + 1),
-          ].join(''),
-        };
-      });
+            relativeDepth: relativePath.split('/').lastIndexOf('..') + 1,
+            current: this.source.slice(node.range[0], node.range[1] + 1), // trailing `;` captured
+            expected: [
+              this.source.slice(node.range[0], node.pathLiteral.range[0] + 1),
+              relativePath,
+              this.source.slice(node.pathLiteral.range[1], node.range[1] + 1),
+            ].join(''),
+          };
+        });
 
       // Ordering:
       // - `@some-project/x.sol`  (external, before any relative import)
@@ -138,7 +140,7 @@ module.exports = [
       // - `./IFoo.sol`           (relative, zero `..`)
       // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
       const collator = new Intl.Collator('en');
-      const sorted = [...entries]
+      const sorted = [...imports]
         .sort(
           (a, b) =>
             a.isRelative - b.isRelative || // external before relative
@@ -148,9 +150,9 @@ module.exports = [
         )
         .map(entry => entry.expected);
 
-      if (sorted.some((entry, i) => entry !== entries[i].current)) {
-        this.reporter.error(imports[0], this.ruleId, 'Imports are not correctly ordered or normalized', fixer =>
-          fixer.replaceTextRange([imports.at(0).range[0], imports.at(-1).range[1]], sorted.join('\n')),
+      if (sorted.some((expected, i) => expected !== imports[i].current)) {
+        this.reporter.error(imports.at(0).node, this.ruleId, 'Imports are not correctly ordered or normalized', fixer =>
+          fixer.replaceTextRange([imports.at(0).node.range[0], imports.at(-1).node.range[1]], sorted.join('\n')),
         );
       }
     }
