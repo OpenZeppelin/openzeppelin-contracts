@@ -34,9 +34,23 @@ library Base64 {
      * * Supports padded and unpadded inputs.
      * * Supports both encoding ({encode} and {encodeURL}) seamlessly.
      * * Reverts with {InvalidBase64Char} if the input contains an invalid character.
+     * * See {tryDecode} for a variant that does not revert.
      */
     function decode(string memory data) internal pure returns (bytes memory) {
-        return _decode(bytes(data));
+        (bool success, bytes1 invalidChar, bytes memory result) = _tryDecode(bytes(data));
+        if (!success) revert InvalidBase64Char(invalidChar);
+        return result;
+    }
+
+    /**
+     * @dev Variant of {decode} that does not revert on malformed input.
+     *
+     * Returns a boolean `success` flag instead of reverting when `data` contains a character outside the
+     * Base64 (or Base64Url) alphabet. On success, `result` holds the decoded bytes; on failure, `success`
+     * is `false` and `result` is empty.
+     */
+    function tryDecode(string memory data) internal pure returns (bool success, bytes memory result) {
+        (success, , result) = _tryDecode(bytes(data));
     }
 
     /**
@@ -139,13 +153,18 @@ library Base64 {
     }
 
     /**
-     * @dev Internal decoding
+     * @dev Internal decoding routine shared by {decode} and {tryDecode}.
+     *
+     * Instead of reverting, it reports whether decoding succeeded through `success` and, when it fails,
+     * returns the first offending character in `invalidChar` (left-aligned in a `bytes1`). Note that a
+     * valid null byte in the input is itself invalid and surfaces as `invalidChar == 0x00`, which is why
+     * `success` (not `invalidChar`) is the source of truth. On failure `result` is empty.
      */
-    function _decode(bytes memory data) private pure returns (bytes memory result) {
-        bytes4 errorSelector = InvalidBase64Char.selector;
-
+    function _tryDecode(
+        bytes memory data
+    ) private pure returns (bool success, bytes1 invalidChar, bytes memory result) {
         uint256 dataLength = data.length;
-        if (dataLength == 0) return "";
+        if (dataLength == 0) return (true, 0x00, "");
 
         uint256 resultLength = (dataLength / 4) * 3;
         if (dataLength % 4 == 0) {
@@ -175,6 +194,7 @@ library Base64 {
             let afterCache := mload(afterPtr)
             mstore(afterPtr, shl(240, 0x3d3d))
 
+            success := 1
             // loop while not everything is decoded
             for {} lt(resultPtr, endPtr) {} {
                 dataPtr := add(dataPtr, 4)
@@ -186,30 +206,30 @@ library Base64 {
                 let a := sub(byte(28, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(a, 1), 0xffffffd0ffffffc47ff5)) {
-                    mstore(0, errorSelector)
-                    mstore(4, shl(248, add(a, 43)))
-                    revert(0, 0x24)
+                    invalidChar := shl(248, add(a, 43))
+                    success := 0
+                    break
                 }
                 let b := sub(byte(29, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(b, 1), 0xffffffd0ffffffc47ff5)) {
-                    mstore(0, errorSelector)
-                    mstore(4, shl(248, add(b, 43)))
-                    revert(0, 0x24)
+                    invalidChar := shl(248, add(b, 43))
+                    success := 0
+                    break
                 }
                 let c := sub(byte(30, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0xffffffd0ffffffc47ff5)) {
-                    mstore(0, errorSelector)
-                    mstore(4, shl(248, add(c, 43)))
-                    revert(0, 0x24)
+                    invalidChar := shl(248, add(c, 43))
+                    success := 0
+                    break
                 }
                 let d := sub(byte(31, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(d, 1), 0xffffffd0ffffffc47ff5)) {
-                    mstore(0, errorSelector)
-                    mstore(4, shl(248, add(d, 43)))
-                    revert(0, 0x24)
+                    invalidChar := shl(248, add(d, 43))
+                    success := 0
+                    break
                 }
 
                 mstore(
@@ -226,9 +246,10 @@ library Base64 {
             // Reset the value that was cached
             mstore(afterPtr, afterCache)
 
-            // Store result length and update FMP to reserve allocated space
-            mstore(result, resultLength)
-            mstore(0x40, endPtr)
+            // Store result length (0 on failure) and update FMP to reserve allocated space
+            let len := mul(success, resultLength)
+            mstore(result, len)
+            mstore(0x40, add(add(result, 0x20), len))
         }
     }
 }

@@ -56,7 +56,13 @@ describe('Base64', function () {
   it('Decode invalid base64 string', async function () {
     const getHexCode = str => ethers.hexlify(ethers.toUtf8Bytes(str));
     const helper = { interface: ethers.Interface.from(['error InvalidBase64Char(bytes1)']) };
-
+    // check that an invalid character is caught in each of the 4 positions of a chunk (a, b, c, d).
+    await expect(this.mock.$decode('TWFu')).to.eventually.equal(getHexCode('Man'));
+    for (const input of ['@WFu', 'T@Fu', 'TW@u', 'TWF@']) {
+      await expect(this.mock.$decode(input))
+        .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
+        .withArgs(getHexCode('@'));
+    }
     // ord('*') < 43
     await expect(this.mock.$decode('dGVzd*=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
@@ -69,6 +75,15 @@ describe('Base64', function () {
     await expect(this.mock.$decode('dGVzd@=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
       .withArgs(getHexCode('@'));
+  });
+
+  it('tryDecode returns a success flag instead of reverting', async function () {
+    await expect(this.mock.$tryDecode('TWFu')).to.eventually.deep.equal([true, ethers.hexlify(Buffer.from('Man'))]);
+    await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
+
+    for (const input of ['@WFu', 'T@Fu', 'TW@u', 'TWF@', 'dGVzd*==', 'dGVzd{==', 'dGVzd@==']) {
+      await expect(this.mock.$tryDecode(input)).to.eventually.deep.equal([false, '0x']);
+    }
   });
 
   it('Encode reads beyond the input buffer into dirty memory', async function () {
