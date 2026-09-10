@@ -111,16 +111,12 @@ module.exports = [
       if (this.ignored) return;
 
       const imports = node.children.filter(child => child.type === 'ImportDirective');
-      // Import paths are always `/`-separated, regardless of the host platform. Use `path.posix` so that the
-      // normalization below doesn't emit `\`-separated paths (and mis-count `..`) when running on windows.
-      const dirname = path.posix.dirname(this.path.split(path.sep).join('/'));
+      const dirname = path.dirname(this.path);
 
       const entries = imports.map(child => {
         const isRelative = child.path.startsWith('.');
-        const absolutePath = isRelative ? path.posix.join(dirname, child.path) : child.path;
-        const relativePath = isRelative
-          ? path.posix.relative(dirname, absolutePath).replace(/^(?!\.)/, './')
-          : child.path;
+        const absolutePath = isRelative ? path.join(dirname, child.path) : child.path;
+        const relativePath = isRelative ? path.relative(dirname, absolutePath).replace(/^(?!\.)/, './') : child.path;
         return {
           isRelative,
           absolutePath,
@@ -140,7 +136,7 @@ module.exports = [
       // - `../../utils/Math.sol` (relative, two `..`)
       // - `../AccessControl.sol` (relative, one `..`)
       // - `./IFoo.sol`           (relative, zero `..`)
-      // then alphabetically.
+      // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
       const collator = new Intl.Collator('en');
       const sorted = [...entries]
         .sort(
