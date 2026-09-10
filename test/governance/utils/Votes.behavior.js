@@ -88,6 +88,12 @@ export function shouldBehaveLikeVotes(tokens, { mode = 'blockNumber', fungible =
       describe('with signature', function () {
         const nonce = 0n;
 
+        it('uses the documented Delegation EIP-712 type', function () {
+          expect(ethers.TypedDataEncoder.from({ Delegation }).encodeType('Delegation')).to.equal(
+            'Delegation(address delegatee,uint256 nonce,uint256 expiry)',
+          );
+        });
+
         it('accept signed delegation', async function () {
           await this.votes.$_mint(this.delegator, token);
           const weight = getWeight(token);
