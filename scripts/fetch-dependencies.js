@@ -6,11 +6,12 @@
 //    node scripts/fetch-dependencies.js --filter   read changed file paths on stdin, print the JSON array of
 //                                                  the entry points affected by them. Refuses if the change
 //                                                  removes an entry point, unless --allow-removed is passed.
-//    --entries=<dir>                               required. Where entry points are discovered, recursively.
+//    --entries=<dir>[,<dir>]                       required. Where entry points are discovered, recursively.
 //    --ext=<extension>                             required. What an entry point is recognised by.
 //                                                  `--entries=fv/specs --ext=.conf` maps the Certora configs,
-//                                                  `--entries=contracts-exposed --ext=.sol` maps the contracts
-//                                                  the test suite deploys.
+//                                                  `--entries=contracts,contracts-exposed --ext=.sol` maps the
+//                                                  contracts the test suite deploys -- both trees, because it
+//                                                  deploys the generated wrappers and the contracts themselves.
 //    --root=<dir>                                  the checkout to read, defaulting to the one this script
 //                                                  lives in, and the only path resolved against the working
 //                                                  directory: every other one is resolved against it. CI points
@@ -29,17 +30,9 @@ import path from 'path';
 const option = (name, fallback) =>
   process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) || fallback;
 
-// What an entry point is has no sensible default here: this script walks imports, and which files it
-// starts from is the caller's to say. Leaving it implicit would have a generic tool quietly mean the
-// Certora configs, and a caller that forgot the flag would get an answer about the wrong tree rather
-// than an error.
-const required = name => {
-  const value = option(name);
-  if (value === undefined) {
-    console.error(`Missing --${name}=<value>. See the usage block at the top of this file.`);
-    process.exit(1);
-  }
-  return value;
+const fail = message => {
+  console.error(message);
+  process.exit(1);
 };
 
 // `--root` is the checkout being read, resolved against the working directory. Every other path is
@@ -47,12 +40,17 @@ const required = name => {
 // the script at another checkout describes that checkout's layout and not its own -- which is what
 // lets CI run a trusted copy of this script over a pull request.
 const ROOT = path.resolve(option('root', path.resolve(import.meta.dirname, '..')));
-const directory = (name, fallback) => path.resolve(ROOT, option(name, fallback));
-
-const DIFF = directory('diff', 'fv/diff');
-const PATCHED = directory('patched', 'fv/patched');
-const ENTRIES = directory('entries', required('entries'));
-const EXT = required('ext');
+const DIFF = path.resolve(ROOT, option('diff', 'fv/diff'));
+const PATCHED = path.resolve(ROOT, option('patched', 'fv/patched'));
+const EXT = option('ext', '.sol');
+// Several entry directories are allowed because one tree is not always the whole answer: the gas
+// report names sources from `contracts-exposed` and from `contracts`, so both have to be walked or
+// the contracts deployed without a generated wrapper resolve to nothing and drop out of the report.
+const ENTRIES =
+  option('entries')
+    ?.split(',')
+    ?.map(dir => path.resolve(ROOT, dir)) ??
+  fail('Missing --entries=<value>. See the usage block at the top of this file.');
 
 // `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
 // `fv/diff`, each named after the file it patches with `/` written as `_` -- the same mapping the
@@ -114,16 +112,18 @@ const START = {
 const start = file => (START[path.extname(file)] ?? (source => collect(source, [])))(file);
 
 const dependencies = Object.fromEntries(
-  fs
-    .readdirSync(ENTRIES, { recursive: true })
-    .filter(name => name.endsWith(EXT))
-    // `readdirSync` returns whatever order the filesystem gives, which is not stable across
-    // machines. Sort so the map is diffable and two runs of `--all` agree on the job order.
-    .sort()
-    .map(name => {
-      const entry = path.join(ENTRIES, name);
-      return [relative(entry), start(entry).map(relative)];
-    }),
+  ENTRIES.flatMap(entries =>
+    fs
+      .readdirSync(entries, { recursive: true })
+      .filter(name => name.endsWith(EXT))
+      // `readdirSync` returns whatever order the filesystem gives, which is not stable across
+      // machines. Sort so the map is diffable and two runs of `--all` agree on the job order.
+      .sort()
+      .map(name => {
+        const entry = path.join(entries, name);
+        return [relative(entry), start(entry).map(relative)];
+      }),
+  ),
 );
 
 if (process.argv.includes('--filter')) {
@@ -135,7 +135,10 @@ if (process.argv.includes('--filter')) {
     // every entry point would report an empty set, run no job, and pass. Refuse instead, and make
     // dropping one something that has to be asked for.
     const removed = changed.filter(
-      file => file.startsWith(`${relative(ENTRIES)}/`) && file.endsWith(EXT) && !Object.hasOwn(dependencies, file),
+      file =>
+        ENTRIES.some(entries => file.startsWith(`${relative(entries)}/`)) &&
+        file.endsWith(EXT) &&
+        !Object.hasOwn(dependencies, file),
     );
     if (removed.length > 0) {
       console.error(`This change removes ${removed.join(', ')}, which cannot appear in the affected set.`);

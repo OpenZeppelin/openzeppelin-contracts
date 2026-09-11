@@ -16,10 +16,6 @@ inputs:
     description: Path to the reference report for comparison
     required: false
     default: ${{ github.base_ref }}.gasreport.json
-  src:
-    description: Directory holding the sources the report measures, walked to resolve what a diff reaches
-    required: false
-    default: contracts-exposed
 
 runs:
   using: composite
@@ -41,10 +37,12 @@ runs:
         # without saying so -- an expired token, a rate limit, a connection dropped before the first
         # byte -- and not a diff that touches nothing.
         if [ -s changed.txt ]; then
-          # Which contracts the diff reaches, following imports from `src` back into `contracts`. The rest of
-          # the report only measures test-suite churn: min/max/avg/median move with the calls a run happens to
-          # make. `--allow-removed` because the exposed wrappers are generated, so a diff never mentions them.
-          node scripts/fetch-dependencies.js --entries='${{ inputs.src }}' --ext=.sol --filter --allow-removed < changed.txt > diff.json
+          # Which contracts the diff reaches, following imports from every `src` tree. Both trees are walked
+          # because the report names sources from both: the suite deploys the generated wrappers and the
+          # contracts themselves. The rest of the report only measures test-suite churn: min/max/avg/median
+          # move with the calls a run happens to make. `--allow-removed` because the exposed wrappers are
+          # generated, so a diff never mentions them.
+          node scripts/fetch-dependencies.js --entries=contracts,contracts-exposed --ext=.sol --filter --allow-removed < changed.txt > diff.json
           node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} --filtered diff.json | tee gas-report.md >> $GITHUB_STEP_SUMMARY
         else
           echo 'gh pr diff reported no files: leaving the gas comparison unfiltered' >&2

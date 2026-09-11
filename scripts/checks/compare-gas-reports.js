@@ -23,7 +23,7 @@ const { argv } = yargs(hideBin(process.argv))
       default: false,
     },
     // A JSON array of source files the change reaches, as produced by
-    // `scripts/fetch-dependencies.js --entries=contracts-exposed --ext=.sol --filter`. Without it
+    // `scripts/fetch-dependencies.js --entries=contracts,contracts-exposed --ext=.sol --filter`. Without it
     // every contract is reported.
     filtered: {
       type: 'string',
