@@ -52,7 +52,7 @@ jobs:
           ALLOW_REMOVED_FLAG: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') && '--allow-removed' || '' }}
         run: |
           changed=$(git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA") # unused on --all
-          echo "configs=$(node base/fv/dependencies.js --root=head ${FORCE_ALL_FLAG:-$ALLOW_REMOVED_FLAG} <<< "$changed")" >> "$GITHUB_OUTPUT"
+          echo "configs=$(node base/fv/dependencies.js --root=head "${FORCE_ALL_FLAG:-$ALLOW_REMOVED_FLAG}" <<< "$changed")" >> "$GITHUB_OUTPUT"
       - name: Report the affected configs
         env:
           CONFIGS: ${{ steps.identify.outputs.configs }}
