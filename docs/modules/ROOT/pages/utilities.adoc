@@ -197,6 +197,10 @@ In Solidity, it's frequently helpful to know whether or not a contract supports 
 * xref:api:utils.adoc#ERC165Checker-_supportsInterface-address-bytes4-[`myAddress._supportsInterface(bytes4)`]
 * xref:api:utils.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[\])`]
 
+IMPORTANT: ERC-165 requires `supportsInterface` calls to use less than 30 000 gas. If the caller does not have enough
+gas to forward 30 000 gas to the checked contract, `ERC165Checker` may interpret an out-of-gas error as a lack of
+interface support. Make sure the surrounding call has enough gas before relying on these results.
+
 [source,solidity]
 ----
 contract MyContract {
