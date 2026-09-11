@@ -35,7 +35,7 @@ runs:
         gh pr diff '${{ github.event.number }}' --repo '${{ github.repository }}' --name-only > changed.txt
         # Produce small report if the diff touches any contracts, otherwise fall back to full report
         if [ -s changed.txt ]; then
-          node scripts/list-dependencies.js < changed.txt > diff.json
+          node scripts/list-dependencies.js --src=contracts,contracts-exposed --ext=.sol < changed.txt > diff.json
           filter=(--filtered diff.json)
         else
           filter=()

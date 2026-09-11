@@ -1,17 +1,28 @@
 #!/usr/bin/env node
 
-// Reads changed paths on stdin, prints the JSON array of contracts a diff reaches: the `.sol` under
-// `contracts` and `contracts-exposed` whose imports touch a changed file. Filters the gas comparison.
+// Reads changed paths on stdin, prints the JSON array of files a diff reaches: the files under `--src`
+// (comma separated directories) with an extension in `--ext` (comma separated) whose imports touch a
+// changed file. Paths are relative to `--root` (defaults to the repository root). Filters the gas comparison.
 
 import fs from 'fs';
 import path from 'path';
 
-const ROOT = path.join(import.meta.dirname, '..');
-const SRCS = ['contracts', 'contracts-exposed'];
-const PATTERNS = new Map([
-  // First quoted string of a solidity import; `[^;]` stops at the statement end.
-  ['.sol', /^[ \t]*import\b[^;]*?"(?<target>[^"]+)"/gm],
-]);
+const PATTERNS = new Map(
+  Object.entries({
+    // First quoted string of a solidity import; `[^;]` stops at the statement end.
+    '.sol': /^[ \t]*import\b[^;]*?"(?<target>[^"]+)"/gm,
+  }),
+);
+
+const option = name => process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
+const ROOT = path.join(import.meta.dirname, option('root') ?? '..');
+const SRC = option('src')?.split(',');
+const EXT = option('ext')?.split(',');
+
+if (!SRC || !EXT) {
+  console.error('Missing required arguments: --src and --ext');
+  process.exit(1);
+}
 
 // `file` and everything it imports, recursively.
 const reachable = (file, acc = new Set()) => {
@@ -33,10 +44,11 @@ const reachable = (file, acc = new Set()) => {
 };
 
 const changed = new Set(fs.readFileSync(0, 'utf8').split('\n').filter(Boolean));
-const affected = SRCS.flatMap(dir =>
+const affected = SRC.flatMap(dir =>
   fs
     .readdirSync(path.join(ROOT, dir), { recursive: true })
-    .filter(name => fs.lstatSync(path.join(ROOT, dir, name)).isFile() && PATTERNS.has(path.extname(name)))
+    .filter(name => fs.lstatSync(path.join(ROOT, dir, name)).isFile())
+    .filter(name => EXT.includes(path.extname(name)))
     .map(name => path.join(dir, name))
     .filter(file => changed.size === 0 || reachable(file).intersection(changed).size > 0),
 );
