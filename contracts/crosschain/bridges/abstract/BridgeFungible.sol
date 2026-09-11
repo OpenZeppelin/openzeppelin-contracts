@@ -29,6 +29,9 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
     /// @dev Revert reason when the address part of the interoperable address is empty.
     error CrosschainFungibleEmptyAddress();
 
+    /// @dev The receiver address is not a valid EVM address (wrong length or zero).
+    error CrosschainFungibleInvalidAddress();
+
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
      *
@@ -44,10 +47,15 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
     function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
-        _onSend(from, amount);
-
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
         require(addr.length > 0, CrosschainFungibleEmptyAddress());
+        // EIP-155 destinations use 20-byte non-zero addresses (see {InteroperableAddress-tryParseEvmV1}).
+        // Accepting other lengths (or the zero address) would lock funds once the receive path rejects them.
+        if (chainType == bytes2(0x0000)) {
+            require(addr.length == 20 && address(bytes20(addr)) != address(0), CrosschainFungibleInvalidAddress());
+        }
+
+        _onSend(from, amount);
 
         bytes32 sendId = _sendMessageToCounterpart(
             InteroperableAddress.formatV1(chainType, chainReference, hex""),
@@ -71,7 +79,12 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
 
         // split payload
         (bytes memory from, bytes memory toEvm, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
+        // `toEvm` comes from the ERC-7786 payload; `bytes20(...)` would silently truncate
+        // a longer (e.g. non-EVM) address, mis-delivering the assets to a wrong account.
+        // The zero address is also rejected: unlocking/minting there is irreversible fund loss.
+        require(toEvm.length == 20, CrosschainFungibleInvalidAddress());
         address to = address(bytes20(toEvm));
+        require(to != address(0), CrosschainFungibleInvalidAddress());
 
         _onReceive(to, amount);
 
