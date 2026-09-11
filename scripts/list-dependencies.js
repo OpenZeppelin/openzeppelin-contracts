@@ -15,7 +15,7 @@ const PATTERNS = new Map(
 );
 
 const option = name => process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
-const ROOT = path.join(import.meta.dirname, option('root') ?? '..');
+const ROOT = path.resolve(option('root') ?? path.join(import.meta.dirname, '..'));
 const SRC = option('src')?.split(',');
 const EXT = option('ext')?.split(',');
 
