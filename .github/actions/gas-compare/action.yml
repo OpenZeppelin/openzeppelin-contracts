@@ -34,10 +34,11 @@ runs:
       run: |
         gh pr diff '${{ github.event.number }}' --repo '${{ github.repository }}' --name-only > changed.txt
         # Produce small report if the diff touches any contracts, otherwise fall back to full report
-        filter=()
         if [ -s changed.txt ]; then
           node scripts/list-dependencies.js < changed.txt > diff.json
           filter=(--filtered diff.json)
+        else
+          filter=()
         fi
         node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} "${filter[@]}" | tee gas-report.md >> $GITHUB_STEP_SUMMARY
         # The comparison is posted from another workflow, which only gets the artifact: it needs the number too.
