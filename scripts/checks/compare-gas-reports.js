@@ -22,9 +22,7 @@ const { argv } = yargs(hideBin(process.argv))
       type: 'boolean',
       default: false,
     },
-    // A JSON array of source files the change reaches, as produced by
-    // `scripts/fetch-dependencies.js --entries=contracts,contracts-exposed --ext=.sol --filter`. Without it
-    // every contract is reported.
+    // JSON array of source files the change reaches (from `scripts/gas-affected-contracts.js`); absent = report all.
     filtered: {
       type: 'string',
     },
@@ -63,11 +61,8 @@ class Report {
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     const refContracts = ref.contracts ?? {};
     const updateContracts = update.contracts ?? {};
-    // `opts.filtered` drops the contracts the change cannot reach. min/max/avg/median are taken over
-    // whatever calls the test run happened to make, so adding, removing or reordering a single test
-    // case moves them with no contract change behind it, and a contract outside the set is only ever
-    // reporting that noise. `sourceName` is the contract the report was built from, which is the path
-    // `filtered` is expressed in.
+    // Drop contracts the change cannot reach: their min/max/avg/median only move with test-suite
+    // churn, not a real change. `sourceName` is the path `filtered` is expressed in.
     return Object.entries(updateContracts)
       .filter(([key]) => key in refContracts)
       .filter(([, contract]) => !opts.filtered || opts.filtered.has(contract.sourceName))
@@ -244,10 +239,8 @@ const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]), { 
 
 switch (argv.style) {
   case 'markdown':
-    // Nothing at all rather than a header over an empty table: this output is the body of the pull
-    // request comment, and `.github/workflows/gas-comment.yml` deletes the comment when it is empty.
-    // With `--filtered` in play that is the common case -- a change that touches no contract has no
-    // gas change to report -- and a comment saying so on every such pull request is just noise.
+    // Empty output (no reachable contract changed cost) rather than a bare header: gas-comment.yml
+    // deletes the comment when the body is empty.
     if (report.length > 0) console.log(formatCmpMarkdown(report));
     break;
   case 'shell':

@@ -70,8 +70,6 @@ jobs:
         with:
           header: gas-comparison
           number: ${{ steps.pr_number.outputs.number }}
-          # gas-report.md is empty when no contract the diff reaches changed cost, which is the
-          # common case: delete any comment a previous push left behind rather than leave a stale
-          # table standing, and post nothing at all when there was none.
+          # Empty report (the common case): delete any stale comment from a previous push, post nothing new.
           delete: ${{ !steps.gas_report.outputs.markdown }}
           message: ${{ steps.gas_report.outputs.markdown }}
