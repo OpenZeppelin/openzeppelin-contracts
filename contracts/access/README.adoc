@@ -9,10 +9,13 @@ This directory provides ways to restrict who can access the functions of a contr
 - {AccessManaged} delegates its access control to an authority that dictates the permissions of the managed contract. It's compatible with an AccessManager as an authority.
 - {AccessControl} provides a per-contract role based access control mechanism. Multiple hierarchical roles can be created and assigned each to multiple accounts within the same instance.
 - {Ownable} is a simpler mechanism with a single owner "role" that can be assigned to a single account. This simpler mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
+- {OwnableRenounceable} is a variant of {Ownable} that guards against unintentionally setting the owner to the `address(0)` by providing an alternative function to explicitly renounce ownership. 
 
 == Core
 
 {{Ownable}}
+
+{{OwnableRenounceable}}
 
 {{Ownable2Step}}
 

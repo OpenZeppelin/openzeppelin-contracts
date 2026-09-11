@@ -1,5 +1,5 @@
 import "helpers/helpers.spec";
-import "methods/IOwnable.spec";
+import "methods/IOwnableRenounceable.spec";
 
 methods {
     function restricted() external;
@@ -19,8 +19,25 @@ rule transferOwnership(env e) {
     transferOwnership@withrevert(e, newOwner);
     bool success = !lastReverted;
 
-    assert success <=> e.msg.sender == current, "unauthorized caller";
+    assert success <=> (e.msg.sender == current && newOwner != 0), "unauthorized caller or invalid arg";
     assert success => owner() == newOwner, "current owner changed";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: renounceOwnership removes the owner                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule renounceOwnership(env e) {
+    require nonpayable(e);
+
+    address current = owner();
+
+    renounceOwnership@withrevert(e);
+    bool success = !lastReverted;
+
+    assert success <=> e.msg.sender == current, "unauthorized caller";
+    assert success => owner() == 0, "owner not cleared";
 }
 
 /*
@@ -41,10 +58,10 @@ rule onlyCurrentOwnerCanCallOnlyOwner(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: ownership can only change through transferOwnership                                                           │
+│ Rule: ownership can only change in specific ways                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyCurrentOwnerCanChangeOwnership(env e) {
+rule onlyOwnerCanChangeOwnership(env e) {
     address oldCurrent = owner();
 
     method f; calldataarg args;
@@ -52,7 +69,9 @@ rule onlyCurrentOwnerCanChangeOwnership(env e) {
 
     address newCurrent = owner();
 
+    // If owner changes, must be either transferOwnership or renounceOwnership
     assert oldCurrent != newCurrent => (
-        e.msg.sender == oldCurrent && f.selector == sig:transferOwnership(address).selector
+        (e.msg.sender == oldCurrent && newCurrent != 0 && f.selector == sig:transferOwnership(address).selector) ||
+        (e.msg.sender == oldCurrent && newCurrent == 0 && f.selector == sig:renounceOwnership().selector)
     );
 }

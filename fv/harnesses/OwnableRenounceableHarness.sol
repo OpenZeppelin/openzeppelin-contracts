@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Ownable2Step} from "../patched/access/Ownable2Step.sol";
+import {OwnableRenounceable} from "../patched/access/OwnableRenounceable.sol";
 import {Ownable} from "../patched/access/Ownable.sol";
 
-contract Ownable2StepHarness is Ownable2Step {
+contract OwnableRenounceableHarness is OwnableRenounceable {
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     function restricted() external onlyOwner {}
