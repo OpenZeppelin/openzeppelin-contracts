@@ -7,44 +7,48 @@ const amount = 100n;
 export function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustodial = false } = {}) {
   describe('bridge ERC20 like', function () {
     beforeEach(function () {
-      // helper
+      // helper: payload of a transfer coming from chain B
       this.encodePayload = (from, to, amount) =>
         ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes', 'bytes', 'uint256'],
-          [this.helpers.chain.toErc7930(from), to.target ?? to.address ?? to, amount],
+          [this.chainB.helpers.chain.toErc7930(from), to.target ?? to.address ?? to, amount],
         );
     });
 
     it('bridge setup', async function () {
-      await expect(this.bridgeA.getLink(this.helpers.chain.erc7930)).to.eventually.deep.equal([
-        this.gateway.target,
-        this.helpers.chain.toErc7930(this.bridgeB),
+      await expect(this.bridgeA.getLink(this.chainB.helpers.chain.erc7930)).to.eventually.deep.equal([
+        this.bridge.gateway(this.chainA).target,
+        this.chainB.helpers.chain.toErc7930(this.bridgeB),
       ]);
-      await expect(this.bridgeB.getLink(this.helpers.chain.erc7930)).to.eventually.deep.equal([
-        this.gateway.target,
-        this.helpers.chain.toErc7930(this.bridgeA),
+      await expect(this.bridgeB.getLink(this.chainA.helpers.chain.erc7930)).to.eventually.deep.equal([
+        this.bridge.gateway(this.chainB).target,
+        this.chainA.helpers.chain.toErc7930(this.bridgeA),
       ]);
     });
 
     it('crosschain send (both direction)', async function () {
-      const [alice, bruce, chris] = this.accounts;
+      const [alice, , chris] = this.accountsA;
+      const [, bruce] = this.accountsB;
 
       await this.tokenA.$_mint(alice, amount);
       await this.tokenA.connect(alice).approve(this.bridgeA, ethers.MaxUint256);
 
       // Alice sends tokens from chain A to Bruce on chain B.
-      await expect(this.bridgeA.connect(alice).crosschainTransfer(this.helpers.chain.toErc7930(bruce), amount))
+      await expect(this.bridgeA.connect(alice).crosschainTransfer(this.chainB.helpers.chain.toErc7930(bruce), amount))
         // bridge on chain A takes custody of the funds
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, amount)
         // crosschain transfer sent
         .to.emit(this.bridgeA, 'CrosschainFungibleTransferSent')
-        .withArgs(anyValue, alice, this.helpers.chain.toErc7930(bruce), amount)
+        .withArgs(anyValue, alice, this.chainB.helpers.chain.toErc7930(bruce), amount)
         // ERC-7786 event
-        .to.emit(this.gateway, 'MessageSent')
+        .to.emit(this.bridge.gateway(this.chainA), 'MessageSent');
+
+      // The bridge delivers the message on chain B.
+      await expect(this.bridge.relay().then(([tx]) => tx))
         // crosschain transfer received
         .to.emit(this.bridgeB, 'CrosschainFungibleTransferReceived')
-        .withArgs(anyValue, this.helpers.chain.toErc7930(alice), bruce, amount)
+        .withArgs(anyValue, this.chainA.helpers.chain.toErc7930(alice), bruce, amount)
         // crosschain mint event
         .to.emit(this.tokenB, 'CrosschainMint')
         .withArgs(bruce, amount, this.bridgeB)
@@ -53,7 +57,7 @@ export function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBI
         .withArgs(chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, bruce, amount);
 
       // Bruce sends tokens from chain B to Chris on chain A.
-      await expect(this.bridgeB.connect(bruce).crosschainTransfer(this.helpers.chain.toErc7930(chris), amount))
+      await expect(this.bridgeB.connect(bruce).crosschainTransfer(this.chainA.helpers.chain.toErc7930(chris), amount))
         // tokens are burned on chain B
         .to.emit(this.tokenB, 'Transfer')
         .withArgs(bruce, chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, amount)
@@ -62,12 +66,15 @@ export function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBI
         .withArgs(bruce, amount, this.bridgeB)
         // crosschain transfer sent
         .to.emit(this.bridgeB, 'CrosschainFungibleTransferSent')
-        .withArgs(anyValue, bruce, this.helpers.chain.toErc7930(chris), amount)
+        .withArgs(anyValue, bruce, this.chainA.helpers.chain.toErc7930(chris), amount)
         // ERC-7786 event
-        .to.emit(this.gateway, 'MessageSent')
+        .to.emit(this.bridge.gateway(this.chainB), 'MessageSent');
+
+      // The bridge delivers the message back on chain A.
+      await expect(this.bridge.relay().then(([tx]) => tx))
         // crosschain transfer received
         .to.emit(this.bridgeA, 'CrosschainFungibleTransferReceived')
-        .withArgs(anyValue, this.helpers.chain.toErc7930(bruce), chris, amount)
+        .withArgs(anyValue, this.chainB.helpers.chain.toErc7930(bruce), chris, amount)
         // bridge on chain A releases custody of the funds
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, chris, amount);
@@ -75,13 +82,13 @@ export function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBI
 
     describe('invalid transfer', function () {
       it('reverts if the address part of the interoperable address is empty', async function () {
-        const [alice] = this.accounts;
+        const [alice] = this.accountsA;
 
         await this.tokenA.$_mint(alice, amount);
         await this.tokenA.connect(alice).approve(this.bridgeA, ethers.MaxUint256);
 
         await expect(
-          this.bridgeA.connect(alice).crosschainTransfer(this.helpers.chain.toErc7930(undefined), amount), // No address
+          this.bridgeA.connect(alice).crosschainTransfer(this.chainB.helpers.chain.toErc7930(undefined), amount), // No address
         ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainFungibleEmptyAddress');
       });
     });
@@ -92,63 +99,70 @@ export function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBI
       });
 
       it('only gateway can relay messages', async function () {
-        const [notGateway] = this.accounts;
+        const [notGateway] = this.accountsA;
 
         await expect(
           this.bridgeA
             .connect(notGateway)
             .receiveMessage(
               ethers.ZeroHash,
-              this.helpers.chain.toErc7930(this.tokenB),
+              this.chainB.helpers.chain.toErc7930(this.tokenB),
               this.encodePayload(notGateway, notGateway, amount),
             ),
         )
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
-          .withArgs(notGateway, this.helpers.chain.toErc7930(this.tokenB));
+          .withArgs(notGateway, this.chainB.helpers.chain.toErc7930(this.tokenB));
       });
 
       it('only counterpart can send a crosschain message', async function () {
-        const [invalid] = this.accounts;
+        const [invalid] = this.accountsA;
 
+        // the gateway is the expected one, but the sender on chain B is not the registered counterpart
         await expect(
-          this.gateway
-            .connect(invalid)
-            .sendMessage(this.helpers.chain.toErc7930(this.bridgeA), this.encodePayload(invalid, invalid, amount), []),
+          this.bridge
+            .gateway(this.chainA)
+            .relayMessage(
+              this.chainB.helpers.chain.toErc7930(invalid),
+              this.chainA.helpers.chain.toErc7930(this.bridgeA),
+              this.encodePayload(invalid, invalid, amount),
+            ),
         )
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
-          .withArgs(this.gateway, this.helpers.chain.toErc7930(invalid));
+          .withArgs(this.bridge.gateway(this.chainA), this.chainB.helpers.chain.toErc7930(invalid));
       });
     });
 
     describe('reconfiguration', function () {
       it('updating a link emits an event', async function () {
-        const newGateway = await this.ethers.deployContract('$ERC7786GatewayMock');
-        const newCounterpart = this.helpers.chain.toErc7930(this.accounts[0]);
+        const newGateway = await this.chainA.ethers.deployContract('$ERC7786GatewayMock');
+        const newCounterpart = this.chainB.helpers.chain.toErc7930(this.accountsA[0]);
 
         await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, true))
           .to.emit(this.bridgeA, 'LinkRegistered')
           .withArgs(newGateway, newCounterpart);
 
-        await expect(this.bridgeA.getLink(this.helpers.chain.erc7930)).to.eventually.deep.equal([
+        await expect(this.bridgeA.getLink(this.chainB.helpers.chain.erc7930)).to.eventually.deep.equal([
           newGateway.target,
           newCounterpart,
         ]);
       });
 
       it('cannot override configuration is "allowOverride" is false', async function () {
-        const newGateway = await this.ethers.deployContract('$ERC7786GatewayMock');
-        const newCounterpart = this.helpers.chain.toErc7930(this.accounts[0]);
+        const newGateway = await this.chainA.ethers.deployContract('$ERC7786GatewayMock');
+        const newCounterpart = this.chainB.helpers.chain.toErc7930(this.accountsA[0]);
 
         await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, false))
           .to.be.revertedWithCustomError(this.bridgeA, 'LinkAlreadyRegistered')
-          .withArgs(this.helpers.chain.erc7930);
+          .withArgs(this.chainB.helpers.chain.erc7930);
       });
 
       it('reject invalid gateway', async function () {
-        const notAGateway = this.accounts[0];
-        const newCounterpart = this.helpers.chain.toErc7930(this.accounts[0]);
+        const notAGateway = this.accountsA[0];
+        const newCounterpart = this.chainB.helpers.chain.toErc7930(this.accountsA[0]);
 
-        await expect(this.bridgeA.$_setLink(notAGateway, newCounterpart, false)).to.be.revertedWithoutReason(ethers);
+        await expect(this.bridgeA.$_setLink(notAGateway, newCounterpart, false)).to.be.revertedWithoutReason(
+          this.chainA.ethers,
+        );
       });
     });
   });
