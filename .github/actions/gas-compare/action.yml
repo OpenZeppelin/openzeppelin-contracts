@@ -36,7 +36,7 @@ runs:
         # Produce small report if the diff touches any contracts, otherwise fall back to full report
         filter=()
         if [ -s changed.txt ]; then
-          node scripts/gas-affected-contracts.js < changed.txt > diff.json
+          node scripts/list-dependencies.js < changed.txt > diff.json
           filter=(--filtered diff.json)
         fi
         node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} "${filter[@]}" | tee gas-report.md >> $GITHUB_STEP_SUMMARY

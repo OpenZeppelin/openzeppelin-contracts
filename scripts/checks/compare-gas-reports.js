@@ -22,7 +22,7 @@ const { argv } = yargs(hideBin(process.argv))
       type: 'boolean',
       default: false,
     },
-    // JSON array of source files the change reaches (from `scripts/gas-affected-contracts.js`); absent = report all.
+    // JSON array of source files the change reaches (from `scripts/list-dependencies.js`); absent = report all.
     filtered: {
       type: 'string',
     },
