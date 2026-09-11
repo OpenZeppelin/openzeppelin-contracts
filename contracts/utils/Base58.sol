@@ -31,9 +31,25 @@ library Base58 {
 
     /**
      * @dev Decode a Base58 `string` into a `bytes` buffer.
+     *
+     * Reverts with {InvalidBase58Char} if `input` contains a character outside the Base58 alphabet.
+     * See {tryDecode} for a variant that does not revert.
      */
     function decode(string memory input) internal pure returns (bytes memory) {
-        return _decode(bytes(input));
+        (bool success, bytes1 invalidChar, bytes memory output) = _tryDecode(bytes(input));
+        if (!success) revert InvalidBase58Char(invalidChar);
+        return output;
+    }
+
+    /**
+     * @dev Variant of {decode} that does not revert on malformed input.
+     *
+     * Returns a boolean `success` flag instead of reverting when `input` contains a character outside the
+     * Base58 alphabet. On success, `output` holds the decoded bytes; on failure, `success` is `false` and
+     * `output` is empty.
+     */
+    function tryDecode(string memory input) internal pure returns (bool success, bytes memory output) {
+        (success, , output) = _tryDecode(bytes(input));
     }
 
     function _encode(bytes memory input) private pure returns (bytes memory output) {
@@ -138,11 +154,19 @@ library Base58 {
         }
     }
 
-    function _decode(bytes memory input) private pure returns (bytes memory output) {
-        bytes4 errorSelector = InvalidBase58Char.selector;
-
+    /**
+     * @dev Internal decoding routine shared by {decode} and {tryDecode}.
+     *
+     * Instead of reverting, it reports whether decoding succeeded through `success` and, when it fails,
+     * returns the first offending character in `invalidChar` (left-aligned in a `bytes1`). Note that a
+     * valid null byte in the input is itself invalid and surfaces as `invalidChar == 0x00`, which is why
+     * `success` (not `invalidChar`) is the source of truth. On failure `output` is empty.
+     */
+    function _tryDecode(
+        bytes memory input
+    ) private pure returns (bool success, bytes1 invalidChar, bytes memory output) {
         uint256 inputLength = input.length;
-        if (inputLength == 0) return "";
+        if (inputLength == 0) return (true, 0x00, "");
 
         assembly ("memory-safe") {
             let inputLeadingZeros := 0 // Number of leading '1' in `input`.
@@ -176,6 +200,8 @@ library Base58 {
             //                               ↑ ptr (moves right as limbs are added)
             let ptr := scratch
             let mask := shr(8, not(0))
+
+            success := 1
             for {
                 let j := 0
             } lt(j, inputLength) {
@@ -189,9 +215,9 @@ library Base58 {
                 // shl(c, 1) creates a single bit at position c, AND with bitmask checks if character is valid
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
-                    mstore(0, errorSelector)
-                    mstore(4, shl(248, add(c, 49)))
-                    revert(0, 0x24)
+                    invalidChar := shl(248, add(c, 49))
+                    success := 0
+                    break
                 }
                 let carry := byte(0, mload(c)) // Look up Base58 numeric value from decoding table
 
@@ -212,29 +238,36 @@ library Base58 {
                 }
             }
 
-            // Copy and compact the uint248 limbs + remove any zeros at the beginning.
-            output := scratch
-            for {
-                let i := scratch
-            } lt(i, ptr) {
-                i := add(i, 0x20)
-            } {
-                output := sub(output, 31)
-                mstore(sub(output, 1), mload(i))
+            switch success
+            case 1 {
+                // Copy and compact the uint248 limbs + remove any zeros at the beginning.
+                output := scratch
+                for {
+                    let i := scratch
+                } lt(i, ptr) {
+                    i := add(i, 0x20)
+                } {
+                    output := sub(output, 31)
+                    mstore(sub(output, 1), mload(i))
+                }
+                for {} lt(byte(0, mload(output)), lt(output, scratch)) {} {
+                    output := add(output, 1)
+                }
+
+                // Add the zeros that were encoded in the input (prefix '1's)
+                calldatacopy(sub(output, inputLeadingZeros), calldatasize(), inputLeadingZeros)
+
+                // Move output pointer to account for inputLeadingZeros
+                output := sub(output, add(inputLeadingZeros, 0x20))
+
+                // Store length and allocate (reserve) memory up to scratch.
+                mstore(output, sub(scratch, add(output, 0x20)))
+                mstore(0x40, scratch)
             }
-            for {} lt(byte(0, mload(output)), lt(output, scratch)) {} {
-                output := add(output, 1)
+            default {
+                // Reconstruct and restore original FMP on malformed input
+                mstore(0x40, sub(scratch, add(outputLengthEstim, 0x21)))
             }
-
-            // Add the zeros that were encoded in the input (prefix '1's)
-            calldatacopy(sub(output, inputLeadingZeros), calldatasize(), inputLeadingZeros)
-
-            // Move output pointer to account for inputLeadingZeros
-            output := sub(output, add(inputLeadingZeros, 0x20))
-
-            // Store length and allocate (reserve) memory up to scratch.
-            mstore(output, sub(scratch, add(output, 0x20)))
-            mstore(0x40, scratch)
         }
     }
 }

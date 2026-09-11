@@ -62,5 +62,21 @@ describe('Base58', function () {
             .withArgs(getHexCode(chr));
         });
     });
+
+    describe('tryDecode', function () {
+      it('returns success and the decoded bytes for valid input', async function () {
+        const buffer = random.bytes(42);
+        const hex = ethers.hexlify(buffer);
+        const b58 = ethers.encodeBase58(buffer);
+
+        await expect(this.mock.$tryDecode(b58)).to.eventually.deep.equal([true, hex]);
+        await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
+      });
+
+      it('returns failure and an empty buffer instead of reverting on invalid input', async function () {
+        for (const chr of ['I', '-', '~'])
+          await expect(this.mock.$tryDecode(`VYRWKp${chr}pnN7`)).to.eventually.deep.equal([false, '0x']);
+      });
+    });
   });
 });
