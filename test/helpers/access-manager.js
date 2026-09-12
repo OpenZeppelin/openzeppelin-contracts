@@ -45,7 +45,6 @@ export const formatAccess = access => [access[0], access[1].toString()];
 export const MINSETBACK = duration.days(5);
 export const EXPIRATION = duration.weeks(1);
 
-export const EXECUTION_ID_STORAGE_SLOT = await upgradeableSlot('AccessManager', 3n);
 export const CONSUMING_SCHEDULE_STORAGE_SLOT = await upgradeableSlot('AccessManaged', 0n);
 
 /**
