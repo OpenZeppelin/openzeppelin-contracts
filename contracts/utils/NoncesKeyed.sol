@@ -38,7 +38,7 @@ abstract contract NoncesKeyed is Nonces {
     }
 
     /**
-     * @dev Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
+     * @dev Same as {NoncesKeyed-_useNonce} but checking that `nonce` is the next valid for `owner`.
      *
      * This version takes the key and the nonce in a single uint256 parameter:
      * - use the first 24 bytes for the key
@@ -55,7 +55,7 @@ abstract contract NoncesKeyed is Nonces {
     }
 
     /**
-     * @dev Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
+     * @dev Same as {NoncesKeyed-_useNonce} but checking that `nonce` is the next valid for `owner`.
      *
      * This version takes the key and the nonce as two different parameters.
      */

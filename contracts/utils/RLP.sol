@@ -168,7 +168,7 @@ library RLP {
     /**
      * @dev Encode a uint256 as an RLP scalar.
      *
-     * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
+     * Unlike {RLP-encode-bytes32}, this function uses scalar encoding that removes the prefix zeros.
      */
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
@@ -193,7 +193,7 @@ library RLP {
     /**
      * @dev Encode a bytes32 as an RLP item of fixed size (32 bytes).
      *
-     * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
+     * Unlike {RLP-encode-uint256}, this function uses array encoding that preserves the prefix zeros.
      */
     function encode(bytes32 input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
@@ -211,7 +211,7 @@ library RLP {
             (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? bytes.concat(input) : _encode(input, SHORT_OFFSET);
     }
 
-    /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
+    /// @dev Encode a string as RLP. Type alias for {RLP-encode-bytes}.
     function encode(string memory input) internal pure returns (bytes memory) {
         return encode(bytes(input));
     }
@@ -293,7 +293,7 @@ library RLP {
     }
 
     /**
-     * @dev Decode an RLP encoded uint256. See {encode-uint256}
+     * @dev Decode an RLP encoded uint256. See {RLP-encode-uint256}
      *
      * [NOTE]
      * ====
@@ -321,7 +321,7 @@ library RLP {
     }
 
     /**
-     * @dev Decode an RLP encoded bytes32. See {encode-bytes32}
+     * @dev Decode an RLP encoded bytes32. See {RLP-encode-bytes32}
      *
      * NOTE: Since this function delegates to {readUint256}, it inherits the non-canonical
      * encoding acceptance behavior for multi-byte values. Multiple RLP encodings with different
@@ -332,7 +332,7 @@ library RLP {
         return bytes32(readUint256(item));
     }
 
-    /// @dev Decodes an RLP encoded bytes. See {encode-bytes}
+    /// @dev Decodes an RLP encoded bytes. See {RLP-encode-bytes}
     function readBytes(Memory.Slice item) internal pure returns (bytes memory) {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());
