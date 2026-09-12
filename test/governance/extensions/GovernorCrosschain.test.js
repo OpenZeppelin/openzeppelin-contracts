@@ -96,6 +96,39 @@ describe('GovernorCrosschain', function () {
     await expect(this.helper.execute()).to.emit(this.receiver, 'MockFunctionCalledExtra').withArgs(this.executor, 0n);
   });
 
+  it('forwards value to the gateway as a message fee', async function () {
+    const fee = ethers.parseEther('0.5');
+
+    this.helper.setProposal(
+      [
+        {
+          target: this.governor.target,
+          value: fee,
+          data: this.governor.interface.encodeFunctionData('relayCrosschain(address,bytes,bytes32,bytes)', [
+            this.gateway.target,
+            chain.toErc7930(this.executor),
+            encodeMode({ callType: CALL_TYPE_CALL }),
+            encodeSingle(this.receiver, 0n, this.receiver.interface.encodeFunctionData('mockFunctionExtra')),
+          ]),
+        },
+      ],
+      '<proposal description>',
+    );
+
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
+    await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+    await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+    await this.helper.waitForDeadline();
+
+    await expect(this.helper.execute())
+      .to.emit(this.governor, 'CrosschainInstructionRelayed')
+      .withArgs(ethers.ZeroHash, this.gateway, chain.toErc7930(this.executor));
+
+    // the gateway mock forwards the fee to the recipient, so it lands on the executor
+    await expect(ethers.provider.getBalance(this.executor)).to.eventually.equal(fee);
+  });
+
   it('relayCrosschain is onlyGovernance', async function () {
     await expect(
       this.governor.getFunction('relayCrosschain(address,bytes,bytes32,bytes)')(
