@@ -13,6 +13,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { memoize } from './helpers.js';
 
 const option = name => process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
 const ROOT = path.resolve(option('root') ?? path.join(import.meta.dirname, '..'));
@@ -60,8 +61,9 @@ const PARSERS = new Map(
   }),
 );
 
-// Imports of `file`, or an empty list if it cannot be read or parsed.
-const imports = file => {
+// Imports of `file`, or an empty list if it cannot be read or parsed. Memoized: `reachable` reaches the same file
+// from many entry points, so each one is read from disk and parsed once.
+const imports = memoize(file => {
   try {
     const parser = PARSERS.get(path.extname(file)) ?? PARSERS.get('default');
     return parser(fs.readFileSync(path.join(ROOT, file), 'utf8'), file);
@@ -69,7 +71,7 @@ const imports = file => {
     console.warn(`[WARNING] Could not resolve ${file} imports, the file may be missing or malformed.`);
     return [];
   }
-};
+});
 
 // `file` and everything it imports, recursively.
 const reachable = (file, acc = new Set()) => {
