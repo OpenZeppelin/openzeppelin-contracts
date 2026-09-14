@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {Execution} from "../../interfaces/draft-IERC7579.sol";
-import {Packing} from "../../utils/Packing.sol";
 import {Address} from "../../utils/Address.sol";
+import {Packing} from "../../utils/Packing.sol";
 
 type Mode is bytes32;
 type CallType is bytes1;
