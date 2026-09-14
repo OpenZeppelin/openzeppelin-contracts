@@ -57,20 +57,23 @@ jobs:
             # An empty change list reaches every config, which is what forcing all of them asks for.
             : > changed.txt
           else
-            # Harnesses import through `fv/patched`, which `make -C fv apply` builds from `contracts`
-            # plus the `fv/diff` patches, each named after the file it patches with `/` written as `_`.
-            # `--redirect` walks the first half of that; the `awk` walks the second, restoring the
-            # contract path a changed patch stands for -- the same `_` to `/` mapping `make apply`
-            # does, so a name that breaks this breaks the patch step too, loudly. Emitted whether or
-            # not the patch survives the diff: adding, editing and deleting one all change what the
-            # prover reads.
+            # A harness imports `../patched/<p>`, and `make -C fv apply` builds that file out of two
+            # tracked ones: `contracts/<p>`, plus `fv/diff/<p, with / written as _>.patch` applied on
+            # top. A change to either is a change to what the prover reads, so either has to select
+            # the config. `--redirect` rewrites the import onto `contracts/<p>`, which covers the
+            # first; the walker has no notion of the second, so map a changed patch back onto the
+            # contract it applies to and let that path do the selecting. Added, edited or deleted,
+            # the patch is named in the diff either way. Undoing the `_` is what `make apply` does
+            # too, so a name that breaks this breaks the patch step as well.
             git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
               awk '{ print } /^fv\/diff\/.+[.]patch$/ { sub(/^fv\/diff\//, ""); sub(/[.]patch$/, ""); gsub(/_/, "/"); print "contracts/" $0 }' > changed.txt
-            # A config the diff deletes is not in the head tree, so nothing can select it: left alone,
-            # removing every config would report an empty set, run no job and pass. Refuse instead, so
-            # dropping a verification is a deliberate choice -- and only write access can label.
+            # Configs are discovered by listing `head/fv/specs`, so one the diff deletes is not there
+            # to be selected: delete every config and the set is empty, `verify` is skipped and
+            # `verified` passes green with the verification gone. Refuse unless the label says that
+            # was the intent -- labelling takes write access, which is what makes it a reviewed one.
             REMOVED=$(git -C head diff --name-only --diff-filter=D "$BASE_SHA"..."$HEAD_SHA" -- 'fv/specs/*.conf')
             if [[ -n $REMOVED && $ALLOW_REMOVED != 'true' ]]; then
+              # One config per line, joined: a workflow annotation is a single line.
               echo "::error::This change removes ${REMOVED//$'\n'/, }, which cannot appear in the affected set. Label the pull request 'formal-verification-allow-removal' to confirm the verification is meant to go away with it."
               exit 1
             fi
