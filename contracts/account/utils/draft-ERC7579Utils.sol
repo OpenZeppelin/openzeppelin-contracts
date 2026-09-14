@@ -228,19 +228,30 @@ library ERC7579Utils {
      * array, checking that everything is valid.
      */
     function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
-        if (bound < msg.data.length) {
-            for (uint256 i = 0; i < executionBatch.length; ++i) {
-                Execution calldata item = executionBatch[i];
-                bytes calldata itemCalldata = item.callData;
-
-                uint256 itemEnd;
-                uint256 itemCalldataEnd;
-                assembly ("memory-safe") {
-                    itemEnd := add(item, 0x60)
-                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
-                }
-                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
+        uint256 batchStart;
+        assembly ("memory-safe") {
+            batchStart := executionBatch.offset
+        }
+        for (uint256 i = 0; i < executionBatch.length; ++i) {
+            // Read the item's offset and its callData descriptors directly. Constructing the Solidity
+            // `Execution calldata` / `bytes calldata` views instead would emit static-part bounds checks that
+            // revert generically (no error data) whenever a wrapped or otherwise ill-formed pointer places the
+            // struct or its `callData` slice past `calldatasize`.
+            uint256 itemOffset;
+            uint256 itemCalldataOffset;
+            uint256 itemCalldataLength;
+            assembly ("memory-safe") {
+                itemOffset := add(batchStart, calldataload(add(batchStart, mul(i, 0x20))))
+                itemCalldataOffset := add(itemOffset, add(calldataload(add(itemOffset, 0x40)), 0x20))
+                itemCalldataLength := calldataload(sub(itemCalldataOffset, 0x20))
             }
+            if (
+                itemOffset < batchStart ||
+                itemOffset > bound - 0x60 ||
+                itemCalldataOffset < batchStart ||
+                itemCalldataOffset > bound ||
+                itemCalldataLength > bound - itemCalldataOffset
+            ) revert ERC7579DecodingError();
         }
     }
 
