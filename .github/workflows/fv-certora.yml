@@ -43,16 +43,42 @@ jobs:
           fetch-depth: 0 # full history so the base...head diff can find its merge-base
           path: head
           persist-credentials: false
+      # No setup step: `list-dependencies.js` uses node builtins only, so the runner's node is enough.
       - name: Identify the configs that need to be run
         id: identify
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          FORCE_ALL_FLAG: ${{ (github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')) && '--all' || '' }}
-          ALLOW_REMOVED_FLAG: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') && '--allow-removed' || '' }}
+          FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
+          ALLOW_REMOVED: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') }}
         run: |
-          changed=$(git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA") # unused on --all
-          echo "configs=$(node base/fv/dependencies.js --root=head "${FORCE_ALL_FLAG:-$ALLOW_REMOVED_FLAG}" <<< "$changed")" >> "$GITHUB_OUTPUT"
+          set -o pipefail
+          if [[ $FORCE_ALL = 'true' ]]; then
+            # An empty change list reaches every config, which is what forcing all of them asks for.
+            : > changed.txt
+          else
+            # Harnesses import through `fv/patched`, which `make -C fv apply` builds from `contracts`
+            # plus the `fv/diff` patches, each named after the file it patches with `/` written as `_`.
+            # `--redirect` walks the first half of that; the `awk` walks the second, restoring the
+            # contract path a changed patch stands for -- the same `_` to `/` mapping `make apply`
+            # does, so a name that breaks this breaks the patch step too, loudly. Emitted whether or
+            # not the patch survives the diff: adding, editing and deleting one all change what the
+            # prover reads.
+            git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+              awk '{ print } /^fv\/diff\/.+[.]patch$/ { sub(/^fv\/diff\//, ""); sub(/[.]patch$/, ""); gsub(/_/, "/"); print "contracts/" $0 }' > changed.txt
+            # A config the diff deletes is not in the head tree, so nothing can select it: left alone,
+            # removing every config would report an empty set, run no job and pass. Refuse instead, so
+            # dropping a verification is a deliberate choice -- and only write access can label.
+            REMOVED=$(git -C head diff --name-only --diff-filter=D "$BASE_SHA"..."$HEAD_SHA" -- 'fv/specs/*.conf')
+            if [[ -n $REMOVED && $ALLOW_REMOVED != 'true' ]]; then
+              echo "::error::This change removes ${REMOVED//$'\n'/, }, which cannot appear in the affected set. Label the pull request 'formal-verification-allow-removal' to confirm the verification is meant to go away with it."
+              exit 1
+            fi
+          fi
+          {
+            printf 'configs='
+            node base/scripts/list-dependencies.js --root=head --src=fv/specs --ext=.conf --redirect=fv/patched/:contracts/ < changed.txt
+          } >> "$GITHUB_OUTPUT"
       - name: Report the affected configs
         env:
           CONFIGS: ${{ steps.identify.outputs.configs }}
