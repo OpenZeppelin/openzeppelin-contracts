@@ -3,12 +3,12 @@
 
 pragma solidity ^0.8.24;
 
-import {Governor} from "../Governor.sol";
-import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
-import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
+import {Governor} from "../Governor.sol";
+import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
+import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
 
 /**
  * @dev Extension of {GovernorVotesQuorumFraction} with a super quorum expressed as a
