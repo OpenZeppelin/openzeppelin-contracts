@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC20, ERC20} from "../ERC20.sol";
 import {IERC8255} from "../../../interfaces/draft-IERC8255.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
 
 /**
  * @dev Extension of {ERC20} that adds support for expiring approvals following ERC-8255.
