@@ -1,9 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const time = require('../../../helpers/time');
+import { network } from 'hardhat';
+import { expect } from 'chai';
 
-const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
+import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
+
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -33,7 +38,7 @@ async function legacyFixture() {
 
 describe('ERC20ExpiringApproval', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeERC20(initialSupply);
@@ -125,7 +130,7 @@ describe('ERC20ExpiringApproval', function () {
           ]),
         },
       ]),
-    ).to.changeTokenBalances(this.token, [batch, this.recipient], [-value, value]);
+    ).to.changeTokenBalances(ethers, this.token, [batch, this.recipient], [-value, value]);
   });
 
   it('preserves expiration when transferFrom spends part of the allowance', async function () {
@@ -185,7 +190,7 @@ describe('ERC20ExpiringApproval', function () {
 
   describe('legacy-compatible spenders', function () {
     beforeEach(async function () {
-      Object.assign(this, await loadFixture(legacyFixture));
+      Object.assign(this, connection, await loadFixture(legacyFixture));
     });
 
     it('does not treat spenders as legacy-compatible by default', async function () {
