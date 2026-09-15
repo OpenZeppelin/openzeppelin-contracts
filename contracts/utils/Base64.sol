@@ -241,11 +241,17 @@ library Base64 {
 
             // Reset the value that was cached
             mstore(afterPtr, afterCache)
-
-            // Store result length (0 on failure) and update FMP to reserve allocated space
-            let len := mul(success, resultLength)
-            mstore(result, len)
-            mstore(0x40, add(add(result, 0x20), len))
+            switch success
+            case 1 {
+                // Store result length and update FMP to reserve allocated space
+                mstore(result, resultLength)
+                mstore(0x40, add(add(result, 0x20), resultLength))
+            }
+            default {
+                // Restore original FMP on malformed input and return the zero slot
+                mstore(0x40, result)
+                result := 0x60
+            }
         }
     }
 }

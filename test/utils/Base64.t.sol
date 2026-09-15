@@ -42,7 +42,7 @@ contract Base64Test is Test {
         }
         assertFalse(success);
         assertEq(output, hex"");
-        assertEq(fmpAfter - fmpBefore, 0x20); // original fmp + one word for the empty `bytes` output
+        assertEq(fmpAfter, fmpBefore);
     }
 
     // `_tryDecode` temporarily overwrites the 32 bytes that follow `data` with fake "==" padding. Before
