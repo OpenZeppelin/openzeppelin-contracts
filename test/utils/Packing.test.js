@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { product } from '../helpers/iterate';
 import * as random from '../helpers/random';
-import { SIZES } from '../../scripts/generate/templates/Packing.opts';
+import { PACKING_SIZES as SIZES } from '../../scripts/generate/data.js';
 
 const {
   ethers,

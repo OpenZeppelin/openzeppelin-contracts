@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Context} from "../utils/Context.sol";
+import {Context} from "./Context.sol";
 
 interface IPausable {
     /**

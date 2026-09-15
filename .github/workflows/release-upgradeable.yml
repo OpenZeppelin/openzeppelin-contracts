@@ -75,7 +75,7 @@ jobs:
           REPO_SUFFIX: -upgradeable
         with:
           github-token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-          script: await require('./scripts/release/workflow/github-release.js')({ github, context })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/github-release.js').then(m => m.default({ github, context }))
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
