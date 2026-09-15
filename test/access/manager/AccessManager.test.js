@@ -1,13 +1,9 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT48 } from '../../helpers/constants';
+import { selector } from '../../helpers/methods';
 
-const { impersonate } = require('../../helpers/account');
-const { MAX_UINT48 } = require('../../helpers/constants');
-const { selector } = require('../../helpers/methods');
-const time = require('../../helpers/time');
-
-const {
+import {
   buildBaseRoles,
   formatAccess,
   EXPIRATION,
@@ -16,17 +12,17 @@ const {
   CONSUMING_SCHEDULE_STORAGE_SLOT,
   prepareOperation,
   hashOperation,
-} = require('../../helpers/access-manager');
+} from '../../helpers/access-manager';
 
-const {
+import {
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeNotDelayedAdminOperation,
   shouldBehaveLikeRoleAdminOperation,
   shouldBehaveLikeAManagedRestrictedOperation,
   shouldBehaveLikeASelfRestrictedOperation,
-} = require('./AccessManager.behavior');
+} from './AccessManager.behavior';
 
-const {
+import {
   LIKE_COMMON_SCHEDULABLE,
   testAsClosable,
   testAsDelay,
@@ -34,7 +30,14 @@ const {
   testAsCanCall,
   testAsHasRole,
   testAsGetAccess,
-} = require('./AccessManager.predicate');
+} from './AccessManager.predicate';
+
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { impersonate, time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
@@ -99,7 +102,7 @@ async function fixture() {
 // defined as constants.
 describe('AccessManager', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('during construction', function () {
@@ -735,7 +738,7 @@ describe('AccessManager', function () {
           this.calldata = this.target.interface.encodeFunctionData(fnRestricted, []);
           this.delay = time.duration.days(10);
 
-          const { operationId, schedule } = await prepareOperation(this.manager, {
+          const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
             caller: this.caller,
             target: this.target,
             calldata: this.calldata,
@@ -1108,7 +1111,7 @@ describe('AccessManager', function () {
           expect(await this.manager.isTargetClosed(this.target)).to.be.false;
         });
 
-        describe('when the target is the manager', async function () {
+        describe('when the target is the manager', function () {
           it('closes and opens the manager', async function () {
             await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
               .to.emit(this.manager, 'TargetClosed')
@@ -1810,7 +1813,7 @@ describe('AccessManager', function () {
       testAsCanCall({
         closed() {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
-            const { schedule } = await prepareOperation(this.manager, {
+            const { schedule } = await prepareOperation.bind(this)(this.manager, {
               caller: this.caller,
               target: this.target,
               calldata: this.calldata,
@@ -1828,7 +1831,7 @@ describe('AccessManager', function () {
             },
             notExecuting() {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
-                const { schedule } = await prepareOperation(this.manager, {
+                const { schedule } = await prepareOperation.bind(this)(this.manager, {
                   caller: this.caller,
                   target: this.target,
                   calldata: this.calldata,
@@ -1890,7 +1893,7 @@ describe('AccessManager', function () {
                 roleGrantingIsNotDelayed: {
                   callerHasAnExecutionDelay() {
                     it('succeeds', async function () {
-                      const { schedule } = await prepareOperation(this.manager, {
+                      const { schedule } = await prepareOperation.bind(this)(this.manager, {
                         caller: this.caller,
                         target: this.target,
                         calldata: this.calldata,
@@ -1912,7 +1915,7 @@ describe('AccessManager', function () {
               },
               requiredRoleIsNotGranted() {
                 it('reverts as AccessManagerUnauthorizedCall', async function () {
-                  const { schedule } = await prepareOperation(this.manager, {
+                  const { schedule } = await prepareOperation.bind(this)(this.manager, {
                     caller: this.caller,
                     target: this.target,
                     calldata: this.calldata,
@@ -1930,7 +1933,7 @@ describe('AccessManager', function () {
     });
 
     it('schedules an operation at the specified execution date if it is larger than caller execution delay', async function () {
-      const { operationId, scheduledAt, schedule } = await prepareOperation(this.manager, {
+      const { operationId, scheduledAt, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -1966,7 +1969,7 @@ describe('AccessManager', function () {
       expect(await this.manager.getNonce(expectedOperationId)).to.equal('0');
 
       // Schedule
-      const op1 = await prepareOperation(this.manager, {
+      const op1 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -1985,7 +1988,7 @@ describe('AccessManager', function () {
       expect(await this.manager.getNonce(expectedOperationId)).to.equal('1');
 
       // Schedule again
-      const op2 = await prepareOperation(this.manager, {
+      const op2 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2004,7 +2007,7 @@ describe('AccessManager', function () {
       const executionDelay = time.duration.weeks(1) + this.delay;
       await this.manager.$_grantRole(this.role.id, this.caller, 0, executionDelay);
 
-      const { schedule } = await prepareOperation(this.manager, {
+      const { schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2017,7 +2020,7 @@ describe('AccessManager', function () {
     });
 
     it('reverts if an operation is already schedule', async function () {
-      const op1 = await prepareOperation(this.manager, {
+      const op1 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2026,7 +2029,7 @@ describe('AccessManager', function () {
 
       await op1.schedule();
 
-      const op2 = await prepareOperation(this.manager, {
+      const op2 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2042,28 +2045,28 @@ describe('AccessManager', function () {
       const calldata = '0x1234'; // 2 bytes
 
       // Managed contract
-      const op1 = await prepareOperation(this.manager, {
+      const op1 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: calldata,
         delay: this.delay,
       });
-      await expect(op1.schedule()).to.be.revertedWithoutReason();
+      await expect(op1.schedule()).to.be.revertedWithoutReason(ethers);
 
       // Manager contract
-      const op2 = await prepareOperation(this.manager, {
+      const op2 = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.manager,
         calldata: calldata,
         delay: this.delay,
       });
-      await expect(op2.schedule()).to.be.revertedWithoutReason();
+      await expect(op2.schedule()).to.be.revertedWithoutReason(ethers);
     });
 
     it('reverts scheduling an unknown operation to the manager', async function () {
       const calldata = '0x12345678';
 
-      const { schedule } = await prepareOperation(this.manager, {
+      const { schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.manager,
         calldata,
@@ -2188,7 +2191,7 @@ describe('AccessManager', function () {
       const delay = time.duration.hours(4);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // Execution delay is needed so the operation is consumed
 
-      const { operationId, schedule } = await prepareOperation(this.manager, {
+      const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2209,7 +2212,7 @@ describe('AccessManager', function () {
       // give caller an execution delay
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1);
 
-      const { operationId, schedule } = await prepareOperation(this.manager, {
+      const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2239,7 +2242,7 @@ describe('AccessManager', function () {
       const delay = time.duration.hours(2);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // Execution delay is needed so the operation is consumed
 
-      const { operationId, schedule } = await prepareOperation(this.manager, {
+      const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -2392,6 +2395,48 @@ describe('AccessManager', function () {
             });
           });
 
+          [
+            { name: 'grant', method: 'grantRole(uint64,address,uint32)' },
+            { name: 'revoke', method: 'revokeRole(uint64,address)' },
+          ].forEach(({ name, method }) => {
+            describe(`when caller is a role admin (${name})`, function () {
+              beforeEach('reschedule as a role admin call targeting the manager', async function () {
+                this.method = this.manager.interface.getFunction(method);
+                this.caller = this.roles.SOME_ADMIN.members[0];
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.caller, 0, 1); // nonzero execution delay
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.other, 0, 1); // nonzero execution delay
+                this.calldata = this.manager.interface.encodeFunctionData(
+                  this.method,
+                  name == 'grant'
+                    ? [this.roles.SOME.id, ethers.ZeroAddress, 0]
+                    : [this.roles.SOME.id, ethers.ZeroAddress],
+                );
+                const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
+                  caller: this.caller,
+                  target: this.manager,
+                  calldata: this.calldata,
+                  delay: this.scheduleIn,
+                });
+                this.operationId = operationId;
+                await schedule();
+              });
+
+              it('another member of the role admin succeeds', async function () {
+                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+                  .to.emit(this.manager, 'OperationCanceled')
+                  .withArgs(this.operationId, 1n);
+                expect(await this.manager.getSchedule(this.operationId)).to.equal('0');
+              });
+
+              it('a member of the granted role but not its admin reverts', async function () {
+                const roleMember = this.roles.SOME.members[0];
+                await expect(this.manager.connect(roleMember).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(roleMember, this.caller, this.manager, this.method.selector);
+              });
+            });
+          });
+
           describe('when caller is any other account', function () {
             it('reverts as AccessManagerUnauthorizedCancel', async function () {
               await expect(this.manager.connect(this.other).cancel(this.caller, this.target, this.calldata))
@@ -2421,7 +2466,7 @@ describe('AccessManager', function () {
     });
 
     it('cancels an operation and resets schedule', async function () {
-      const { operationId, schedule } = await prepareOperation(this.manager, {
+      const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,

@@ -1,13 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { GovernorHelper } from '../helpers/governance';
+import { OperationState } from '../helpers/enums';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-const { GovernorHelper } = require('../helpers/governance');
-const { OperationState } = require('../helpers/enums');
-const time = require('../helpers/time');
-
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
 
@@ -1140,11 +1142,14 @@ describe('TimelockController', function () {
 
       await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
+      // Outer gas budget must leave enough for the FailedCall revert site after the inner OOGs.
+      // Instrumented bytecode under `--coverage` adds per-statement probes, so 100k is too tight;
+      // 500k gives headroom while still well below the EIP-7825 (Osaka) per-tx cap of 2^24.
       await expect(
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-            gasLimit: '100000',
+            gasLimit: 500_000n,
           }),
       ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });

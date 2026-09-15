@@ -3,16 +3,16 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {GovernorVotesSuperQuorumFractionMock} from "../../../contracts/mocks/governance/GovernorVotesSuperQuorumFractionMock.sol";
-import {GovernorVotesQuorumFraction} from "../../../contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import {GovernorVotesSuperQuorumFraction} from "../../../contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol";
-import {GovernorSettings} from "../../../contracts/governance/extensions/GovernorSettings.sol";
-import {GovernorVotes} from "../../../contracts/governance/extensions/GovernorVotes.sol";
-import {Governor} from "../../../contracts/governance/Governor.sol";
-import {IVotes} from "../../../contracts/governance/utils/IVotes.sol";
-import {ERC20VotesExtendedTimestampMock} from "../../../contracts/mocks/token/ERC20VotesAdditionalCheckpointsMock.sol";
-import {EIP712} from "../../../contracts/utils/cryptography/EIP712.sol";
-import {ERC20} from "../../../contracts/token/ERC20/ERC20.sol";
+import {GovernorVotesSuperQuorumFractionMock} from "@openzeppelin/contracts/mocks/governance/GovernorVotesSuperQuorumFractionMock.sol";
+import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {GovernorVotesSuperQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol";
+import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import {ERC20VotesExtendedTimestampMock} from "@openzeppelin/contracts/mocks/token/ERC20VotesAdditionalCheckpointsMock.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TokenMock is ERC20VotesExtendedTimestampMock {
     constructor() ERC20("Mock Token", "MTK") EIP712("Mock Token", "1") {}

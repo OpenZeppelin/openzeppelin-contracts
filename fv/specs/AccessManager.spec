@@ -172,13 +172,20 @@ rule canCall(env e) {
     address target;
     bytes4 selector;
 
+    // Calls to IAccessManaged.setAuthority are treated differently due to their sensitive nature: normal role
+    // management for this selector is bypassed: only the admin role can perform this call and any admin delay
+    // specific to this target is enforced.
+    bool isSetAuthorityCall = selector == to_bytes4(0x7a9e5e4b); // setAuthority(address)
+
     // Get relevant values
-    bool   immediate    = canCall_immediate(e, caller, target, selector);
-    uint32 delay        = canCall_delay(e, caller, target, selector);
-    bool   closed       = isTargetClosed(target);
-    uint64 roleId       = getTargetFunctionRole(target, selector);
-    bool   isMember     = hasRole_isMember(e, roleId, caller);
-    uint32 currentDelay = hasRole_executionDelay(e, roleId, caller);
+    bool    immediate    = canCall_immediate(e, caller, target, selector);
+    uint32  delay        = canCall_delay(e, caller, target, selector);
+    bool    closed       = isTargetClosed(target);
+    uint64  roleId       = isSetAuthorityCall ? ADMIN_ROLE() : getTargetFunctionRole(target, selector);
+    bool    isMember     = hasRole_isMember(e, roleId, caller);
+    uint32  memberDelay  = hasRole_executionDelay(e, roleId, caller);
+    uint32  targetDelay  = getTargetAdminDelay(e, target);
+    mathint currentDelay = max(memberDelay, isSetAuthorityCall ? targetDelay : 0);
 
     // Can only execute without delay in specific cases:
     // - target not closed
@@ -205,7 +212,7 @@ rule canCall(env e) {
     );
 
     // If there is a delay, then it must be the caller's execution delay
-    assert delay > 0 => delay == currentDelay;
+    assert delay > 0 => to_mathint(delay) == currentDelay;
 
     // Immediate execute means no delayed execution
     assert immediate => delay == 0;

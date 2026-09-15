@@ -61,6 +61,8 @@ A collection of contracts and libraries that implement various signature validat
 
 {{SignerEIP7702}}
 
+{{SignerWebAuthn}}
+
 {{SignerERC7913}}
 
 {{MultiSignerERC7913}}

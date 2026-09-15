@@ -65,7 +65,7 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, to);
         }
         preserved ERC20PermitHarness.burn(address from, uint256 amount) with (env e) {
-            // If someone can burn from the wrapper, than the invariant obviously doesn't hold.
+            // If someone can burn from the wrapper, then the invariant obviously doesn't hold.
             require from != currentContract;
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, currentContract);
         }

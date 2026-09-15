@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/Create3.sol)
 
 pragma solidity ^0.8.20;
 
@@ -120,7 +121,7 @@ library Create3 {
         return _computeCreateAddress(Create2.computeAddress(salt, PROXY_INITCODE_HASH, deployer));
     }
 
-    /// @dev Compute the address of the first contract that `creator` would deployed using CREATE (nonce 1).
+    /// @dev Compute the address of the first contract that `creator` would deploy using CREATE (nonce 1).
     function _computeCreateAddress(address creator) private pure returns (address addr) {
         assembly ("memory-safe") {
             mstore(0x15, 0x01)

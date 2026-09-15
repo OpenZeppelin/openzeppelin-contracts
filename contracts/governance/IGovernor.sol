@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/IGovernor.sol)
 
 pragma solidity >=0.8.4;
 
@@ -87,9 +87,14 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteParams();
 
     /**
-     * @dev Queue operation is not implemented for this governor. Execute should be called directly.
+     * @dev This operation doesn't require queuing and should be executed directly.
      */
-    error GovernorQueueNotImplemented();
+    error GovernorProposalQueueingNotRequired(uint256 proposalId);
+
+    /**
+     * @dev Indicates a misconfigured timelock module. (e.g. {_queueOperations} returned a zero ETA)
+     */
+    error GovernorProposalQueueingFailed(uint256 proposalId);
 
     /**
      * @dev The proposal has already been queued.

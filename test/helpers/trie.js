@@ -1,7 +1,7 @@
-const { ethers } = require('ethers');
-const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
+import { ethers } from 'ethers';
+import { MerklePatriciaTrie, createMerkleProof } from '@ethereumjs/mpt';
 
-class BlockTries {
+export class BlockTries {
   constructor(block) {
     this.block = block;
 
@@ -75,5 +75,3 @@ class BlockTries {
     return ethers.getBytes(BlockTries.indexToKey(index));
   }
 }
-
-module.exports = { BlockTries };
