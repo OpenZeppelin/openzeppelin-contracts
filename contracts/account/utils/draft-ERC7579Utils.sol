@@ -233,29 +233,39 @@ library ERC7579Utils {
         uint256 lowerBound,
         uint256 upperBound
     ) private pure {
-        for (uint256 i = 0; i < executionBatch.length; ++i) {
-            Execution calldata item = executionBatch[i];
-            bytes calldata itemCalldata = item.callData;
+        unchecked {
+            if (executionBatch.length > 0) {
+                // An item's head is 0x60 bytes long (target, value, and the offset to the calldata), and the
+                // content of an item's calldata is preceded by a 0x20 bytes length slot. Checking that the buffer
+                // can hold at least one item here means that the bounds below, and the comparisons in the loop,
+                // cannot underflow.
+                // Note that by construction upperBound >= lowerBound, so the subtraction cannot underflow.
+                if (upperBound - lowerBound < 0x60) revert ERC7579DecodingError();
+                // Cannot underflow: upperBound - 0x60 >= (lowerBound + 0x60) - 0x60 >= lowerBound
+                uint256 itemUpperBound = upperBound - 0x60;
+                // Cannot overflow: lowerBound + 0x20 <= lowerBound + 0x60 <= upperBound
+                uint256 itemCalldataLowerBound = lowerBound + 0x20;
 
-            uint256 itemPtr;
-            uint256 itemCalldataPtr;
-            assembly ("memory-safe") {
-                itemPtr := item
-                itemCalldataPtr := itemCalldata.offset
+                for (uint256 i = 0; i < executionBatch.length; ++i) {
+                    Execution calldata item = executionBatch[i];
+                    bytes calldata itemCalldata = item.callData;
+
+                    uint256 itemPtr;
+                    uint256 itemCalldataPtr;
+                    assembly ("memory-safe") {
+                        itemPtr := item
+                        itemCalldataPtr := itemCalldata.offset
+                    }
+
+                    if (
+                        itemPtr < lowerBound ||
+                        itemPtr > itemUpperBound ||
+                        itemCalldataPtr < itemCalldataLowerBound ||
+                        itemCalldataPtr > upperBound ||
+                        itemCalldata.length > upperBound - itemCalldataPtr
+                    ) revert ERC7579DecodingError();
+                }
             }
-
-            if (
-                // The item's head is 0x60 bytes long (target, value, and the offset to the calldata). Comparisons
-                // are ordered so that the subtraction is only evaluated when it cannot underflow.
-                itemPtr < lowerBound ||
-                itemPtr > upperBound ||
-                upperBound - itemPtr < 0x60 ||
-                // The content of the item's calldata is preceded by a 0x20 bytes length slot, that must be within the
-                // buffer as well. `lowerBound` is bounded by calldatasize, so the addition cannot overflow.
-                itemCalldataPtr < lowerBound + 0x20 ||
-                itemCalldataPtr > upperBound ||
-                upperBound - itemCalldataPtr < itemCalldata.length
-            ) revert ERC7579DecodingError();
         }
     }
 
