@@ -42,11 +42,8 @@ library Base58 {
     }
 
     /**
-     * @dev Variant of {decode} that does not revert on malformed input.
-     *
-     * Returns a boolean `success` flag instead of reverting when `input` contains a character outside the
-     * Base58 alphabet. On success, `output` holds the decoded bytes; on failure, `success` is `false` and
-     * `output` is empty.
+     * @dev Variant of {decode} that returns false instead of reverting if `input` contains a character
+     * outside the Base58 alphabet. On failure, `output` is empty.
      */
     function tryDecode(string memory input) internal pure returns (bool success, bytes memory output) {
         (success, , output) = _tryDecode(bytes(input));
@@ -158,9 +155,8 @@ library Base58 {
      * @dev Internal decoding routine shared by {decode} and {tryDecode}.
      *
      * Instead of reverting, it reports whether decoding succeeded through `success` and, when it fails,
-     * returns the first offending character in `invalidChar` (left-aligned in a `bytes1`). Note that a
-     * valid null byte in the input is itself invalid and surfaces as `invalidChar == 0x00`, which is why
-     * `success` (not `invalidChar`) is the source of truth. On failure `output` is empty.
+     * returns the first offending character in `invalidChar`. A null byte is outside the alphabet and
+     * surfaces as `invalidChar == 0x00`, so `success` is the source of truth. On failure `output` is empty.
      */
     function _tryDecode(
         bytes memory input

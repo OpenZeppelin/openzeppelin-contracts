@@ -45,6 +45,20 @@ contract Base64Test is Test {
         assertEq(fmpAfter - fmpBefore, 0x20); // original fmp + one word for the empty `bytes` output
     }
 
+    // `_tryDecode` temporarily overwrites the 32 bytes that follow `data` with fake "==" padding. Before
+    // `tryDecode`, an invalid character reverted, so restoring that word was unobservable on that path.
+    // `data` is exactly 32 bytes so the clobbered word is exactly `guard`'s length slot.
+    function testTryDecodeInvalidRestoresMemoryAfterInput() external pure {
+        bytes memory data = bytes("TWFuTWFuTWFuTWFuTWFuTWFuTWFuTW@u"); // '@' is outside the alphabet
+        bytes memory guard = new bytes(32);
+
+        (bool success, bytes memory output) = Base64.tryDecode(string(data));
+
+        assertFalse(success);
+        assertEq(output, hex"");
+        assertEq(guard.length, 32);
+    }
+
     function _removePadding(string memory inputStr) internal pure returns (string memory) {
         bytes memory input = bytes(inputStr);
         bytes memory output;

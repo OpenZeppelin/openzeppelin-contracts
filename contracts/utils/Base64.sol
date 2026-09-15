@@ -43,11 +43,8 @@ library Base64 {
     }
 
     /**
-     * @dev Variant of {decode} that does not revert on malformed input.
-     *
-     * Returns a boolean `success` flag instead of reverting when `data` contains a character outside the
-     * Base64 (or Base64Url) alphabet. On success, `result` holds the decoded bytes; on failure, `success`
-     * is `false` and `result` is empty.
+     * @dev Variant of {decode} that returns false instead of reverting if `data` contains a character
+     * outside the Base64 (or Base64Url) alphabet. On failure, `result` is empty.
      */
     function tryDecode(string memory data) internal pure returns (bool success, bytes memory result) {
         (success, , result) = _tryDecode(bytes(data));
@@ -156,9 +153,8 @@ library Base64 {
      * @dev Internal decoding routine shared by {decode} and {tryDecode}.
      *
      * Instead of reverting, it reports whether decoding succeeded through `success` and, when it fails,
-     * returns the first offending character in `invalidChar` (left-aligned in a `bytes1`). Note that a
-     * valid null byte in the input is itself invalid and surfaces as `invalidChar == 0x00`, which is why
-     * `success` (not `invalidChar`) is the source of truth. On failure `result` is empty.
+     * returns the first offending character in `invalidChar`. A null byte is outside the alphabet and
+     * surfaces as `invalidChar == 0x00`, so `success` is the source of truth. On failure `result` is empty.
      */
     function _tryDecode(
         bytes memory data
