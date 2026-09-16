@@ -13,6 +13,7 @@ In order to avoid clashes with the storage variables of the implementation contr
 
 - {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
 - {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
+- {ERC1967Clones}: A library that can deploy minimal ERC-1967 proxies that replicate the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. Unlike {ERC1967Proxy}, the clones do not accept initialization data at construction, so the deployer is expected to initialize the proxy in the same transaction as the deployment.
 
 There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
@@ -21,10 +22,10 @@ There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
 
-A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
+A different family of proxies is beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
 - {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
-- {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
+- {UpgradeableBeacon}: A beacon contract with a built-in admin that can upgrade the {BeaconProxy} pointing to it.
 
 In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC-1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
@@ -59,6 +60,8 @@ The current implementation of this security mechanism uses https://eips.ethereum
 {{IERC1967}}
 
 {{ERC1967Proxy}}
+
+{{ERC1967Clones}}
 
 {{ERC1967Utils}}
 

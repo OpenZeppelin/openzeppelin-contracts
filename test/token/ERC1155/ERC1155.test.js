@@ -1,9 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { RevertType } from '../../helpers/enums';
+import { zip } from '../../helpers/iterate';
+import { shouldBehaveLikeERC1155 } from './ERC1155.behavior';
 
-const { zip } = require('../../helpers/iterate');
-const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const initialURI = 'https://token-cdn-domain/{id}.json';
 
@@ -15,7 +20,7 @@ async function fixture() {
 
 describe('ERC1155', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeERC1155();
@@ -178,6 +183,50 @@ describe('ERC1155', function () {
             zip(mintValues, burnValues).map(([mintValue, burnValue]) => mintValue - burnValue),
           );
         });
+      });
+    });
+
+    describe('_updateWithAcceptanceCheck', function () {
+      beforeEach(async function () {
+        const factory = await ethers.getContractFactory('$ERC1155ReceiverMock');
+        this.receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
+          factory.interface.getFunction('onERC1155Received').selector,
+          factory.interface.getFunction('onERC1155BatchReceived').selector,
+          RevertType.None,
+        ]);
+      });
+
+      it('calls onERC1155Received when only one token is transferred', async function () {
+        await expect(
+          this.token.$_updateWithAcceptanceCheck(ethers.ZeroAddress, this.receiver, [tokenId], [mintValue], '0x'),
+        ).to.emit(this.receiver, 'Received');
+      });
+
+      it('calls onERC1155BatchReceived when only one token is transferred and batch flag is set to true', async function () {
+        await expect(
+          this.token.$_updateWithAcceptanceCheck(
+            ethers.ZeroAddress,
+            this.receiver,
+            [tokenId],
+            [mintValue],
+            '0x',
+            ethers.Typed.bool(true),
+          ),
+        ).to.emit(this.receiver, 'BatchReceived');
+      });
+
+      it('calls onERC1155BatchReceived when more than one token is transferred', async function () {
+        await expect(
+          this.token.$_updateWithAcceptanceCheck(ethers.ZeroAddress, this.receiver, tokenBatchIds, mintValues, '0x'),
+        ).to.emit(this.receiver, 'BatchReceived');
+      });
+    });
+
+    describe('_setApprovalForAll', function () {
+      it("reverts when adding an operator over the zero account's tokens", async function () {
+        await expect(this.token.$_setApprovalForAll(ethers.ZeroAddress, this.operator, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidApprover')
+          .withArgs(ethers.ZeroAddress);
       });
     });
   });

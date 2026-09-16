@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC20/extensions/ERC20Votes.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {ERC20} from "../ERC20.sol";
 import {Votes} from "../../../governance/utils/Votes.sol";
 import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
+import {ERC20} from "../ERC20.sol";
 
 /**
  * @dev Extension of ERC-20 to support Compound-like voting and delegation. This version is more generic than Compound's,

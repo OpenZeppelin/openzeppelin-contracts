@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Pausable.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/extensions/ERC721Pausable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {ERC721} from "../ERC721.sol";
 import {Pausable} from "../../../utils/Pausable.sol";
+import {ERC721} from "../ERC721.sol";
 
 /**
  * @dev ERC-721 token with pausable token transfers, minting and burning.

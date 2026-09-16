@@ -1,41 +1,46 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { mapValues } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
+import { SET_TYPES } from '../../../scripts/generate/data.js';
+import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 
-const { mapValues } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
-
-const getMethods = (mock, fnSigs) => {
-  return mapValues(
-    fnSigs,
-    fnSig =>
-      (...args) =>
-        mock.getFunction(fnSig)(0, ...args),
-  );
-};
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableSet');
 
   const env = Object.fromEntries(
-    TYPES.map(({ name, type }) => [
-      type,
+    SET_TYPES.map(({ name, value }) => [
+      name,
       {
-        values: Array.from({ length: 3 }, generators[type]),
-        methods: getMethods(mock, {
-          add: `$add(uint256,${type})`,
-          remove: `$remove(uint256,${type})`,
-          clear: `$clear_EnumerableSet_${name}(uint256)`,
-          contains: `$contains(uint256,${type})`,
-          length: `$length_EnumerableSet_${name}(uint256)`,
-          at: `$at_EnumerableSet_${name}(uint256,uint256)`,
-          values: `$values_EnumerableSet_${name}(uint256)`,
-        }),
+        value,
+        values: Array.from({ length: 3 }, randomOf(value.type)),
+        methods: mapValues(
+          {
+            add: `$add(uint256,${value.type})`,
+            remove: `$remove(uint256,${value.type})`,
+            removeAt: `$removeAt_EnumerableSet_${name}(uint256,uint256)`,
+            contains: `$contains(uint256,${value.type})`,
+            clear: `$clear_EnumerableSet_${name}(uint256)`,
+            length: `$length_EnumerableSet_${name}(uint256)`,
+            at: `$at_EnumerableSet_${name}(uint256,uint256)`,
+            values: `$values_EnumerableSet_${name}(uint256)`,
+            valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
+          },
+          fnSig =>
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
+        ),
         events: {
-          addReturn: `return$add_EnumerableSet_${name}_${type}`,
-          removeReturn: `return$remove_EnumerableSet_${name}_${type}`,
+          addReturn: `return$add_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
+          removeReturn: `return$remove_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
         },
       },
     ]),
@@ -49,10 +54,10 @@ describe('EnumerableSet', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const { type } of TYPES) {
-    describe(type, function () {
+  for (const { name, value } of SET_TYPES) {
+    describe(`${name} (enumerable set of ${value.type})`, function () {
       beforeEach(function () {
-        Object.assign(this, this.env[type]);
+        Object.assign(this, this.env[name]);
         [this.valueA, this.valueB, this.valueC] = this.values;
       });
 

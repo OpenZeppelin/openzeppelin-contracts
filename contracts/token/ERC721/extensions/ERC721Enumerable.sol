@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Enumerable.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
+import {IERC165} from "../../../utils/introspection/ERC165.sol";
 import {ERC721} from "../ERC721.sol";
 import {IERC721Enumerable} from "./IERC721Enumerable.sol";
-import {IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev This implements an optional extension of {ERC721} defined in the ERC that adds enumerability
@@ -153,7 +153,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
+     * See {ERC721-_increaseBalance}. We need to forbid batch minting because the enumeration
+     * extension does not support it.
      */
     function _increaseBalance(address account, uint128 amount) internal virtual override {
         if (amount > 0) {

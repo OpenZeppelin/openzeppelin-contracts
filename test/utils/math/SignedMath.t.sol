@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {Math} from "../../../contracts/utils/math/Math.sol";
-import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
     function testSymbolicTernary(bool f, int256 a, int256 b) public pure {
@@ -47,8 +47,9 @@ contract SignedMathTest is Test {
         assertEq(result, (a + b) / 2);
     }
 
-    // 2. more complex test, full int256 range
-    function testAverage2(int256 a, int256 b) public pure {
+    // 2. more complex test, full int256 range (solver timeout 0 = no timeout)
+    /// @custom:halmos --solver-timeout-assertion 0
+    function testSymbolicAverage2(int256 a, int256 b) public pure {
         (int256 result, int256 min, int256 max) = (
             SignedMath.average(a, b),
             SignedMath.min(a, b),

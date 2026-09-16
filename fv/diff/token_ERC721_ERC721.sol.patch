@@ -1,0 +1,11 @@
+--- token/ERC721/ERC721.sol	2025-08-19 17:23:33.436823903 +0200
++++ token/ERC721/ERC721.sol	2025-08-19 17:23:07.328925282 +0200
+@@ -27,7 +27,7 @@
+ 
+     mapping(uint256 tokenId => address) private _owners;
+ 
+-    mapping(address owner => uint256) private _balances;
++    mapping(address owner => uint256) internal _balances; // private → internal for FV
+ 
+     mapping(uint256 tokenId => address) private _tokenApprovals;
+ 

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {Blockhash} from "../../contracts/utils/Blockhash.sol";
+import {Blockhash} from "@openzeppelin/contracts/utils/Blockhash.sol";
 
 contract BlockhashTest is Test {
     uint256 internal startingBlock;
@@ -67,6 +67,7 @@ contract BlockhashTest is Test {
     function testFuzzFutureBlocks(uint256 offset, uint256 currentBlock) public {
         // Future blocks
         offset = bound(offset, 1, type(uint256).max);
+        currentBlock = bound(currentBlock, 0, type(uint256).max - offset);
         vm.roll(currentBlock);
 
         unchecked {

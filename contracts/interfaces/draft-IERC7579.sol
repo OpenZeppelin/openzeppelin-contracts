@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (interfaces/draft-IERC7579.sol)
-pragma solidity ^0.8.20;
+// OpenZeppelin Contracts (last updated v5.7.0) (interfaces/draft-IERC7579.sol)
 
-import {PackedUserOperation} from "./draft-IERC4337.sol";
+pragma solidity >=0.8.4;
+
+import {PackedUserOperation} from "./IERC4337.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
@@ -115,7 +116,7 @@ struct Execution {
 interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
-     * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
+     * @param mode The encoded execution mode of the transaction. See account/utils/draft-ERC7579Utils.sol (Mode encoding via encodeMode/decodeMode) for details
      * @param executionCalldata The encoded execution call data
      *
      * MUST ensure adequate authorization control: e.g. onlyEntryPointOrSelf if used with ERC-4337
@@ -126,7 +127,7 @@ interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
      *         This function is intended to be called by Executor Modules
-     * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
+     * @param mode The encoded execution mode of the transaction. See account/utils/draft-ERC7579Utils.sol (Mode encoding via encodeMode/decodeMode) for details
      * @param executionCalldata The encoded execution call data
      * @return returnData An array with the returned data of each executed subcall
      *

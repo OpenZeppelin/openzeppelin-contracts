@@ -1,0 +1,73 @@
+name: Formal verification - Certora
+
+on:
+  # Runs in the context of the base repository so that the CERTORAKEY secret is available to pull
+  # requests opened from forks. Access is gated by the `certora` environment, which requires a
+  # manual approval from a reviewer before the job starts. Reviewers MUST check the diff for
+  # anything that could exfiltrate the key before approving.
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
+concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: certora
+    if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # `pull_request_target` checks out the base by default. This runs the contributor's code,
+          # which is why the environment approval above is required. actions/checkout refuses a fork
+          # checkout in this context unless that risk is explicitly acknowledged.
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          fetch-depth: 0 # Include history so the diff against the PR base resolves
+          persist-credentials: false
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          # Read the cache, never write it. The scope is the base branch here, so a cache saved after
+          # the contributor's code has run would be restored by every other workflow.
+          cache: 'restore'
+          solc: 'on'
+          java: 'on'
+          python: 'on'
+          python-requirements: 'fv-requirements.txt'
+      - name: identify specs that need to be run
+        id: arguments
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
+          then
+            # Spec names come from the file names of a pull request that may be untrusted, and end
+            # up on a command line downstream. Anything that is not a plain name is dropped here.
+            RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
+              [[ -f $file ]] || continue
+              name=$(basename "${file%.spec}")
+              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring spec with unexpected name: $name" >&2
+            done | tr "\n" " ")
+          else
+            RESULT='--all'
+          fi
+          echo "result=$RESULT" >> "$GITHUB_OUTPUT"
+      - name: Verify specification
+        env:
+          SPEC_ARGUMENTS: ${{ steps.arguments.outputs.result }}
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+        run: |
+          make -C fv apply
+          read -r -a specs <<< "$SPEC_ARGUMENTS"
+          node fv/run.js "${specs[@]}" -p 1 -v >> "$GITHUB_STEP_SUMMARY"

@@ -1,24 +1,26 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { CHECKPOINTS_LENGTH } from '../../../scripts/generate/data.js';
 
-const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 describe('Checkpoints', function () {
-  for (const length of VALUE_SIZES) {
-    describe(`Trace${length}`, function () {
+  for (const { size, keySize } of CHECKPOINTS_LENGTH) {
+    describe(`Trace${size}`, function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');
         const methods = {
-          at: (...args) => mock.getFunction(`$at_Checkpoints_Trace${length}`)(0, ...args),
-          latest: (...args) => mock.getFunction(`$latest_Checkpoints_Trace${length}`)(0, ...args),
-          latestCheckpoint: (...args) => mock.getFunction(`$latestCheckpoint_Checkpoints_Trace${length}`)(0, ...args),
-          length: (...args) => mock.getFunction(`$length_Checkpoints_Trace${length}`)(0, ...args),
-          push: (...args) => mock.getFunction(`$push(uint256,uint${256 - length},uint${length})`)(0, ...args),
-          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${256 - length})`)(0, ...args),
-          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,uint${256 - length})`)(0, ...args),
-          upperLookupRecent: (...args) =>
-            mock.getFunction(`$upperLookupRecent(uint256,uint${256 - length})`)(0, ...args),
+          at: (...args) => mock.getFunction(`$at_Checkpoints_Trace${size}`)(0, ...args),
+          latest: (...args) => mock.getFunction(`$latest_Checkpoints_Trace${size}`)(0, ...args),
+          latestCheckpoint: (...args) => mock.getFunction(`$latestCheckpoint_Checkpoints_Trace${size}`)(0, ...args),
+          length: (...args) => mock.getFunction(`$length_Checkpoints_Trace${size}`)(0, ...args),
+          push: (...args) => mock.getFunction(`$push(uint256,uint${keySize},uint${size})`)(0, ...args),
+          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${keySize})`)(0, ...args),
+          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,uint${keySize})`)(0, ...args),
+          upperLookupRecent: (...args) => mock.getFunction(`$upperLookupRecent(uint256,uint${keySize})`)(0, ...args),
         };
 
         return { mock, methods };
@@ -31,7 +33,7 @@ describe('Checkpoints', function () {
       describe('without checkpoints', function () {
         it('at zero reverts', async function () {
           // Reverts with array out of bound access, which is unspecified
-          await expect(this.methods.at(0)).to.be.reverted;
+          await expect(this.methods.at(0)).to.revert(ethers);
         });
 
         it('returns zero as latest value', async function () {

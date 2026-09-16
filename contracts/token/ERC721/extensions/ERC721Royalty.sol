@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Royalty.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/extensions/ERC721Royalty.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {ERC721} from "../ERC721.sol";
 import {IERC165} from "../../../utils/introspection/ERC165.sol";
 import {ERC2981} from "../../common/ERC2981.sol";
+import {ERC721} from "../ERC721.sol";
 
 /**
  * @dev Extension of ERC-721 with the ERC-2981 NFT Royalty Standard, a standardized way to retrieve royalty payment

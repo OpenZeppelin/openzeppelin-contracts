@@ -1,19 +1,22 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { Ballot, getDomain } from '../helpers/eip712';
+import { ProposalState, VoteType } from '../helpers/enums';
+import { GovernorHelper } from '../helpers/governance';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
+import { shouldBehaveLikeERC6372 } from './utils/ERC6372.behavior';
 
-const { GovernorHelper } = require('../helpers/governance');
-const { getDomain, Ballot } = require('../helpers/eip712');
-const { ProposalState, VoteType } = require('../helpers/enums');
-const time = require('../helpers/time');
-
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesLegacyMock', mode: 'blockNumber' },
 ];
 
 const name = 'OZ-Governor';
@@ -59,7 +62,7 @@ describe('Governor', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
@@ -82,7 +85,7 @@ describe('Governor', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [
@@ -194,35 +197,39 @@ describe('Governor', function () {
           await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           return this.helper.execute();
-        }).to.changeEtherBalances([this.mock, this.userEOA], [-value, value]);
+        }).to.changeEtherBalances(ethers, [this.mock, this.userEOA], [-value, value]);
       });
 
       describe('vote with signature', function () {
-        it('votes with an EOA signature', async function () {
+        it('votes with an EOA signature on two proposals', async function () {
           await this.token.connect(this.voter1).delegate(this.userEOA);
 
-          const nonce = await this.mock.nonces(this.userEOA);
+          for (let i = 0; i < 2; i++) {
+            const nonce = await this.mock.nonces(this.userEOA);
 
-          // Run proposal
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await expect(
-            this.helper.vote({
-              support: VoteType.For,
-              voter: this.userEOA.address,
-              nonce,
-              signature: signBallot(this.userEOA),
-            }),
-          )
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+            // Run proposal
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await expect(
+              this.helper.vote({
+                support: VoteType.For,
+                voter: this.userEOA.address,
+                nonce,
+                signature: signBallot(this.userEOA),
+              }),
+            )
+              .to.emit(this.mock, 'VoteCast')
+              .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
 
-          await this.helper.waitForDeadline();
-          await this.helper.execute();
+            // After
+            expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
+            expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
 
-          // After
-          expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
-          expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
+            // Update proposal to allow for re-propose
+            this.helper.description += ' - updated';
+          }
+
+          await expect(this.mock.nonces(this.userEOA)).to.eventually.equal(2n);
         });
 
         it('votes with a valid EIP-1271 signature', async function () {
@@ -380,7 +387,41 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot();
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
-            await expect(this.helper.queue()).to.be.revertedWithCustomError(this.mock, 'GovernorQueueNotImplemented');
+            await expect(this.helper.queue())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorProposalQueueingNotRequired')
+              .withArgs(this.proposal.id);
+          });
+
+          it('reverts with GovernorProposalQueueingFailed when _queueOperations returns 0', async function () {
+            const brokenMock = await ethers.deployContract('$GovernorQueueingFailedMock', [
+              name,
+              votingDelay,
+              votingPeriod,
+              0n,
+              this.token,
+              10n,
+            ]);
+            const brokenHelper = new GovernorHelper(connection, brokenMock, mode);
+            brokenHelper.setProposal(
+              [
+                {
+                  target: this.receiver.target,
+                  data: this.receiver.interface.encodeFunctionData('mockFunction'),
+                  value,
+                },
+              ],
+              '<broken proposal>',
+            );
+
+            await this.token.connect(this.owner).delegate(this.voter1);
+            await brokenHelper.connect(this.proposer).propose();
+            await brokenHelper.waitForSnapshot();
+            await brokenHelper.connect(this.voter1).vote({ support: VoteType.For });
+            await brokenHelper.waitForDeadline();
+
+            await expect(brokenHelper.queue())
+              .to.be.revertedWithCustomError(brokenMock, 'GovernorProposalQueueingFailed')
+              .withArgs(brokenHelper.id);
           });
         });
 
@@ -400,7 +441,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -413,7 +454,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -426,7 +467,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -477,7 +518,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
         });
@@ -565,7 +606,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -583,7 +624,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -678,7 +719,7 @@ describe('Governor', function () {
 
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 0, 0);
+            .withArgs(0n, 0n, 0n);
         });
 
         it('mismatch #1', async function () {
@@ -692,7 +733,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 1, 1);
+            .withArgs(0n, 1n, 1n);
         });
 
         it('mismatch #2', async function () {
@@ -706,7 +747,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 1, 0);
+            .withArgs(1n, 1n, 0n);
         });
 
         it('mismatch #3', async function () {
@@ -720,7 +761,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 0, 1);
+            .withArgs(1n, 0n, 1n);
         });
       });
 

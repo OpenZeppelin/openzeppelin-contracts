@@ -1,9 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import * as random from '../helpers/random';
 
-const coder = ethers.AbiCoder.defaultAbiCoder();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
+
+const fakeContract = { interface: ethers.Interface.from(['error SomeCustomErrorWithoutArgs()']) };
+const returndata = fakeContract.interface.encodeErrorResult('SomeCustomErrorWithoutArgs');
 
 async function fixture() {
   const [recipient, other] = await ethers.getSigners();
@@ -23,7 +29,7 @@ describe('Address', function () {
   describe('sendValue', function () {
     describe('when sender contract has no funds', function () {
       it('sends 0 wei', async function () {
-        await expect(this.mock.$sendValue(this.other, 0n)).to.changeEtherBalance(this.recipient, 0n);
+        await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(ethers, this.recipient, 0n);
       });
 
       it('reverts when sending non-zero amounts', async function () {
@@ -42,18 +48,23 @@ describe('Address', function () {
 
       describe('with EOA recipient', function () {
         it('sends 0 wei', async function () {
-          await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(this.recipient, 0n);
+          await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(ethers, this.recipient, 0n);
         });
 
         it('sends non-zero amounts', async function () {
           await expect(this.mock.$sendValue(this.recipient, funds - 1n)).to.changeEtherBalance(
+            ethers,
             this.recipient,
             funds - 1n,
           );
         });
 
         it('sends the whole balance', async function () {
-          await expect(this.mock.$sendValue(this.recipient, funds)).to.changeEtherBalance(this.recipient, funds);
+          await expect(this.mock.$sendValue(this.recipient, funds)).to.changeEtherBalance(
+            ethers,
+            this.recipient,
+            funds,
+          );
           expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
         });
 
@@ -67,7 +78,11 @@ describe('Address', function () {
       describe('with contract recipient', function () {
         it('sends funds', async function () {
           await this.targetEther.setAcceptEther(true);
-          await expect(this.mock.$sendValue(this.targetEther, funds)).to.changeEtherBalance(this.targetEther, funds);
+          await expect(this.mock.$sendValue(this.targetEther, funds)).to.changeEtherBalance(
+            ethers,
+            this.targetEther,
+            funds,
+          );
         });
 
         it('reverts on recipient revert', async function () {
@@ -89,7 +104,7 @@ describe('Address', function () {
         await expect(this.mock.$functionCall(this.target, call))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCall')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('calls the requested empty return function', async function () {
@@ -153,7 +168,7 @@ describe('Address', function () {
         await expect(this.mock.$functionCallWithValue(this.target, call, 0n))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
     });
 
@@ -174,12 +189,12 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.$functionCallWithValue(this.target, call, value);
 
-        await expect(tx).to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(ethers, this.target, value);
 
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('calls the requested function with transaction funds', async function () {
@@ -188,11 +203,11 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.connect(this.other).$functionCallWithValue(this.target, call, value, { value });
 
-        await expect(tx).to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(ethers, this.target, value);
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('reverts when calling non-payable functions', async function () {
@@ -212,7 +227,9 @@ describe('Address', function () {
     it('calls the requested function', async function () {
       const call = this.target.interface.encodeFunctionData('mockStaticFunction');
 
-      expect(await this.mock.$functionStaticCall(this.target, call)).to.equal(coder.encode(['string'], ['0x1234']));
+      expect(await this.mock.$functionStaticCall(this.target, call)).to.equal(
+        ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']),
+      );
     });
 
     it('reverts on a non-static function', async function () {
@@ -241,8 +258,8 @@ describe('Address', function () {
 
   describe('functionDelegateCall', function () {
     it('delegate calls the requested function', async function () {
-      const slot = ethers.hexlify(ethers.randomBytes(32));
-      const value = ethers.hexlify(ethers.randomBytes(32));
+      const slot = random.bytes32();
+      const value = random.bytes32();
 
       const call = this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]);
 
@@ -250,7 +267,7 @@ describe('Address', function () {
 
       await expect(await this.mock.$functionDelegateCall(this.target, call))
         .to.emit(this.mock, 'return$functionDelegateCall')
-        .withArgs(coder.encode(['string'], ['0x1234']));
+        .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
 
       expect(await ethers.provider.getStorage(this.mock, slot)).to.equal(value);
     });
@@ -274,8 +291,56 @@ describe('Address', function () {
 
   describe('verifyCallResult', function () {
     it('returns returndata on success', async function () {
-      const returndata = '0x123abc';
-      expect(await this.mock.$verifyCallResult(true, returndata)).to.equal(returndata);
+      await expect(this.mock.$verifyCallResult(true, returndata)).to.eventually.equal(returndata);
+    });
+
+    it('bubble returndata on failure', async function () {
+      await expect(this.mock.$verifyCallResult(false, returndata)).to.be.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+    });
+
+    it('standard error on failure without returndata', async function () {
+      await expect(this.mock.$verifyCallResult(false, '0x')).to.be.revertedWithCustomError(this.mock, 'FailedCall');
+    });
+  });
+
+  describe('verifyCallResultFromTarget', function () {
+    it('success with non-empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, true, returndata)).to.eventually.equal(returndata);
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, true, returndata)).to.eventually.equal(
+        returndata,
+      );
+    });
+
+    it('success with empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, true, '0x')).to.eventually.equal('0x');
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, true, '0x'))
+        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .withArgs(this.recipient);
+    });
+
+    it('failure with non-empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, false, returndata)).to.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, false, returndata)).to.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+    });
+
+    it('failure with empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, false, '0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'FailedCall',
+      );
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, false, '0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'FailedCall',
+      );
     });
   });
 });

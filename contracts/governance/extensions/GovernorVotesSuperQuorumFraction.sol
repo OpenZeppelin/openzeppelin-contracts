@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
-pragma solidity ^0.8.20;
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
 
-import {Governor} from "../Governor.sol";
-import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
-import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
+pragma solidity ^0.8.24;
+
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
+import {Governor} from "../Governor.sol";
+import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
+import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
 
 /**
  * @dev Extension of {GovernorVotesQuorumFraction} with a super quorum expressed as a
@@ -27,7 +28,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     error GovernorInvalidSuperQuorumFraction(uint256 superQuorumNumerator, uint256 denominator);
 
     /**
-     * @dev The super quorum set is not valid as it is smaller or equal to the quorum.
+     * @dev The super quorum set is not valid as it is smaller than the quorum.
      */
     error GovernorInvalidSuperQuorumTooSmall(uint256 superQuorumNumerator, uint256 quorumNumerator);
 
@@ -40,7 +41,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * @dev Initialize super quorum as a fraction of the token's total supply.
      *
      * The super quorum is specified as a fraction of the token's total supply and has to
-     * be greater than the quorum.
+     * be greater than or equal to the quorum.
      */
     constructor(uint256 superQuorumNumeratorValue) {
         _updateSuperQuorumNumerator(superQuorumNumeratorValue);

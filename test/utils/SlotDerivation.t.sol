@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/SlotDerivation.t.js.
+// This file was procedurally generated from scripts/generate/templates/SlotDerivation.t.sol.eta.
 
 pragma solidity ^0.8.20;
 
@@ -226,7 +226,7 @@ contract SlotDerivationTest is Test, SymTest {
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    function testSymbolicDeriveMappingBooleanDirty(bytes32 dirtyKey) public {
+    function testSymbolicDeriveMappingBooleanDirty(bytes32 dirtyKey) public view {
         bool key;
         assembly {
             key := dirtyKey
@@ -236,7 +236,7 @@ contract SlotDerivationTest is Test, SymTest {
         testSymbolicDeriveMappingBoolean(key);
     }
 
-    function testSymbolicDeriveMappingAddressDirty(bytes32 dirtyKey) public {
+    function testSymbolicDeriveMappingAddressDirty(bytes32 dirtyKey) public view {
         address key;
         assembly {
             key := dirtyKey

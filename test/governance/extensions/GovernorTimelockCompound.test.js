@@ -1,14 +1,18 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { ProposalState, VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
@@ -46,7 +50,7 @@ describe('GovernorTimelockCompound', function () {
       await owner.sendTransaction({ to: timelock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -57,7 +61,7 @@ describe('GovernorTimelockCompound', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         // default proposal
         this.proposal = this.helper.setProposal(
@@ -156,8 +160,8 @@ describe('GovernorTimelockCompound', function () {
               .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
               .withArgs(id);
             await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorNotQueuedProposal')
-              .withArgs(id);
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
           });
         });
 
@@ -168,11 +172,13 @@ describe('GovernorTimelockCompound', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline(1n);
 
-            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Succeeded);
-
             await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorNotQueuedProposal')
-              .withArgs(this.proposal.id);
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                ProposalState.Succeeded,
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
+              );
           });
 
           it('if too early', async function () {
@@ -204,7 +210,7 @@ describe('GovernorTimelockCompound', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Expired,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
               );
           });
 
@@ -222,7 +228,7 @@ describe('GovernorTimelockCompound', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
               );
           });
         });
@@ -317,7 +323,7 @@ describe('GovernorTimelockCompound', function () {
             .withArgs(
               this.proposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
             );
         });
       });
@@ -362,7 +368,7 @@ describe('GovernorTimelockCompound', function () {
 
             const txExecute = this.helper.execute();
 
-            await expect(txExecute).to.changeTokenBalances(this.token, [this.mock, this.other], [-1n, 1n]);
+            await expect(txExecute).to.changeTokenBalances(ethers, this.token, [this.mock, this.other], [-1n, 1n]);
 
             await expect(txExecute).to.emit(this.token, 'Transfer').withArgs(this.mock, this.other, 1n);
           });

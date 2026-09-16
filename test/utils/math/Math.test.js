@@ -1,12 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { Rounding } from '../../helpers/enums';
+import { product, range } from '../../helpers/iterate';
+import { min, max, modExp } from '../../helpers/math';
+import * as random from '../../helpers/random';
 
-const { Rounding } = require('../../helpers/enums');
-const { min, max, modExp } = require('../../helpers/math');
-const { generators } = require('../../helpers/random');
-const { product, range } = require('../../helpers/iterate');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -467,7 +470,7 @@ describe('Math', function () {
         });
 
         if (p != 0) {
-          for (const value of Array.from({ length: 16 }, generators.uint256)) {
+          for (const value of Array.from({ length: 16 }, random.uint256)) {
             const isInversible = factors.every(f => value % f);
             it(`trying to inverse ${value}`, async function () {
               const result = await this.mock.$invMod(value, p);
@@ -708,6 +711,39 @@ describe('Math', function () {
           await expect(this.mock.$log256(ethers.MaxUint256, rounding)).to.eventually.equal(32n);
         }
       });
+    });
+  });
+
+  describe('clz', function () {
+    it('zero value', async function () {
+      await expect(this.mock.$clz(0)).to.eventually.equal(256);
+    });
+
+    it('small values', async function () {
+      await expect(this.mock.$clz(1)).to.eventually.equal(255);
+      await expect(this.mock.$clz(255)).to.eventually.equal(248);
+    });
+
+    it('larger values', async function () {
+      await expect(this.mock.$clz(256)).to.eventually.equal(247);
+      await expect(this.mock.$clz(0xff00)).to.eventually.equal(240);
+      await expect(this.mock.$clz(0x10000)).to.eventually.equal(239);
+    });
+
+    it('max value', async function () {
+      await expect(this.mock.$clz(ethers.MaxUint256)).to.eventually.equal(0);
+    });
+
+    it('specific patterns', async function () {
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000100'),
+      ).to.eventually.equal(247);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000010000'),
+      ).to.eventually.equal(239);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000001000000'),
+      ).to.eventually.equal(231);
     });
   });
 });

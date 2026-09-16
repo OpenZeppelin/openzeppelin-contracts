@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC1155/utils/ERC1155Utils.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC1155/utils/ERC1155Utils.sol)
 
 pragma solidity ^0.8.20;
 
+import {IERC1155Errors} from "../../../interfaces/IERC6093.sol";
 import {IERC1155Receiver} from "../IERC1155Receiver.sol";
-import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Library that provide common ERC-1155 utility functions.
@@ -54,7 +54,7 @@ library ERC1155Utils {
      * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
      *
      * The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
-     * Otherwise, the recipient must implement {IERC1155Receiver-onERC1155Received} and return the acceptance magic value to accept
+     * Otherwise, the recipient must implement {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value to accept
      * the transfer.
      */
     function checkOnERC1155BatchReceived(

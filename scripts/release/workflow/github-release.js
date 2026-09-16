@@ -1,15 +1,16 @@
-const { readFileSync } = require('fs');
-const { join } = require('path');
-const { version } = require(join(__dirname, '../../../package.json'));
+import { readFileSync } from 'fs';
+import path from 'path';
 
-module.exports = async ({ github, context }) => {
+const { version } = JSON.parse(readFileSync(path.resolve(import.meta.dirname, '../../../package.json'), 'utf8'));
+
+export default async ({ github, context }) => {
   const changelog = readFileSync('CHANGELOG.md', 'utf8');
 
   await github.rest.repos.createRelease({
     owner: context.repo.owner,
-    repo: context.repo.repo,
+    repo: context.repo.repo + (process.env.REPO_SUFFIX ?? ''),
     tag_name: `v${version}`,
-    target_commitish: github.ref_name,
+    target_commitish: process.env.TARGET_COMMIT ?? context.sha,
     body: extractSection(changelog, version),
     prerelease: process.env.PRERELEASE === 'true',
   });
