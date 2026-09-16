@@ -75,13 +75,17 @@ describe('Base64', function () {
     await expect(this.mock.$decode('dGVzd@=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
       .withArgs(getHexCode('@'));
+    // null byte: reported as 0x00, which must not be confused with "no invalid character"
+    await expect(this.mock.$decode('dGVzd\x00=='))
+      .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
+      .withArgs(getHexCode('\x00'));
   });
 
   it('tryDecode returns a success flag instead of reverting', async function () {
     await expect(this.mock.$tryDecode('TWFu')).to.eventually.deep.equal([true, ethers.hexlify(Buffer.from('Man'))]);
     await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
 
-    for (const input of ['@WFu', 'T@Fu', 'TW@u', 'TWF@', 'dGVzd*==', 'dGVzd{==', 'dGVzd@==']) {
+    for (const input of ['@WFu', 'T@Fu', 'TW@u', 'TWF@', 'dGVzd*==', 'dGVzd{==', 'dGVzd@==', 'dGVzd\x00==']) {
       await expect(this.mock.$tryDecode(input)).to.eventually.deep.equal([false, '0x']);
     }
   });
