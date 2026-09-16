@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/BitMaps.sol)
-// This file was procedurally generated from scripts/generate/templates/BitMaps.js.
+// This file was procedurally generated from scripts/generate/templates/BitMaps.sol.eta.
 
 pragma solidity ^0.8.20;
 

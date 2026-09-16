@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { BITMAP_TYPES } from '../../../scripts/generate/data.js';
 
 const {
   ethers,
@@ -152,165 +153,38 @@ describe('BitMaps', function () {
     });
   });
 
-  describe('PairMap', function () {
-    it('stores and retrieves 2-bit values', async function () {
-      await this.bitmap.$set_BitMaps_PairMap(1, 0n, 0);
-      await this.bitmap.$set_BitMaps_PairMap(1, 1n, 1);
-      await this.bitmap.$set_BitMaps_PairMap(1, 2n, 2);
-      await this.bitmap.$set_BitMaps_PairMap(1, 3n, 3);
+  // Packed value maps
+  for (const { bits, name } of BITMAP_TYPES) {
+    describe(name, function () {
+      const max = (1n << BigInt(bits)) - 1n;
+      const perBucket = 256 / bits;
+      const wide = bits > 8;
+      const get = (self, index) => self.bitmap[`$get_BitMaps_${name}`](0, index);
+      const set = (self, index, value) =>
+        wide
+          ? self.bitmap.$set(0, index, ethers.Typed[`uint${bits}`](value))
+          : self.bitmap[`$set_BitMaps_${name}`](0, index, value);
 
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.eventually.equal(1);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.eventually.equal(2);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.eventually.equal(3);
+      it(`stores and retrieves ${bits}-bit values`, async function () {
+        await set(this, 0n, 0n);
+        await set(this, 1n, max);
+        await expect(get(this, 0n)).to.eventually.equal(0n);
+        await expect(get(this, 1n)).to.eventually.equal(max);
+      });
+
+      if (bits < 8) {
+        it('truncates values wider than the map', async function () {
+          await set(this, 0n, max + 1n); // one bit too wide -> wraps within the stored width
+          await expect(get(this, 0n)).to.eventually.equal((max + 1n) & max);
+        });
+      }
+
+      it('isolates values across the bucket boundary', async function () {
+        await set(this, BigInt(perBucket - 1), max); // last value in bucket 0
+        await set(this, BigInt(perBucket), max); // first value in bucket 1
+        await expect(get(this, BigInt(perBucket - 1))).to.eventually.equal(max);
+        await expect(get(this, BigInt(perBucket))).to.eventually.equal(max);
+      });
     });
-
-    it('truncates values larger than 3', async function () {
-      await this.bitmap.$set_BitMaps_PairMap(1, 0n, 4); // Should become 0
-      await this.bitmap.$set_BitMaps_PairMap(1, 1n, 5); // Should become 1
-      await this.bitmap.$set_BitMaps_PairMap(1, 2n, 6); // Should become 2
-      await this.bitmap.$set_BitMaps_PairMap(1, 3n, 7); // Should become 3
-
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.eventually.equal(1);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.eventually.equal(2);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.eventually.equal(3);
-    });
-
-    it('handles multiple buckets', async function () {
-      // Test across bucket boundary (128 values per bucket)
-      await this.bitmap.$set_BitMaps_PairMap(1, 127n, 2);
-      await this.bitmap.$set_BitMaps_PairMap(1, 128n, 3);
-
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 127n)).to.eventually.equal(2);
-      await expect(this.bitmap.$get_BitMaps_PairMap(1, 128n)).to.eventually.equal(3);
-    });
-  });
-
-  describe('NibbleMap', function () {
-    it('stores and retrieves 4-bit values', async function () {
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 0n, 0);
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 1n, 5);
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 2n, 10);
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 3n, 15);
-
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.eventually.equal(5);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.eventually.equal(10);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.eventually.equal(15);
-    });
-
-    it('truncates values larger than 15', async function () {
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 0n, 16); // Should become 0
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 1n, 17); // Should become 1
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 2n, 30); // Should become 14
-      await this.bitmap.$set_BitMaps_NibbleMap(2, 3n, 31); // Should become 15
-
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.eventually.equal(1);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.eventually.equal(14);
-      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.eventually.equal(15);
-    });
-  });
-
-  describe('Uint8Map', function () {
-    it('stores and retrieves uint8 values', async function () {
-      await this.bitmap.$set_BitMaps_Uint8Map(3, 0n, ethers.Typed.uint8(0));
-      await this.bitmap.$set_BitMaps_Uint8Map(3, 1n, ethers.Typed.uint8(42));
-      await this.bitmap.$set_BitMaps_Uint8Map(3, 2n, ethers.Typed.uint8(255));
-
-      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 1n)).to.eventually.equal(42);
-      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 2n)).to.eventually.equal(255);
-    });
-
-    it('handles bucket boundaries', async function () {
-      // 32 values per bucket for Uint8Map
-      await this.bitmap.$set_BitMaps_Uint8Map(3, 31n, ethers.Typed.uint8(100));
-      await this.bitmap.$set_BitMaps_Uint8Map(3, 32n, ethers.Typed.uint8(200));
-
-      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 31n)).to.eventually.equal(100);
-      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 32n)).to.eventually.equal(200);
-    });
-  });
-
-  describe('Uint16Map', function () {
-    it('stores and retrieves uint16 values', async function () {
-      await this.bitmap.$set(4, 0n, ethers.Typed.uint16(0));
-      await this.bitmap.$set(4, 1n, ethers.Typed.uint16(1000));
-      await this.bitmap.$set(4, 2n, ethers.Typed.uint16(65535));
-
-      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 1n)).to.eventually.equal(1000);
-      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 2n)).to.eventually.equal(65535);
-    });
-
-    it('handles bucket boundaries', async function () {
-      // 16 values per bucket for Uint16Map
-      await this.bitmap.$set(4, 15n, ethers.Typed.uint16(100));
-      await this.bitmap.$set(4, 16n, ethers.Typed.uint16(200));
-
-      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 15n)).to.eventually.equal(100);
-      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 16n)).to.eventually.equal(200);
-    });
-  });
-
-  describe('Uint32Map', function () {
-    it('stores and retrieves uint32 values', async function () {
-      await this.bitmap.$set(5, 0n, ethers.Typed.uint32(0));
-      await this.bitmap.$set(5, 1n, ethers.Typed.uint32(1000000));
-      await this.bitmap.$set(5, 2n, ethers.Typed.uint32(4294967295)); // 2^32 - 1
-
-      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 1n)).to.eventually.equal(1000000);
-      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 2n)).to.eventually.equal(4294967295);
-    });
-
-    it('handles bucket boundaries', async function () {
-      // 32 values per bucket for Uint32Map
-      await this.bitmap.$set(5, 31n, ethers.Typed.uint32(100));
-      await this.bitmap.$set(5, 32n, ethers.Typed.uint32(200));
-
-      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 31n)).to.eventually.equal(100);
-      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 32n)).to.eventually.equal(200);
-    });
-  });
-
-  describe('Uint64Map', function () {
-    it('stores and retrieves uint64 values', async function () {
-      const maxUint64 = (1n << 64n) - 1n;
-
-      await this.bitmap.$set(6, 0n, ethers.Typed.uint64(0));
-      await this.bitmap.$set(6, 1n, ethers.Typed.uint64(1000000000));
-      await this.bitmap.$set(6, 2n, ethers.Typed.uint64(maxUint64));
-
-      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 1n)).to.eventually.equal(1000000000);
-      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 2n)).to.eventually.equal(maxUint64);
-    });
-  });
-
-  describe('Uint128Map', function () {
-    it('stores and retrieves uint128 values', async function () {
-      const maxUint128 = (1n << 128n) - 1n;
-      const largeValue = 1n << 100n;
-
-      await this.bitmap.$set(7, 0n, ethers.Typed.uint128(0));
-      await this.bitmap.$set(7, 1n, ethers.Typed.uint128(largeValue));
-      await this.bitmap.$set(7, 2n, ethers.Typed.uint128(maxUint128));
-
-      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 0n)).to.eventually.equal(0);
-      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 1n)).to.eventually.equal(largeValue);
-      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 2n)).to.eventually.equal(maxUint128);
-    });
-
-    it('handles bucket boundaries', async function () {
-      // Uint128Map has 2 values per bucket
-      await this.bitmap.$set(7, 31n, ethers.Typed.uint128(100));
-      await this.bitmap.$set(7, 32n, ethers.Typed.uint128(200));
-
-      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 31n)).to.eventually.equal(100);
-      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 32n)).to.eventually.equal(200);
-    });
-  });
+  }
 });
