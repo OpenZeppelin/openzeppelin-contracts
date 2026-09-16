@@ -22,6 +22,10 @@ const { argv } = yargs(hideBin(process.argv))
       type: 'boolean',
       default: false,
     },
+    // JSON array of source files the change reaches (from `scripts/list-dependencies.js`); absent = report all.
+    filtered: {
+      type: 'string',
+    },
   });
 
 // Deduce base tx cost from the percentage denominator
@@ -57,8 +61,11 @@ class Report {
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     const refContracts = ref.contracts ?? {};
     const updateContracts = update.contracts ?? {};
+    // Drop contracts the change cannot reach: their min/max/avg/median only move with test-suite
+    // churn, not a real change. `sourceName` is the path `filtered` is expressed in.
     return Object.entries(updateContracts)
       .filter(([key]) => key in refContracts)
+      .filter(([, contract]) => !opts.filtered || opts.filtered.has(contract.sourceName))
       .flatMap(([key, contract]) => {
         const refContract = refContracts[key];
         const refFunctions = refContracts[key]?.functions ?? {};
@@ -227,11 +234,14 @@ function formatCmpMarkdown(rows) {
 }
 
 // MAIN
-const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]), argv);
+const filtered = argv.filtered && new Set(Report.load(argv.filtered));
+const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]), { ...argv, filtered });
 
 switch (argv.style) {
   case 'markdown':
-    console.log(formatCmpMarkdown(report));
+    // Empty output (no reachable contract changed cost) rather than a bare header: gas-comment.yml
+    // deletes the comment when the body is empty.
+    if (report.length > 0) console.log(formatCmpMarkdown(report));
     break;
   case 'shell':
   default:
