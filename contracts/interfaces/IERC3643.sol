@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC20} from "./IERC20.sol";
 import {IPausable} from "../utils/Pausable.sol";
+import {IERC20} from "./IERC20.sol";
 
 /**
  * @title IAgentRole

@@ -33,7 +33,6 @@ const GOVERNOR_INTERFACE = [
 
 export const SIGNATURES = {
   ERC165: ['supportsInterface(bytes4)'],
-  ERC173: ['owner()', 'transferOwnership(address)'],
   ERC721: [
     'balanceOf(address)',
     'ownerOf(uint256)',
