@@ -29,19 +29,8 @@ abstract contract ERC7786GatewayMock is IERC7786GatewaySource {
             revert UnsupportedAttribute(bytes4(attributes[0]));
         }
 
-        // parse recipient
-        (bool success, uint256 chainid, address target) = recipient.tryParseEvmV1Calldata();
-        require(success && chainid == block.chainid, InvalidDestination());
-
-        // perform call
-        bytes4 magic = IERC7786Recipient(target).receiveMessage{value: msg.value}(
-            bytes32(++_lastReceiveId),
-            InteroperableAddress.formatEvmV1(block.chainid, msg.sender),
-            payload
-        );
-        require(magic == IERC7786Recipient.receiveMessage.selector, ReceiverError());
-
-        // emit standard event
+        // emit standard event. Delivery is performed by an (offchain) relayer that watches this event and calls
+        // {relayMessage} on the gateway deployed on the destination chain.
         emit MessageSent(
             bytes32(0),
             InteroperableAddress.formatEvmV1(block.chainid, msg.sender),
@@ -52,5 +41,22 @@ abstract contract ERC7786GatewayMock is IERC7786GatewaySource {
         );
 
         return 0;
+    }
+
+    /// @dev Entrypoint used by the (offchain) relayer to deliver a message that originates from a remote chain.
+    function relayMessage(
+        bytes calldata sender,
+        bytes calldata recipient,
+        bytes calldata payload
+    ) public payable virtual {
+        (bool success, uint256 chainid, address target) = recipient.tryParseEvmV1Calldata();
+        require(success && chainid == block.chainid, InvalidDestination());
+
+        bytes4 magic = IERC7786Recipient(target).receiveMessage{value: msg.value}(
+            bytes32(++_lastReceiveId),
+            sender,
+            payload
+        );
+        require(magic == IERC7786Recipient.receiveMessage.selector, ReceiverError());
     }
 }
