@@ -52,7 +52,7 @@ interface IERC20Permit {
      * Requirements:
      *
      * - `spender` cannot be the zero address.
-     * - `deadline` must be a timestamp in the future.
+     * - `deadline` must be greater than or equal to the current block timestamp.
      * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
      * over the EIP712-formatted function arguments.
      * - the signature must use ``owner``'s current nonce (see {nonces}).
