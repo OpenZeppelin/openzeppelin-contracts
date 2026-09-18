@@ -27,7 +27,7 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      *
-     * NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidSignatureNow-bytes-bytes32-bytes-}.
+     * NOTE: For an extended version of this function that supports ERC-7913 signatures, see {SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes}.
      */
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         if (signer.code.length == 0) {
@@ -39,7 +39,7 @@ library SignatureChecker {
     }
 
     /**
-     * @dev Variant of {isValidSignatureNow} that takes a signature in calldata
+     * @dev Variant of {SignatureChecker-isValidSignatureNow-address-bytes32-bytes} that takes a signature in calldata
      */
     function isValidSignatureNowCalldata(
         address signer,
