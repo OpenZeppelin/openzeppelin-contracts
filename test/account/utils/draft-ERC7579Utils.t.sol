@@ -306,7 +306,9 @@ contract ERC7579UtilsTest is Test {
     uint256 private constant FAIL_DECODE = 0x10;
     uint256 private constant FAIL_GETFIRST = 0x20;
     uint256 private constant FAIL_GETFIRSTBYTES = 0x40;
-    uint256 private constant FAIL_ANY = FAIL_DECODE | FAIL_GETFIRST | FAIL_GETFIRSTBYTES;
+    // decoding reverts, but solidity's lazy checks fire first, so the revert carries no data
+    uint256 private constant FAIL_DECODE_UNTYPED = 0x80;
+    uint256 private constant FAIL_ANY = FAIL_DECODE | FAIL_DECODE_UNTYPED | FAIL_GETFIRST | FAIL_GETFIRSTBYTES;
 
     // BAD: buffer empty
     function testDecodeBatchEmptyBuffer() public {
@@ -362,7 +364,7 @@ contract ERC7579UtilsTest is Test {
         );
     }
 
-    // GOOD at first level, BAD when dereferencing
+    // BAD: caught when decoding (used to only revert when the caller dereferenced the element)
     function testDecodeBatchDeepOutOfBound1() public {
         // This is invalid, the first element of the array points is out of bounds
         //
@@ -370,10 +372,10 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
-    // GOOD at first level, BAD when dereferencing
+    // BAD: caught when decoding (used to only revert when the caller dereferenced the element)
     function testDecodeBatchDeepOutOfBound2() public {
         // This is invalid, the first element of the array points is out of bounds
         //
@@ -381,7 +383,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     function testDecodeBatchDeepOutOfBound3() public {
@@ -392,7 +394,10 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
         // <missing data>
-        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(
+            abi.encode(32, 1, 32, _recipient1),
+            TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST
+        );
     }
 
     function testDecodeBatchDeepOutOfBound4() public {
@@ -408,8 +413,38 @@ contract ERC7579UtilsTest is Test {
 
         _testDecodeBatch(
             abi.encode(32, 1, 32, _recipient1, 42, 96),
-            TEST_DECODE | TEST_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
+            TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
         );
+    }
+
+    // BAD: the offset of the first element wraps around, pointing before the buffer
+    function testDecodeBatchItemOffsetUnderflow() public {
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa0 (-96) element 0 offset
+        //
+        // Offsets are relative to the beginning of the array's elements, and are added to that base pointer
+        // without any overflow check. Here the first element resolves to 32 bytes before the buffer.
+        _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 95), TEST_DECODE | FAIL_DECODE_UNTYPED);
+    }
+
+    // BAD: the offset of the first element wraps around, pointing past the end of msg.data
+    function testDecodeBatchItemOffsetOverflow() public {
+        _testDecodeBatch(abi.encode(32, 1, 1 << 255), TEST_DECODE | FAIL_DECODE_UNTYPED);
+    }
+
+    // BAD: the offset of the first element's calldata wraps around, pointing before the buffer
+    function testDecodeBatchItemCalldataOffsetUnderflow() public {
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
+        // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
+        // 000000000000000000000000000000000000000000000000000000000000002a (42) value for element #0
+        // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 (-128) offset to calldata for element #0
+        //
+        // The calldata of the first element resolves to the 32 bytes that precede the buffer (the ABI length
+        // slot of `executionCalldata`), so its content is read from outside of the buffer.
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1, 42, type(uint256).max - 127), TEST_DECODE | FAIL_DECODE);
     }
 
     function _testDecodeBatch(bytes memory encoded, uint256 test) private {
@@ -417,6 +452,7 @@ contract ERC7579UtilsTest is Test {
 
         if (test & TEST_DECODE > 0) {
             if (test & FAIL_DECODE > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            else if (test & FAIL_DECODE_UNTYPED > 0) vm.expectRevert();
             this.callDecodeBatch(encoded);
             if (test & FAIL_ANY > 0) vm.expectRevert();
             this.callDecodeBatchWithCalldata(encoded, extraData);
