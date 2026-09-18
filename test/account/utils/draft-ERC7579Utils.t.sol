@@ -370,7 +370,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     // GOOD at first level, BAD when dereferencing
@@ -381,7 +381,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     function testDecodeBatchDeepOutOfBound3() public {
@@ -392,7 +392,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
         // <missing data>
-        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     function testDecodeBatchDeepOutOfBound4() public {
@@ -408,8 +408,20 @@ contract ERC7579UtilsTest is Test {
 
         _testDecodeBatch(
             abi.encode(32, 1, 32, _recipient1, 42, 96),
-            TEST_DECODE | TEST_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
+            TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
         );
+    }
+
+    function testDecodeBatchWrappingElementOffset() public {
+        // The element offset is chosen so that `executionBatch.offset + elementOffset` wraps `uint256` and lands
+        // at a lower absolute calldata offset still within `msg.data`. Without a lower-bound check, the wrapped
+        // `item` pointer passes the previous upper-bound-only walk and resolves to attacker-controlled content
+        // outside the batch — the shape used to bypass the checks introduced by PR #5400.
+        //
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset to array length
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff41 (-191) element 0 offset (wraps)
+        _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 190), TEST_DECODE | FAIL_DECODE | FAIL_ANY);
     }
 
     function _testDecodeBatch(bytes memory encoded, uint256 test) private {
