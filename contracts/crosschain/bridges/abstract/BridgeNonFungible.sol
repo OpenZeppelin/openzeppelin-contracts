@@ -33,6 +33,9 @@ abstract contract BridgeNonFungible is Context, CrosschainLinked {
     /// @dev Revert reason when the address part of the interoperable address is empty.
     error CrosschainNonFungibleEmptyAddress();
 
+    /// @dev Revert reason when the address part of the interoperable address is not an EVM address.
+    error CrosschainNonFungibleInvalidAddressLength(uint256 length);
+
     /**
      * @dev Internal crosschain transfer function.
      *
@@ -43,6 +46,7 @@ abstract contract BridgeNonFungible is Context, CrosschainLinked {
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
         require(addr.length > 0, CrosschainNonFungibleEmptyAddress());
+        require(addr.length == 20, CrosschainNonFungibleInvalidAddressLength(addr.length));
 
         bytes32 sendId = _sendMessageToCounterpart(
             InteroperableAddress.formatV1(chainType, chainReference, hex""),
