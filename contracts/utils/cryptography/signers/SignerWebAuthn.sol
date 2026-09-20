@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/signers/SignerWebAuthn.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/signers/SignerWebAuthn.sol)
 
 pragma solidity ^0.8.24;
 
-import {SignerP256} from "./SignerP256.sol";
 import {WebAuthn} from "../WebAuthn.sol";
+import {SignerP256} from "./SignerP256.sol";
 
 /**
  * @dev Implementation of {SignerP256} that supports WebAuthn authentication assertions.

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC20/extensions/ERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.24;
 
-import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
-import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
 
 /**
  * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in

@@ -11,7 +11,7 @@ import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
  * @dev Implementation of ERC-6909.
  * See https://eips.ethereum.org/EIPS/eip-6909
  */
-contract ERC6909 is Context, ERC165, IERC6909 {
+abstract contract ERC6909 is Context, ERC165, IERC6909 {
     mapping(address owner => mapping(uint256 id => uint256)) private _balances;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;

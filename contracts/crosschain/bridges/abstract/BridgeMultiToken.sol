@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/abstract/BridgeMultiToken.sol)
 
 pragma solidity ^0.8.26;
 
-import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {Context} from "../../../utils/Context.sol";
-import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 
 /**
  * @dev Base contract for bridging ERC-1155 between chains using an ERC-7786 gateway.
@@ -40,6 +41,9 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         bytes data
     );
 
+    /// @dev Revert reason when the address part of the interoperable address is empty.
+    error CrosschainMultiTokenEmptyAddress();
+
     /**
      * @dev Internal crosschain transfer function. `data` is forwarded through the ERC-7786 payload to
      * {_onReceive} on the destination chain.
@@ -56,10 +60,10 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         _onSend(from, ids, values);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
-        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
+        require(addr.length > 0, CrosschainMultiTokenEmptyAddress());
 
         bytes32 sendId = _sendMessageToCounterpart(
-            chain,
+            InteroperableAddress.formatV1(chainType, chainReference, hex""),
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, ids, values, data),
             new bytes[](0)
         );

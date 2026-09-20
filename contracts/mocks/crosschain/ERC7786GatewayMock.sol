@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.27;
 
-import {IERC7786GatewaySource, IERC7786Recipient} from "../../interfaces/draft-IERC7786.sol";
+import {IERC7786GatewaySource, IERC7786Recipient} from "../../interfaces/IERC7786.sol";
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
 
 abstract contract ERC7786GatewayMock is IERC7786GatewaySource {
