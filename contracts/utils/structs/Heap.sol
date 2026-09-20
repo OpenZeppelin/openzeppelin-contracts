@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/structs/Heap.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/Heap.sol)
 
 pragma solidity ^0.8.24;
 
-import {Math} from "../math/Math.sol";
-import {Comparators} from "../Comparators.sol";
 import {Arrays} from "../Arrays.sol";
+import {Comparators} from "../Comparators.sol";
+import {Math} from "../math/Math.sol";
 import {Panic} from "../Panic.sol";
 import {StorageSlot} from "../StorageSlot.sol";
 

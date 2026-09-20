@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.24;
 
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a

@@ -1,7 +1,6 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const {
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import {
   CALL_TYPE_CALL,
   CALL_TYPE_BATCH,
   CALL_TYPE_DELEGATE,
@@ -11,10 +10,14 @@ const {
   encodeBatch,
   encodeDelegate,
   encodeMode,
-} = require('../../helpers/erc7579');
-const { selector } = require('../../helpers/methods');
+} from '../../helpers/erc7579';
+import { selector } from '../../helpers/methods';
+import * as random from '../../helpers/random';
 
-const coder = ethers.AbiCoder.defaultAbiCoder();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const fixture = async () => {
   const [sender] = await ethers.getSigners();
@@ -100,7 +103,10 @@ describe('ERC7579Utils', function () {
           CALL_TYPE_CALL,
           ethers.solidityPacked(
             ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+            [
+              selector('Error(string)'),
+              ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+            ],
           ),
         );
     });
@@ -188,7 +194,10 @@ describe('ERC7579Utils', function () {
           CALL_TYPE_BATCH,
           ethers.solidityPacked(
             ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+            [
+              selector('Error(string)'),
+              ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+            ],
           ),
         );
 
@@ -213,8 +222,8 @@ describe('ERC7579Utils', function () {
 
   describe('execDelegateCall', function () {
     it('delegate calls the target', async function () {
-      const slot = ethers.hexlify(ethers.randomBytes(32));
-      const value = ethers.hexlify(ethers.randomBytes(32));
+      const slot = random.bytes32();
+      const value = random.bytes32();
       const data = encodeDelegate(
         this.target,
         this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]),
@@ -251,7 +260,10 @@ describe('ERC7579Utils', function () {
           CALL_TYPE_CALL,
           ethers.solidityPacked(
             ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+            [
+              selector('Error(string)'),
+              ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+            ],
           ),
         );
     });

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/TransientSlotMock.js.
+// This file was procedurally generated from scripts/generate/templates/TransientSlotMock.sol.eta.
 
 pragma solidity ^0.8.24;
 

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC1155/extensions/ERC1155Crosschain.sol)
 
 pragma solidity ^0.8.26;
 
-import {ERC1155} from "../ERC1155.sol";
 import {BridgeMultiToken} from "../../../crosschain/bridges/abstract/BridgeMultiToken.sol";
+import {ERC1155} from "../ERC1155.sol";
 
 /**
  * @dev Extension of {ERC1155} that makes it natively cross-chain using the ERC-7786 based {BridgeMultiToken}.
