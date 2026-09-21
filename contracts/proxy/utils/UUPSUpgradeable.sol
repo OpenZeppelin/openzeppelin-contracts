@@ -81,7 +81,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * Calls {_authorizeUpgrade}.
      *
-     * Emits an {Upgraded} event.
+     * Emits an {IERC1967-Upgraded} event.
      *
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
