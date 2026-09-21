@@ -62,7 +62,13 @@ abstract contract AccessManaged is Context, IAccessManaged {
         return _authority;
     }
 
-    /// @inheritdoc IAccessManaged
+    /**
+     * @dev Transfers control to a new authority. The caller must be the current authority.
+     *
+     * NOTE: Authorization depends only on the caller being the current authority, not on the function that entered
+     * the contract. A target that delegatecalls into itself (e.g. {Multicall}) can reach this function from any
+     * entry point its authority allows.
+     */
     function setAuthority(address newAuthority) public virtual {
         address caller = _msgSender();
         if (caller != authority()) {
