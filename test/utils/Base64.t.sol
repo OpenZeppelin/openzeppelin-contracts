@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 
 contract Base64Test is Test {
     function testEncode(bytes memory input) external pure {
@@ -31,18 +32,14 @@ contract Base64Test is Test {
 
     function testTryDecodeInvalidRestoresFreeMemoryPointer(bytes memory input) external pure {
         bytes memory buf = bytes.concat(hex"0000", input); // Prepend two 0x00 (outside Base64 alphabet)
-        uint256 fmpBefore;
-        assembly {
-            fmpBefore := mload(0x40)
-        }
+
+        Memory.Pointer fmpBefore = Memory.getFreeMemoryPointer();
         (bool success, bytes memory output) = Base64.tryDecode(string(buf));
-        uint256 fmpAfter;
-        assembly {
-            fmpAfter := mload(0x40)
-        }
+        Memory.Pointer fmpAfter = Memory.getFreeMemoryPointer();
+
         assertFalse(success);
         assertEq(output, hex"");
-        assertEq(fmpAfter, fmpBefore);
+        assertEq(Memory.Pointer.unwrap(fmpAfter), Memory.Pointer.unwrap(fmpBefore));
     }
 
     // `_tryDecode` temporarily overwrites the 32 bytes that follow `data` with fake "==" padding. Before

@@ -244,10 +244,12 @@ library Base64 {
             mstore(afterPtr, afterCache)
             switch err
             case 0 {
-                invalidChar := NO_ERROR
                 // Store result length and update FMP to reserve allocated space
                 mstore(result, resultLength)
                 mstore(0x40, add(add(result, 0x20), resultLength))
+
+                // Indicate that no invalid character was encountered
+                invalidChar := NO_ERROR
             }
             default {
                 // Handle the invalid character case
