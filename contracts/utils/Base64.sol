@@ -195,7 +195,7 @@ library Base64 {
             let afterCache := mload(afterPtr)
             mstore(afterPtr, shl(240, 0x3d3d))
 
-            invalidChar := NO_ERROR
+            let err := 0
             // loop while not everything is decoded
             for {} lt(resultPtr, endPtr) {} {
                 dataPtr := add(dataPtr, 4)
@@ -207,25 +207,25 @@ library Base64 {
                 let a := sub(byte(28, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(a, 1), 0xffffffd0ffffffc47ff5)) {
-                    invalidChar := shl(248, add(a, 43))
+                    err := a
                     break
                 }
                 let b := sub(byte(29, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(b, 1), 0xffffffd0ffffffc47ff5)) {
-                    invalidChar := shl(248, add(b, 43))
+                    err := b
                     break
                 }
                 let c := sub(byte(30, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0xffffffd0ffffffc47ff5)) {
-                    invalidChar := shl(248, add(c, 43))
+                    err := c
                     break
                 }
                 let d := sub(byte(31, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(d, 1), 0xffffffd0ffffffc47ff5)) {
-                    invalidChar := shl(248, add(d, 43))
+                    err := d
                     break
                 }
 
@@ -242,13 +242,16 @@ library Base64 {
 
             // Reset the value that was cached
             mstore(afterPtr, afterCache)
-            switch eq(invalidChar, NO_ERROR)
-            case 1 {
+            switch err
+            case 0 {
+                invalidChar := NO_ERROR
                 // Store result length and update FMP to reserve allocated space
                 mstore(result, resultLength)
                 mstore(0x40, add(add(result, 0x20), resultLength))
             }
             default {
+                // Handle the invalid character case
+                invalidChar := shl(248, add(err, 43))
                 // Restore original FMP on malformed input and return the zero slot
                 mstore(0x40, result)
                 result := 0x60

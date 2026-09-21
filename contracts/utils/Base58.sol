@@ -202,7 +202,7 @@ library Base58 {
             let ptr := scratch
             let mask := shr(8, not(0))
 
-            invalidChar := NO_ERROR
+            let err := 0
             for {
                 let j := 0
             } lt(j, inputLength) {
@@ -216,7 +216,7 @@ library Base58 {
                 // shl(c, 1) creates a single bit at position c, AND with bitmask checks if character is valid
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
-                    invalidChar := shl(248, add(c, 49))
+                    err := c
                     break
                 }
                 let carry := byte(0, mload(c)) // Look up Base58 numeric value from decoding table
@@ -238,8 +238,8 @@ library Base58 {
                 }
             }
 
-            switch eq(invalidChar, NO_ERROR)
-            case 1 {
+            switch err
+            case 0 {
                 // Copy and compact the uint248 limbs + remove any zeros at the beginning.
                 output := scratch
                 for {
@@ -263,8 +263,13 @@ library Base58 {
                 // Store length and allocate (reserve) memory up to scratch.
                 mstore(output, sub(scratch, add(output, 0x20)))
                 mstore(0x40, scratch)
+
+                // Indicate that no invalid character was encountered
+                invalidChar := NO_ERROR
             }
             default {
+                // Handle the invalid character case
+                invalidChar := shl(248, add(err, 49))
                 // Reconstruct and restore original FMP on malformed input, and return the zero slot
                 mstore(0x40, sub(scratch, add(outputLengthEstim, 0x21)))
                 output := 0x60
