@@ -5,7 +5,6 @@ import type { SolidityBuildInfo, SolidityBuildInfoOutput } from 'hardhat/types/s
 
 import { main } from '../internal/main.ts';
 import { mapKeys } from '../internal/utils/map-keys.ts';
-import { filterKeys } from '../internal/utils/filter-keys.ts';
 
 export default async function ({}, hre: HardhatRuntimeEnvironment) {
   const { contractRootPaths } = await hre.tasks.getTask('build').run({ noTests: true, noExpose: true });
@@ -16,8 +15,6 @@ export default async function ({}, hre: HardhatRuntimeEnvironment) {
   for (const { buildId } of compilationJobs.cacheHits.values()) {
     buildIds.add(buildId);
   }
-
-  const mainSourcesRel = hre.config.docgen.sourcesDir!;
 
   const builds: { input: SolidityBuildInfo['input']; output: SolidityBuildInfoOutput['output'] }[] = [];
   for (const buildId of buildIds) {
@@ -31,19 +28,12 @@ export default async function ({}, hre: HardhatRuntimeEnvironment) {
       .then(file => fs.readFile(file!, 'utf-8'))
       .then(JSON.parse)) as SolidityBuildInfoOutput;
 
-    // Adjust paths to match downstream consumer expectations
-    input.sources = filterKeys(
-      mapKeys(input.sources, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
-    );
-    output.sources = filterKeys(
-      mapKeys(output.sources, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
-    );
-    output.contracts = filterKeys(
-      mapKeys(output.contracts ?? {}, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
-    );
+    // Adjust paths to match downstream consumer expectations. Sources outside of the main sources directory (npm
+    // dependencies, other source directories) are kept: docgen needs them to dereference AST nodes reached through
+    // imports. `buildSite` is responsible for only emitting pages for files under the main sources directory.
+    input.sources = mapKeys(input.sources, k => k.replace(/^project\//, ''));
+    output.sources = mapKeys(output.sources, k => k.replace(/^project\//, ''));
+    output.contracts = mapKeys(output.contracts ?? {}, k => k.replace(/^project\//, ''));
     Object.values(output.sources).forEach((s: any) => {
       s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
     });
