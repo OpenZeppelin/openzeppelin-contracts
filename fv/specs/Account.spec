@@ -96,7 +96,6 @@ invariant consistencyIndexValidator(uint256 index)
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
             requireInvariant consistencyIndexValidator(require_uint256(_validatorLength() - 1));
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
@@ -126,7 +125,6 @@ invariant consistencyKeyValidator(address module)
                 require_uint256(_validatorPositionOf(module) - 1),
                 require_uint256(_validatorPositionOf(otherModule) - 1)
             );
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
@@ -158,7 +156,6 @@ invariant absentValidatorIsNotStored(address module, uint256 index)
             requireInvariant consistencyIndexValidator(index);
             requireInvariant consistencyKeyValidator(module);
             requireInvariant atUniquenessValidator(index, require_uint256(_validatorLength() - 1));
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
