@@ -36,6 +36,11 @@ import {ERC20} from "../../ERC20.sol";
  *
  * * Mint and burn work while the token is paused; only transfers block. Circulation and
  *   issuance/redemption are separate operational concerns.
+ * * {forcedTransfer} and {recoveryAddress} bypass the pause too, in line with the spec
+ *   phrasing that a forced transfer "only requires the receiver to be whitelisted and
+ *   verified." A derived contract that treats pause as an incident halt and wants to
+ *   contain the forced-transfer agent during it may override both entry points with
+ *   {Pausable-whenNotPaused}.
  * * {ICompliance-created} fires on mint and {ICompliance-destroyed} on burn, in addition
  *   to {ICompliance-transferred} on transfers, so modules that track distribution stay
  *   in sync with supply changes.
@@ -45,6 +50,17 @@ import {ERC20} from "../../ERC20.sol";
  *   contract may override to use a named error.
  * * A burn auto-unfreezes just enough of `from`'s frozen balance to cover itself, so the
  *   `frozenTokens <= balanceOf` invariant is preserved across every path.
+ *
+ * WARNING: Every transfer, mint, and burn ends with an external call to a bound compliance
+ * module ({ICompliance-transferred}, {ICompliance-created}, {ICompliance-destroyed}). Module
+ * code is external and untrusted from the token's point of view. Bound modules can reenter
+ * the token from those callbacks. A deployment that cannot trust every module it binds — in
+ * particular one that binds a stateful cumulative-limit module alongside modules whose code
+ * or upgrade authority it does not control — should inherit
+ * {ReentrancyGuardTransient} and mark {_update}, {_forcedTransfer}, and {_recoveryAddress}
+ * with `nonReentrant`. Modules that keep their own accounting must also record pending
+ * amounts before any external call, since the token's guard does not extend to calls a
+ * module makes elsewhere.
  *
  * NOTE: This contract does not implement {IERC173}. `transferOwnership(address(0))` is not
  * accepted through {Ownable} — projects that require ERC-173 semantics for that path must
@@ -348,6 +364,12 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * @dev Moves `value` from `from` to `to` bypassing pause and freeze checks, auto-unfreezing
      * just enough of `from`'s frozen balance to cover the amount. Recipient identity is
      * still verified. Returns false when the recipient is not verified.
+     *
+     * The pause bypass follows the spec phrasing that a forced transfer "only requires the
+     * receiver to be whitelisted and verified." A derived contract that treats pause as an
+     * incident halt should override {forcedTransfer} (and {recoveryAddress}, which reaches
+     * this path) with {Pausable-whenNotPaused} so the halt contains the forced-transfer
+     * agent too.
      */
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
         if (identityRegistry().isVerified(to)) {
