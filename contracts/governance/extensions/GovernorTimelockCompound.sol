@@ -59,6 +59,54 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
+     * @dev Check whether a proposal contains duplicate actions.
+     *
+     * Duplicate actions are identified by an exact match on target, value, and calldata.
+     */
+    function _hasDuplicateActions(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas
+    ) internal pure returns (bool) {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            for (uint256 j = i + 1; j < targets.length; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    calldatas[i].length == calldatas[j].length &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc Governor
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        if (
+            targets.length == values.length &&
+            targets.length == calldatas.length &&
+            _hasDuplicateActions(targets, values, calldatas)
+        ) {
+            uint256 proposalId = getProposalId(targets, values, calldatas, keccak256(bytes(description)));
+            revert GovernorAlreadyQueuedProposal(proposalId);
+        }
+
+        return super._propose(targets, values, calldatas, description, proposer);
+    }
+
+    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queueOperations(
@@ -148,7 +196,7 @@ abstract contract GovernorTimelockCompound is Governor {
      * Note that if the timelock admin has been handed over in a previous operation, we refuse updates made through the
      * timelock if admin of the timelock has already been accepted and the operation is executed outside the scope of
      * governance.
-
+     *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(ICompoundTimelock newTimelock) public virtual onlyGovernance {
