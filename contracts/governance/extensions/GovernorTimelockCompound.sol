@@ -34,6 +34,38 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
+     * @dev Reject proposals that contain duplicate actions. Duplicate (target, value, calldata)
+     * actions would generate identical timelock transaction hashes, causing queueing to fail
+     * silently in {_queueOperations}. Detecting duplicates at proposal creation time provides
+     * a clear error instead.
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            for (uint256 j = i + 1; j < targets.length; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    revert GovernorDuplicateAction(targets[i], values[i], calldatas[i]);
+                }
+            }
+        }
+        return super._propose(targets, values, calldatas, description, proposer);
+    }
+
+    /**
+     * @dev Emitted when a proposal contains duplicate actions.
+     */
+    error GovernorDuplicateAction(address target, uint256 value, bytes calldata);
+
+    /**
      * @dev Overridden version of the {Governor-state} function with added support for the `Expired` state.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
