@@ -127,31 +127,6 @@ library Address {
     }
 
     /**
-     * @dev Tool to verify that a low level call to smart-contract was successful, and reverts if the target
-     * was not a contract or bubbling up the revert reason (falling back to {Errors.FailedCall}) in case
-     * of an unsuccessful call.
-     *
-     * NOTE: This function is DEPRECATED and may be removed in the next major release.
-     */
-    function verifyCallResultFromTarget(
-        address target,
-        bool success,
-        bytes memory returndata
-    ) internal view returns (bytes memory) {
-        // only check if target is a contract if the call was successful and the return data is empty
-        // otherwise we already know that it was a contract
-        if (success && (returndata.length > 0 || target.code.length > 0)) {
-            return returndata;
-        } else if (success) {
-            revert AddressEmptyCode(target);
-        } else if (returndata.length > 0) {
-            LowLevelCall.bubbleRevert(returndata);
-        } else {
-            revert Errors.FailedCall();
-        }
-    }
-
-    /**
      * @dev Tool to verify that a low level call was successful, and reverts if it wasn't, either by bubbling the
      * revert reason or with a default {Errors.FailedCall} error.
      */

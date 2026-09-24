@@ -96,7 +96,6 @@ invariant consistencyIndexValidator(uint256 index)
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
             requireInvariant consistencyIndexValidator(require_uint256(_validatorLength() - 1));
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
@@ -106,7 +105,6 @@ invariant consistencyIndexExecutor(uint256 index)
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
             requireInvariant consistencyIndexExecutor(require_uint256(_executorLength() - 1));
-            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
         }
     }
 
@@ -127,7 +125,6 @@ invariant consistencyKeyValidator(address module)
                 require_uint256(_validatorPositionOf(module) - 1),
                 require_uint256(_validatorPositionOf(otherModule) - 1)
             );
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
@@ -148,7 +145,6 @@ invariant consistencyKeyExecutor(address module)
                 require_uint256(_executorPositionOf(module) - 1),
                 require_uint256(_executorPositionOf(otherModule) - 1)
             );
-            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
         }
     }
 
@@ -160,7 +156,6 @@ invariant absentValidatorIsNotStored(address module, uint256 index)
             requireInvariant consistencyIndexValidator(index);
             requireInvariant consistencyKeyValidator(module);
             requireInvariant atUniquenessValidator(index, require_uint256(_validatorLength() - 1));
-            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
@@ -172,7 +167,6 @@ invariant absentExecutorIsNotStored(address module, uint256 index)
             requireInvariant consistencyIndexExecutor(index);
             requireInvariant consistencyKeyExecutor(module);
             requireInvariant atUniquenessExecutor(index, require_uint256(_executorLength() - 1));
-            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
         }
     }
 

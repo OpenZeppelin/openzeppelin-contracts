@@ -13,10 +13,6 @@ contract Uint256ArraysMock {
         _array = array;
     }
 
-    function findUpperBound(uint256 value) external view returns (uint256) {
-        return _array.findUpperBound(value);
-    }
-
     function lowerBound(uint256 value) external view returns (uint256) {
         return _array.lowerBound(value);
     }

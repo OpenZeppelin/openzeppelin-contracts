@@ -218,7 +218,7 @@ index a2e7bf4c7..44cfa054b 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -25,43 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -25,33 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -251,16 +251,6 @@ index a2e7bf4c7..44cfa054b 100644
  
 -    ShortString private immutable _name;
 -    ShortString private immutable _version;
--
--    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
--    // implementation behind a proxy.
--    // slither-disable-next-line constable-states
--    string private _nameFallback;
--
--    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
--    // implementation behind a proxy.
--    // slither-disable-next-line constable-states
--    string private _versionFallback;
 +    string private _name;
 +    string private _version;
  
