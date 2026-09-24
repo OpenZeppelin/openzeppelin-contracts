@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/RLP.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/RLP.sol)
 
 pragma solidity ^0.8.26;
 
-import {Math} from "./math/Math.sol";
-import {Accumulators} from "./structs/Accumulators.sol";
 import {Bytes} from "./Bytes.sol";
+import {Math} from "./math/Math.sol";
 import {Memory} from "./Memory.sol";
+import {Accumulators} from "./structs/Accumulators.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.

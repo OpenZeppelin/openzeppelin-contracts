@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/RSA.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/RSA.sol)
 
 pragma solidity ^0.8.20;
 
@@ -78,8 +78,12 @@ library RSA {
             }
 
             // RSAVP1 https://datatracker.ietf.org/doc/html/rfc8017#section-5.2.2
-            // The previous check guarantees that n > 0. Therefore modExp cannot revert.
-            bytes memory buffer = Math.modExp(s, e, n);
+            // The previous check guarantees that n > 0. Therefore tryModExp can only fail if the precompile runs
+            // out of gas (e.g. oversized inputs); fail closed in that case.
+            (bool success, bytes memory buffer) = Math.tryModExp(s, e, n);
+            if (!success) {
+                return false;
+            }
 
             // Check that buffer is well encoded:
             // buffer ::= 0x00 | 0x01 | PS | 0x00 | DigestInfo
