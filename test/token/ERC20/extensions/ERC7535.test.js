@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture, setBalance },
+} = await network.create();
 
 const name = 'My Native Vault';
 const symbol = 'MNV';
@@ -22,13 +26,13 @@ describe('ERC7535', function () {
 
   it('asset is the native-asset sentinel', async function () {
     const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, 0n]);
-    expect(await vault.asset()).to.equal(NATIVE_ASSET);
+    await expect(vault.asset()).to.eventually.equal(NATIVE_ASSET);
   });
 
   it('decimals are 18 + offset', async function () {
     for (const offset of [0n, 6n, 18n]) {
       const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, offset]);
-      expect(await vault.decimals()).to.equal(decimals + offset);
+      await expect(vault.decimals()).to.eventually.equal(decimals + offset);
     }
   });
 
@@ -46,9 +50,9 @@ describe('ERC7535', function () {
       // an assets-based implementation would mint 0 shares and donate the ether — still mints for the full value.
       const tx = this.vault.connect(this.holder).deposit(0n, this.recipient, { value });
 
-      await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-value, value]);
-      await expect(tx).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
-      expect(await this.vault.totalAssets()).to.equal(value);
+      await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-value, value]);
+      await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+      await expect(this.vault.totalAssets()).to.eventually.equal(value);
     });
 
     it('deposit converts the entire msg.value to shares (no excess donation)', async function () {
@@ -58,7 +62,7 @@ describe('ERC7535', function () {
       // Even with a smaller `assets` argument, the full msg.value is priced into shares (not retained as a donation).
       await expect(
         this.vault.connect(this.holder).deposit(ethers.parseEther('1'), this.recipient, { value }),
-      ).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
+      ).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
     });
 
     it('mint reverts when msg.value < cost', async function () {
@@ -72,7 +76,7 @@ describe('ERC7535', function () {
     it('mint succeeds when msg.value == cost', async function () {
       const shares = ethers.parseEther('1');
       const cost = await this.vault.previewMint(shares);
-      await expect(this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost })).to.not.be.reverted;
+      await expect(this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost })).to.not.revert(ethers);
     });
 
     it('mint keeps the excess as a donation when msg.value > cost', async function () {
@@ -82,9 +86,9 @@ describe('ERC7535', function () {
 
       const tx = this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost + extra });
 
-      await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-(cost + extra), cost + extra]);
-      await expect(tx).to.changeTokenBalance(this.vault, this.recipient, shares);
-      expect(await this.vault.totalAssets()).to.equal(cost + extra);
+      await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-(cost + extra), cost + extra]);
+      await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, shares);
+      await expect(this.vault.totalAssets()).to.eventually.equal(cost + extra);
     });
   });
 
@@ -109,8 +113,8 @@ describe('ERC7535', function () {
 
     it('totalAssets does not increase after a rejected plain transfer', async function () {
       const before = await this.vault.totalAssets();
-      await expect(this.holder.sendTransaction({ to: this.vault.target, value: 1n })).to.be.reverted;
-      expect(await this.vault.totalAssets()).to.equal(before);
+      await expect(this.holder.sendTransaction({ to: this.vault.target, value: 1n })).to.revert(ethers);
+      await expect(this.vault.totalAssets()).to.eventually.equal(before);
     });
   });
 
@@ -129,10 +133,10 @@ describe('ERC7535', function () {
       const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, 77n]);
       await setBalance(this.holder.address, ethers.parseEther('10'));
 
-      expect(await vault.decimals()).to.equal(18n + 77n);
-      expect(await vault.previewDeposit(1n)).to.equal(10n ** 77n);
-      await expect(vault.connect(this.holder).deposit(1n, this.recipient, { value: 1n })).to.not.be.reverted;
-      expect(await vault.balanceOf(this.recipient)).to.equal(10n ** 77n);
+      await expect(vault.decimals()).to.eventually.equal(18n + 77n);
+      await expect(vault.previewDeposit(1n)).to.eventually.equal(10n ** 77n);
+      await expect(vault.connect(this.holder).deposit(1n, this.recipient, { value: 1n })).to.not.revert(ethers);
+      await expect(vault.balanceOf(this.recipient)).to.eventually.equal(10n ** 77n);
     });
 
     it('conversions revert with an arithmetic panic at offset 78', async function () {
@@ -161,13 +165,14 @@ describe('ERC7535', function () {
     });
 
     it('withdraw to a receiver whose receive() reverts bubbles the failure', async function () {
-      await expect(this.vault.connect(this.holder).withdraw(ethers.parseEther('1'), this.rejector, this.holder)).to.be
-        .reverted;
+      await expect(
+        this.vault.connect(this.holder).withdraw(ethers.parseEther('1'), this.rejector, this.holder),
+      ).to.revert(ethers);
     });
 
     it('redeem to a receiver whose receive() reverts bubbles the failure', async function () {
       const shares = await this.vault.balanceOf(this.holder);
-      await expect(this.vault.connect(this.holder).redeem(shares, this.rejector, this.holder)).to.be.reverted;
+      await expect(this.vault.connect(this.holder).redeem(shares, this.rejector, this.holder)).to.revert(ethers);
     });
   });
 
@@ -187,7 +192,7 @@ describe('ERC7535', function () {
       const value = ethers.parseEther('1');
       const shares = await this.vault.previewWithdraw(value);
       const tx = this.vault.connect(this.holder).withdraw(value, ethers.ZeroAddress, this.holder);
-      await expect(tx).to.changeEtherBalances([this.vault, ethers.ZeroAddress], [-value, value]);
+      await expect(tx).to.changeEtherBalances(ethers, [this.vault, ethers.ZeroAddress], [-value, value]);
       await expect(tx)
         .to.emit(this.vault, 'Withdraw')
         .withArgs(this.holder, ethers.ZeroAddress, this.holder, value, shares);
@@ -214,25 +219,25 @@ describe('ERC7535', function () {
       });
 
       it('metadata', async function () {
-        expect(await this.vault.name()).to.equal(name + ' Vault');
-        expect(await this.vault.symbol()).to.equal(symbol + 'V');
-        expect(await this.vault.decimals()).to.equal(decimals + offset);
-        expect(await this.vault.asset()).to.equal(NATIVE_ASSET);
+        await expect(this.vault.name()).to.eventually.equal(name + ' Vault');
+        await expect(this.vault.symbol()).to.eventually.equal(symbol + 'V');
+        await expect(this.vault.decimals()).to.eventually.equal(decimals + offset);
+        await expect(this.vault.asset()).to.eventually.equal(NATIVE_ASSET);
       });
 
       describe('empty vault: no assets & no shares', function () {
         it('status', async function () {
-          expect(await this.vault.totalAssets()).to.equal(0n);
+          await expect(this.vault.totalAssets()).to.eventually.equal(0n);
         });
 
         it('deposit', async function () {
-          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
-          expect(await this.vault.previewDeposit(parseAsset(1n))).to.equal(parseShare(1n));
+          await expect(this.vault.maxDeposit(this.holder)).to.eventually.equal(ethers.MaxUint256);
+          await expect(this.vault.previewDeposit(parseAsset(1n))).to.eventually.equal(parseShare(1n));
 
           const tx = this.vault.connect(this.holder).deposit(parseAsset(1n), this.recipient, { value: parseAsset(1n) });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-parseAsset(1n), parseAsset(1n)]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, parseShare(1n));
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-parseAsset(1n), parseAsset(1n)]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, parseShare(1n));
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, parseShare(1n))
@@ -241,13 +246,13 @@ describe('ERC7535', function () {
         });
 
         it('mint', async function () {
-          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
-          expect(await this.vault.previewMint(parseShare(1n))).to.equal(parseAsset(1n));
+          await expect(this.vault.maxMint(this.holder)).to.eventually.equal(ethers.MaxUint256);
+          await expect(this.vault.previewMint(parseShare(1n))).to.eventually.equal(parseAsset(1n));
 
           const tx = this.vault.connect(this.holder).mint(parseShare(1n), this.recipient, { value: parseAsset(1n) });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-parseAsset(1n), parseAsset(1n)]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, parseShare(1n));
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-parseAsset(1n), parseAsset(1n)]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, parseShare(1n));
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, parseShare(1n))
@@ -256,13 +261,13 @@ describe('ERC7535', function () {
         });
 
         it('withdraw', async function () {
-          expect(await this.vault.maxWithdraw(this.holder)).to.equal(0n);
-          expect(await this.vault.previewWithdraw(0n)).to.equal(0n);
+          await expect(this.vault.maxWithdraw(this.holder)).to.eventually.equal(0n);
+          await expect(this.vault.previewWithdraw(0n)).to.eventually.equal(0n);
 
           const tx = this.vault.connect(this.holder).withdraw(0n, this.recipient, this.holder);
 
-          await expect(tx).to.changeEtherBalances([this.vault, this.recipient], [0n, 0n]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.holder, 0n);
+          await expect(tx).to.changeEtherBalances(ethers, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(this.holder, ethers.ZeroAddress, 0n)
@@ -271,13 +276,13 @@ describe('ERC7535', function () {
         });
 
         it('redeem', async function () {
-          expect(await this.vault.maxRedeem(this.holder)).to.equal(0n);
-          expect(await this.vault.previewRedeem(0n)).to.equal(0n);
+          await expect(this.vault.maxRedeem(this.holder)).to.eventually.equal(0n);
+          await expect(this.vault.previewRedeem(0n)).to.eventually.equal(0n);
 
           const tx = this.vault.connect(this.holder).redeem(0n, this.recipient, this.holder);
 
-          await expect(tx).to.changeEtherBalances([this.vault, this.recipient], [0n, 0n]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.holder, 0n);
+          await expect(tx).to.changeEtherBalances(ethers, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(this.holder, ethers.ZeroAddress, 0n)
@@ -293,8 +298,8 @@ describe('ERC7535', function () {
         });
 
         it('status', async function () {
-          expect(await this.vault.totalSupply()).to.equal(0n);
-          expect(await this.vault.totalAssets()).to.equal(parseAsset(1n));
+          await expect(this.vault.totalSupply()).to.eventually.equal(0n);
+          await expect(this.vault.totalAssets()).to.eventually.equal(parseAsset(1n));
         });
 
         it('deposit', async function () {
@@ -304,14 +309,14 @@ describe('ERC7535', function () {
           const depositAssets = parseAsset(1n);
           const expectedShares = (depositAssets * effectiveShares) / effectiveAssets;
 
-          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
+          await expect(this.vault.maxDeposit(this.holder)).to.eventually.equal(ethers.MaxUint256);
           // previewDeposit is queried BEFORE sending value: it sees the donated balance, not the in-flight value.
-          expect(await this.vault.previewDeposit(depositAssets)).to.equal(expectedShares);
+          await expect(this.vault.previewDeposit(depositAssets)).to.eventually.equal(expectedShares);
 
           const tx = this.vault.connect(this.holder).deposit(depositAssets, this.recipient, { value: depositAssets });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-depositAssets, depositAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-depositAssets, depositAssets]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, expectedShares)
@@ -326,13 +331,13 @@ describe('ERC7535', function () {
           const mintShares = parseShare(1n);
           const expectedAssets = (mintShares * effectiveAssets) / effectiveShares;
 
-          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
-          expect(await this.vault.previewMint(mintShares)).to.equal(expectedAssets);
+          await expect(this.vault.maxMint(this.holder)).to.eventually.equal(ethers.MaxUint256);
+          await expect(this.vault.previewMint(mintShares)).to.eventually.equal(expectedAssets);
 
           const tx = this.vault.connect(this.holder).mint(mintShares, this.recipient, { value: expectedAssets });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-expectedAssets, expectedAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, mintShares);
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-expectedAssets, expectedAssets]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, mintShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, mintShares)
@@ -349,8 +354,8 @@ describe('ERC7535', function () {
         });
 
         it('status', async function () {
-          expect(await this.vault.totalSupply()).to.equal(parseShare(100n));
-          expect(await this.vault.totalAssets()).to.equal(parseAsset(1n));
+          await expect(this.vault.totalSupply()).to.eventually.equal(parseShare(100n));
+          await expect(this.vault.totalAssets()).to.eventually.equal(parseAsset(1n));
         });
 
         it('deposit', async function () {
@@ -360,13 +365,13 @@ describe('ERC7535', function () {
           const depositAssets = parseAsset(1n);
           const expectedShares = (depositAssets * effectiveShares) / effectiveAssets;
 
-          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
-          expect(await this.vault.previewDeposit(depositAssets)).to.equal(expectedShares);
+          await expect(this.vault.maxDeposit(this.holder)).to.eventually.equal(ethers.MaxUint256);
+          await expect(this.vault.previewDeposit(depositAssets)).to.eventually.equal(expectedShares);
 
           const tx = this.vault.connect(this.holder).deposit(depositAssets, this.recipient, { value: depositAssets });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-depositAssets, depositAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-depositAssets, depositAssets]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, expectedShares)
@@ -381,13 +386,13 @@ describe('ERC7535', function () {
           const mintShares = parseShare(1n);
           const expectedAssets = (mintShares * effectiveAssets) / effectiveShares + 1n; // round up
 
-          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
-          expect(await this.vault.previewMint(mintShares)).to.equal(expectedAssets);
+          await expect(this.vault.maxMint(this.holder)).to.eventually.equal(ethers.MaxUint256);
+          await expect(this.vault.previewMint(mintShares)).to.eventually.equal(expectedAssets);
 
           const tx = this.vault.connect(this.holder).mint(mintShares, this.recipient, { value: expectedAssets });
 
-          await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-expectedAssets, expectedAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.recipient, mintShares);
+          await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-expectedAssets, expectedAssets]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, mintShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.recipient, mintShares)
@@ -402,13 +407,17 @@ describe('ERC7535', function () {
           const withdrawAssets = parseAsset(1n);
           const expectedShares = (withdrawAssets * effectiveShares) / effectiveAssets + 1n; // round up
 
-          expect(await this.vault.maxWithdraw(this.holder)).to.equal(withdrawAssets);
-          expect(await this.vault.previewWithdraw(withdrawAssets)).to.equal(expectedShares);
+          await expect(this.vault.maxWithdraw(this.holder)).to.eventually.equal(withdrawAssets);
+          await expect(this.vault.previewWithdraw(withdrawAssets)).to.eventually.equal(expectedShares);
 
           const tx = this.vault.connect(this.holder).withdraw(withdrawAssets, this.recipient, this.holder);
 
-          await expect(tx).to.changeEtherBalances([this.vault, this.recipient], [-withdrawAssets, withdrawAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.holder, -expectedShares);
+          await expect(tx).to.changeEtherBalances(
+            ethers,
+            [this.vault, this.recipient],
+            [-withdrawAssets, withdrawAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, -expectedShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(this.holder, ethers.ZeroAddress, expectedShares)
@@ -423,8 +432,9 @@ describe('ERC7535', function () {
             .to.be.revertedWithCustomError(this.vault, 'ERC20InsufficientAllowance')
             .withArgs(this.other, 0n, shares);
 
-          await expect(this.vault.connect(this.spender).withdraw(parseAsset(1n), this.recipient, this.holder)).to.not.be
-            .reverted;
+          await expect(
+            this.vault.connect(this.spender).withdraw(parseAsset(1n), this.recipient, this.holder),
+          ).to.not.revert(ethers);
         });
 
         it('redeem', async function () {
@@ -434,13 +444,17 @@ describe('ERC7535', function () {
           const redeemShares = parseShare(100n);
           const expectedAssets = (redeemShares * effectiveAssets) / effectiveShares;
 
-          expect(await this.vault.maxRedeem(this.holder)).to.equal(redeemShares);
-          expect(await this.vault.previewRedeem(redeemShares)).to.equal(expectedAssets);
+          await expect(this.vault.maxRedeem(this.holder)).to.eventually.equal(redeemShares);
+          await expect(this.vault.previewRedeem(redeemShares)).to.eventually.equal(expectedAssets);
 
           const tx = this.vault.connect(this.holder).redeem(redeemShares, this.recipient, this.holder);
 
-          await expect(tx).to.changeEtherBalances([this.vault, this.recipient], [-expectedAssets, expectedAssets]);
-          await expect(tx).to.changeTokenBalance(this.vault, this.holder, -redeemShares);
+          await expect(tx).to.changeEtherBalances(
+            ethers,
+            [this.vault, this.recipient],
+            [-expectedAssets, expectedAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, -redeemShares);
           await expect(tx)
             .to.emit(this.vault, 'Transfer')
             .withArgs(this.holder, ethers.ZeroAddress, redeemShares)
@@ -453,8 +467,9 @@ describe('ERC7535', function () {
             .to.be.revertedWithCustomError(this.vault, 'ERC20InsufficientAllowance')
             .withArgs(this.other, 0n, parseShare(100n));
 
-          await expect(this.vault.connect(this.spender).redeem(parseShare(100n), this.recipient, this.holder)).to.not.be
-            .reverted;
+          await expect(
+            this.vault.connect(this.spender).redeem(parseShare(100n), this.recipient, this.holder),
+          ).to.not.revert(ethers);
         });
       });
     });
@@ -470,29 +485,29 @@ describe('ERC7535', function () {
 
     // 1. Alice deposits 2000 wei
     await vault.connect(alice).deposit(2000n, alice, { value: 2000n });
-    expect(await vault.balanceOf(alice)).to.equal(2000n);
-    expect(await vault.totalSupply()).to.equal(2000n);
-    expect(await vault.totalAssets()).to.equal(2000n);
+    await expect(vault.balanceOf(alice)).to.eventually.equal(2000n);
+    await expect(vault.totalSupply()).to.eventually.equal(2000n);
+    await expect(vault.totalAssets()).to.eventually.equal(2000n);
 
     // 2. Bruce deposits 4000 wei
     await vault.connect(bruce).deposit(4000n, bruce, { value: 4000n });
-    expect(await vault.balanceOf(bruce)).to.equal(4000n);
-    expect(await vault.totalSupply()).to.equal(6000n);
-    expect(await vault.totalAssets()).to.equal(6000n);
+    await expect(vault.balanceOf(bruce)).to.eventually.equal(4000n);
+    await expect(vault.totalSupply()).to.eventually.equal(6000n);
+    await expect(vault.totalAssets()).to.eventually.equal(6000n);
 
     // 3. Vault mutates by +3000 wei (simulated yield force-fed into the balance)
     await setBalance(vault.target, 9000n);
 
     // Virtual assets/shares capture a sliver of the yield (mirrors ERC-4626 behavior)
-    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(2999n);
-    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(5999n);
-    expect(await vault.totalSupply()).to.equal(6000n);
-    expect(await vault.totalAssets()).to.equal(9000n);
+    await expect(vault.convertToAssets(vault.balanceOf(alice))).to.eventually.equal(2999n);
+    await expect(vault.convertToAssets(vault.balanceOf(bruce))).to.eventually.equal(5999n);
+    await expect(vault.totalSupply()).to.eventually.equal(6000n);
+    await expect(vault.totalAssets()).to.eventually.equal(9000n);
 
     // 4. Alice redeems all her shares; never extracts more than her fair share.
     await expect(vault.connect(alice).redeem(2000n, alice, alice))
       .to.emit(vault, 'Withdraw')
       .withArgs(alice, alice, alice, 2999n, 2000n);
-    expect(await vault.balanceOf(alice)).to.equal(0n);
+    await expect(vault.balanceOf(alice)).to.eventually.equal(0n);
   });
 });
