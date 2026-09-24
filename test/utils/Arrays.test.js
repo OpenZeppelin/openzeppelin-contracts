@@ -23,7 +23,6 @@ const upperBound = (array, value) => {
 
 const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const comparator = (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b));
-const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
@@ -101,15 +100,6 @@ describe('Arrays', function () {
 
         for (const [name, input] of Object.entries(tests)) {
           describe(name, function () {
-            it('[deprecated] findUpperBound', async function () {
-              // findUpperBound does not support duplicated
-              if (hasDuplicates(array)) {
-                await expect(this.instance.findUpperBound(input)).to.eventually.equal(upperBound(array, input) - 1);
-              } else {
-                await expect(this.instance.findUpperBound(input)).to.eventually.equal(lowerBound(array, input));
-              }
-            });
-
             it('lowerBound', async function () {
               await expect(this.instance.lowerBound(input)).to.eventually.equal(lowerBound(array, input));
               await expect(this.instance.lowerBoundMemory(array, input)).to.eventually.equal(lowerBound(array, input));

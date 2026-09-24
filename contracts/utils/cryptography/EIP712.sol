@@ -53,16 +53,6 @@ abstract contract EIP712 is IERC5267 {
     ShortString private immutable _name;
     ShortString private immutable _version;
 
-    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
-    // implementation behind a proxy.
-    // slither-disable-next-line constable-states
-    string private _nameFallback;
-
-    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
-    // implementation behind a proxy.
-    // slither-disable-next-line constable-states
-    string private _versionFallback;
-
     /**
      * @dev Initializes the domain separator and parameter caches.
      *
