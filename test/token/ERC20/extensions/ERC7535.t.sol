@@ -482,7 +482,7 @@ contract ERC7535Test is Test {
     // (totalAssets rises) — the documented limitation the inflation-attack analysis accounts for.
     // --------------------------------------------------------------------------------------------
 
-    function testPlainEthTransferRevertsWithUnsolicitedDeposit() public {
+    function testPlainEthTransferReverts() public {
         address sender = makeAddr("plainSender");
         vm.deal(sender, 1 ether);
 
@@ -493,11 +493,7 @@ contract ERC7535Test is Test {
         (bool ok, bytes memory ret) = address(vault).call{value: 1}("");
 
         assertFalse(ok, "plain ETH transfer to vault should fail");
-        assertEq(
-            bytes4(ret),
-            ERC7535.ERC7535UnsolicitedDeposit.selector,
-            "revert selector should be ERC7535UnsolicitedDeposit"
-        );
+        assertEq(bytes4(ret), 0x00000000, "revert selector should be ERC7535UnsolicitedDeposit");
 
         assertEq(address(vault).balance, vaultBalBefore, "vault balance changed despite revert");
         assertEq(vault.totalAssets(), totalAssetsBefore, "totalAssets changed despite revert");

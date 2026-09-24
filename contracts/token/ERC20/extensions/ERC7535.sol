@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC20} from "../IERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
-import {ERC4626} from "./ERC4626.sol";
 import {Address} from "../../../utils/Address.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {IERC20} from "../IERC20.sol";
+import {ERC4626} from "./ERC4626.sol";
 
 /**
  * @dev Implementation of the ERC-7535 "Native Asset ERC-4626 Tokenized Vault" as defined in
@@ -60,17 +60,9 @@ abstract contract ERC7535 is ERC4626 {
     /// @dev Attempted to {deposit} or {mint} with a `msg.value` below the required native amount.
     error ERC7535InsufficientNativeValue(uint256 value, uint256 expected);
 
-    /// @dev Reverts on a plain native-asset transfer to the vault — value enters only via {deposit} or {mint}.
-    error ERC7535UnsolicitedDeposit();
-
     /// @dev Configures the vault for the native asset. The placeholder address has no `decimals()`, so the
     /// inherited {ERC4626} decimals detection falls back to 18, the native asset's decimals.
     constructor() ERC4626(IERC20(NATIVE_ASSET)) {}
-
-    /// @inheritdoc IERC4626
-    function asset() public view virtual override returns (address) {
-        return NATIVE_ASSET;
-    }
 
     /// @inheritdoc IERC4626
     function totalAssets() public view virtual override returns (uint256) {
@@ -135,11 +127,5 @@ abstract contract ERC7535 is ERC4626 {
     /// {ERC4626-_transferOut}.
     function _transferOut(address to, uint256 assets) internal virtual override {
         Address.sendValue(payable(to), assets);
-    }
-
-    /// @dev Reverts on plain native-asset transfers; value must enter via {deposit} or {mint}. This does not stop
-    /// protocol-level force-feeds (`SELFDESTRUCT`, block-reward payments), which bypass `receive` entirely.
-    receive() external payable virtual {
-        revert ERC7535UnsolicitedDeposit();
     }
 }
