@@ -77,22 +77,15 @@ abstract contract ERC7535 is ERC4626 {
      * retained as a donation). Reverts via {maxDeposit} if `msg.value` exceeds the maximum.
      */
     function deposit(uint256, address receiver) public payable virtual override returns (uint256) {
-        uint256 assets = msg.value;
-        uint256 maxAssets = maxDeposit(receiver);
-        if (assets > maxAssets) {
-            revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
-        }
-
-        uint256 shares = previewDeposit(assets);
-        _deposit(_msgSender(), receiver, assets, shares);
-
-        return shares;
+        return super.deposit(msg.value, receiver);
     }
 
-    /// @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
-    /// native value to cover the previewed cost `assets`; any excess is kept by the vault, raising the share price
-    /// for existing holders. {deposit} is overridden to price shares directly off `msg.value` and does not route
-    /// through this hook.
+    /**
+     * @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
+     * native value to cover the previewed cost `assets`; any excess is kept by the vault, raising the share price
+     * for existing holders. {deposit} is overridden to price shares directly off `msg.value` and does not route
+     * through this hook.
+     */
     function _checkPayment(uint256 assets) internal virtual override {
         if (msg.value < assets) {
             revert ERC7535InsufficientNativeValue(msg.value, assets);
