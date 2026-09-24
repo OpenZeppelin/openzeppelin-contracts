@@ -213,7 +213,7 @@ library ERC7579Utils {
                 executionBatch.length := arrayLength
             }
 
-            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
+            _validateCalldataBound(executionBatch, bufferPtr, bufferPtr + bufferLength);
         }
     }
 
@@ -221,25 +221,50 @@ library ERC7579Utils {
      * @dev Calldata sanity check
      *
      * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
-     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
-     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
-     * that point to the memory space between the end of the `executionCalldata` buffer.
-     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
-     * array, checking that everything is valid.
+     * within calldatasize. This check is performed when objects are dereferenced. It will not detect potentially
+     * ill-formed objects that point outside of the `executionCalldata` buffer: after its end, if the buffer is not
+     * the last element in msg.data, or before its start, since offsets are added to their base pointer without any
+     * overflow check.
+     * Since the lazy checks are not sufficient, we do an in-depth traversal of the array, checking that everything
+     * is valid.
      */
-    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
-        if (bound < msg.data.length) {
-            for (uint256 i = 0; i < executionBatch.length; ++i) {
-                Execution calldata item = executionBatch[i];
-                bytes calldata itemCalldata = item.callData;
+    function _validateCalldataBound(
+        Execution[] calldata executionBatch,
+        uint256 lowerBound,
+        uint256 upperBound
+    ) private pure {
+        unchecked {
+            if (executionBatch.length > 0) {
+                // An item's head is 0x60 bytes long (target, value, and the offset to the calldata), and the
+                // content of an item's calldata is preceded by a 0x20 bytes length slot. Checking that the buffer
+                // can hold at least one item here means that the bounds below, and the comparisons in the loop,
+                // cannot underflow.
+                // Note that by construction upperBound >= lowerBound, so the subtraction cannot underflow.
+                if (upperBound - lowerBound < 0x60) revert ERC7579DecodingError();
+                // Cannot underflow: upperBound - 0x60 >= (lowerBound + 0x60) - 0x60 >= lowerBound
+                uint256 itemUpperBound = upperBound - 0x60;
+                // Cannot overflow: lowerBound + 0x20 <= lowerBound + 0x60 <= upperBound
+                uint256 itemCalldataLowerBound = lowerBound + 0x20;
 
-                uint256 itemEnd;
-                uint256 itemCalldataEnd;
-                assembly ("memory-safe") {
-                    itemEnd := add(item, 0x60)
-                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
+                for (uint256 i = 0; i < executionBatch.length; ++i) {
+                    Execution calldata item = executionBatch[i];
+                    bytes calldata itemCalldata = item.callData;
+
+                    uint256 itemPtr;
+                    uint256 itemCalldataPtr;
+                    assembly ("memory-safe") {
+                        itemPtr := item
+                        itemCalldataPtr := itemCalldata.offset
+                    }
+
+                    if (
+                        itemPtr < lowerBound ||
+                        itemPtr > itemUpperBound ||
+                        itemCalldataPtr < itemCalldataLowerBound ||
+                        itemCalldataPtr > upperBound ||
+                        itemCalldata.length > upperBound - itemCalldataPtr
+                    ) revert ERC7579DecodingError();
                 }
-                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
             }
         }
     }
