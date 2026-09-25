@@ -63,7 +63,7 @@
     "@noble/curves": "^2.0.1",
     "@nomicfoundation/hardhat-ethers": "^4.0.14",
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.11",
-    "@nomicfoundation/hardhat-mocha": "^3.0.21",
+    "@nomicfoundation/hardhat-mocha": "^4.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^3.0.11",
     "@openzeppelin/docs-utils": "^0.1.6",
     "@openzeppelin/merkle-tree": "^1.0.7",
