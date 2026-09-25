@@ -2211,6 +2211,33 @@ describe('AccessManager', function () {
       expect(await this.manager.getSchedule(operationId)).to.equal(0n);
     });
 
+    it('restores the original _executionId after a nested call', async function () {
+      await this.manager.$_setTargetFunctionRole(
+        this.target,
+        this.target.interface.getFunction('fnRestrictedNested(address,bytes)').selector,
+        this.roles.SOME.id,
+      );
+      await this.manager.$_grantRole(this.roles.SOME.id, this.caller, 0, 0);
+      // the target performs the inner execute itself, so it needs the role of the inner function
+      await this.manager.$_grantRole(this.role.id, this.target, 0, 0);
+
+      await expect(
+        this.manager
+          .connect(this.caller)
+          .execute(
+            this.target,
+            this.target.interface.encodeFunctionData('fnRestrictedNested(address,bytes)', [
+              this.target.target,
+              this.calldata,
+            ]),
+          ),
+      )
+        .to.emit(this.target, 'CalledRestricted')
+        .withArgs(this.manager)
+        .to.emit(this.target, 'StillExecuting')
+        .withArgs(true);
+    });
+
     it('reverts executing twice', async function () {
       const delay = time.duration.hours(2);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // Execution delay is needed so the operation is consumed
