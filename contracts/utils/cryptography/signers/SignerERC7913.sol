@@ -51,7 +51,7 @@ abstract contract SignerERC7913 is AbstractSigner {
     }
 
     /**
-     * @dev Verifies a signature using {SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-}
+     * @dev Verifies a signature using {SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes}
      * with {signer}, `hash` and `signature`.
      */
     function _rawSignatureValidation(
