@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Testing conventions for openzeppelin-contracts. Use when writing or modifying tests, mocks, or formal verification specs. Covers hardhat-exposed $-wrappers, when manual mocks are warranted, Hardhat+Chai patterns (loadFixture, shouldBehaveLike, multi-target loops), Foundry fuzz, Halmos symbolic execution, Certora rule-based verification, and the changeset rule.
+description: Testing conventions for openzeppelin-contracts. Use when writing or modifying tests, mocks, or formal verification specs. Covers hardhat-exposed $-wrappers, when manual mocks are warranted, Hardhat+Chai patterns (loadFixture, shouldBehaveLike, multi-target loops, multichain cross-chain tests), Foundry fuzz, Halmos symbolic execution, Certora rule-based verification, and the changeset rule.
 ---
 
 # Testing
@@ -88,6 +88,37 @@ for (const { Token, forcedApproval } of TOKENS) {
   });
 }
 ```
+
+**Cross-chain tests**: a cross-chain contract needs a real counterpart chain — one `network.create()` per chain, each with a distinct `chainId`. The `ERC7786Bridge` helper (`test/helpers/erc7786.js`) deploys an `$ERC7786GatewayMock` on every chain and carries messages between them:
+
+```javascript
+const chainA = await network.create({ override: { chainId: 17 } });
+const chainB = await network.create({ override: { chainId: 42 } });
+const bridge = await ERC7786Bridge.create(chainA, chainB);
+
+beforeEach(async function () {
+  Object.assign(this, { chainA, chainB, bridge }, await bridge.loadFixture(fixture));
+});
+```
+
+- `bridge.gateway(chain)` — the gateway deployed on that chain, to wire contracts against.
+- `bridge.relay()` — delivers every message sent since the previous call (cascading through messages a delivery triggers), and returns the delivery transactions in order.
+- `bridge.loadFixture(fn)` — multichain `loadFixture`. Use it instead of `networkHelpers.loadFixture`, which only snapshots its own connection and would let the other chains accumulate state across tests.
+
+The gateway mock never delivers locally: `sendMessage` only emits `MessageSent`, and delivery happens when the bridge calls `relayMessage` on the destination gateway. So assertions split at the chain boundary — source-side events on the sending transaction, destination-side events on the relayed one:
+
+```javascript
+await expect(bridgeA.connect(alice).crosschainTransfer(chainB.helpers.chain.toErc7930(bruce), amount))
+  .to.emit(this.tokenA, 'Transfer')
+  .withArgs(alice, this.bridgeA, amount)
+  .to.emit(bridge.gateway(chainA), 'MessageSent');
+
+await expect(bridge.relay().then(([tx]) => tx))
+  .to.emit(this.bridgeB, 'CrosschainFungibleTransferReceived')
+  .withArgs(anyValue, chainA.helpers.chain.toErc7930(alice), bruce, amount);
+```
+
+Signers belong to a connection: a chain A signer cannot send a transaction on chain B. Expose both sets from the fixture (`accountsA` / `accountsB`) and pick the one for the chain you are transacting on; the addresses match across chains, since every connection uses the same mnemonic. Interoperable addresses are built from the chain that holds the account: `chainB.helpers.chain.toErc7930(bruce)`.
 
 **Assertion style**:
 
