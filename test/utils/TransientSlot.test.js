@@ -91,18 +91,13 @@ describe('TransientSlot', function () {
 
   describe('reserved slots', function () {
     it('each reservation gets its own slot', async function () {
-      // Store into every reservation, then read them all back: a collision would make at least one read
-      // return another type's value.
-      let assertion = expect(
-        this.mock.multicall([
-          ...TYPES.map(({ type, value }) => this.mock.interface.encodeFunctionData(`tstoreReserved(${type})`, [value])),
-          ...TYPES.map(({ name }) => this.mock.interface.encodeFunctionData(`tloadReserved${name}`, [])),
-        ]),
-      );
+      const txPromise = this.mock.multicall([
+        ...TYPES.map(({ type, value }) => this.mock.interface.encodeFunctionData(`tstoreReserved(${type})`, [value])),
+        ...TYPES.map(({ name }) => this.mock.interface.encodeFunctionData(`tloadReserved${name}`, [])),
+      ]);
       for (const { name, value } of TYPES) {
-        assertion = assertion.to.emit(this.mock, `Reserved${name}Value`).withArgs(value);
+        await expect(txPromise).to.emit(this.mock, `Reserved${name}Value`).withArgs(value);
       }
-      await assertion;
     });
 
     it('storing does not write to the reserved persistent slots', async function () {
@@ -112,7 +107,7 @@ describe('TransientSlot', function () {
 
       // The reservations are the mock's only state variables, so they occupy slots 0 to TYPES.length - 1.
       for (let i = 0; i < TYPES.length; ++i) {
-        expect(await ethers.provider.getStorage(this.mock, i)).to.equal(ethers.ZeroHash);
+        await expect(ethers.provider.getStorage(this.mock, i)).to.eventually.equal(ethers.ZeroHash);
       }
     });
   });

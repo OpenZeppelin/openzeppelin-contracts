@@ -51,7 +51,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {Strings}: Common operations for strings formatting.
  * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
- * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
+ * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported), either at an arbitrary slot or at a slot reserved in the persistent storage layout, which lets the compiler allocate (and namespace) it.
 
 [NOTE]
 ====
