@@ -44,6 +44,9 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
     /// @dev Revert reason when the address part of the interoperable address is empty.
     error CrosschainMultiTokenEmptyAddress();
 
+    /// @dev Revert reason when the address part of the interoperable address is not an EVM address.
+    error CrosschainMultiTokenInvalidAddressLength(uint256 length);
+
     /**
      * @dev Internal crosschain transfer function. `data` is forwarded through the ERC-7786 payload to
      * {_onReceive} on the destination chain.
@@ -61,6 +64,7 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
         require(addr.length > 0, CrosschainMultiTokenEmptyAddress());
+        require(addr.length == 20, CrosschainMultiTokenInvalidAddressLength(addr.length));
 
         bytes32 sendId = _sendMessageToCounterpart(
             InteroperableAddress.formatV1(chainType, chainReference, hex""),
