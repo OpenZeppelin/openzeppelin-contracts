@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.24;
 
-import {IAccessControlEnumerable} from "./IAccessControlEnumerable.sol";
-import {AccessControl} from "../AccessControl.sol";
-import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {IERC165} from "../../utils/introspection/ERC165.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
+import {AccessControl} from "../AccessControl.sol";
+import {IAccessControlEnumerable} from "./IAccessControlEnumerable.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.

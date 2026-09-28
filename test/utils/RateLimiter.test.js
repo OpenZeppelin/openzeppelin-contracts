@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT48 } from '../helpers/constants';
+import { batchInBlock } from '../helpers/txpool';
 
-const { MAX_UINT48 } = require('../helpers/constants');
-const { batchInBlock } = require('../helpers/txpool');
-const time = require('../helpers/time');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+  helpers: { time },
+} = await network.create();
 
 const WINDOW = 3_600n; // 1 hour
 const CAPACITY = 10_000n;
@@ -97,7 +100,7 @@ describe('RateLimiter', function () {
         });
 
         it('consume all capacity at once', async function () {
-          await expect(this.mock.consume(CAPACITY)).to.not.be.reverted; // consume all capacity at once is allowed
+          await expect(this.mock.consume(CAPACITY)).to.not.be.revert(ethers); // consume all capacity at once is allowed
 
           await expect(this.mock.state()).to.eventually.deep.equal([CAPACITY, 0n]);
           await expect(this.mock.used()).to.eventually.equal(CAPACITY);
@@ -257,11 +260,14 @@ describe('RateLimiter', function () {
       });
 
       it('multiple consumes in the same block accumulate', async function () {
-        await batchInBlock([
-          () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
-          () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
-          () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
-        ]);
+        await batchInBlock(
+          [
+            () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
+          ],
+          ethers.provider,
+        );
 
         // no time elapses between the three consumes; the entry's lastUsed accumulates to 350n
         await expect(this.mock.state()).to.eventually.deep.equal([350n, CAPACITY - 350n]);
@@ -307,10 +313,13 @@ describe('RateLimiter', function () {
         await this.mock.consume(CAPACITY);
 
         await time.increaseBy.timestamp(d1, false);
-        await batchInBlock([
-          () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
-          () => this.mock.updateSettings(WINDOW, CAPACITY * 2n, { gasLimit: 200000 }),
-        ]);
+        await batchInBlock(
+          [
+            () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
+            () => this.mock.updateSettings(WINDOW, CAPACITY * 2n, { gasLimit: 200000 }),
+          ],
+          ethers.provider,
+        );
         await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
@@ -338,7 +347,7 @@ describe('RateLimiter', function () {
       it('window saturation prevents underflow when block.timestamp < window', async function () {
         // computing state with a window larger than block.timestamp must not revert
         await this.mock.updateSettings(MAX_UINT48, CAPACITY);
-        await expect(this.mock.state()).to.not.be.reverted;
+        await expect(this.mock.state()).to.not.be.revert(ethers);
       });
     });
   });
@@ -536,11 +545,14 @@ describe('RateLimiter', function () {
       });
 
       it('multiple consumes in the same block overwrite the checkpoint in place', async function () {
-        await batchInBlock([
-          () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
-          () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
-          () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
-        ]);
+        await batchInBlock(
+          [
+            () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
+          ],
+          ethers.provider,
+        );
 
         // three pushes at the same timestamp collapse to a single checkpoint with cumulative 350n
         await expect(this.mock.state()).to.eventually.deep.equal([350n, CAPACITY - 350n]);
@@ -558,7 +570,7 @@ describe('RateLimiter', function () {
 
         await time.increaseBy.timestamp(WINDOW + 1n);
 
-        await expect(this.mock.consume(bigLimit)).to.not.be.reverted;
+        await expect(this.mock.consume(bigLimit)).to.not.be.revert(ethers);
         await expect(this.mock.used()).to.eventually.equal(bigLimit);
       });
 
@@ -616,7 +628,7 @@ describe('RateLimiter', function () {
       it('window saturation prevents underflow when block.timestamp < window', async function () {
         // computing state with a window larger than block.timestamp must not revert
         await this.mock.updateSettings(MAX_UINT48, CAPACITY);
-        await expect(this.mock.state()).to.not.be.reverted;
+        await expect(this.mock.state()).to.not.be.revert(ethers);
       });
     });
   });

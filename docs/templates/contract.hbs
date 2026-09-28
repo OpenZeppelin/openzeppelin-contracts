@@ -8,7 +8,7 @@
 
 [.contract]
 [[{{anchor}}]]
-=== `++{{name}}++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}}[{github-icon},role=heading-link]
+=== `++{{name}}++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{ozVersion}}/{{__item_context.file.absolutePath}}[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -27,11 +27,11 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 --
 {{/if}}
 
-{{#if has-functions}}
+{{#if hasFunctions}}
 [.contract-index]
 .Functions
 --
-{{#each inherited-functions}}
+{{#each inheritedFunctions}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
@@ -44,7 +44,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 --
 {{/if}}
 
-{{#if has-events}}
+{{#if hasEvents}}
 [.contract-index]
 .Events
 --
@@ -61,7 +61,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 --
 {{/if}}
 
-{{#if has-errors}}
+{{#if hasErrors}}
 [.contract-index]
 .Errors
 --
@@ -78,7 +78,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 --
 {{/if}}
 
-{{#if has-internal-variables}}
+{{#if hasInternalVariables}}
 [.contract-index]
 .Internal Variables
 --
@@ -87,7 +87,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 [.contract-subindex-inherited]
 .{{name}}
 {{/unless}}
-{{#each internal-variables}}
+{{#each internalVariables}}
 * {xref-{{anchor~}} }[`++{{typeDescriptions.typeString}} {{#if constant}}constant{{/if}} {{name}}++`]
 {{/each}}
 
@@ -98,7 +98,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each modifiers}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#modifier#
+==== `[.contract-item-name]#++{{name}}++#++({{typedParams params}})++` [.item-kind]#modifier#
 
 {{{natspec.dev}}}
 
@@ -107,7 +107,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each functions}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}}){{#if returns2}} → {{typed-params returns2}}{{/if}}++` [.item-kind]#{{visibility}}#
+==== `[.contract-item-name]#++{{name}}++#++({{typedParams params}}){{#if returns2}} → {{typedParams returns2}}{{/if}}++` [.item-kind]#{{visibility}}#
 
 {{{natspec.dev}}}
 
@@ -116,7 +116,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each events}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#event#
+==== `[.contract-item-name]#++{{name}}++#++({{typedParams params}})++` [.item-kind]#event#
 
 {{{natspec.dev}}}
 
@@ -125,13 +125,13 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each errors}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#error#
+==== `[.contract-item-name]#++{{name}}++#++({{typedParams params}})++` [.item-kind]#error#
 
 {{{natspec.dev}}}
 
 {{/each}}
 
-{{#each internal-variables}}
+{{#each internalVariables}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `{{typeDescriptions.typeString}} [.contract-item-name]#++{{name}}++#` [.item-kind]#internal{{#if constant}} constant{{/if}}#

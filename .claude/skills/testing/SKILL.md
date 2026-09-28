@@ -99,7 +99,7 @@ for (const { Token, forcedApproval } of TOKENS) {
 
 ## Foundry (`.t.sol`)
 
-Foundry tests live next to their Hardhat counterparts in `test/`. They are picked up by `forge test`. Two distinct purposes:
+Foundry tests live next to their Hardhat counterparts in `test/`. Under HH3 they are picked up by `npm test` (via the `@nomicfoundation/hardhat-mocha` solidity runner) alongside the JS tests. Standalone `forge test` still works but uses forge defaults for fuzz. Two distinct purposes:
 
 **Fuzzing**: function name starts with `test`, parameters are typed. Foundry generates random inputs.
 
@@ -110,7 +110,7 @@ function testFuzzAdd(uint256 a, uint256 b) public pure {
 }
 ```
 
-Use `assertEq`, `assertGt`, etc. from `forge-std/Test.sol`. Fuzz settings live in `foundry.toml` (default `runs = 5000`).
+Use `assertEq`, `assertGt`, etc. from `forge-std/Test.sol`. Fuzz settings live in `hardhat.config.ts` under `test.solidity.fuzz` (`runs = 5000`, `maxTestRejects = 150000`) and are applied when running via `npm test`. Standalone `forge test` uses forge defaults.
 
 **Symbolic execution (Halmos)**: function name starts with `symbolic` or `testSymbolic` — that's what the CI `halmos` job matches (`--match-test '^symbolic|^testSymbolic'`). These run as regular Foundry fuzz tests as well.
 
@@ -127,7 +127,7 @@ Halmos runs on every PR, needs no credentials. Reach for it when a property can 
 
 ## Certora (rule-based formal verification)
 
-[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. The CI job runs on PRs labeled `formal-verification` or `formal-verification-force-all`. Requires a `CERTORAKEY`.
+[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. CI runs one job per affected config, on any PR whose diff reaches a spec, a harness, a contract one of them verifies, or an `fv/diff` patch applied to one -- no label needed. Label a PR `formal-verification-force-all` to run every config instead. Requires a `CERTORAKEY`, and the `certora` environment gates the job behind a manual approval. Selection runs the base branch's copy of `scripts/list-dependencies.js` over the PR's files, so a PR cannot change which configs it is checked against. The matrix job names carry their config, so `verified` is the aggregate job to require in branch protection. Deleting a `.conf` fails selection, since a config that no longer exists cannot be selected and its verification would just disappear; label the PR `formal-verification-allow-removal` when that is intended.
 
 Local workflow:
 
@@ -163,12 +163,12 @@ The generated file in `.changeset/` looks like:
 
 ## CI matrix you should keep in mind
 
-| Job                   | What it runs                                                           | Triggered by                                                        |
-| --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `lint`                | `npm run lint`                                                         | Every push/PR                                                       |
-| `tests`               | `npm test` + inheritance, pragma, generation checks                    | Every push/PR                                                       |
-| `tests-upgradeable`   | Transpile then re-run all Hardhat tests + storage-layout diff          | Every push/PR                                                       |
-| `tests-foundry`       | `forge test -vvv` (includes Halmos symbolic)                           | Every push/PR                                                       |
-| `coverage`            | `npm run coverage` → codecov                                           | Every push/PR                                                       |
-| `slither`             | Slither static analysis for common vulnerabilities                     | Every push/PR                                                       |
-| `formal verification` | Certora specs for changed `.spec` files (or all, with the force label) | PRs labeled `formal-verification` / `formal-verification-force-all` |
+| Job                   | What it runs                                                        | Triggered by                                             |
+| --------------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
+| `lint`                | `npm run lint`                                                      | Every push/PR                                            |
+| `tests`               | `npm test` (JS + Foundry via HH3) + inheritance, pragma, generation | Every push/PR                                            |
+| `tests-upgradeable`   | Transpile then re-run the test suite + storage-layout diff          | Every push/PR                                            |
+| `coverage`            | `npm run coverage` → codecov                                        | Every push/PR                                            |
+| `slither`             | Slither static analysis for common vulnerabilities                  | Every push/PR                                            |
+| `halmos`              | `halmos --match-test '^symbolic\|^testSymbolic'`                    | Every push/PR                                            |
+| `formal verification` | Certora, one job per affected config (or all, with the force label) | PRs touching a spec, harness, patch or verified contract |
