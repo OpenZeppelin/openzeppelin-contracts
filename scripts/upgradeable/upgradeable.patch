@@ -146,10 +146,10 @@ index 0f0252dd7..a8785361c 100644
 +  }
  }
 diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-index 6e65f15aa..34e3f1206 100644
+index b818d327b..8cdff61fa 100644
 --- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 +++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-@@ -15,6 +15,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
+@@ -15,6 +15,14 @@ import {ERC3009} from "./draft-ERC3009.sol";
   * different keys are independent and can be submitted in parallel without ordering constraints, while nonces
   * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
   * sequential nonce.
@@ -165,10 +165,10 @@ index 6e65f15aa..34e3f1206 100644
  abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
      /**
 diff --git a/contracts/token/ERC721/extensions/ERC721Enumerable.sol b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
-index 109d1e845..47768955e 100644
+index 4cc6d9751..96af07f9c 100644
 --- a/contracts/token/ERC721/extensions/ERC721Enumerable.sol
 +++ b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
-@@ -13,6 +13,10 @@ import {IERC165} from "../../../utils/introspection/ERC165.sol";
+@@ -13,6 +13,10 @@ import {IERC721Enumerable} from "./IERC721Enumerable.sol";
   *
   * CAUTION: {ERC721} extensions that implement custom `balanceOf` logic, such as {ERC721Consecutive},
   * interfere with enumerability and should not be used together with {ERC721Enumerable}.
@@ -207,18 +207,18 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index a2e7bf4c7..44cfa054b 100644
+index 66a165221..9a223cadf 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
  pragma solidity ^0.8.24;
  
- import {MessageHashUtils} from "./MessageHashUtils.sol";
--import {ShortStrings, ShortString} from "../ShortStrings.sol";
  import {IERC5267} from "../../interfaces/IERC5267.sol";
+-import {ShortStrings, ShortString} from "../ShortStrings.sol";
+ import {MessageHashUtils} from "./MessageHashUtils.sol";
  
  /**
-@@ -25,43 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -25,43 +24,18 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -370,10 +370,10 @@ index e66fae29c..490d991e8 100644
    },
    docgen: await import('./docs/config.mjs').then(m => m.default),
 diff --git a/package.json b/package.json
-index a34136baa..964e28b8b 100644
+index 8c6a287a2..ef7b67d75 100644
 --- a/package.json
 +++ b/package.json
-@@ -35,7 +35,7 @@
+@@ -36,7 +36,7 @@
    },
    "repository": {
      "type": "git",

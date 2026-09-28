@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.21;
 
-import {IBeacon} from "../beacon/IBeacon.sol";
 import {IERC1967} from "../../interfaces/IERC1967.sol";
 import {Address} from "../../utils/Address.sol";
 import {StorageSlot} from "../../utils/StorageSlot.sol";
+import {IBeacon} from "../beacon/IBeacon.sol";
 
 /**
  * @dev This library provides getters and event emitting update functions for

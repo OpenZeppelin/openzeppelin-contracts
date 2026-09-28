@@ -3,13 +3,13 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessManager} from "./IAccessManager.sol";
-import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
-import {Multicall} from "../../utils/Multicall.sol";
-import {Math} from "../../utils/math/Math.sol";
-import {Time} from "../../utils/types/Time.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {Multicall} from "../../utils/Multicall.sol";
+import {Time} from "../../utils/types/Time.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.
@@ -57,6 +57,10 @@ import {Hashes} from "../../utils/cryptography/Hashes.sol";
  * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
  * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
  * {AccessControl-renounceRole}.
+ *
+ * WARNING: The `setAuthority(address)` reservation described in {canCall} covers the selector {execute} is called
+ * with. A target that delegatecalls into itself (e.g. {Multicall}) can reach {AccessManaged-setAuthority} from any
+ * other allowed selector, bypassing `ADMIN_ROLE` and the target admin delay.
  */
 contract AccessManager is Multicall, IAccessManager {
     using Time for *;
