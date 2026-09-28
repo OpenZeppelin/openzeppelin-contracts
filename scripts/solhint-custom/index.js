@@ -138,8 +138,9 @@ module.exports = [
       // - `../../utils/Math.sol` (relative, two `..`)
       // - `../AccessControl.sol` (relative, one `..`)
       // - `./IFoo.sol`           (relative, zero `..`)
-      // then alphabetically. Import paths are always `/`-separated, regardless of the host platform.
-      const collator = new Intl.Collator('en');
+      // then alphabetically, with numbers compared by value so that ERC20 sorts before ERC1155.
+      // Import paths are always `/`-separated, regardless of the host platform.
+      const collator = new Intl.Collator('en', { numeric: true });
       const sorted = [...imports]
         .sort(
           (a, b) =>

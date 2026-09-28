@@ -70,5 +70,6 @@ jobs:
         with:
           header: gas-comparison
           number: ${{ steps.pr_number.outputs.number }}
+          # Empty report (the common case): delete any stale comment from a previous push, post nothing new.
           delete: ${{ !steps.gas_report.outputs.markdown }}
           message: ${{ steps.gas_report.outputs.markdown }}

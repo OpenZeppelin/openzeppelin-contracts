@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
+import {IERC721Errors} from "../../interfaces/IERC6093.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {Strings} from "../../utils/Strings.sol";

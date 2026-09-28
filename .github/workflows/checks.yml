@@ -13,6 +13,11 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read # actions/checkout
+  actions: read # gas-compare: gh run list / gh run download
+  pull-requests: read # gas-compare: gh pr diff
+
 env:
   NODE_OPTIONS: --max_old_space_size=8192
 

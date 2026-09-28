@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
+import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
