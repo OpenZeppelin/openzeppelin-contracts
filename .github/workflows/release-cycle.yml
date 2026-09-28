@@ -113,7 +113,7 @@ jobs:
           result-encoding: string
           script: await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js').then(m => m.default({ core }))
       - name: Create PR
-        uses: changesets/action@v2.1.1
+        uses: changesets/action@v2.1.2
         env:
           # Read by `@changesets/changelog-github` (through `@changesets/get-github-info`) in the
           # version script, which runs as a child process of this step. The action itself takes its
