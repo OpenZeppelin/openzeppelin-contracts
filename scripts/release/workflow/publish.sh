@@ -5,14 +5,13 @@ set -euo pipefail
 PACKAGE_JSON_NAME="$(tar xfO "$TARBALL" package/package.json | jq -r .name)"
 PACKAGE_JSON_VERSION="$(tar xfO "$TARBALL" package/package.json | jq -r .version)"
 
-# Intentionally escape $ to avoid interpolation and writing the token to disk
-echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-
 # Actual publish
 npm publish "$TARBALL" --tag "$TAG"
 
 # CI can no longer remove dist-tags (OIDC publish tokens have no tag-write access).
-# Surface the manual cleanup with a run annotation and a tracking issue.
+# A dedicated npm token is not worth it: they expire, and the back-patch releases that
+# need this cleanup are rare enough that the token would almost certainly be expired by
+# the time one happens. Surface the manual cleanup with a run annotation and an issue.
 notify_manual_tag_cleanup() {
   local tag="$1"
   local command="npm dist-tag rm $PACKAGE_JSON_NAME $tag"
