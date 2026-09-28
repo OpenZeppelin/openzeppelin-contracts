@@ -2,7 +2,6 @@
 // OpenZeppelin Contracts (last updated v5.3.0) (utils/Pausable.sol)
 
 pragma solidity ^0.8.20;
-
 /**
  * @dev Contract module which allows children to implement an emergency stop
  * mechanism that can be triggered by an authorized account.

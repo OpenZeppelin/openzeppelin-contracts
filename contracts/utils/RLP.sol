@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.26;
 
-import {Math} from "./math/Math.sol";
-import {Accumulators} from "./structs/Accumulators.sol";
 import {Bytes} from "./Bytes.sol";
+import {Math} from "./math/Math.sol";
 import {Memory} from "./Memory.sol";
+import {Accumulators} from "./structs/Accumulators.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.

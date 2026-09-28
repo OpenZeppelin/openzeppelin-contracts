@@ -4,8 +4,8 @@
 pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
-import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 
 /**
  * @dev Base contract for bridging ERC-721 between chains using an ERC-7786 gateway.
