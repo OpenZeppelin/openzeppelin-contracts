@@ -13,6 +13,11 @@
 // unchanged ERC4626Donation.spec at this file's harness.
 
 import "ERC4626Base.spec";
+import "helpers/erc20-supply.spec";
+
+// ERC4626OffsetDonation.conf assumes this invariant, so it is proved here for the offset harness.
+// Its Sload hook bounds every balance read; no rule below reads one.
+use invariant totalSupplyIsSumOfBalances;
 
 methods {
     function decimalsOffset() external returns (uint8) envfree;

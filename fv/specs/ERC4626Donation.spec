@@ -28,6 +28,7 @@ rule donationAttackNeverProfits(env eAtt, env eVic, uint256 a1, uint256 d, uint2
     require sane();
     require nonpayable(eAtt) && nonpayable(eVic);
     require noVirtualOverflow();
+    // Proved by ERC4626.conf for the zero-offset harness and ERC4626Offset.conf for the offset one.
     requireInvariant totalSupplyIsSumOfBalances();
 
     address attacker = eAtt.msg.sender;
