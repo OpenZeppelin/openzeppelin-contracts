@@ -151,10 +151,9 @@ describe('MessageHashUtils', function () {
     describe('unsupported fields', function () {
       for (const fields of [0x20, 0x40, 0x80, 0xff]) {
         it(`rejects ${ethers.toBeHex(fields)}`, async function () {
-          await expect(this.mock.$toDomainTypeHash(ethers.toBeHex(fields))).to.be.revertedWithCustomError(
-            this.mock,
-            'ERC5267ExtensionsNotSupported',
-          );
+          await expect(this.mock.$toDomainTypeHash(ethers.toBeHex(fields)))
+            .to.be.revertedWithCustomError(this.mock, 'ERC5267UnsupportedFields')
+            .withArgs(ethers.toBeHex(fields));
 
           await expect(
             this.mock.$toDomainSeparator(
@@ -165,7 +164,9 @@ describe('MessageHashUtils', function () {
               fullDomain.verifyingContract,
               fullDomain.salt,
             ),
-          ).to.be.revertedWithCustomError(this.mock, 'ERC5267ExtensionsNotSupported');
+          )
+            .to.be.revertedWithCustomError(this.mock, 'ERC5267UnsupportedFields')
+            .withArgs(ethers.toBeHex(fields));
         });
       }
     });
