@@ -1,12 +1,12 @@
---- access/manager/AccessManager.sol	2026-09-25 17:34:07.514717818 +0200
-+++ access/manager/AccessManager.sol	2026-09-25 17:34:31.776481415 +0200
+--- access/manager/AccessManager.sol	2026-09-25 18:07:53.421483037 +0200
++++ access/manager/AccessManager.sol	2026-09-28 09:03:57.455490937 +0200
 @@ -7,7 +7,6 @@
  import {Context} from "../../utils/Context.sol";
  import {Hashes} from "../../utils/cryptography/Hashes.sol";
  import {Math} from "../../utils/math/Math.sol";
 -import {Multicall} from "../../utils/Multicall.sol";
- import {Time} from "../../utils/types/Time.sol";
  import {TransientSlot} from "../../utils/TransientSlot.sol";
+ import {Time} from "../../utils/types/Time.sol";
  import {IAccessManaged} from "./IAccessManaged.sol";
 @@ -64,7 +63,8 @@
   * with. A target that delegatecalls into itself (e.g. {Multicall}) can reach {AccessManaged-setAuthority} from any
