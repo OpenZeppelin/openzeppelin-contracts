@@ -156,8 +156,10 @@ rule depositIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
 /// than one: the split must never burn fewer shares than the one-shot. Burning more leaves less, so
 /// in terms of the remaining balance the direction is the same as deposit.
 ///
-/// NOT DISCHARGED: excluded from every config, see the
-/// [timeout ledger](../../.github/workflows/fv-certora.yml).
+/// NOT PROVED: times out (3003s) and is excluded from every config. Holds under exhaustive
+/// small-value and large random sampling; the `satisfy` alone verifies in 9s. Re-attempt with:
+///   certoraRun fv/specs/ERC4626_split.conf --rule withdrawIsNotSplittable --global_timeout 3600 --smt_timeout 1500
+///   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
 rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
     require sane();
     require nonpayable(e);
@@ -188,8 +190,11 @@ rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
 /// means rather than a flaw. The claim is that holding part of a deposit back across a donation
 /// never gains shares over committing it all at once.
 ///
-/// NOT DISCHARGED: excluded from every config, see the
-/// [timeout ledger](../../.github/workflows/fv-certora.yml).
+/// NOT PROVED: times out (1504s) and is excluded from every config. Holds under exhaustive
+/// small-value and large random sampling; the share math alone verifies in ~1s, so the cost is
+/// replaying five calls. Re-attempt with:
+///   certoraRun fv/specs/ERC4626_split.conf --rule holdingBackAcrossDonationDoesNotPay --global_timeout 3600 --smt_timeout 1500
+///   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
 rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d, address receiver) {
     require sane();
     require nonpayable(e);

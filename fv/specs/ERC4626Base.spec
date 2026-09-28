@@ -18,8 +18,8 @@
 // attack's vector and no parametric rule over the production contract can reach it, while an
 // unbacked mint would falsify rate monotonicity.
 //
-// Rules that are not proved at all are recorded in the timeout ledger in the formal-verification
-// workflow, not here.
+// Rules that are not proved at all are marked NOT PROVED where they are declared, with the command
+// to re-attempt them.
 
 import "helpers/helpers.spec";
 import "helpers/math-cvl.spec";
