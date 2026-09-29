@@ -179,11 +179,19 @@ describe('ERC7390', function () {
       { title: 'unknown chain type', chainType: '0x0042', valid: [1, 20, 32, 255], invalid: [0] },
     ]) {
       describe(title, function () {
-        for (const [length, expected] of [...valid.map(l => [l, true]), ...invalid.map(l => [l, false])]) {
-          it(`${length} bytes address is ${expected ? 'valid' : 'invalid'}`, async function () {
+        for (const length of valid) {
+          it(`${length} bytes address is valid`, async function () {
             const addr = random.hexBytes(length);
-            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.equal(expected);
-            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.equal(expected);
+            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.true;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.true;
+          });
+        }
+
+        for (const length of invalid) {
+          it(`${length} bytes address is invalid`, async function () {
+            const addr = random.hexBytes(length);
+            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.false;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.false;
           });
         }
       });

@@ -370,7 +370,7 @@ export function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chain
 
       it('reverts if the address part of the interoperable address has an invalid length', async function () {
         const [alice] = this.accounts;
-        const to = this.helpers.chain.erc7930.slice(0, -2) + '20' + ethers.zeroPadValue(alice.address, 32).slice(2); // 32-byte EVM address
+        const to = this.helpers.chain.toErc7930(ethers.zeroPadValue(alice.address, 32)); // 32-byte EVM address
 
         await this.tokenA.$_mintBatch(alice, ids, values, '0x');
         await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
@@ -446,8 +446,7 @@ export function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chain
 
       it('reject counterpart with invalid address length', async function () {
         const newGateway = await this.ethers.deployContract('$ERC7786GatewayMock');
-        const newCounterpart =
-          this.helpers.chain.erc7930.slice(0, -2) + '20' + ethers.zeroPadValue(this.accounts[0].address, 32).slice(2); // 32-byte EVM address
+        const newCounterpart = this.helpers.chain.toErc7930(ethers.zeroPadValue(this.accounts[0].address, 32)); // 32-byte EVM address
 
         await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, true))
           .to.be.revertedWithCustomError(this.bridgeA, 'InteroperableAddressParsingError')
