@@ -19,10 +19,16 @@ notify_manual_tag_cleanup() {
   echo "::warning title=Manual npm tag cleanup required::$command"
 
   # Best-effort: a failed issue-create must not fail the job after a successful publish
-  gh issue create \
+  local url
+  url="$(gh issue create \
     --title "Remove npm dist-tag \`$tag\` after $PACKAGE_JSON_NAME@$PACKAGE_JSON_VERSION release" \
     --body "$(printf 'CI no longer has npm tag-write access, so the `%s` dist-tag must be removed manually:\n\n```sh\n%s\n```\n' "$tag" "$command")" \
-    || true
+    || true)"
+
+  # Best-effort assign the human who triggered the release (bot/invalid actor -> silently skipped).
+  if [ -n "$url" ] && [ -n "${GITHUB_TRIGGERING_ACTOR:-}" ]; then
+    gh issue edit "$url" --add-assignee "$GITHUB_TRIGGERING_ACTOR" || true
+  fi
 }
 
 if [ "$TAG" = tmp ]; then
