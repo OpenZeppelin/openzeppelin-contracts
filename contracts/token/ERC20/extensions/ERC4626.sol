@@ -299,6 +299,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @dev Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
     function _transferIn(address from, uint256 assets) internal virtual {
+        // slither-disable-next-line arbitrary-send-erc20
         SafeERC20.safeTransferFrom(IERC20(asset()), from, address(this), assets);
     }
 
