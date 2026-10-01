@@ -16,8 +16,11 @@ export class ExposedManifest {
   static load(rootDir: string, outDir: string): ExposedManifest | undefined {
     const manifestPath = path.join(outDir, 'manifest.json');
     try {
-      const data: Record<string, string[]> = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-      return new ExposedManifest(rootDir, manifestPath, new Map(Object.entries(data).map(([f, o]) => [f, new Set(o)])));
+      const data: unknown = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      if (typeof data !== 'object' || data === null || Array.isArray(data)) return undefined;
+      const entries = Object.entries(data);
+      if (!entries.every(([, o]) => Array.isArray(o) && o.every(x => typeof x === 'string'))) return undefined;
+      return new ExposedManifest(rootDir, manifestPath, new Map(entries.map(([f, o]) => [f, new Set(o)])));
     } catch {
       return undefined;
     }
@@ -64,10 +67,13 @@ export class ExposedManifest {
     );
   }
 
-  // Removes a file, and the directories that it leaves empty, up to the output directory.
+  // Removes a file, and the directories that it leaves empty, up to the output directory. Files outside of the output
+  // directory are never removed, whatever the manifest says.
   private remove(file: string): void {
-    fs.rmSync(file, { force: true });
     const outDir = path.dirname(this.manifestPath);
+    if (!file.startsWith(outDir + path.sep)) return;
+
+    fs.rmSync(file, { force: true });
     for (let dir = path.dirname(file); dir.startsWith(outDir + path.sep); dir = path.dirname(dir)) {
       if (!fs.existsSync(dir) || fs.readdirSync(dir).length > 0) break;
       fs.rmdirSync(dir);
