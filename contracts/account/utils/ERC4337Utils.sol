@@ -282,12 +282,15 @@ library ERC4337Utils {
      * is at least 62 bytes long, ends with {PAYMASTER_SIG_MAGIC} and declares a non-zero signature length.
      */
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        uint256 sigLength = _paymasterSignatureLength(self);
-        uint256 suffixLength = sigLength == 0 ? 0 : sigLength + 10;
-        return
-            self.paymasterAndData.length < 52 + suffixLength
-                ? Calldata.emptyBytes()
-                : self.paymasterAndData[52:self.paymasterAndData.length - suffixLength];
+        unchecked {
+            uint256 sigLength = _paymasterSignatureLength(self);
+            uint256 suffixLength = Math.ternary(sigLength == 0, 0, sigLength + 10);
+            // [unchecked] sigLength <= 65535 so suffixLength <= 65545 and 51 + suffixLength cannot overflow
+            return
+                self.paymasterAndData.length > 51 + suffixLength
+                    ? self.paymasterAndData[52:self.paymasterAndData.length - suffixLength]
+                    : Calldata.emptyBytes();
+        }
     }
 
     /**
@@ -295,11 +298,15 @@ library ERC4337Utils {
      * Returns empty bytes if no paymaster signature is present.
      */
     function paymasterSignature(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        uint256 sigLength = _paymasterSignatureLength(self);
-        if (sigLength == 0 || self.paymasterAndData.length < 62 + sigLength) return Calldata.emptyBytes();
-
-        uint256 sigEnd = self.paymasterAndData.length - 10;
-        return self.paymasterAndData[sigEnd - sigLength:sigEnd];
+        unchecked {
+            uint256 sigLength = _paymasterSignatureLength(self);
+            uint256 dataLength = self.paymasterAndData.length;
+            // [unchecked] sigLength <= 65535 so 61 + sigLength cannot overflow
+            return
+                (sigLength > 0 && dataLength > 61 + sigLength)
+                    ? self.paymasterAndData[dataLength - sigLength - 10:dataLength - 10]
+                    : Calldata.emptyBytes();
+        }
     }
 
     /**
