@@ -105,8 +105,12 @@ interface IERC4626 is IERC20, IERC20Metadata {
      *   approving enough underlying tokens to the Vault contract, etc).
      *
      * NOTE: most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+     *
+     * NOTE: This function is `payable` to support vaults whose underlying is the chain's native asset (see
+     * ERC-7535). Vaults over an ERC-20 underlying do not expect a native value and should reject a non-zero
+     * `msg.value`.
      */
-    function deposit(uint256 assets, address receiver) external returns (uint256 shares);
+    function deposit(uint256 assets, address receiver) external payable returns (uint256 shares);
 
     /**
      * @dev Returns the maximum amount of the Vault shares that can be minted for the receiver, through a mint call.
@@ -143,8 +147,12 @@ interface IERC4626 is IERC20, IERC20Metadata {
      *   approving enough underlying tokens to the Vault contract, etc).
      *
      * NOTE: most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+     *
+     * NOTE: This function is `payable` to support vaults whose underlying is the chain's native asset (see
+     * ERC-7535). Vaults over an ERC-20 underlying do not expect a native value and should reject a non-zero
+     * `msg.value`.
      */
-    function mint(uint256 shares, address receiver) external returns (uint256 assets);
+    function mint(uint256 shares, address receiver) external payable returns (uint256 assets);
 
     /**
      * @dev Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the
