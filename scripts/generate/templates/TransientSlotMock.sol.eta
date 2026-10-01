@@ -6,6 +6,12 @@ import {TransientSlot} from "../utils/TransientSlot.sol";
 contract TransientSlotMock is Multicall {
     using TransientSlot for *;
 
+    // Reserved slots. These are the only state variables of this contract, so they cover the entirety of its
+    // persistent storage layout, which `tstore` must leave untouched.
+<% for (const { name } of it.SLOT_TYPES.filter(({ size }) => size)) { -%>
+    TransientSlot.T<%= name %> private _reserved<%= name %>;
+<% } -%>
+
 <%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
     event <%= name %>Value(bytes32 slot, <%= type %> value);
 
@@ -15,6 +21,16 @@ contract TransientSlotMock is Multicall {
 
     function tstore(bytes32 slot, <%= type %> value) public {
         slot.as<%= name %>().tstore(value);
+    }
+
+    event Reserved<%= name %>Value(<%= type %> value);
+
+    function tloadReserved<%= name %>() public {
+        emit Reserved<%= name %>Value(_reserved<%= name %>.tload());
+    }
+
+    function tstoreReserved(<%= type %> value) public {
+        _reserved<%= name %>.tstore(value);
     }
 <% } -%>
 }

@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import "../patched/access/manager/AccessManager.sol";
+import "../patched/utils/TransientSlot.sol";
 
 contract AccessManagerHarness is AccessManager {
     // override with a storage slot that can basically take any value.
@@ -92,7 +93,7 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function executionId() external view returns (bytes32) {
-        return _executionId;
+        return TransientSlot.tload(_executionId);
     }
 
     // Pad with zeros (and don't revert) if data is too short.

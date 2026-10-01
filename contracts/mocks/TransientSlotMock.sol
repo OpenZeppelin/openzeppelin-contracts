@@ -9,6 +9,14 @@ import {TransientSlot} from "../utils/TransientSlot.sol";
 contract TransientSlotMock is Multicall {
     using TransientSlot for *;
 
+    // Reserved slots. These are the only state variables of this contract, so they cover the entirety of its
+    // persistent storage layout, which `tstore` must leave untouched.
+    TransientSlot.TAddress private _reservedAddress;
+    TransientSlot.TBoolean private _reservedBoolean;
+    TransientSlot.TBytes32 private _reservedBytes32;
+    TransientSlot.TUint256 private _reservedUint256;
+    TransientSlot.TInt256 private _reservedInt256;
+
     event AddressValue(bytes32 slot, address value);
 
     function tloadAddress(bytes32 slot) public {
@@ -17,6 +25,16 @@ contract TransientSlotMock is Multicall {
 
     function tstore(bytes32 slot, address value) public {
         slot.asAddress().tstore(value);
+    }
+
+    event ReservedAddressValue(address value);
+
+    function tloadReservedAddress() public {
+        emit ReservedAddressValue(_reservedAddress.tload());
+    }
+
+    function tstoreReserved(address value) public {
+        _reservedAddress.tstore(value);
     }
 
     event BooleanValue(bytes32 slot, bool value);
@@ -29,6 +47,16 @@ contract TransientSlotMock is Multicall {
         slot.asBoolean().tstore(value);
     }
 
+    event ReservedBooleanValue(bool value);
+
+    function tloadReservedBoolean() public {
+        emit ReservedBooleanValue(_reservedBoolean.tload());
+    }
+
+    function tstoreReserved(bool value) public {
+        _reservedBoolean.tstore(value);
+    }
+
     event Bytes32Value(bytes32 slot, bytes32 value);
 
     function tloadBytes32(bytes32 slot) public {
@@ -37,6 +65,16 @@ contract TransientSlotMock is Multicall {
 
     function tstore(bytes32 slot, bytes32 value) public {
         slot.asBytes32().tstore(value);
+    }
+
+    event ReservedBytes32Value(bytes32 value);
+
+    function tloadReservedBytes32() public {
+        emit ReservedBytes32Value(_reservedBytes32.tload());
+    }
+
+    function tstoreReserved(bytes32 value) public {
+        _reservedBytes32.tstore(value);
     }
 
     event Uint256Value(bytes32 slot, uint256 value);
@@ -49,6 +87,16 @@ contract TransientSlotMock is Multicall {
         slot.asUint256().tstore(value);
     }
 
+    event ReservedUint256Value(uint256 value);
+
+    function tloadReservedUint256() public {
+        emit ReservedUint256Value(_reservedUint256.tload());
+    }
+
+    function tstoreReserved(uint256 value) public {
+        _reservedUint256.tstore(value);
+    }
+
     event Int256Value(bytes32 slot, int256 value);
 
     function tloadInt256(bytes32 slot) public {
@@ -57,5 +105,15 @@ contract TransientSlotMock is Multicall {
 
     function tstore(bytes32 slot, int256 value) public {
         slot.asInt256().tstore(value);
+    }
+
+    event ReservedInt256Value(int256 value);
+
+    function tloadReservedInt256() public {
+        emit ReservedInt256Value(_reservedInt256.tload());
+    }
+
+    function tstoreReserved(int256 value) public {
+        _reservedInt256.tstore(value);
     }
 }
