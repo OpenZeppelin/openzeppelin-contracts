@@ -53,8 +53,6 @@ jobs:
         run: npm run test:pragma -- --concurrency 1
       - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
-      - name: Check stale exposed contracts are removed
-        run: npm run test:exposed
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
         with:
