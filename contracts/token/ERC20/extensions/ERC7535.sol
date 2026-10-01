@@ -54,15 +54,15 @@ import {ERC4626} from "./ERC4626.sol";
 abstract contract ERC7535 is ERC4626 {
     using Math for uint256;
 
-    /// @dev The ERC-7528 placeholder address representing the native asset; exposed through {asset}.
-    address private constant NATIVE_ASSET = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
     /// @dev Attempted to {deposit} or {mint} with a `msg.value` below the required native amount.
     error ERC7535InsufficientNativeValue(uint256 value, uint256 expected);
 
-    /// @dev Configures the vault for the native asset. The placeholder address has no `decimals()`, so the
-    /// inherited {ERC4626} decimals detection falls back to 18, the native asset's decimals.
-    constructor() ERC4626(IERC20(NATIVE_ASSET)) {}
+    /// @dev Configures the vault with the ERC-7528 native-asset placeholder, exposed through {asset}. The placeholder
+    /// address has no `decimals()`, so the inherited {ERC4626} decimals detection falls back to 18, the native asset's
+    /// decimals.
+    // The address is inlined (rather than a private constant) because the upgradeable transpiler copies this
+    // argument verbatim into the initializer of every inheriting contract, where a private constant is not in scope.
+    constructor() ERC4626(IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {}
 
     /// @inheritdoc IERC4626
     function totalAssets() public view virtual override returns (uint256) {

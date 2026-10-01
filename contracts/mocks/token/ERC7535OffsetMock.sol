@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.24;
 
+import {IERC20} from "../../token/ERC20/IERC20.sol";
 import {ERC7535} from "../../token/ERC20/extensions/ERC7535.sol";
 
 abstract contract ERC7535OffsetMock is ERC7535 {
