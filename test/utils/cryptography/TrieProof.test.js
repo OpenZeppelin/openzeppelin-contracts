@@ -482,6 +482,53 @@ describe('TrieProof', function () {
       ]);
     });
 
+    it('fails to process proof for a key that is not in the trie (empty branch child)', async function () {
+      // Trie keys are keccak256(slot). Populate the branches under nibbles 0 and 1 only, so that the root is a branch
+      // node whose child under nibble 2 is empty.
+      const slotWithNibble = nibble => {
+        for (let i = 0; ; ++i) {
+          const slot = ethers.toBeHex(i, 32);
+          if (ethers.keccak256(slot)[2] === nibble) return slot;
+        }
+      };
+      await this.storage.setBytes32Slot(slotWithNibble('0'), random.bytes32());
+      await this.storage.setBytes32Slot(slotWithNibble('1'), random.bytes32());
+      const slot = slotWithNibble('2');
+
+      const {
+        storageHash,
+        storageProof: [{ proof }],
+      } = await ethers.provider.send('eth_getProof', [this.storage.target, [slot], 'latest']);
+
+      // The proof is an exclusion proof: only the root branch node is part of it
+      expect(proof).to.have.lengthOf(1);
+
+      await expect(this.mock.$verify('0x', storageHash, ethers.keccak256(slot), proof)).to.eventually.be.false;
+      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_PROOF);
+      await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_PROOF,
+      ]);
+    });
+
+    it('fails to process proof for a key that is not in the trie (empty embedded branch child)', async function () {
+      // Extension node with an embedded branch node that only has children under nibbles 1, 2 and 3.
+      // Used with key 0x61, 0x62 and 0x63 in the Optimism unit tests below.
+      const key = '0x64';
+      const proof = ['0xd916d780c22061c22062c2206380808080808080808080808080'];
+
+      await expect(this.mock.$verify('0x', ethers.keccak256(proof[0]), key, proof)).to.eventually.be.false;
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_PROOF);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_PROOF,
+      ]);
+    });
+
     it('fails to process proof with invalid proof', async function () {
       await expect(this.mock.$traverse(ethers.ZeroHash, '0x00', []))
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
