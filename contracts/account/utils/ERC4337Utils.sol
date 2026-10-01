@@ -310,8 +310,8 @@ library ERC4337Utils {
     function _paymasterSignatureLength(PackedUserOperation calldata self) private pure returns (uint256) {
         uint256 length = self.paymasterAndData.length;
         return
-            length < 62 || bytes8(self.paymasterAndData[length - 8:]) != PAYMASTER_SIG_MAGIC
-                ? 0
-                : uint16(bytes2(self.paymasterAndData[length - 10:length - 8]));
+            length > 61 && bytes8(self.paymasterAndData[length - 8:]) == PAYMASTER_SIG_MAGIC
+                ? uint16(bytes2(self.paymasterAndData[length - 10:length - 8]))
+                : 0;
     }
 }
