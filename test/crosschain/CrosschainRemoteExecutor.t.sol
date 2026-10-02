@@ -5,7 +5,7 @@ pragma solidity ^0.8.27;
 import {Test} from "forge-std/Test.sol";
 import {CrosschainRemoteExecutor} from "@openzeppelin/contracts/crosschain/CrosschainRemoteExecutor.sol";
 import {ERC7786Recipient} from "@openzeppelin/contracts/crosschain/ERC7786Recipient.sol";
-import {IERC7786GatewaySource, IERC7786Recipient} from "@openzeppelin/contracts/interfaces/draft-IERC7786.sol";
+import {IERC7786GatewaySource, IERC7786Recipient} from "@openzeppelin/contracts/interfaces/IERC7786.sol";
 import {InteroperableAddress} from "@openzeppelin/contracts/utils/draft-InteroperableAddress.sol";
 import {
     ERC7579Utils,

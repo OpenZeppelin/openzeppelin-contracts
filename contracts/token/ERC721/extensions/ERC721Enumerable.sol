@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.24;
 
+import {IERC165} from "../../../utils/introspection/ERC165.sol";
 import {ERC721} from "../ERC721.sol";
 import {IERC721Enumerable} from "./IERC721Enumerable.sol";
-import {IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev This implements an optional extension of {ERC721} defined in the ERC that adds enumerability

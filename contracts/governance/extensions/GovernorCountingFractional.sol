@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.24;
 
+import {Math} from "../../utils/math/Math.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {GovernorCountingSimple} from "./GovernorCountingSimple.sol";
-import {Math} from "../../utils/math/Math.sol";
 
 /**
  * @dev Extension of {Governor} for fractional voting.

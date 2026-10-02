@@ -1,0 +1,20 @@
+pragma solidity ^0.8.24;
+
+import {Multicall} from "../utils/Multicall.sol";
+import {TransientSlot} from "../utils/TransientSlot.sol";
+
+contract TransientSlotMock is Multicall {
+    using TransientSlot for *;
+
+<%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    event <%= name %>Value(bytes32 slot, <%= type %> value);
+
+    function tload<%= name %>(bytes32 slot) public {
+        emit <%= name %>Value(slot, slot.as<%= name %>().tload());
+    }
+
+    function tstore(bytes32 slot, <%= type %> value) public {
+        slot.as<%= name %>().tstore(value);
+    }
+<% } -%>
+}

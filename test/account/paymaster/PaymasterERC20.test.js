@@ -367,11 +367,23 @@ describe('PaymasterERC20', function () {
   });
 
   describe('edge cases', function () {
-    it('_postOpGasPenalty prices the worst-case unused-gas penalty only above the threshold', async function () {
+    it('_postOpGasPenalty prices the whole unused gas, without the EntryPoint threshold relief', async function () {
+      // The argument is an upper bound on the unused gas, so claiming the EntryPoint's 40_000 gas relief here
+      // could price the charge below what the EntryPoint actually debits.
       await expect(this.paymaster.$_postOpGasPenalty(0n)).to.eventually.equal(0n);
-      await expect(this.paymaster.$_postOpGasPenalty(40_000n)).to.eventually.equal(0n); // threshold is exclusive
-      await expect(this.paymaster.$_postOpGasPenalty(40_001n)).to.eventually.equal(4_000n); // 10% of the limit
+      await expect(this.paymaster.$_postOpGasPenalty(40_000n)).to.eventually.equal(4_000n);
       await expect(this.paymaster.$_postOpGasPenalty(1_000_000n)).to.eventually.equal(100_000n);
+    });
+
+    it('_postOpGasBudget defaults to _postOpCost', async function () {
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymaster: this.paymaster })
+        .then(op => this.paymasterSignUserOp(op))
+        .then(op => this.signUserOp(op));
+
+      await expect(this.paymaster.$_postOpGasBudget(signedUserOp.packed)).to.eventually.equal(
+        await this.paymaster.$_postOpCost(),
+      );
     });
 
     it('_erc20Cost returns max uint256 without reverting when muldiv overflows', async function () {

@@ -47,6 +47,7 @@ The resulting file in `.changeset/` looks like:
 - **Then a colon, then one sentence** describing the user-visible change.
 - **Imperative mood** (matching PR titles: "Add", "Fix", not "Added", "Fixed"). Trailing period optional.
 - **No bullet points**, no headings, no multi-paragraph prose. The release workflow concatenates these verbatim.
+- **State the change, don't justify it.** Skip "This mirrors ...", "so that ...", "closes a gap where ...", parallels to other functions, or motivation. If the user needs to take action (migration step, breaking rename, tighter requirement they might now hit), state that instead — otherwise the changelog line is just the fact of the change. Rationale belongs in the PR body and commit message, not the changelog.
 
 Good examples (taken from existing entries):
 
