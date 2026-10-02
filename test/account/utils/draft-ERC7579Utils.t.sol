@@ -442,6 +442,35 @@ contract ERC7579UtilsTest is Test {
         _testDecodeBatch(abi.encode(32, 1, 32, _recipient1, 42, type(uint256).max - 127), TEST_DECODE | FAIL_DECODE);
     }
 
+    // BAD: the first element points before the buffer, while its calldata points back inside the buffer
+    function testDecodeBatchItemBeforeBuffer() public {
+        // 0000000000000000000000000000000000000000000000000000000000000040 (64) offset
+        // 00000000000000000000000000000000000000000000000000000000000000a0 (160) (unused by the array)
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 (-128) element 0 offset
+        // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) (unused by the array)
+        //
+        // The first element resolves to the 32 bytes that precede the buffer (the ABI length slot of
+        // `executionCalldata`), so its target is read from outside of the buffer. Its offset to calldata is the
+        // second word of the buffer, which points to a valid empty calldata at the end of the buffer.
+        _testDecodeBatch(abi.encode(64, 160, 1, type(uint256).max - 127, 0), TEST_DECODE | FAIL_DECODE);
+    }
+
+    // BAD: the calldata of the first element starts in the buffer, but its content extends past the buffer
+    function testDecodeBatchItemCalldataExtendsOutOfBound() public {
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
+        // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
+        // 000000000000000000000000000000000000000000000000000000000000002a (42) value for element #0
+        // 0000000000000000000000000000000000000000000000000000000000000060 (96) offset to calldata for element #0
+        // 0000000000000000000000000000000000000000000000000000000000000040 (64) length of calldata for element #0
+        // <missing data>
+        //
+        // When the buffer is followed by other data in msg.data, the content of the calldata is read from there.
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1, 42, 96, 64), TEST_DECODE | FAIL_DECODE);
+    }
+
     function _testDecodeBatch(bytes memory encoded, uint256 test) private {
         bytes memory extraData = new bytes(256);
 
