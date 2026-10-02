@@ -78,7 +78,7 @@ library SimulateCall {
         // 0x0022 | 5a          | gas            | gas target cd[0x14] 0 (cds-0x34) 0 0
         // 0x0023 | f1          | call           | suc
         // 0x0024 | 603f        | push1 0x3f     | 0x3f suc        ; if suc -> success handler (0x3f)
-        // 0x0026 | 57          | jumpi          | suc
+        // 0x0026 | 57          | jumpi          |
         // 0x0027 | 3d          | returndatasize | rds             ; FAILURE: len = min(0x800, rds)
         // 0x0028 | 610800      | push2 0x0800   | 0x800 rds
         // 0x002b | 81          | dup2           | rds 0x800 rds
