@@ -306,9 +306,7 @@ contract ERC7579UtilsTest is Test {
     uint256 private constant FAIL_DECODE = 0x10;
     uint256 private constant FAIL_GETFIRST = 0x20;
     uint256 private constant FAIL_GETFIRSTBYTES = 0x40;
-    // decoding reverts, but solidity's lazy checks fire first, so the revert carries no data
-    uint256 private constant FAIL_DECODE_UNTYPED = 0x80;
-    uint256 private constant FAIL_ANY = FAIL_DECODE | FAIL_DECODE_UNTYPED | FAIL_GETFIRST | FAIL_GETFIRSTBYTES;
+    uint256 private constant FAIL_ANY = FAIL_DECODE | FAIL_GETFIRST | FAIL_GETFIRSTBYTES;
 
     // BAD: buffer empty
     function testDecodeBatchEmptyBuffer() public {
@@ -372,7 +370,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     // BAD: caught when decoding (used to only revert when the caller dereferenced the element)
@@ -383,7 +381,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // <missing element>
-        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST);
+        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     function testDecodeBatchDeepOutOfBound3() public {
@@ -394,10 +392,7 @@ contract ERC7579UtilsTest is Test {
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
         // <missing data>
-        _testDecodeBatch(
-            abi.encode(32, 1, 32, _recipient1),
-            TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST
-        );
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
     function testDecodeBatchDeepOutOfBound4() public {
@@ -413,7 +408,7 @@ contract ERC7579UtilsTest is Test {
 
         _testDecodeBatch(
             abi.encode(32, 1, 32, _recipient1, 42, 96),
-            TEST_DECODE | FAIL_DECODE_UNTYPED | TEST_GETFIRST | FAIL_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
+            TEST_DECODE | FAIL_DECODE | TEST_GETFIRST | FAIL_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
         );
     }
 
@@ -425,12 +420,12 @@ contract ERC7579UtilsTest is Test {
         //
         // Offsets are relative to the beginning of the array's elements, and are added to that base pointer
         // without any overflow check. Here the first element resolves to 32 bytes before the buffer.
-        _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 95), TEST_DECODE | FAIL_DECODE_UNTYPED);
+        _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 95), TEST_DECODE | FAIL_DECODE);
     }
 
     // BAD: the offset of the first element wraps around, pointing past the end of msg.data
     function testDecodeBatchItemOffsetOverflow() public {
-        _testDecodeBatch(abi.encode(32, 1, 1 << 255), TEST_DECODE | FAIL_DECODE_UNTYPED);
+        _testDecodeBatch(abi.encode(32, 1, 1 << 255), TEST_DECODE | FAIL_DECODE);
     }
 
     // BAD: the offset of the first element's calldata wraps around, pointing before the buffer
@@ -452,7 +447,6 @@ contract ERC7579UtilsTest is Test {
 
         if (test & TEST_DECODE > 0) {
             if (test & FAIL_DECODE > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-            else if (test & FAIL_DECODE_UNTYPED > 0) vm.expectRevert();
             this.callDecodeBatch(encoded);
             if (test & FAIL_ANY > 0) vm.expectRevert();
             this.callDecodeBatchWithCalldata(encoded, extraData);
