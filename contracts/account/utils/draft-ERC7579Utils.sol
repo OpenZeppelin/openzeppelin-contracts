@@ -240,7 +240,7 @@ library ERC7579Utils {
                 uint256 upperBound = bufferPtr + bufferLength;
                 // Cannot underflow: upperBound - 0x60 >= (lowerBound + 0x60) - 0x60 >= lowerBound
                 uint256 itemUpperBound = upperBound - 0x60;
-                // Cannot overflow: lowerBound + 0x20 <= lowerBound + 0x60 <= upperBound
+                // Cannot overflow: lowerBound + 0x20 < lowerBound + 0x60 <= upperBound
                 uint256 itemCalldataLowerBound = lowerBound + 0x20;
 
                 for (uint256 i = 0; i < arrayLength; ++i) {
