@@ -17,8 +17,8 @@ async function fixture() {
     ethers.ZeroHash,
     ethers.keccak256(
       ethers.concat([
-        '0x60315f8160095f39f3',
-        '0x60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd',
+        '0x60475f8160095f39f3',
+        '0x60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af1603f573d610800818110603557506038565b90505b805f5f3e5ff35b3d5f5f3e3d5ffd',
       ]),
     ),
   );
@@ -100,6 +100,18 @@ describe('SimulateCall', function () {
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_uint256_bytes')
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
+    });
+
+    it('target revert with bomb', async function () {
+      const bomb = await ethers.deployContract('RevertBombMock');
+      await this.mock.$simulateCall(ethers.Typed.address(this.target), ethers.Typed.bytes('0x')); // deploy simulator
+      const txPromise = this.mock.$simulateCall(ethers.Typed.address(bomb), ethers.Typed.bytes('0x'), {
+        gasLimit: 1_000_000n,
+      });
+      await expect(txPromise).to.emit(this.mock, 'return$simulateCall_address_bytes').withArgs(
+        false, // reverting target is a failure (bounded copy can't be starved into an OOG)
+        ethers.zeroPadBytes('0x', 2048), // failure; reason copied up to the 2048-byte cap
+      );
     });
   });
 });
