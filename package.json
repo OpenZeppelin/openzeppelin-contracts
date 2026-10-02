@@ -8,27 +8,29 @@
     "!/contracts/mocks/**/*"
   ],
   "scripts": {
-    "compile": "hardhat compile",
-    "compile:harnesses": "env SRC=./fv/harnesses hardhat compile",
+    "compile": "hardhat build",
+    "compile:harnesses": "env SRC=./fv/harnesses hardhat build --noExpose",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.mjs",
     "prepare": "husky",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
-    "lint:js": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --check && eslint .",
-    "lint:js:fix": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint . --fix",
-    "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && solhint --config solhint.config.cjs --noPoster '{contracts,test}/**/*.sol'",
-    "lint:sol:fix": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
+    "lint:js": "npm run prettier -- '**/*.{js,ts}' --check && eslint .",
+    "lint:js:fix": "npm run prettier -- '**/*.{js,ts}' --write && eslint . --fix",
+    "lint:sol": "npm run prettier -- '{contracts,test}/**/*.sol' --check && npm run solhint -- '{contracts,test}/**/*.sol'",
+    "lint:sol:fix": "npm run prettier -- '{contracts,test}/**/*.sol' --write && npm run solhint -- '{contracts,test}/**/*.sol' --fix",
+    "prettier": "prettier --log-level warn --ignore-path .gitignore",
+    "solhint": "solhint --config solhint.config.cjs --noPoster --noPrompt --disc",
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
-    "pragma": "npm run compile && scripts/minimize-pragma.js artifacts/build-info/*",
+    "pragma": "hardhat build --noExpose && scripts/minimize-pragma.js artifacts/build-info/*",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:generation": "scripts/checks/generation.sh",
-    "test:inheritance": "npm run compile && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
-    "test:pragma": "npm run compile && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
+    "test:inheritance": "hardhat build --noExpose && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
+    "test:pragma": "hardhat build --noExpose && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
     "coverage": "hardhat test --coverage",
     "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."
@@ -51,17 +53,20 @@
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
   "homepage": "https://openzeppelin.com/contracts/",
+  "engines": {
+    "node": "^22.12 || ^24 || >=26"
+  },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.26.0",
-    "@changesets/pre": "^2.0.0",
-    "@changesets/read": "^0.6.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
+    "@changesets/pre": "^3.0.0",
+    "@changesets/read": "^1.0.0",
     "@eslint/compat": "^1.2.1",
     "@ethereumjs/mpt": "^10.1.0",
     "@noble/curves": "^2.0.1",
     "@nomicfoundation/hardhat-ethers": "^4.0.14",
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.11",
-    "@nomicfoundation/hardhat-mocha": "^3.0.21",
+    "@nomicfoundation/hardhat-mocha": "^4.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^3.0.11",
     "@openzeppelin/docs-utils": "^0.1.6",
     "@openzeppelin/merkle-tree": "^1.0.7",
@@ -73,6 +78,7 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-mocha": "^11.3.0",
+    "eta": "^4.6.0",
     "ethers": "^6.16.0",
     "glob": "^13.0.0",
     "globals": "^17.0.0",
@@ -99,12 +105,12 @@
   },
   "lint-staged": {
     "**/*.{js,ts}": [
-      "prettier --log-level warn --ignore-path .gitignore --check",
+      "npm run prettier -- --check",
       "eslint"
     ],
     "{contracts,test}/**/*.sol": [
-      "prettier --log-level warn --ignore-path .gitignore --check",
-      "solhint --config solhint.config.cjs --noPoster"
+      "npm run prettier -- --check",
+      "npm run solhint --"
     ]
   },
   "type": "module"

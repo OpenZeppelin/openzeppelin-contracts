@@ -3,14 +3,14 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
-import {EIP7702Utils} from "../../utils/EIP7702Utils.sol";
-import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
-import {EIP712} from "../../../utils/cryptography/EIP712.sol";
-import {Paymaster} from "../Paymaster.sol";
 import {Bytes} from "../../../utils/Bytes.sol";
 import {Calldata} from "../../../utils/Calldata.sol";
+import {EIP712} from "../../../utils/cryptography/EIP712.sol";
+import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
 import {Memory} from "../../../utils/Memory.sol";
+import {EIP7702Utils} from "../../utils/EIP7702Utils.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
+import {Paymaster} from "../Paymaster.sol";
 
 /**
  * @dev Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
@@ -100,8 +100,8 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         (uint48 validAfter, uint48 validUntil, bytes calldata signature) = _decodePaymasterUserOp(userOp);
 
-        // Mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
-        bool rangeFlagsCompatible = (validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0;
+        // If validUntil is non-zero, mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
+        bool rangeFlagsCompatible = validUntil == 0 || ((validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0);
 
         return (
             bytes(""),
