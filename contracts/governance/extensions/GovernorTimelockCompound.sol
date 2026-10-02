@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorTimelockCompound.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorTimelockCompound.sol)
 
 pragma solidity ^0.8.24;
 
-import {IGovernor, Governor} from "../Governor.sol";
-import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
 import {Address} from "../../utils/Address.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
@@ -14,15 +14,15 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * the admin of the timelock for any operation to be performed. A public, unrestricted,
  * {GovernorTimelockCompound-__acceptAdmin} is available to accept ownership of the timelock.
  *
- * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
- * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
+ * Using this model means the proposal will be operated by the {ICompoundTimelock} and not by the {Governor}. Thus,
+ * the assets and permissions must be attached to the {ICompoundTimelock}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
  */
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
 
     /**
-     * @dev Emitted when the timelock controller used for proposal execution is modified.
+     * @dev Emitted when the timelock used for proposal execution is modified.
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 

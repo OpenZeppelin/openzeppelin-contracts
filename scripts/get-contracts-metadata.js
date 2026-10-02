@@ -1,10 +1,10 @@
-const fs = require('fs');
-const glob = require('glob');
-const match = require('micromatch');
-const path = require('path');
-const { findAll } = require('solidity-ast/utils');
+import fs from 'fs';
+import path from 'path';
+import { glob } from 'glob';
+import match from 'micromatch';
+import { findAll } from 'solidity-ast/utils.js';
 
-module.exports = function (
+export function getContractsMetadata(
   pattern = 'contracts/**/*.sol',
   skipPatterns = ['contracts/mocks/**/*.sol'],
   artifacts = [],
@@ -13,18 +13,22 @@ module.exports = function (
   // definitions with minimal IO operations.
   const metadata = Object.fromEntries(
     artifacts.flatMap(artifact => {
-      const { output: solcOutput } = require(path.resolve(__dirname, '..', artifact));
-      return Object.keys(solcOutput.contracts)
-        .filter(source => match.all(source, pattern) && !match.any(source, skipPatterns))
+      const { output: solcOutput } = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '..', artifact)));
+      return Object.keys(solcOutput?.contracts ?? {})
+        .filter(
+          source =>
+            match.all(source.replace(/^project\//, ''), pattern) &&
+            !match.any(source.replace(/^project\//, ''), skipPatterns),
+        )
         .map(source => [
-          source,
+          source.replace(/^project\//, ''),
           {
             pragma: Array.from(findAll('PragmaDirective', solcOutput.sources[source].ast))
               .find(({ literals }) => literals.at(0) == 'solidity')
               .literals.slice(1)
               .join(''),
-            sources: Array.from(findAll('ImportDirective', solcOutput.sources[source].ast)).map(
-              ({ absolutePath }) => absolutePath,
+            sources: Array.from(findAll('ImportDirective', solcOutput.sources[source].ast)).map(({ absolutePath }) =>
+              absolutePath.replace(/^project\//, ''),
             ),
             interface: Array.from(findAll('ContractDefinition', solcOutput.sources[source].ast)).every(
               ({ contractKind }) => contractKind === 'interface',
@@ -52,4 +56,4 @@ module.exports = function (
     });
 
   return metadata;
-};
+}
