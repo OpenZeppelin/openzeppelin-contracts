@@ -57,6 +57,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC7786GatewaySource}
 - {IERC7786Recipient}
 - {IERC7802}
+- {IERC8255}
 - {IERC7913SignatureVerifier}
 
 == Detailed ABI
@@ -134,5 +135,7 @@ are useful to interact with third party contracts that implement them.
 {{IERC7786Recipient}}
 
 {{IERC7802}}
+
+{{IERC8255}}
 
 {{IERC7913SignatureVerifier}}
