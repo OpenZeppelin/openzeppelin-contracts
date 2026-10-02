@@ -139,10 +139,10 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            bytes32 lastValue = set._values[lastIndex];
+            bytes32 lastValue = Arrays.unsafeAccess(set._values, lastIndex).value;
 
             // Move the lastValue to the index where the value to delete is
-            set._values[index] = lastValue;
+            Arrays.unsafeAccess(set._values, index).value = lastValue;
             // Update the tracked position of the lastValue (that was just moved)
             set._positions[lastValue] = index + 1;
         }
@@ -164,7 +164,7 @@ library EnumerableSet {
     function _clear(Set storage set) private {
         uint256 len = _length(set);
         for (uint256 i = 0; i < len; ++i) {
-            delete set._positions[set._values[i]];
+            delete set._positions[Arrays.unsafeAccess(set._values, i).value];
         }
         Arrays.unsafeSetLength(set._values, 0);
     }
@@ -873,10 +873,10 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            string memory lastValue = set._values[lastIndex];
+            string memory lastValue = Arrays.unsafeAccess(set._values, lastIndex).value;
 
             // Move the lastValue to the index where the value to delete is
-            set._values[index] = lastValue;
+            Arrays.unsafeAccess(set._values, index).value = lastValue;
             // Update the tracked position of the lastValue (that was just moved)
             set._positions[lastValue] = index + 1;
         }
@@ -897,7 +897,7 @@ library EnumerableSet {
     function clear(StringSet storage set) internal {
         uint256 len = length(set);
         for (uint256 i = 0; i < len; ++i) {
-            delete set._positions[set._values[i]];
+            delete set._positions[Arrays.unsafeAccess(set._values, i).value];
         }
         Arrays.unsafeSetLength(set._values, 0);
     }
@@ -1065,10 +1065,10 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            bytes memory lastValue = set._values[lastIndex];
+            bytes memory lastValue = Arrays.unsafeAccess(set._values, lastIndex).value;
 
             // Move the lastValue to the index where the value to delete is
-            set._values[index] = lastValue;
+            Arrays.unsafeAccess(set._values, index).value = lastValue;
             // Update the tracked position of the lastValue (that was just moved)
             set._positions[lastValue] = index + 1;
         }
@@ -1089,7 +1089,7 @@ library EnumerableSet {
     function clear(BytesSet storage set) internal {
         uint256 len = length(set);
         for (uint256 i = 0; i < len; ++i) {
-            delete set._positions[set._values[i]];
+            delete set._positions[Arrays.unsafeAccess(set._values, i).value];
         }
         Arrays.unsafeSetLength(set._values, 0);
     }
