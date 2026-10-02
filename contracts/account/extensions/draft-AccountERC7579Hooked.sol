@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (account/extensions/draft-AccountERC7579Hooked.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (account/extensions/draft-AccountERC7579Hooked.sol)
 
 pragma solidity ^0.8.26;
 
 import {IERC7579Hook, MODULE_TYPE_HOOK} from "../../interfaces/draft-IERC7579.sol";
-import {ERC7579Utils, Mode} from "../../account/utils/draft-ERC7579Utils.sol";
+import {ERC7579Utils, Mode} from "../utils/draft-ERC7579Utils.sol";
 import {AccountERC7579} from "./draft-AccountERC7579.sol";
 
 /**
@@ -79,7 +79,13 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         super._installModule(moduleTypeId, module, initData);
     }
 
-    /// @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}
+    /**
+     * @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}.
+     *
+     * NOTE: Uninstalling the hook runs through its own `withHook` `preCheck`/`postCheck`, so a hook that reverts
+     * there blocks its removal. Since `_execute` is `withHook`-gated too, the delegatecall escape hatch does not
+     * apply, and such a hook may be impossible to uninstall.
+     */
     function _uninstallModule(
         uint256 moduleTypeId,
         address module,

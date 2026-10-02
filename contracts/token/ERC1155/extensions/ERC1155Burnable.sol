@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC1155/extensions/ERC1155Burnable.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC1155/extensions/ERC1155Burnable.sol)
 
 pragma solidity ^0.8.24;
 
@@ -11,18 +11,12 @@ import {ERC1155} from "../ERC1155.sol";
  */
 abstract contract ERC1155Burnable is ERC1155 {
     function burn(address account, uint256 id, uint256 value) public virtual {
-        if (account != _msgSender() && !isApprovedForAll(account, _msgSender())) {
-            revert ERC1155MissingApprovalForAll(_msgSender(), account);
-        }
-
+        _checkAuthorized(_msgSender(), account);
         _burn(account, id, value);
     }
 
     function burnBatch(address account, uint256[] memory ids, uint256[] memory values) public virtual {
-        if (account != _msgSender() && !isApprovedForAll(account, _msgSender())) {
-            revert ERC1155MissingApprovalForAll(_msgSender(), account);
-        }
-
+        _checkAuthorized(_msgSender(), account);
         _burnBatch(account, ids, values);
     }
 }

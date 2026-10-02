@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (proxy/ERC1967/ERC1967Utils.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (proxy/ERC1967/ERC1967Utils.sol)
 
 pragma solidity ^0.8.21;
 
-import {IBeacon} from "../beacon/IBeacon.sol";
 import {IERC1967} from "../../interfaces/IERC1967.sol";
 import {Address} from "../../utils/Address.sol";
 import {StorageSlot} from "../../utils/StorageSlot.sol";
+import {IBeacon} from "../beacon/IBeacon.sol";
 
 /**
  * @dev This library provides getters and event emitting update functions for

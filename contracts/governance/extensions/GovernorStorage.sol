@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorStorage.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (governance/extensions/GovernorStorage.sol)
 
 pragma solidity ^0.8.24;
 

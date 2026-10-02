@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.24;
 
-import {IERC1155} from "./IERC1155.sol";
-import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
-import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
+import {IERC1155Errors} from "../../interfaces/IERC6093.sol";
+import {Arrays} from "../../utils/Arrays.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
-import {Arrays} from "../../utils/Arrays.sol";
-import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
+import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
+import {IERC1155} from "./IERC1155.sol";
+import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -376,6 +376,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *
      * Requirements:
      *
+     * - `owner` cannot be the zero address.
      * - `operator` cannot be the zero address.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {

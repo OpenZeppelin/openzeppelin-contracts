@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeERC6909 } from '../ERC6909.behavior';
+import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsInterface.behavior';
 
-const { shouldBehaveLikeERC6909 } = require('../ERC6909.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   const [holder, operator, recipient, other] = await ethers.getSigners();
@@ -50,4 +54,6 @@ describe('ERC6909TokenSupply', function () {
       });
     });
   });
+
+  shouldSupportInterfaces(['ERC6909', 'ERC6909TokenSupply']);
 });

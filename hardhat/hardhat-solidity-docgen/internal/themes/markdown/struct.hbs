@@ -1,0 +1,9 @@
+{{>common}}
+
+```solidity
+struct {{name}} {
+{{#each members}}
+  {{{typeName.typeDescriptions.typeString}}} {{name}};
+{{/each}}
+}
+```
