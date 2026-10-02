@@ -109,12 +109,12 @@ library SimulateCall {
         // 0x0046 | fd          | revert         |                 ; revert(0, rds) -> undoes state
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-
             // build initcode at FMP
-            mstore(add(fmp, 0x40), 0x506038565b90505b805f5f3e5ff35b3d5f5f3e3d5ffd00000000000000000000)
-            mstore(add(fmp, 0x20), 0x5f375f5f603436035f6014355f3560601c5af1603f573d610800818110603557)
-            mstore(fmp, 0x60475f8160095f39f360333611600a575f5ffd5b603436036034)
-            let initcodehash := keccak256(add(fmp, 0x06), 0x50)
+            mstore(add(fmp, 0x40), 0x3d610800818110603557506038565b90505b805f5f3e5ff35b3d5f5f3e3d5ffd)
+            mstore(add(fmp, 0x20), 0x5f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af1603f57)
+            mstore(fmp, 0x60475f8160095f39f360333611600a57)
+
+            let initcodehash := keccak256(add(fmp, 0x10), 0x50)
 
             // compute create2 address
             mstore(0x40, initcodehash)
@@ -125,7 +125,7 @@ library SimulateCall {
 
             // if simulator not yet deployed, deploy it
             if iszero(extcodesize(instance)) {
-                if iszero(create2(0, add(fmp, 0x06), 0x50, 0)) {
+                if iszero(create2(0, add(fmp, 0x10), 0x50, 0)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
