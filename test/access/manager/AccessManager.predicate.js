@@ -1,16 +1,10 @@
-import { ethers } from 'ethers';
 import { expect } from 'chai';
 
-import { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } from '../../helpers/access-manager';
+import { EXPIRATION, prepareOperation } from '../../helpers/access-manager';
 
 // ============ COMMON PREDICATES ============
 
 export const LIKE_COMMON_IS_EXECUTING = {
-  executing() {
-    it('succeeds', async function () {
-      await this.caller.sendTransaction({ to: this.target, data: this.calldata });
-    });
-  },
   notExecuting() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
@@ -227,7 +221,7 @@ export function testAsSchedulableOperation({ scheduled: { before, after, expired
 /**
  * @requires this.{manager,roles,target,calldata}
  */
-export function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuting }, callerIsNotTheManager }) {
+export function testAsRestrictedOperation({ callerIsTheManager: { notExecuting }, callerIsNotTheManager }) {
   describe('when the call comes from the manager (msg.sender == manager)', function () {
     beforeEach('define caller as manager', async function () {
       this.caller = this.manager;
@@ -236,21 +230,7 @@ export function testAsRestrictedOperation({ callerIsTheManager: { executing, not
       }
     });
 
-    describe('when _executionId is in storage for target and selector', function () {
-      beforeEach('set _executionId flag from calldata and target', async function () {
-        const executionId = ethers.keccak256(
-          ethers.AbiCoder.defaultAbiCoder().encode(
-            ['address', 'bytes4'],
-            [this.target.target, this.calldata.substring(0, 10)],
-          ),
-        );
-        await this.networkHelpers.setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
-      });
-
-      executing();
-    });
-
-    describe('when _executionId does not match target and selector', notExecuting);
+    describe('when _executionId is not set', notExecuting);
   });
 
   describe('when the call does not come from the manager (msg.sender != manager)', function () {
