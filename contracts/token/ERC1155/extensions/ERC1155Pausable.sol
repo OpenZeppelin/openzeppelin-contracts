@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC1155} from "../ERC1155.sol";
 import {Pausable} from "../../../utils/Pausable.sol";
+import {ERC1155} from "../ERC1155.sol";
 
 /**
  * @dev ERC-1155 token with pausable token transfers, minting and burning.
