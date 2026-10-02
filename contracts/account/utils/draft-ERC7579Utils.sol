@@ -247,14 +247,14 @@ library ERC7579Utils {
                 uint256 itemCalldataLowerBound = lowerBound + 0x20;
 
                 for (uint256 i = 0; i < executionBatch.length; ++i) {
-                    Execution calldata item = executionBatch[i];
-                    bytes calldata itemCalldata = item.callData;
-
                     uint256 itemPtr;
                     uint256 itemCalldataPtr;
+                    uint256 itemCalldataLength;
                     assembly ("memory-safe") {
-                        itemPtr := item
-                        itemCalldataPtr := itemCalldata.offset
+                        itemPtr := add(executionBatch.offset, calldataload(add(executionBatch.offset, shl(5, i))))
+                        let itemCalldataLengthPtr := add(itemPtr, calldataload(add(itemPtr, 0x40)))
+                        itemCalldataPtr := add(itemCalldataLengthPtr, 0x20)
+                        itemCalldataLength := calldataload(itemCalldataLengthPtr)
                     }
 
                     if (
@@ -262,7 +262,7 @@ library ERC7579Utils {
                         itemPtr > itemUpperBound ||
                         itemCalldataPtr < itemCalldataLowerBound ||
                         itemCalldataPtr > upperBound ||
-                        itemCalldata.length > upperBound - itemCalldataPtr
+                        itemCalldataLength > upperBound - itemCalldataPtr
                     ) revert ERC7579DecodingError();
                 }
             }
