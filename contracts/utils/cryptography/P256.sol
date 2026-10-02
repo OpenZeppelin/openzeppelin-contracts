@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {Math} from "../math/Math.sol";
 import {Errors} from "../Errors.sol";
+import {Math} from "../math/Math.sol";
 
 /**
  * @dev Implementation of secp256r1 verification and recovery functions.
