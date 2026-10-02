@@ -23,11 +23,13 @@ for (const [filepath, needsPrettier] of Object.entries({
   'contracts/utils/TransientSlot.sol': false,
   'contracts/utils/cryptography/MerkleProof.sol': true,
   'contracts/utils/math/SafeCast.sol': false,
+  'contracts/utils/structs/BitMaps.sol': false,
   'contracts/utils/structs/Checkpoints.sol': false,
   'contracts/utils/structs/EnumerableMap.sol': true,
   'contracts/utils/structs/EnumerableSet.sol': false,
   'test/utils/Packing.t.sol': false,
   'test/utils/SlotDerivation.t.sol': false,
+  'test/utils/structs/BitMaps.t.sol': false,
   'test/utils/structs/Checkpoints.t.sol': false,
 })) {
   console.log(`Generating ${filepath}...`);

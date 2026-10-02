@@ -82,6 +82,14 @@ export const MAP_TYPES = []
     value,
   }));
 
+// ─── BitMaps ───
+// Packed value maps (the 1-bit `BitMap`/bool variant is hardcoded in the template)
+export const BITMAP_TYPES = [
+  { bits: 2, name: 'PairMap' },
+  { bits: 4, name: 'NibbleMap' },
+  ...[8, 16, 32, 64, 128].map(bits => ({ bits, name: `Uint${bits}Map` })),
+];
+
 // ─── MerkleProof ───
 export const MERKLEPROOF_DEFAULT_HASH = 'Hashes.commutativeKeccak256';
 export const MERKLEPROOF_OPTS = product(
