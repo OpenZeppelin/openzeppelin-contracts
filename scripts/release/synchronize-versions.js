@@ -3,7 +3,7 @@
 // Synchronizes the version in contracts/package.json with the one in package.json.
 // This is run automatically when npm version is run.
 
-const fs = require('fs');
+import fs from 'fs';
 
 setVersion('package.json', 'contracts/package.json');
 
