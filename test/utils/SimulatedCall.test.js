@@ -101,5 +101,17 @@ describe('SimulateCall', function () {
         .to.emit(this.mock, 'return$simulateCall_address_uint256_bytes')
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
     });
+
+    it('target revert with bomb', async function () {
+      const bomb = await ethers.deployContract('RevertBombMock');
+      await this.mock.$simulateCall(ethers.Typed.address(this.target), ethers.Typed.bytes('0x')); // deploy simulator
+      const txPromise = this.mock.$simulateCall(ethers.Typed.address(bomb), ethers.Typed.bytes('0x'), {
+        gasLimit: 1_000_000n,
+      });
+      await expect(txPromise).to.emit(this.mock, 'return$simulateCall_address_bytes').withArgs(
+        false, // reverting target is a failure (bounded copy can't be starved into an OOG)
+        ethers.zeroPadBytes('0x', 2048), // failure; reason copied up to the 2048-byte cap
+      );
+    });
   });
 });
