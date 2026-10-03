@@ -89,6 +89,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
+     * @notice Moves a `value` amount of tokens from the caller's account to `to`.
      * @dev See {IERC20-transfer}.
      *
      * Requirements:
@@ -108,6 +109,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
+     * @notice Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens.
      * @dev See {IERC20-approve}.
      *
      * NOTE: If `value` is the maximum `uint256`, the allowance is not updated on
@@ -124,6 +126,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
+     * @notice Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism.
      * @dev See {IERC20-transferFrom}.
      *
      * Skips emitting an {Approval} event indicating an allowance update. This is not
