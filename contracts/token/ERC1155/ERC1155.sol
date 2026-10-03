@@ -28,7 +28,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     string private _uri;
 
     /**
-     * @dev See {_setURI}.
+     * @dev See {ERC1155-_setURI}.
      */
     constructor(string memory uri_) {
         _setURI(uri_);
@@ -132,7 +132,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *   or {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value.
      * - `ids` and `values` must have the same length.
      *
-     * NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateWithAcceptanceCheck} instead.
+     * NOTE: The ERC-1155 acceptance check is not performed in this function. See {ERC1155-_updateWithAcceptanceCheck-address-address-uint256---uint256---bytes} instead.
      */
     function _update(address from, address to, uint256[] memory ids, uint256[] memory values) internal virtual {
         if (ids.length != values.length) {
