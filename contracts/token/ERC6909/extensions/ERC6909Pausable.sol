@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC6909} from "../ERC6909.sol";
 import {Pausable} from "../../../utils/Pausable.sol";
+import {ERC6909} from "../ERC6909.sol";
 
 /**
  * @dev ERC-6909 token with pausable token transfers, minting and burning.
