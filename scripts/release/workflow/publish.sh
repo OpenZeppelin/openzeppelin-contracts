@@ -33,7 +33,7 @@ notify_manual_tag_cleanup() {
 
 if [ "$TAG" = tmp ]; then
   notify_manual_tag_cleanup "$TAG"
-elif [ "$TAG" = latest ]; then
+elif [ "$TAG" = dev ]; then
   # The next tag needs cleanup if it exists and is a prerelease for what is currently being published
   if npm dist-tag ls "$PACKAGE_JSON_NAME" | grep -q "next: $PACKAGE_JSON_VERSION"; then
     notify_manual_tag_cleanup next
