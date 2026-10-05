@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { shouldBehaveLikeERC6909 } = require('../ERC6909.behavior');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeERC6909 } from '../ERC6909.behavior';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   const [holder, operator, recipient, other] = await ethers.getSigners();
