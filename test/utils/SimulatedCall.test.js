@@ -9,8 +9,8 @@ const {
 
 const value = 42n;
 
-// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of scripts/yul/CallSimulator.yul
-// (artifacts/yul/CallSimulator.yul/CallSimulator.json). SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE
+// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of contracts/utils/CallSimulator.yul
+// (out/CallSimulator.yul/CallSimulator.json). SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE
 // (initcode = creation stub + runtime), kept as two constants so each test reads directly.
 const SIMULATOR_INITCODE =
   '0x603080600a5f395ff3fe60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
@@ -53,7 +53,7 @@ describe('SimulateCall', function () {
     await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(SIMULATOR_RUNTIME);
   });
 
-  // Compile the .yul sources to artifacts/yul/ and read CallSimulator's bytecode back to compare.
+  // Compile the .yul sources to out/ and read CallSimulator's bytecode back to compare.
   // Skipped if .yul compilation is not available (`forge` missing)
   it('syncs embedded simulator bytecode with .yul', async function () {
     if (!canCompileYul()) this.skip();

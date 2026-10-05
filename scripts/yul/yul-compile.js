@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 const repoRoot = path.join(import.meta.dirname, '..', '..');
-const yulDir = import.meta.dirname;
-const outDir = path.join('artifacts', 'yul');
+const yulDir = path.join(repoRoot, 'contracts'); // .yul sources live under contracts/ (compiled by forge)
+const outDir = 'out'; // forge's default output dir (gitignored; cleaned by `forge clean`)
 const FORGE = process.env.FORGE || 'forge';
 
 // Whether a `forge` binary is available.
@@ -17,10 +17,10 @@ export function canCompileYul() {
   }
 }
 
-// Compile every scripts/yul/*.yul into artifacts/yul/
+// Compile every contracts/**/*.yul into out/
 export function compileAllYul() {
   return fs
-    .readdirSync(yulDir)
+    .readdirSync(yulDir, { recursive: true })
     .filter(file => file.endsWith('.yul'))
     .map(file => {
       execFileSync(FORGE, ['build', path.join(yulDir, file), '--out', outDir], { cwd: repoRoot, stdio: 'pipe' });
@@ -28,7 +28,7 @@ export function compileAllYul() {
     });
 }
 
-// Read a compiled object's creation and deployed bytecode from artifacts/yul/
+// Read a compiled object's creation and deployed bytecode from out/
 export function readYulBytecode(name) {
   const artifact = path.join(repoRoot, outDir, `${name}.yul`, `${name}.json`);
   const { bytecode, deployedBytecode } = JSON.parse(fs.readFileSync(artifact, 'utf8'));

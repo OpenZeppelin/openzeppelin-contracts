@@ -37,7 +37,7 @@ library SimulateCall {
      * capturing the return data.
      */
     function getSimulator() internal returns (address instance) {
-        // Bytecode compiled from scripts/yul/CallSimulator.yul.
+        // Bytecode compiled from contracts/utils/CallSimulator.yul.
         // deployment prefix: 0x603080600a5f395ff3fe
         // deployed bytecode: 0x60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd
         assembly ("memory-safe") {
