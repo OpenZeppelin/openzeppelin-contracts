@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { canCompileYul, getYulBytecode } from '../../scripts/compile-yul.js';
 
 const {
   ethers,
@@ -46,6 +47,14 @@ describe('SimulateCall', function () {
 
     // Following calls use the same simulator
     await expect(this.mock.$getSimulator()).to.emit(this.mock, 'return$getSimulator').withArgs(this.simulator);
+  });
+
+  it('simulator bytecode matches the Yul source', async function () {
+    if (!canCompileYul()) this.skip();
+    const { deployed } = getYulBytecode('contracts/utils/SimulateCall.yul:SimulationRelayer');
+
+    await this.mock.$getSimulator();
+    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(deployed);
   });
 
   describe('simulated call', function () {

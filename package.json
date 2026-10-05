@@ -8,8 +8,10 @@
     "!/contracts/mocks/**/*"
   ],
   "scripts": {
-    "compile": "hardhat build",
+    "compile": "npm run compile:solidity && npm run compile:yul",
+    "compile:solidity": "hardhat build",
     "compile:harnesses": "env SRC=./fv/harnesses hardhat build --noExpose",
+    "compile:yul": "node -e \"import('./scripts/compile-yul.js').then(m => m.compileAllYul())\"",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.mjs",
     "prepare": "husky",
