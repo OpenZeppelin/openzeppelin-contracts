@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { canCompileYul, compileAllYul, readYulBytecode } from '../../scripts/yul/yul-compile.js';
 
 const {
   ethers,
@@ -8,20 +9,19 @@ const {
 
 const value = 42n;
 
+// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of scripts/yul/CallSimulator.yul
+// (artifacts/yul/CallSimulator.yul/CallSimulator.json). SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE
+// (initcode = creation stub + runtime), kept as two constants so each test reads directly.
+const SIMULATOR_INITCODE =
+  '0x603080600a5f395ff3fe60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
+const SIMULATOR_RUNTIME =
+  '0x60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
+
 async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$SimulateCall');
-  const simulator = ethers.getCreate2Address(
-    mock.target,
-    ethers.ZeroHash,
-    ethers.keccak256(
-      ethers.concat([
-        '0x60315f8160095f39f3',
-        '0x60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd',
-      ]),
-    ),
-  );
+  const simulator = ethers.getCreate2Address(mock.target, ethers.ZeroHash, ethers.keccak256(SIMULATOR_INITCODE));
 
   const target = await ethers.deployContract('$CallReceiverMock');
 
@@ -46,6 +46,21 @@ describe('SimulateCall', function () {
 
     // Following calls use the same simulator
     await expect(this.mock.$getSimulator()).to.emit(this.mock, 'return$getSimulator').withArgs(this.simulator);
+  });
+
+  it('deploys the embedded simulator bytecode', async function () {
+    await this.mock.$getSimulator();
+    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(SIMULATOR_RUNTIME);
+  });
+
+  // Compile the .yul sources to artifacts/yul/ and read CallSimulator's bytecode back to compare.
+  // Skipped if .yul compilation is not available (`forge` missing)
+  it('syncs embedded simulator bytecode with .yul', async function () {
+    if (!canCompileYul()) this.skip();
+    compileAllYul();
+    const { creation, deployed } = readYulBytecode('CallSimulator');
+    expect(creation).to.equal(SIMULATOR_INITCODE);
+    expect(deployed).to.equal(SIMULATOR_RUNTIME);
   });
 
   describe('simulated call', function () {
