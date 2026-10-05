@@ -14,21 +14,13 @@ object "SimulationRelayer" {
     /// - Returns on failure.
     /// Calldata layout: target[0x00:0x14] | value[0x14:0x34] | data[0x34:]
     code {
-      let cds := calldatasize()
-      if lt(cds, 0x34) { revert(0, 0) }
-      let len := sub(cds, 0x34)
+      if lt(calldatasize(), 0x34) { revert(0x00, 0x00) }
+      let len := sub(calldatasize(), 0x34)
       calldatacopy(0x00, 0x34, len)
-      let suc := call(gas(), shr(0x60, calldataload(0x00)), calldataload(0x14), 0x00, len, 0x00, 0x00)
-      let rds := returndatasize()
-      if suc {
-        returndatacopy(0x00, 0x00, rds)
-        revert(0, rds)
-      }
-      // else
-      {
-        returndatacopy(0x00, 0x00, rds)
-        return(0, rds)
-      }
+      let success := call(gas(), shr(0x60, calldataload(0x00)), calldataload(0x14), 0x00, len, 0x00, 0x00)
+      returndatacopy(0x00, 0x00, returndatasize())
+      if success { revert(0x00, returndatasize()) }
+      /* else */ { return(0x00, returndatasize()) }
     }
   }
 }

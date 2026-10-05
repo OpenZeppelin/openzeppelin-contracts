@@ -1,6 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { canCompileYul, getYulBytecode } from '../../scripts/compile-yul.js';
+import { getYulBytecode } from '../../scripts/compile-yul.js';
 
 const {
   ethers,
@@ -9,19 +9,24 @@ const {
 
 const value = 42n;
 
+// Simulator bytecode hardcoded in SimulateCall.sol, used when forge is not available to compile SimulateCall.yul
+const fallback = {
+  prefix: '0x603080600a5f395ff3fe',
+  deployedBytecode:
+    '0x60343610602c575f803660331901806034833781601435813560601c5af13d5f803e6028573d5ff35b3d5ffd5b5f80fd',
+};
+fallback.bytecode = ethers.concat([fallback.prefix, fallback.deployedBytecode]);
+
 async function fixture() {
   const [receiver, other] = await ethers.getSigners();
+
+  const relayer = getYulBytecode('contracts/utils/SimulateCall.yul:SimulationRelayer');
 
   const mock = await ethers.deployContract('$SimulateCall');
   const simulator = ethers.getCreate2Address(
     mock.target,
     ethers.ZeroHash,
-    ethers.keccak256(
-      ethers.concat([
-        '0x60315f8160095f39f3',
-        '0x60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd',
-      ]),
-    ),
+    ethers.keccak256((relayer ?? fallback).bytecode),
   );
 
   const target = await ethers.deployContract('$CallReceiverMock');
@@ -29,7 +34,7 @@ async function fixture() {
   // fund the mock contract (for tests that use value)
   await other.sendTransaction({ to: mock, value });
 
-  return { mock, target, receiver, other, simulator };
+  return { mock, target, receiver, other, simulator, relayer };
 }
 
 describe('SimulateCall', function () {
@@ -50,11 +55,13 @@ describe('SimulateCall', function () {
   });
 
   it('simulator bytecode matches the Yul source', async function () {
-    if (!canCompileYul()) this.skip();
-    const { deployed } = getYulBytecode('contracts/utils/SimulateCall.yul:SimulationRelayer');
+    if (!this.relayer) this.skip();
 
-    await this.mock.$getSimulator();
-    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(deployed);
+    expect(this.relayer.bytecode).to.equal(fallback.bytecode);
+    expect(this.relayer.deployedBytecode).to.equal(fallback.deployedBytecode);
+
+    await expect(this.mock.$getSimulator()).to.emit(this.mock, 'return$getSimulator').withArgs(this.simulator);
+    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(this.relayer.deployedBytecode);
   });
 
   describe('simulated call', function () {

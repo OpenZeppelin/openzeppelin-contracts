@@ -52,9 +52,13 @@ export function compileAllYul() {
 // Compile a .yul file and read the creation and deployed bytecode of one of its objects (`file[:object]`)
 export function getYulBytecode(name) {
   const [file, contract] = name.split(':');
-  compileYul(file);
-  const { bytecode, deployedBytecode } = JSON.parse(
-    fs.readFileSync(path.join(artifactDir(file), `${contract ?? path.basename(file, '.yul')}.json`), 'utf8'),
-  );
-  return { creation: bytecode.object.toLowerCase(), deployed: deployedBytecode.object.toLowerCase() };
+  if (canCompileYul()) {
+    compileYul(file);
+    const { bytecode, deployedBytecode } = JSON.parse(
+      fs.readFileSync(path.join(artifactDir(file), `${contract ?? path.basename(file, '.yul')}.json`), 'utf8'),
+    );
+    return { bytecode: bytecode.object.toLowerCase(), deployedBytecode: deployedBytecode.object.toLowerCase() };
+  } else {
+    return null;
+  }
 }
