@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/signers/draft-ERC7739.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/signers/draft-ERC7739.sol)
 
 pragma solidity ^0.8.24;
 
-import {AbstractSigner} from "./AbstractSigner.sol";
-import {EIP712} from "../EIP712.sol";
-import {ERC7739Utils} from "../draft-ERC7739Utils.sol";
 import {IERC1271} from "../../../interfaces/IERC1271.sol";
+import {ERC7739Utils} from "../draft-ERC7739Utils.sol";
+import {EIP712} from "../EIP712.sol";
 import {MessageHashUtils} from "../MessageHashUtils.sol";
+import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
  * @dev Validates signatures wrapping the message hash in a nested EIP712 type. See {ERC7739Utils}.
@@ -69,6 +69,22 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
             string calldata contentsDescr
         ) = encodedSignature.decodeTypedDataSig();
 
+        (string calldata contentsName, string calldata contentsType) = contentsDescr.decodeContentsDescr();
+
+        // Check that contentHash and separator are correct
+        // Rebuild nested hash
+        return
+            hash == appSeparator.toTypedDataHash(contentsHash) &&
+            bytes(contentsName).length != 0 &&
+            _rawSignatureValidation(
+                appSeparator.toTypedDataHash(
+                    ERC7739Utils.typedDataSignStructHash(contentsName, contentsType, contentsHash, _buildDomainBytes())
+                ),
+                signature
+            );
+    }
+
+    function _buildDomainBytes() private view returns (bytes memory) {
         (
             ,
             string memory name,
@@ -78,21 +94,6 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
             bytes32 salt,
 
         ) = eip712Domain();
-
-        // Check that contentHash and separator are correct
-        // Rebuild nested hash
-        return
-            hash == appSeparator.toTypedDataHash(contentsHash) &&
-            bytes(contentsDescr).length != 0 &&
-            _rawSignatureValidation(
-                appSeparator.toTypedDataHash(
-                    ERC7739Utils.typedDataSignStructHash(
-                        contentsDescr,
-                        contentsHash,
-                        abi.encode(keccak256(bytes(name)), keccak256(bytes(version)), chainId, verifyingContract, salt)
-                    )
-                ),
-                signature
-            );
+        return abi.encode(keccak256(bytes(name)), keccak256(bytes(version)), chainId, verifyingContract, salt);
     }
 }

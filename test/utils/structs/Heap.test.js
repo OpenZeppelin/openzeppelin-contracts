@@ -1,11 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Heap');
-  return { mock };
+  return { mock: await ethers.deployContract('$Heap') };
 }
 
 describe('Heap', function () {
@@ -62,18 +65,18 @@ describe('Heap', function () {
       for (const { op, value } of [
         { op: 'insert', value: 712 }, // [712]
         { op: 'insert', value: 20 }, // [20, 712]
-        { op: 'insert', value: 4337 }, // [20, 712, 4437]
-        { op: 'pop' }, // 20, [712, 4437]
-        { op: 'insert', value: 1559 }, // [712, 1559, 4437]
-        { op: 'insert', value: 165 }, // [165, 712, 1559, 4437]
-        { op: 'insert', value: 155 }, // [155, 165, 712, 1559, 4437]
-        { op: 'insert', value: 7702 }, // [155, 165, 712, 1559, 4437, 7702]
-        { op: 'pop' }, // 155, [165, 712, 1559, 4437, 7702]
-        { op: 'replace', value: 721 }, // 165, [712, 721, 1559, 4437, 7702]
-        { op: 'pop' }, // 712, [721, 1559, 4437, 7702]
-        { op: 'pop' }, // 721, [1559, 4437, 7702]
-        { op: 'pop' }, // 1559, [4437, 7702]
-        { op: 'pop' }, // 4437, [7702]
+        { op: 'insert', value: 4337 }, // [20, 712, 4337]
+        { op: 'pop' }, // 20, [712, 4337]
+        { op: 'insert', value: 1559 }, // [712, 1559, 4337]
+        { op: 'insert', value: 165 }, // [165, 712, 1559, 4337]
+        { op: 'insert', value: 155 }, // [155, 165, 712, 1559, 4337]
+        { op: 'insert', value: 7702 }, // [155, 165, 712, 1559, 4337, 7702]
+        { op: 'pop' }, // 155, [165, 712, 1559, 4337, 7702]
+        { op: 'replace', value: 721 }, // 165, [712, 721, 1559, 4337, 7702]
+        { op: 'pop' }, // 712, [721, 1559, 4337, 7702]
+        { op: 'pop' }, // 721, [1559, 4337, 7702]
+        { op: 'pop' }, // 1559, [4337, 7702]
+        { op: 'pop' }, // 4337, [7702]
         { op: 'pop' }, // 7702, []
         { op: 'pop' }, // panic
         { op: 'replace', value: '1363' }, // panic

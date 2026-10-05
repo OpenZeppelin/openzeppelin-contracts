@@ -3,7 +3,8 @@
 // Adjusts the format of the changelog that changesets generates.
 // This is run automatically when npm version is run.
 
-const fs = require('fs');
+import fs from 'fs';
+
 const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 
 // Groups:

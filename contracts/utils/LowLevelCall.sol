@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/LowLevelCall.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/LowLevelCall.sol)
 
 pragma solidity ^0.8.20;
 
@@ -15,7 +15,7 @@ library LowLevelCall {
         return callNoReturn(target, 0, data);
     }
 
-    /// @dev Same as {callNoReturn}, but allows to specify the value to be sent in the call.
+    /// @dev Same as {callNoReturn-address-bytes}, but allows specifying the value to be sent in the call.
     function callNoReturn(address target, uint256 value, bytes memory data) internal returns (bool success) {
         assembly ("memory-safe") {
             success := call(gas(), target, value, add(data, 0x20), mload(data), 0x00, 0x00)
@@ -23,7 +23,7 @@ library LowLevelCall {
     }
 
     /// @dev Performs a Solidity function call using a low level `call` and returns the first 64 bytes of the result
-    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values.
+    /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
@@ -34,7 +34,7 @@ library LowLevelCall {
         return callReturn64Bytes(target, 0, data);
     }
 
-    /// @dev Same as {callReturnBytes32Pair}, but allows to specify the value to be sent in the call.
+    /// @dev Same as {callReturn64Bytes-address-bytes}, but allows specifying the value to be sent in the call.
     function callReturn64Bytes(
         address target,
         uint256 value,
@@ -55,7 +55,7 @@ library LowLevelCall {
     }
 
     /// @dev Performs a Solidity function call using a low level `staticcall` and returns the first 64 bytes of the result
-    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values.
+    /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
@@ -78,7 +78,7 @@ library LowLevelCall {
     }
 
     /// @dev Performs a Solidity function call using a low level `delegatecall` and returns the first 64 bytes of the result
-    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values.
+    /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.

@@ -10,7 +10,7 @@ import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.sol";
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
@@ -81,7 +81,7 @@ abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC78
     }
 }
 
-abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+abstract contract AccountEIP7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
@@ -92,7 +92,7 @@ abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821
     }
 }
 
-abstract contract AccountERC7702WithModulesMock is
+abstract contract AccountEIP7702WithModulesMock is
     Account,
     AccountERC7579,
     SignerEIP7702,
@@ -119,7 +119,7 @@ abstract contract AccountERC7702WithModulesMock is
         return erc7739magic == bytes4(0xffffffff) ? AccountERC7579.isValidSignature(hash, signature) : erc7739magic;
     }
 
-    /// @dev Enable signature using the ERC-7702 signer.
+    /// @dev Enable signature using the EIP-7702 signer.
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature

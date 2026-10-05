@@ -37,6 +37,11 @@ definition sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b
 invariant noAllowance(address user)
     underlying.allowance(currentContract, user) == 0
     {
+        preserved constructor() {
+            // The induction base havocs the underlying's storage. The wrapper is being deployed here, so it has
+            // never run any code, and in particular it has never approved anyone on the underlying.
+            require underlying.allowance(currentContract, user) == 0;
+        }
         preserved ERC20PermitHarness.approve(address spender, uint256 value) with (env e) {
             require e.msg.sender != currentContract;
         }
@@ -55,6 +60,11 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
     underlying.balanceOf(currentContract) <= underlying.totalSupply() &&
     underlying.totalSupply() <= max_uint256
     {
+        preserved constructor() {
+            // The induction base havocs the underlying's storage, which may then be inconsistent. This is the
+            // `totalSupplyIsSumOfBalances` invariant applied to the underlying, which is not verified here.
+            require underlying.balanceOf(currentContract) <= underlying.totalSupply();
+        }
         preserved with (env e) {
             requireInvariant totalSupplyIsSumOfBalances;
             require e.msg.sender != currentContract;
@@ -65,7 +75,7 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, to);
         }
         preserved ERC20PermitHarness.burn(address from, uint256 amount) with (env e) {
-            // If someone can burn from the wrapper, than the invariant obviously doesn't hold.
+            // If someone can burn from the wrapper, then the invariant obviously doesn't hold.
             require from != currentContract;
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, currentContract);
         }

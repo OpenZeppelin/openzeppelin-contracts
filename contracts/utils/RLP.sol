@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/RLP.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/RLP.sol)
 
 pragma solidity ^0.8.26;
 
-import {Math} from "./math/Math.sol";
-import {Accumulators} from "./structs/Accumulators.sol";
 import {Bytes} from "./Bytes.sol";
+import {Math} from "./math/Math.sol";
 import {Memory} from "./Memory.sol";
+import {Accumulators} from "./structs/Accumulators.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
@@ -52,7 +52,7 @@ library RLP {
     using Bytes for *;
     using Memory for *;
 
-    /// @dev The item is not properly formatted and cannot de decoded.
+    /// @dev The item is not properly formatted and cannot be decoded.
     error RLPInvalidEncoding();
 
     enum ItemType {
@@ -151,10 +151,10 @@ library RLP {
     }
 
     /**
-     * @dev Encode an address as RLP.
+     * @dev Encode an address as an RLP item of fixed size (20 bytes).
      *
      * The address is encoded with its leading zeros (if it has any). If someone wants to encode the address as a scalar,
-     * they can cast it to an uint256 and then call the corresponding {encode} function.
+     * they can cast it to a uint256 and then call the corresponding {encode} function.
      */
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
@@ -165,7 +165,11 @@ library RLP {
         }
     }
 
-    /// @dev Encode a uint256 as RLP.
+    /**
+     * @dev Encode a uint256 as an RLP scalar.
+     *
+     * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
+     */
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
@@ -186,14 +190,25 @@ library RLP {
         }
     }
 
-    /// @dev Encode a bytes32 as RLP. Type alias for {encode-uint256-}.
-    function encode(bytes32 input) internal pure returns (bytes memory) {
-        return encode(uint256(input));
+    /**
+     * @dev Encode a bytes32 as an RLP item of fixed size (32 bytes).
+     *
+     * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
+     */
+    function encode(bytes32 input) internal pure returns (bytes memory result) {
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, 0x21) // length of the encoded data: 1 (prefix) + 0x20
+            mstore8(add(result, 0x20), 0xa0) // prefix: SHORT_OFFSET + 0x20
+            mstore(add(result, 0x21), input)
+            mstore(0x40, add(result, 0x41)) // reserve memory
+        }
     }
 
     /// @dev Encode a bytes buffer as RLP.
     function encode(bytes memory input) internal pure returns (bytes memory) {
-        return (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? input : _encode(input, SHORT_OFFSET);
+        return
+            (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? bytes.concat(input) : _encode(input, SHORT_OFFSET);
     }
 
     /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
@@ -331,7 +346,12 @@ library RLP {
         return string(readBytes(item));
     }
 
-    /// @dev Decodes an RLP encoded list into an array of RLP Items.
+    /**
+     * @dev Decodes an RLP encoded list in a memory slice into an array of RLP Items.
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further
+     * modification of the input buffer may cause the output result to become invalid.
+     */
     function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
 
@@ -398,13 +418,18 @@ library RLP {
         return readString(item.asSlice());
     }
 
-    /// @dev Decode an RLP encoded list from bytes. See {readList}
+    /**
+     * @dev Decode an RLP encoded list from bytes. See {readList}
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further
+     * modification of the input buffer may cause the output result to become invalid.
+     */
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
     }
 
     /**
-     * @dev Decodes an RLP `item`'s `length and type from its prefix.
+     * @dev Decodes an RLP `item`'s length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
     function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {
@@ -428,13 +453,13 @@ library RLP {
                 return (1, strLength, ItemType.Data);
             } else {
                 // Case: Long string (>55 bytes)
-                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
-
+                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.Data);
             }
@@ -443,17 +468,17 @@ library RLP {
             if (prefix <= LONG_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short list
                 uint256 listLength = prefix - LONG_OFFSET;
-                require(item.length() > listLength, RLPInvalidEncoding());
+                require(itemLength > listLength, RLPInvalidEncoding());
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
-                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
-
+                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.List);
             }

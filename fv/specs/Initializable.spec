@@ -156,7 +156,7 @@ rule reinitializeEffects() {
     reinitialize@withrevert(n);
     bool success = !lastReverted;
 
-    assert success <=> versionBefore < n, "can only reinitialize to a latter versions";
+    assert success <=> versionBefore < n, "can only reinitialize to later versions";
     assert success => version() == n,     "reinitialize must set version() to n";
 }
 

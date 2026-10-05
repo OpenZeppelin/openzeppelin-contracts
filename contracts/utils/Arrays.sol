@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/Arrays.sol)
-// This file was procedurally generated from scripts/generate/templates/Arrays.js.
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/Arrays.sol)
+// This file was procedurally generated from scripts/generate/templates/Arrays.sol.eta.
 
 pragma solidity ^0.8.24;
 
 import {Comparators} from "./Comparators.sol";
+import {Math} from "./math/Math.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
-import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.
@@ -57,6 +57,10 @@ library Arrays {
      * consume more gas than is available in a block, leading to potential DoS.
      *
      * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
+     *
+     * NOTE: `comp` receives the array entries verbatim, including any dirty (non-zero) upper bits. Solidity assumes
+     * `address` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
+     * A comparator that may be given dirty entries should mask them, as in `uint160(a) < uint160(b)`.
      */
     function sort(
         address[] memory array,
@@ -70,7 +74,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of address in increasing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
-        sort(_castToUint256Array(array), Comparators.lt);
+        sort(_castToUint256Array(array), _addressLt);
         return array;
     }
 
@@ -114,25 +118,33 @@ library Arrays {
      */
     function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
-            if (end - begin < 0x40) return;
+            while (end - begin > 0x20) {
+                // Use first element as pivot
+                uint256 pivot = _mload(begin);
+                // Position where the pivot should be at the end of the loop
+                uint256 pos = begin;
 
-            // Use first element as pivot
-            uint256 pivot = _mload(begin);
-            // Position where the pivot should be at the end of the loop
-            uint256 pos = begin;
+                for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                    if (comp(_mload(it), pivot)) {
+                        // If the value stored at the iterator's position comes before the pivot, we increment the
+                        // position of the pivot and move the value there.
+                        pos += 0x20;
+                        _swap(pos, it);
+                    }
+                }
 
-            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-                if (comp(_mload(it), pivot)) {
-                    // If the value stored at the iterator's position comes before the pivot, we increment the
-                    // position of the pivot and move the value there.
-                    pos += 0x20;
-                    _swap(pos, it);
+                _swap(begin, pos); // Swap pivot into place
+
+                // Recurse on the smaller partition, iterate on the larger one.
+                uint256 middle = pos + 0x20;
+                if (pos - begin < end - middle) {
+                    _quickSort(begin, pos, comp);
+                    begin = middle;
+                } else {
+                    _quickSort(middle, end, comp);
+                    end = pos;
                 }
             }
-
-            _swap(begin, pos); // Swap pivot into place
-            _quickSort(begin, pos, comp); // Sort the left side of the pivot
-            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
@@ -174,6 +186,11 @@ library Arrays {
             mstore(ptr1, value2)
             mstore(ptr2, value1)
         }
+    }
+
+    /// @dev Helper: strict comparison of two address values held in (potentially dirty) uint256 words
+    function _addressLt(uint256 a, uint256 b) private pure returns (bool) {
+        return uint160(a) < uint160(b);
     }
 
     /// @dev Helper: low level cast address memory array to uint256 memory array
@@ -466,21 +483,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start) internal pure returns (address[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start, uint256 end) internal pure returns (address[] memory) {
         // sanitize
@@ -497,21 +514,72 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
+     * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        address[] memory array,
+        uint256 pos,
+        address[] memory replacement
+    ) internal pure returns (address[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces elements in `array` starting at `pos` with elements from `replacement` starting at `offset`.
+     * Copies at most `length` elements from `replacement` to `array`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * array.length - pos)`). If `pos >= array.length` or `offset >= replacement.length`, no replacement occurs
+     * and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        address[] memory array,
+        uint256 pos,
+        address[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (address[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // replace
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start) internal pure returns (bytes32[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start, uint256 end) internal pure returns (bytes32[] memory) {
         // sanitize
@@ -528,21 +596,72 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
+     * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        bytes32[] memory array,
+        uint256 pos,
+        bytes32[] memory replacement
+    ) internal pure returns (bytes32[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces elements in `array` starting at `pos` with elements from `replacement` starting at `offset`.
+     * Copies at most `length` elements from `replacement` to `array`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * array.length - pos)`). If `pos >= array.length` or `offset >= replacement.length`, no replacement occurs
+     * and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        bytes32[] memory array,
+        uint256 pos,
+        bytes32[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes32[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // replace
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start) internal pure returns (uint256[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start, uint256 end) internal pure returns (uint256[] memory) {
         // sanitize
@@ -553,6 +672,57 @@ library Arrays {
         assembly ("memory-safe") {
             mcopy(add(array, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
             mstore(array, sub(end, start))
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
+     * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        uint256[] memory array,
+        uint256 pos,
+        uint256[] memory replacement
+    ) internal pure returns (uint256[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces elements in `array` starting at `pos` with elements from `replacement` starting at `offset`.
+     * Copies at most `length` elements from `replacement` to `array`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * array.length - pos)`). If `pos >= array.length` or `offset >= replacement.length`, no replacement occurs
+     * and the array is returned unchanged.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        uint256[] memory array,
+        uint256 pos,
+        uint256[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (uint256[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // replace
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
         }
 
         return array;
@@ -681,7 +851,7 @@ library Arrays {
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
-     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
     function unsafeSetLength(address[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
@@ -692,7 +862,7 @@ library Arrays {
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
-     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
     function unsafeSetLength(bytes32[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
@@ -703,7 +873,7 @@ library Arrays {
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
-     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
     function unsafeSetLength(uint256[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
@@ -714,7 +884,7 @@ library Arrays {
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
-     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
     function unsafeSetLength(bytes[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
@@ -725,7 +895,7 @@ library Arrays {
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
-     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
     function unsafeSetLength(string[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
