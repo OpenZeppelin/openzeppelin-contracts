@@ -119,6 +119,11 @@ jobs:
           make -C fv apply
           # Keep the CLI version Renovate maintains in fv-requirements.txt
           echo "cli-version=$(sed -n 's/^certora-cli==//p' fv-requirements.txt)" >> "$GITHUB_OUTPUT"
+          # Same compiler as the tests: the default in hardhat.config.ts, read as text so that loading the
+          # config (and so `npm ci`) is not needed
+          SOLC=$(sed -nE "s/^\s*compiler: \{ type: 'string', default: '([0-9.]+)' \},?$/\1/p" hardhat.config.ts)
+          [[ -n $SOLC ]] || { echo "::error::could not read the default compiler version from hardhat.config.ts"; exit 1; }
+          echo "solc-version=$SOLC" >> "$GITHUB_OUTPUT"
           # The action takes one config per line, not a JSON array
           {
             echo 'configs<<EOF'
@@ -130,7 +135,7 @@ jobs:
         with:
           configurations: ${{ steps.prepare.outputs.configs }}
           cli-version: ${{ steps.prepare.outputs.cli-version }}
-          solc-versions: 0.8.35
+          solc-versions: ${{ steps.prepare.outputs.solc-version }}
           job-name: Formal verification
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
