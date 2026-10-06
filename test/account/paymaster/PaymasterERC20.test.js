@@ -1,13 +1,17 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network, globalOptions } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { getDomain } from '../../helpers/eip712';
+import { formatType, PackedUserOperation } from '../../helpers/eip712-types';
+import { ERC4337Helper } from '../../helpers/erc4337';
+import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
+import { shouldBehaveLikePaymaster } from './Paymaster.behavior';
 
-const { getDomain, formatType, PackedUserOperation } = require('../../helpers/eip712');
-const { ERC4337Helper } = require('../../helpers/erc4337');
-const { encodeBatch, encodeMode, CALL_TYPE_BATCH } = require('../../helpers/erc7579');
-
-const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const value = ethers.parseEther('1');
 
@@ -22,7 +26,7 @@ async function fixture() {
   const oracleSigner = ethers.Wallet.createRandom();
 
   // ERC-4337 account
-  const helper = new ERC4337Helper();
+  const helper = new ERC4337Helper(connection);
   const account = await helper.newAccount('$AccountECDSAMock', [accountSigner, 'AccountECDSA', '1']);
   await account.deploy();
 
@@ -32,7 +36,7 @@ async function fixture() {
   await paymaster.$_grantRole(ethers.id('WITHDRAWER_ROLE'), admin);
 
   // Domains
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+  const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
   const paymasterDomain = await getDomain(paymaster);
 
   const signUserOp = userOp =>
@@ -103,10 +107,10 @@ async function fixture() {
 
 describe('PaymasterERC20', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
-  describe('core paymaster behavior', async function () {
+  describe('core paymaster behavior', function () {
     beforeEach(async function () {
       await this.token.$_mint(this.account, value);
       await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
@@ -153,7 +157,7 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      const txPromise = predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+      const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
 
       // check main events (target call and sponsoring)
       await expect(txPromise)
@@ -170,23 +174,60 @@ describe('PaymasterERC20', function () {
       const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
       // check token balances moved as expected
       await expect(txPromise).to.changeTokenBalances(
+        ethers,
         this.token,
         this.tokenMovements.map(({ account }) => account),
         this.tokenMovements.map(({ factor = 0n, offset = 0n }) => offset + tokenAmount * factor),
       );
       // check that ether moved as expected
       await expect(txPromise).to.changeEtherBalances(
-        [predeploy.entrypoint.v09, this.receiver],
+        ethers,
+        [ethers.predeploy.entrypoint.v09, this.receiver],
         [-actualGasCost, actualGasCost],
       );
 
       // check token cost is within the expected values
       // skip gas consumption tests when running coverage (significantly affects the postOp costs)
-      if (!process.env.COVERAGE) {
+      if (!globalOptions.coverage) {
         expect(tokenAmount)
           .to.be.greaterThan(actualGasCost * 2n)
           .to.be.lessThan((actualGasCost * 2n * 110n) / 100n); // covers costs with no more than 10% overcost
       }
+    });
+
+    it('prices the postOp unused-gas penalty so an inflated paymasterPostOpGasLimit cannot drain the paymaster', async function () {
+      // fund account
+      await this.token.$_mint(this.account, value);
+      await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+
+      const signedUserOp = await this.account
+        .createUserOp({
+          ...this.userOp,
+          // user inflates the postOp gas limit far beyond what postOp actually consumes
+          paymasterPostOpGasLimit: 500_000n,
+          callData: this.account.interface.encodeFunctionData('execute', [
+            encodeMode({ callType: CALL_TYPE_BATCH }),
+            encodeBatch({
+              target: this.target,
+              data: this.target.interface.encodeFunctionData('mockFunctionExtra'),
+            }),
+          ]),
+        })
+        .then(op => this.paymasterSignUserOp(op, { tokenPrice: 2n * ethers.WeiPerEther }))
+        .then(op => this.signUserOp(op));
+
+      const logs = await ethers.predeploy.entrypoint.v09
+        .handleOps([signedUserOp.packed], this.receiver)
+        .then(tx => tx.wait())
+        .then(({ logs }) => logs.map(ev => this.paymaster.interface.parseLog(ev) ?? ev));
+
+      const { tokenAmount } = logs.find(ev => ev.fragment?.name == 'UserOperationSponsored').args;
+      const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
+
+      // The EntryPoint debits the paymaster's deposit `actualGasCost`, which *includes* the unused-gas penalty on
+      // the inflated postOp limit. The token charge (tokenPrice = 2) must cover it, i.e. the user pays for the
+      // penalty they induced rather than the paymaster subsidizing it out of its deposit.
+      expect(tokenAmount).to.be.greaterThanOrEqual(2n * actualGasCost);
     });
 
     it('reverts with PaymasterERC20FailedRefund when token refund fails', async function () {
@@ -223,19 +264,20 @@ describe('PaymasterERC20', function () {
         )
         .then(op => this.signUserOp(op));
 
-      const txPromise = predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+      const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
 
       // Reverted post op does not revert the operation
       const { logs } = await txPromise.then(tx => tx.wait());
       const [, , , postOpRevertReason] = logs.find(v => v.fragment?.name === 'PostOpRevertReason').args;
-      const postOpError = predeploy.entrypoint.v09.interface.parseError(postOpRevertReason);
+      const postOpError = ethers.predeploy.entrypoint.v09.interface.parseError(postOpRevertReason);
       expect(postOpError.name).to.eq('PostOpReverted');
       const [paymasterRevertReason] = postOpError.args;
       const { name, args } = this.paymaster.interface.parseError(paymasterRevertReason);
       expect(name).to.eq('PaymasterERC20FailedRefund');
       const [token, prefundAmount] = args;
       expect(token).to.eq(erc20Blocklist.target);
-      await expect(txPromise).changeTokenBalances(
+      await expect(txPromise).to.changeTokenBalances(
+        ethers,
         erc20Blocklist,
         [this.paymaster, signedUserOp.sender],
         [prefundAmount, -prefundAmount],
@@ -250,8 +292,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -266,8 +308,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -282,8 +324,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -296,8 +338,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.paymasterSignUserOp(op, { tokenPrice: 0n }))
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
   });
@@ -310,17 +352,56 @@ describe('PaymasterERC20', function () {
     it('withdraw some token', async function () {
       await expect(
         this.paymaster.connect(this.admin).withdrawTokens(this.token, this.receiver, 10n),
-      ).to.changeTokenBalances(this.token, [this.paymaster, this.receiver], [-10n, 10n]);
+      ).to.changeTokenBalances(ethers, this.token, [this.paymaster, this.receiver], [-10n, 10n]);
     });
 
     it('withdraw all token', async function () {
       await expect(
         this.paymaster.connect(this.admin).withdrawTokens(this.token, this.receiver, ethers.MaxUint256),
-      ).to.changeTokenBalances(this.token, [this.paymaster, this.receiver], [-value, value]);
+      ).to.changeTokenBalances(ethers, this.token, [this.paymaster, this.receiver], [-value, value]);
     });
 
     it('only admin can withdraw', async function () {
-      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.be.reverted;
+      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.revert(ethers);
+    });
+  });
+
+  describe('edge cases', function () {
+    it('_postOpGasPenalty prices the whole unused gas, without the EntryPoint threshold relief', async function () {
+      // The argument is an upper bound on the unused gas, so claiming the EntryPoint's 40_000 gas relief here
+      // could price the charge below what the EntryPoint actually debits.
+      await expect(this.paymaster.$_postOpGasPenalty(0n)).to.eventually.equal(0n);
+      await expect(this.paymaster.$_postOpGasPenalty(40_000n)).to.eventually.equal(4_000n);
+      await expect(this.paymaster.$_postOpGasPenalty(1_000_000n)).to.eventually.equal(100_000n);
+    });
+
+    it('_postOpGasBudget defaults to _postOpCost', async function () {
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymaster: this.paymaster })
+        .then(op => this.paymasterSignUserOp(op))
+        .then(op => this.signUserOp(op));
+
+      await expect(this.paymaster.$_postOpGasBudget(signedUserOp.packed)).to.eventually.equal(
+        await this.paymaster.$_postOpCost(),
+      );
+    });
+
+    it('_erc20Cost returns max uint256 without reverting when muldiv overflows', async function () {
+      const tokenPerNative = ethers.MaxUint256;
+      const nativeCost = ethers.MaxUint256;
+
+      await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('_erc20Cost rounds up without overflowing when the ceil result saturates', async function () {
+      // Values provided here make the floor division land exactly on type(uint256).max with a non-zero remainder.
+      // We check that the saturating addition that implements the rounding up does not overflow like the default
+      // `Math.mulDiv(..., Math.Rounding.Ceil)` would.
+      const denominator = await this.paymaster.$_tokenPerNativeDenominator();
+      const tokenPerNative = denominator + 1n;
+      const nativeCost = 0xffffffffffffffed8da22e2dbc54606ce862ed069eb19350550de6906b1de3b1n;
+
+      await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
     });
   });
 });

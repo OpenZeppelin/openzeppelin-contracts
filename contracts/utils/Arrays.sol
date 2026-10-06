@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/Arrays.sol)
-// This file was procedurally generated from scripts/generate/templates/Arrays.js.
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/Arrays.sol)
+// This file was procedurally generated from scripts/generate/templates/Arrays.sol.eta.
 
 pragma solidity ^0.8.24;
 
 import {Comparators} from "./Comparators.sol";
+import {Math} from "./math/Math.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
-import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.
@@ -57,6 +57,10 @@ library Arrays {
      * consume more gas than is available in a block, leading to potential DoS.
      *
      * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
+     *
+     * NOTE: `comp` receives the array entries verbatim, including any dirty (non-zero) upper bits. Solidity assumes
+     * `address` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
+     * A comparator that may be given dirty entries should mask them, as in `uint160(a) < uint160(b)`.
      */
     function sort(
         address[] memory array,
@@ -70,7 +74,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of address in increasing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
-        sort(_castToUint256Array(array), Comparators.lt);
+        sort(_castToUint256Array(array), _addressLt);
         return array;
     }
 
@@ -114,25 +118,33 @@ library Arrays {
      */
     function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
-            if (end - begin < 0x40) return;
+            while (end - begin > 0x20) {
+                // Use first element as pivot
+                uint256 pivot = _mload(begin);
+                // Position where the pivot should be at the end of the loop
+                uint256 pos = begin;
 
-            // Use first element as pivot
-            uint256 pivot = _mload(begin);
-            // Position where the pivot should be at the end of the loop
-            uint256 pos = begin;
+                for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                    if (comp(_mload(it), pivot)) {
+                        // If the value stored at the iterator's position comes before the pivot, we increment the
+                        // position of the pivot and move the value there.
+                        pos += 0x20;
+                        _swap(pos, it);
+                    }
+                }
 
-            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-                if (comp(_mload(it), pivot)) {
-                    // If the value stored at the iterator's position comes before the pivot, we increment the
-                    // position of the pivot and move the value there.
-                    pos += 0x20;
-                    _swap(pos, it);
+                _swap(begin, pos); // Swap pivot into place
+
+                // Recurse on the smaller partition, iterate on the larger one.
+                uint256 middle = pos + 0x20;
+                if (pos - begin < end - middle) {
+                    _quickSort(begin, pos, comp);
+                    begin = middle;
+                } else {
+                    _quickSort(middle, end, comp);
+                    end = pos;
                 }
             }
-
-            _swap(begin, pos); // Swap pivot into place
-            _quickSort(begin, pos, comp); // Sort the left side of the pivot
-            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
@@ -174,6 +186,11 @@ library Arrays {
             mstore(ptr1, value2)
             mstore(ptr2, value1)
         }
+    }
+
+    /// @dev Helper: strict comparison of two address values held in (potentially dirty) uint256 words
+    function _addressLt(uint256 a, uint256 b) private pure returns (bool) {
+        return uint160(a) < uint160(b);
     }
 
     /// @dev Helper: low level cast address memory array to uint256 memory array

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC20/extensions/ERC20Wrapper.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC20Wrapper.sol)
 
 pragma solidity ^0.8.20;
 
+import {Math} from "../../../utils/math/Math.sol";
 import {IERC20, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
-import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Extension of the ERC-20 token contract to support token wrapping.

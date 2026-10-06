@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.20;
 
+import {Hashes} from "../utils/cryptography/Hashes.sol";
 import {MerkleTree} from "../utils/structs/MerkleTree.sol";
 
 contract MerkleTreeMock {
@@ -48,5 +49,20 @@ contract MerkleTreeMock {
 
     function zeros(uint256 i) public view returns (bytes32) {
         return _tree._zeros[i];
+    }
+
+    // Non-commutative hashing variants using Hashes.efficientKeccak256.
+    // efficientKeccak256(a, b) = keccak256(abi.encode(a, b)) without sorting,
+    // so H(a,b) != H(b,a). This allows testing that MerkleTree correctly
+    // preserves insertion order when a non-commutative hash function is used.
+
+    function setupNonCommutative(uint8 _depth, bytes32 _zero) public {
+        root = _tree.setup(_depth, _zero, Hashes.efficientKeccak256);
+    }
+
+    function pushNonCommutative(bytes32 leaf) public {
+        (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf, Hashes.efficientKeccak256);
+        emit LeafInserted(leaf, leafIndex, currentRoot);
+        root = currentRoot;
     }
 }
