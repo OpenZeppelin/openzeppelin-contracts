@@ -60,7 +60,6 @@ contract VestingWallet is Context, Ownable, IERC6372 {
     }
 
     /// @inheritdoc IERC6372
-    // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
         return ERC6372Utils.timestampClockMode(clock());
     }
