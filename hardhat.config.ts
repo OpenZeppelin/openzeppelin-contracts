@@ -7,6 +7,7 @@ import hardhatIgnoreWarnings from 'hardhat-ignore-warnings';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
+import hardhatSlangSolx from '@nomicfoundation/hardhat-slang-solx';
 import hardhatDocgen from './hardhat/hardhat-solidity-docgen/plugin.ts';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
 import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
@@ -36,6 +37,7 @@ export default defineConfig({
     hardhatMocha,
     hardhatNetworkHelpers,
     hardhatPredeploy,
+    hardhatSlangSolx,
     // Local plugins
     hardhatDocgen,
     hardhatExposed,
@@ -46,15 +48,30 @@ export default defineConfig({
     sources: argv.src,
   },
   solidity: {
-    version: argv.compiler,
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: argv.runs,
+    profiles: {
+      default: {
+        version: argv.compiler,
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: argv.runs,
+          },
+          evmVersion: argv.evm,
+          viaIR: argv.ir,
+          outputSelection: { '*': { '*': ['storageLayout'] } },
+        },
       },
-      evmVersion: argv.evm,
-      viaIR: argv.ir,
-      outputSelection: { '*': { '*': ['storageLayout'] } },
+      // Experimental LLVM-based compiler, for faster local test builds only (`npm run test:slang-solx`).
+      // Only supports solidity 0.8.34 and the cancun, prague and osaka EVM versions.
+      'slang-solx': {
+        type: 'slang-solx',
+        version: '0.8.34',
+        settings: {
+          evmVersion: argv.evm,
+          viaIR: argv.ir,
+          outputSelection: { '*': { '*': ['storageLayout'] } },
+        },
+      },
     },
   },
   networks: {
