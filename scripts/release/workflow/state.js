@@ -1,10 +1,14 @@
-const { readPreState } = require('@changesets/pre');
-const { default: readChangesets } = require('@changesets/read');
-const { join } = require('path');
-const { fetch } = require('undici');
-const { version, name: packageName } = require(join(__dirname, '../../../contracts/package.json'));
+import { readPreState } from '@changesets/pre';
+import { readChangesets } from '@changesets/read';
+import fs from 'fs';
+import path from 'path';
+import { fetch } from 'undici';
 
-module.exports = async ({ github, context, core }) => {
+const { version, name: packageName } = JSON.parse(
+  fs.readFileSync(path.resolve(import.meta.dirname, '../../../contracts/package.json'), 'utf8'),
+);
+
+export default async ({ github, context, core }) => {
   const state = await getState({ github, context, core });
 
   function setOutput(key, value) {
@@ -89,21 +93,17 @@ async function getState({ github, context, core }) {
   return state;
 }
 
-// From https://github.com/changesets/action/blob/v1.4.1/src/readChangesetState.ts
+// From https://github.com/changesets/action/blob/v2.1.1/src/readChangesetState.ts
 async function readChangesetState(cwd = process.cwd()) {
   const preState = await readPreState(cwd);
-  const isInPreMode = preState !== undefined && preState.mode === 'pre';
+  const changesets = await readChangesets(cwd);
 
-  let changesets = await readChangesets(cwd);
-
-  if (isInPreMode) {
-    changesets = changesets.filter(x => !preState.changesets.includes(x.id));
-  }
-
-  return {
-    preState: isInPreMode ? preState : undefined,
-    changesets,
-  };
+  // In prerelease mode, the changesets that were already consumed by a previous `changeset version`
+  // live in `.changeset/pre/` and are still reported by `readChangesets`. They are not pending: they
+  // ship with the current release candidate, and only become releasable again on `changeset pre exit`.
+  return preState !== undefined && preState.mode === 'pre'
+    ? { preState, changesets: changesets.filter(changeset => !changeset.id.startsWith('pre/')) }
+    : { preState: undefined, changesets };
 }
 
 async function isPublishedOnNpm(packageName, version) {
