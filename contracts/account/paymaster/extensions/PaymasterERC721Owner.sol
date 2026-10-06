@@ -13,6 +13,13 @@ import {Paymaster} from "../Paymaster.sol";
  * This paymaster will sponsor user operations if the user has at least 1 token of the token specified
  * during construction.
  *
+ * WARNING: Holders are trusted with the paymaster's entire EntryPoint deposit. Sponsorship is unmetered: the holder
+ * sets every gas field of the user operation and the EntryPoint charges them in full at the operation's own gas
+ * price, so a holder bundling their own operation can extract the deposit as `beneficiary` profit. Ownership is
+ * only checked at validation time, so transiently held tokens qualify. Only use with collections whose holders are
+ * fully trusted, or override {_validatePaymasterUserOp} to bound sponsorship using `maxCost`. See {PaymasterSigner}
+ * for per-operation authorization.
+ *
  * NOTE: {_validatePaymasterUserOp} reads `token.balanceOf` during the validation phase, accessing storage in
  * an external contract. ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers
  * will reject these operations when the token contract is proxied or upgradeable. Stake the paymaster
