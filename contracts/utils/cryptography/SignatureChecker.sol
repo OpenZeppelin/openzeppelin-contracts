@@ -222,9 +222,8 @@ library SignatureChecker {
      *    `crossChainSignature` is empty.
      * 2. `structsArray[structIndex]` must be equal to `hash`. Verification fails otherwise.
      * 3. The EIP-712 domain is fetched from `application` using {IERC5267-eip712Domain}, and the domain separator is
-     *    built with the `fields` from `signature`. Verification fails if `application` has no code, if the call reverts,
-     *    or if `fields` sets any bit beyond the ones defined in ERC-5267. If `application` returns data that can't be
-     *    decoded, this function reverts.
+     *    built with the `fields` from `signature`. Verification fails if `fields` sets any bit beyond the ones defined
+     *    in ERC-5267.
      * 4. `crossChainSignature` is verified with {isValidSignatureNow-address-bytes32-bytes-} against the EIP-712
      *    typed data hash of the domain separator and `structHash(keccak256(abi.encodePacked(structsArray)))`.
      *
@@ -235,6 +234,10 @@ library SignatureChecker {
      *
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     *
+     * Requirements:
+     *
+     * - The `application` encoded in `signature` must implement {IERC5267-eip712Domain}.
      */
     function isValidCrossChainSignatureNow(
         address signer,
@@ -250,12 +253,10 @@ library SignatureChecker {
         ) = _tryParseCrossChainSignatureForValidation(hash, signature, structHash);
         if (structHash_ == bytes32(0)) return false;
 
-        (bool success, bytes32 domainSeparator) = _tryFetchDomainSeparator(application, fields);
         return
-            success &&
             isValidSignatureNow(
                 signer,
-                MessageHashUtils.toTypedDataHash(domainSeparator, structHash_),
+                MessageHashUtils.toTypedDataHash(_fetchDomainSeparator(application, fields), structHash_),
                 crossChainSignature
             );
     }
@@ -275,12 +276,10 @@ library SignatureChecker {
         ) = _tryParseCrossChainSignatureForValidationCalldata(hash, signature, structHash);
         if (structHash_ == bytes32(0)) return false;
 
-        (bool success, bytes32 domainSeparator) = _tryFetchDomainSeparator(application, fields);
         return
-            success &&
             isValidSignatureNowCalldata(
                 signer,
-                MessageHashUtils.toTypedDataHash(domainSeparator, structHash_),
+                MessageHashUtils.toTypedDataHash(_fetchDomainSeparator(application, fields), structHash_),
                 crossChainSignature
             );
     }
@@ -416,8 +415,12 @@ library SignatureChecker {
         uint16 structIndex;
         bytes32[] memory structsArray;
         (fields, structIndex, application, structsArray, crossChainSignature) = tryParseCrossChainSignature(signature);
-        if (crossChainSignature.length == 0 || structIndex >= structsArray.length || structsArray[structIndex] != hash)
-            return (0, address(0), new bytes(0), 0);
+        if (
+            crossChainSignature.length == 0 ||
+            uint8(fields) > 0x1f ||
+            structIndex >= structsArray.length ||
+            structsArray[structIndex] != hash
+        ) return (0, address(0), new bytes(0), 0);
         structHash_ = structHash(keccak256(abi.encodePacked(structsArray)));
     }
 
@@ -435,31 +438,26 @@ library SignatureChecker {
         (fields, structIndex, application, structsArray, crossChainSignature) = tryParseCrossChainSignatureCalldata(
             signature
         );
-        if (crossChainSignature.length == 0 || structIndex >= structsArray.length || structsArray[structIndex] != hash)
-            return (0, address(0), Calldata.emptyBytes(), 0);
+        if (
+            crossChainSignature.length == 0 ||
+            uint8(fields) > 0x1f ||
+            structIndex >= structsArray.length ||
+            structsArray[structIndex] != hash
+        ) return (0, address(0), Calldata.emptyBytes(), 0);
         structHash_ = structHash(keccak256(abi.encodePacked(structsArray)));
     }
 
-    /**
-     * @dev Builds the EIP-712 domain separator for the `fields` of the domain returned by `application`. Returns false
-     * if `fields` sets any bit beyond the ones defined in ERC-5267, if `application` has no code, or if the call to
-     * {IERC5267-eip712Domain} reverts.
-     */
-    function _tryFetchDomainSeparator(address application, bytes1 fields) private view returns (bool, bytes32) {
-        if (uint8(fields) > 0x1f || application.code.length == 0) return (false, 0);
-        try IERC5267(application).eip712Domain() returns (
-            bytes1,
+    function _fetchDomainSeparator(address application, bytes1 fields) private view returns (bytes32) {
+        (
+            ,
             string memory name,
             string memory version,
             uint256 chainId,
             address verifyingContract,
             bytes32 salt,
-            uint256[] memory
-        ) {
-            return (true, MessageHashUtils.toDomainSeparator(fields, name, version, chainId, verifyingContract, salt));
-        } catch {
-            return (false, 0);
-        }
+
+        ) = IERC5267(application).eip712Domain();
+        return MessageHashUtils.toDomainSeparator(fields, name, version, chainId, verifyingContract, salt);
     }
 
     // slither-disable-next-line write-after-write

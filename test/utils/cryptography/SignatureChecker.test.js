@@ -612,20 +612,20 @@ describe('SignatureChecker (ERC7964)', function () {
             await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
           });
 
-          it('with application without code', async function () {
+          it('reverts with application without code', async function () {
             const signature = await this.encodeCrossChain({
               application: this.other.address,
               crossChainSignature: await this.signCrossChain(),
             });
-            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
+            await expect(this.app[fn](this.signer, VALUE, signature)).to.be.revertedWithoutReason(ethers);
           });
 
-          it('with application that reverts', async function () {
+          it('reverts with application that does not implement ERC-5267', async function () {
             const signature = await this.encodeCrossChain({
-              application: this.mock, // does not implement ERC-5267
+              application: this.mock,
               crossChainSignature: await this.signCrossChain(),
             });
-            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
+            await expect(this.app[fn](this.signer, VALUE, signature)).to.be.revertedWithoutReason(ethers);
           });
 
           it('with empty crosschain signature', async function () {
