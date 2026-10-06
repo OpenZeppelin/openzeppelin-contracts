@@ -109,8 +109,8 @@ export class UserOperation {
     };
   }
 
-  hash(entrypoint) {
-    return entrypoint.getUserOpHash(this.packed);
+  hash(entrypoint, overrides = {}) {
+    return entrypoint.getUserOpHash({ ...this.packed, ...overrides });
   }
 }
 
@@ -145,7 +145,7 @@ export class ERC4337Helper {
       const delegate = await accountFactory.deploy(...extraArgs);
       const instance = await params.eip7702signer.getAddress().then(address => accountFactory.attach(address));
       const authorization = await params.eip7702signer.authorize({ address: delegate.target });
-      return new EIP7702SmartAccount(instance, authorization, env);
+      return new EIP7702SmartAccount(instance, authorization, env, delegate);
     } else {
       const initCode = await accountFactory
         .getDeployTransaction(...extraArgs)
@@ -194,9 +194,10 @@ class SmartAccount extends ethers.BaseContract {
 }
 
 class EIP7702SmartAccount extends SmartAccount {
-  constructor(instance, authorization, env) {
+  constructor(instance, authorization, env, delegate) {
     super(instance, undefined, env);
     this.authorization = authorization;
+    this.delegate = delegate;
   }
 
   deploy() {
@@ -228,7 +229,7 @@ class UserOperationWithContext extends UserOperation {
     } else throw new Error('No EIP-7702 authorization available for the sender of this user operation');
   }
 
-  hash() {
-    return super.hash(this._env.entrypoint);
+  hash(overrides = {}) {
+    return super.hash(this._env.entrypoint, overrides);
   }
 }
