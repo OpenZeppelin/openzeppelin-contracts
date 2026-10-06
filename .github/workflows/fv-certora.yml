@@ -130,7 +130,6 @@ jobs:
         with:
           configurations: ${{ steps.prepare.outputs.configs }}
           cli-version: ${{ steps.prepare.outputs.cli-version }}
-          # Same as SOLC_DEFAULT_VERSION in .github/actions/setup; the first version is exposed as `solc`
           solc-versions: 0.8.35
           job-name: Formal verification
           certora-key: ${{ secrets.CERTORAKEY }}
