@@ -6,7 +6,6 @@ pragma solidity ^0.8.24;
 import {Calldata} from "../../../utils/Calldata.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
-import {Memory} from "../../../utils/Memory.sol";
 import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {Paymaster} from "../Paymaster.sol";
 
