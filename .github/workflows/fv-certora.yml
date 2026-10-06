@@ -133,3 +133,15 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The action reports a failed submission as a pull request comment, and never removes it: a later
+      # run edits it only if it fails too. Delete it once a submission goes through, so it doesn't
+      # outlive the failure it describes.
+      - name: Remove stale failure reports
+        if: github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- add-pr-comment:"))) | .id' |
+            xargs -r -I{} gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/comments/{}"
