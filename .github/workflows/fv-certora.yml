@@ -125,11 +125,7 @@ jobs:
           [[ -n $SOLC ]] || { echo "::error::could not read the default compiler version from hardhat.config.ts"; exit 1; }
           echo "solc-version=$SOLC" >> "$GITHUB_OUTPUT"
           # The action takes one config per line, not a JSON array
-          {
-            echo 'configs<<EOF'
-            jq -r '.[]' <<< "$CONFIGS"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
+          jq -r '"configs<<EOF", .[], "EOF"' <<< "$CONFIGS" >> "$GITHUB_OUTPUT"
       - name: Submit verification jobs to Certora Prover
         uses: Certora/certora-run-action@v2
         with:
