@@ -27,6 +27,15 @@ function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => 
   return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
 }
 
+// Hardhat build-info source names (the keys of `input.sources`, `output.sources` and
+// `output.contracts`) are always POSIX paths regardless of the host OS. `path.relative` returns
+// OS-specific separators (e.g. backslashes on Windows), so normalize them to POSIX before comparing
+// against those source names. This is the same normalization used by `hardhat-exposed`
+// (`internal/expose.ts`: `path.relative(config.paths.root, dir).replaceAll(path.sep, '/')`).
+export function normalizeSourcePath(p: string): string {
+  return p.split(path.sep).join('/');
+}
+
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
   assert(settings, 'Transpile settings file must be provided');
   const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
@@ -55,7 +64,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       .then(JSON.parse);
 
     const mainSources = hre.config.paths.sources.solidity.at(0)!;
-    const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
+    const mainSourcesRel = normalizeSourcePath(path.relative(hre.config.paths.root, mainSources));
 
     // Adjust paths to match transpiler expectations
     input.sources = filterRecord(
