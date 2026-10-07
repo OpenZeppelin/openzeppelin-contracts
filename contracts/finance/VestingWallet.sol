@@ -109,7 +109,7 @@ contract VestingWallet is Context, Ownable, IERC6372 {
      * @dev Getter for the amount of releasable eth.
      */
     function releasable() public view virtual returns (uint256) {
-        return vestedAmount(uint64(block.timestamp)) - released();
+        return vestedAmount(clock()) - released();
     }
 
     /**
@@ -117,7 +117,7 @@ contract VestingWallet is Context, Ownable, IERC6372 {
      * {IERC20} contract.
      */
     function releasable(address token) public view virtual returns (uint256) {
-        return vestedAmount(token, uint64(block.timestamp)) - released(token);
+        return vestedAmount(token, clock()) - released(token);
     }
 
     /**
