@@ -172,7 +172,7 @@ class SmartAccount extends ethers.BaseContract {
     super(instance.target, instance.interface, instance.runner, instance.deployTx);
     this.address = instance.target;
     this.initCode = initCode;
-    this._env = env;
+    this.env = env;
   }
 
   async deploy(account = this.runner) {
@@ -183,13 +183,13 @@ class SmartAccount extends ethers.BaseContract {
 
   async createUserOp(userOp = {}) {
     userOp.sender ??= this;
-    userOp.nonce ??= await this._env.entrypoint.getNonce(userOp.sender, 0);
+    userOp.nonce ??= await this.env.entrypoint.getNonce(userOp.sender, 0);
     if (ethers.isAddressable(userOp.paymaster)) {
       userOp.paymaster = await ethers.resolveAddress(userOp.paymaster);
       userOp.paymasterVerificationGasLimit ??= 100_000n;
       userOp.paymasterPostOpGasLimit ??= 100_000n;
     }
-    return new UserOperationWithContext(userOp, this._env);
+    return new UserOperationWithContext(userOp);
   }
 }
 
@@ -211,10 +211,9 @@ class EIP7702SmartAccount extends SmartAccount {
 }
 
 class UserOperationWithContext extends UserOperation {
-  constructor(userOp, env) {
+  constructor(userOp) {
     super(userOp);
     this._sender = userOp.sender;
-    this._env = env;
   }
 
   addInitCode() {
@@ -230,6 +229,6 @@ class UserOperationWithContext extends UserOperation {
   }
 
   hash(overrides = {}) {
-    return super.hash(this._env.entrypoint, overrides);
+    return super.hash(this._sender.env.entrypoint, overrides);
   }
 }

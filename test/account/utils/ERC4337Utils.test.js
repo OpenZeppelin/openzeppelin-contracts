@@ -611,7 +611,7 @@ describe('ERC4337Utils', function () {
           ethers.keccak256(undelegatedSubstitution),
         );
         await expect(this.userOp.hash({ initCode }))
-          .to.be.revertedWithCustomError(this.userOp._env.entrypoint, 'Eip7702SenderWithoutCode')
+          .to.be.revertedWithCustomError(this.account.env.entrypoint, 'Eip7702SenderWithoutCode')
           .withArgs(this.account);
 
         // After delegation
