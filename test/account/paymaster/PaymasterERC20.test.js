@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
 import { formatType, PackedUserOperation } from '../../helpers/eip712-types';
-import { ERC4337Helper } from '../../helpers/erc4337';
+import { ERC4337Helper, packValidationData } from '../../helpers/erc4337';
 import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
 import { shouldBehaveLikePaymaster } from './Paymaster.behavior';
 
@@ -402,6 +402,27 @@ describe('PaymasterERC20', function () {
       const nativeCost = 0xffffffffffffffed8da22e2dbc54606ce862ed069eb19350550de6906b1de3b1n;
 
       await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('_validatePaymasterUserOp fails early when _erc20Cost saturates to max', async function () {
+      await this.token.$_mint(this.account, ethers.MaxUint256);
+      await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymaster: this.paymaster })
+        .then(op => this.paymasterSignUserOp(op))
+        .then(op => this.signUserOp(op));
+      const userOpHash = await signedUserOp.hash();
+
+      // Validation fails early with saturated maxCost
+      await expect(this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, userOpHash, ethers.MaxUint256))
+        .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
+        .withArgs('0x', packValidationData(0n, 0n, false));
+
+      // Otherwise validation passes
+      await expect(this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, userOpHash, 0n))
+        .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
+        .withArgs(anyValue, packValidationData(0n, 0n, true));
     });
   });
 });
