@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (crosschain/bridges/abstract/BridgeFungible.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/abstract/BridgeFungible.sol)
 
 pragma solidity ^0.8.26;
 
-import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {Context} from "../../../utils/Context.sol";
-import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 
 /**
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.

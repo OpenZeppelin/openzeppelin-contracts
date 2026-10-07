@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (account/extensions/draft-ERC7821.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector} from "../utils/draft-ERC7579Utils.sol";
 import {IERC7821} from "../../interfaces/draft-IERC7821.sol";
 import {Account} from "../Account.sol";
+import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector} from "../utils/draft-ERC7579Utils.sol";
 
 /**
  * @dev Minimal batch executor following ERC-7821.

@@ -1,9 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { getDomain, domainSeparator, hashTypedData } from '../../helpers/eip712';
+import { formatType } from '../../helpers/eip712-types';
+import * as random from '../../helpers/random';
 
-const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { formatType } = require('../../helpers/eip712-types');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const name = 'A Name';
 const version = '1';
@@ -32,7 +36,7 @@ describe('EIP712', function () {
       it('is internally available', async function () {
         const expected = await domainSeparator(this.domain);
 
-        expect(await this.eip712.$_domainSeparatorV4()).to.equal(expected);
+        await expect(this.eip712.$_domainSeparatorV4()).to.eventually.equal(expected);
       });
 
       it("can be rebuilt using EIP-5267's eip712Domain", async function () {
@@ -50,16 +54,18 @@ describe('EIP712', function () {
           .then(address => ethers.getContractAt('$EIP712Verifier', address));
 
         const expectedDomain = { ...this.domain, verifyingContract: clone.target };
-        expect(await getDomain(clone)).to.be.deep.equal(expectedDomain);
+        await expect(getDomain(clone)).to.eventually.deep.equal(expectedDomain);
 
         const expectedSeparator = await domainSeparator(expectedDomain);
-        expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
+        await expect(clone.$_domainSeparatorV4()).to.eventually.equal(expectedSeparator);
       });
     });
 
     it('hash digest', async function () {
-      const structhash = ethers.hexlify(ethers.randomBytes(32));
-      expect(await this.eip712.$_hashTypedDataV4(structhash)).to.equal(hashTypedData(this.domain, structhash));
+      const structhash = random.bytes32();
+      await expect(this.eip712.$_hashTypedDataV4(structhash)).to.eventually.equal(
+        hashTypedData(this.domain, structhash),
+      );
     });
 
     it('digest', async function () {
@@ -77,15 +83,17 @@ describe('EIP712', function () {
 
       const signature = await this.from.signTypedData(this.domain, types, message);
 
-      await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.not.be.reverted;
+      await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.be.not.revert(
+        ethers,
+      );
     });
 
     it('name', async function () {
-      expect(await this.eip712.$_EIP712Name()).to.equal(name);
+      await expect(this.eip712.$_EIP712Name()).to.eventually.equal(name);
     });
 
     it('version', async function () {
-      expect(await this.eip712.$_EIP712Version()).to.equal(version);
+      await expect(this.eip712.$_EIP712Version()).to.eventually.equal(version);
     });
   });
 

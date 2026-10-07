@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/EIP712.sol)
 
 pragma solidity ^0.8.24;
 
-import {MessageHashUtils} from "./MessageHashUtils.sol";
-import {ShortStrings, ShortString} from "../ShortStrings.sol";
 import {IERC5267} from "../../interfaces/IERC5267.sol";
+import {ShortStrings, ShortString} from "../ShortStrings.sol";
+import {MessageHashUtils} from "./MessageHashUtils.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP-712] is a standard for hashing and signing of typed structured data.

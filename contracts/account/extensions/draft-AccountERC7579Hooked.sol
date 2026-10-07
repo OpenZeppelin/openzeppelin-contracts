@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (account/extensions/draft-AccountERC7579Hooked.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (account/extensions/draft-AccountERC7579Hooked.sol)
 
 pragma solidity ^0.8.26;
 
 import {IERC7579Hook, MODULE_TYPE_HOOK} from "../../interfaces/draft-IERC7579.sol";
-import {ERC7579Utils, Mode} from "../../account/utils/draft-ERC7579Utils.sol";
+import {ERC7579Utils, Mode} from "../utils/draft-ERC7579Utils.sol";
 import {AccountERC7579} from "./draft-AccountERC7579.sol";
 
 /**

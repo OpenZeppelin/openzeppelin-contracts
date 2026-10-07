@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/utils/ERC1155Utils.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC1155/utils/ERC1155Utils.sol)
 
 pragma solidity ^0.8.20;
 
+import {IERC1155Errors} from "../../../interfaces/IERC6093.sol";
 import {IERC1155Receiver} from "../IERC1155Receiver.sol";
-import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Library that provide common ERC-1155 utility functions.

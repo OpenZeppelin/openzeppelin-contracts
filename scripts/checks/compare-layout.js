@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
+import fs from 'fs';
+import { getStorageUpgradeReport } from '@openzeppelin/upgrades-core/dist/storage/index.js';
 
-const { hideBin } = require('yargs/helpers');
-const { argv } = require('yargs/yargs')(hideBin(process.argv))
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
+const { argv } = yargs(hideBin(process.argv))
   .env('')
   .options({
     ref: { type: 'string', required: true },

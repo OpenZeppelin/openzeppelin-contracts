@@ -3,14 +3,14 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC6909} from "../ERC6909.sol";
 import {IERC6909ContentURI} from "../../../interfaces/IERC6909.sol";
 import {IERC165} from "../../../utils/introspection/IERC165.sol";
+import {ERC6909} from "../ERC6909.sol";
 
 /**
  * @dev Implementation of the Content URI extension defined in ERC6909.
  */
-contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
+abstract contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     string private _contractURI;
     mapping(uint256 id => string) private _tokenURIs;
 

@@ -2,9 +2,9 @@
 
 // This script removes the build artifacts of ignored contracts.
 
-const fs = require('fs');
-const path = require('path');
-const match = require('micromatch');
+import fs from 'fs';
+import path from 'path';
+import match from 'micromatch';
 
 function readJSON(path) {
   return JSON.parse(fs.readFileSync(path));
@@ -25,14 +25,14 @@ const ignorePatternsSubtrees = ignorePatterns
 
 const artifactsDir = 'contracts/build/contracts';
 const buildinfo = 'artifacts/build-info';
-const filenames = fs.readdirSync(buildinfo);
+const filenames = fs.readdirSync(buildinfo).filter(filename => match.isMatch(filename, '*.output.json'));
 
 let n = 0;
 
 for (const filename of filenames) {
   const solcOutput = readJSON(path.join(buildinfo, filename)).output;
   for (const sourcePath in solcOutput.contracts) {
-    const ignore = match.any(sourcePath, ignorePatternsSubtrees);
+    const ignore = match.any(sourcePath.replace(/^project\//, ''), ignorePatternsSubtrees);
     if (ignore) {
       for (const contract in solcOutput.contracts[sourcePath]) {
         fs.unlinkSync(path.join(artifactsDir, contract + '.json'));

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/extensions/PaymasterSigner.sol)
 
 pragma solidity ^0.8.24;
 
-import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
-import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
-import {EIP712} from "../../../utils/cryptography/EIP712.sol";
-import {Paymaster} from "../Paymaster.sol";
 import {Calldata} from "../../../utils/Calldata.sol";
+import {EIP712} from "../../../utils/cryptography/EIP712.sol";
+import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
+import {Paymaster} from "../Paymaster.sol";
 
 /**
  * @dev Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
@@ -31,6 +32,9 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
      * @dev Virtual function that returns the signable hash for a user operations. Given the `userOpHash`
      * contains the `paymasterAndData` itself, it's not possible to sign that value directly. Instead,
      * this function must be used to provide a custom mechanism to authorize an user operation.
+     *
+     * The `initCode` component of the digest uses {ERC4337Utils-initCodeHash}, which mirrors the
+     * {IEntryPoint}'s EIP-7702 substitution.
      */
     function _signableUserOpHash(
         PackedUserOperation calldata userOp,
@@ -44,7 +48,7 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
                         USER_OPERATION_REQUEST_TYPEHASH,
                         userOp.sender,
                         userOp.nonce,
-                        keccak256(userOp.initCode),
+                        userOp.initCodeHash(),
                         keccak256(userOp.callData),
                         userOp.accountGasLimits,
                         userOp.preVerificationGas,
@@ -72,8 +76,8 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         (uint48 validAfter, uint48 validUntil, bytes calldata signature) = _decodePaymasterUserOp(userOp);
 
-        // Mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
-        bool rangeFlagsCompatible = (validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0;
+        // If validUntil is non-zero, mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
+        bool rangeFlagsCompatible = validUntil == 0 || ((validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0);
 
         return (
             bytes(""),

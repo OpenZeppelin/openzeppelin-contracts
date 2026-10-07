@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorTimelockCompound.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorTimelockCompound.sol)
 
 pragma solidity ^0.8.24;
 
-import {IGovernor, Governor} from "../Governor.sol";
-import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
 import {Address} from "../../utils/Address.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
