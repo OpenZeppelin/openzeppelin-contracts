@@ -47,20 +47,20 @@ async function fixture() {
   // [0x00:0x14                      ] token                 (IERC20)
   // [0x14:0x1a                      ] validAfter            (uint48)
   // [0x1a:0x20                      ] validUntil            (uint48)
-  // [0x20:0x40                      ] tokenPrice            (uint256)
+  // [0x20:0x40                      ] tokenPerNative        (uint256)
   // [0x40:0x54                      ] oracle                (address)
   // [0x54:0x56                      ] oracleSignatureLength (uint16)
   // [0x56:0x56+oracleSignatureLength] oracleSignature       (bytes)
   const paymasterSignUserOp =
     oracle =>
-    (userOp, { validAfter = 0n, validUntil = 0n, tokenPrice = ethers.WeiPerEther, erc20 = token } = {}) => {
+    (userOp, { validAfter = 0n, validUntil = 0n, tokenPerNative = ethers.WeiPerEther, erc20 = token } = {}) => {
       userOp.paymasterData = ethers.solidityPacked(
         ['address', 'uint48', 'uint48', 'uint256', 'address'],
         [
           erc20.target ?? erc20.address ?? erc20,
           validAfter,
           validUntil,
-          tokenPrice,
+          tokenPerNative,
           oracle.target ?? oracle.address ?? oracle,
         ],
       );
@@ -72,14 +72,14 @@ async function fixture() {
               token: 'address',
               validAfter: 'uint48',
               validUntil: 'uint48',
-              tokenPrice: 'uint256',
+              tokenPerNative: 'uint256',
             }),
           },
           {
             token: erc20.target ?? erc20.address ?? erc20,
             validAfter,
             validUntil,
-            tokenPrice,
+            tokenPerNative,
           },
         ),
       ]).then(([oracleSignature]) => {
@@ -151,7 +151,7 @@ describe('PaymasterERC20', function () {
         })
         .then(op =>
           this.paymasterSignUserOp(op, {
-            tokenPrice: 2n * ethers.WeiPerEther,
+            tokenPerNative: 2n * ethers.WeiPerEther,
           }),
         )
         .then(op => this.signUserOp(op));
@@ -213,7 +213,7 @@ describe('PaymasterERC20', function () {
             }),
           ]),
         })
-        .then(op => this.paymasterSignUserOp(op, { tokenPrice: 2n * ethers.WeiPerEther }))
+        .then(op => this.paymasterSignUserOp(op, { tokenPerNative: 2n * ethers.WeiPerEther }))
         .then(op => this.signUserOp(op));
 
       const logs = await ethers.predeploy.entrypoint.v09
@@ -225,7 +225,7 @@ describe('PaymasterERC20', function () {
       const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
 
       // The EntryPoint debits the paymaster's deposit `actualGasCost`, which *includes* the unused-gas penalty on
-      // the inflated postOp limit. The token charge (tokenPrice = 2) must cover it, i.e. the user pays for the
+      // the inflated postOp limit. The token charge (tokenPerNative = 2) must cover it, i.e. the user pays for the
       // penalty they induced rather than the paymaster subsidizing it out of its deposit.
       expect(tokenAmount).to.be.greaterThanOrEqual(2n * actualGasCost);
     });
@@ -258,7 +258,7 @@ describe('PaymasterERC20', function () {
         })
         .then(op =>
           this.paymasterSignUserOp(op, {
-            tokenPrice: 2n * ethers.WeiPerEther,
+            tokenPerNative: 2n * ethers.WeiPerEther,
             erc20: erc20Blocklist,
           }),
         )
@@ -329,13 +329,13 @@ describe('PaymasterERC20', function () {
         .withArgs(0n, 'AA34 signature error');
     });
 
-    it('rejects tokenPrice below _minTokenPrice', async function () {
+    it('rejects tokenPerNative below _minTokensPerNative', async function () {
       await this.token.$_mint(this.account, value);
       await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
 
       const signedUserOp = await this.account
         .createUserOp(this.userOp)
-        .then(op => this.paymasterSignUserOp(op, { tokenPrice: 0n }))
+        .then(op => this.paymasterSignUserOp(op, { tokenPerNative: 0n }))
         .then(op => this.signUserOp(op));
 
       await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
@@ -408,21 +408,35 @@ describe('PaymasterERC20', function () {
       await this.token.$_mint(this.account, ethers.MaxUint256);
       await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
 
-      const signedUserOp = await this.account
-        .createUserOp({ ...this.userOp, paymaster: this.paymaster })
-        .then(op => this.paymasterSignUserOp(op))
-        .then(op => this.signUserOp(op));
-      const userOpHash = await signedUserOp.hash();
+      const userOpPromise = this.account.createUserOp({ ...this.userOp, paymaster: this.paymaster });
 
       // Validation fails early with saturated maxCost
-      await expect(this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, userOpHash, ethers.MaxUint256))
-        .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
-        .withArgs('0x', packValidationData(0n, 0n, false));
+      {
+        const signedUserOp = await userOpPromise
+          .then(op => this.paymasterSignUserOp(op, { tokenPerNative: ethers.MaxUint256 }))
+          .then(op => this.signUserOp(op));
+
+        // Max cost is 1Ξ, which translates to "tokenPerNative" tokens -- here explicitly set to max value which causes the erc20Cost to saturate.
+        await expect(
+          this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, await signedUserOp.hash(), ethers.WeiPerEther),
+        )
+          .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
+          .withArgs('0x', packValidationData(0n, 0n, false));
+      }
 
       // Otherwise validation passes
-      await expect(this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, userOpHash, 0n))
-        .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
-        .withArgs(anyValue, packValidationData(0n, 0n, true));
+      {
+        const signedUserOp = await userOpPromise
+          .then(op => this.paymasterSignUserOp(op))
+          .then(op => this.signUserOp(op));
+
+        // Max cost is 1Ξ, which translates to "tokenPerNative" tokens -- here default value = 1 token, no saturation
+        await expect(
+          this.paymaster.$_validatePaymasterUserOp(signedUserOp.packed, await signedUserOp.hash(), ethers.WeiPerEther),
+        )
+          .to.emit(this.paymaster, 'return$_validatePaymasterUserOp')
+          .withArgs(anyValue, packValidationData(0n, 0n, true));
+      }
     });
   });
 });

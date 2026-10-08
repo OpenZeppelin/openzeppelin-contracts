@@ -14,7 +14,7 @@ import {PaymasterERC20Guarantor} from "../../../account/paymaster/extensions/Pay
  * * [0x00:0x14                      ] token                 (IERC20)
  * * [0x14:0x1a                      ] validAfter            (uint48)
  * * [0x1a:0x20                      ] validUntil            (uint48)
- * * [0x20:0x40                      ] tokenPrice            (uint256)
+ * * [0x20:0x40                      ] tokenPerNative        (uint256)
  * * [0x40:0x54                      ] oracle                (address)
  * * [0x54:0x56                      ] oracleSignatureLength (uint16)
  * * [0x56:0x56+oracleSignatureLength] oracleSignature       (bytes)
@@ -25,12 +25,12 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     bytes32 private constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
     bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
     bytes32 private constant TOKEN_PRICE_TYPEHASH =
-        keccak256("TokenPrice(address token,uint48 validAfter,uint48 validUntil,uint256 tokenPrice)");
+        keccak256("TokenPrice(address token,uint48 validAfter,uint48 validUntil,uint256 tokenPerNative)");
 
     function _fetchDetails(
         PackedUserOperation calldata userOp,
         bytes32 /* userOpHash */
-    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPerNative) {
         bytes calldata paymasterData = userOp.paymasterData();
 
         // parse oracle and oracle signature
@@ -43,14 +43,14 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
         token = IERC20(address(bytes20(paymasterData[0x00:0x14])));
         uint48 validAfter = uint48(bytes6(paymasterData[0x14:0x1a]));
         uint48 validUntil = uint48(bytes6(paymasterData[0x1a:0x20]));
-        tokenPrice = uint256(bytes32(paymasterData[0x20:0x40]));
+        tokenPerNative = uint256(bytes32(paymasterData[0x20:0x40]));
 
         // verify signature
         validationData = SignatureChecker
             .isValidSignatureNow(
                 oracle,
                 _hashTypedDataV4(
-                    keccak256(abi.encode(TOKEN_PRICE_TYPEHASH, token, validAfter, validUntil, tokenPrice))
+                    keccak256(abi.encode(TOKEN_PRICE_TYPEHASH, token, validAfter, validUntil, tokenPerNative))
                 ),
                 paymasterData[0x56:0x56 + uint16(bytes2(paymasterData[0x54:0x56]))]
             )
@@ -133,7 +133,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
     function _refund(
         IERC20 token,
         uint256 actualAmount,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         uint256 actualUserOpFeePerGas,
         address prefunder,
         uint256 prefundAmount,
@@ -143,7 +143,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
             super._refund(
                 token,
                 actualAmount,
-                tokenPrice,
+                tokenPerNative,
                 actualUserOpFeePerGas,
                 prefunder,
                 prefundAmount,
@@ -155,7 +155,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         address prefunder_,
         uint256 prefundAmount
     )
@@ -164,7 +164,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         override(PaymasterERC20, PaymasterERC20Guarantor)
         returns (bool prefunded, address prefunder, uint256, bytes memory prefundContext)
     {
-        return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount);
+        return super._prefund(userOp, userOpHash, token, tokenPerNative, prefunder_, prefundAmount);
     }
 
     function _getStructHashWithoutOracleAndGuarantorSignature(
@@ -181,7 +181,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
                     userOp.accountGasLimits,
                     userOp.preVerificationGas,
                     userOp.gasFees,
-                    keccak256(userOp.paymasterAndData[:0x88]) // 0x34 (paymasterDataOffset) + 0x54 (token + validAfter + validUntil + tokenPrice + oracle)
+                    keccak256(userOp.paymasterAndData[:0x88]) // 0x34 (paymasterDataOffset) + 0x54 (token + validAfter + validUntil + tokenPerNative + oracle)
                 )
             );
     }
@@ -202,7 +202,7 @@ abstract contract PaymasterERC20ReducingMock is PaymasterERC20 {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         address prefunder_,
         uint256 prefundAmount_
     ) internal virtual override returns (bool, address, uint256, bytes memory) {
@@ -211,7 +211,7 @@ abstract contract PaymasterERC20ReducingMock is PaymasterERC20 {
                 userOp,
                 userOpHash,
                 token,
-                tokenPrice,
+                tokenPerNative,
                 prefunder_,
                 prefundAmount_ == 0 ? 0 : prefundAmount_ - 1
             );
@@ -219,7 +219,7 @@ abstract contract PaymasterERC20ReducingMock is PaymasterERC20 {
 
     function _refund(
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         uint256 actualAmount_,
         uint256 actualUserOpFeePerGas,
         address prefunder,
@@ -229,7 +229,7 @@ abstract contract PaymasterERC20ReducingMock is PaymasterERC20 {
         return
             super._refund(
                 token,
-                tokenPrice,
+                tokenPerNative,
                 actualAmount_ == 0 ? 0 : actualAmount_ - 1,
                 actualUserOpFeePerGas,
                 prefunder,
@@ -265,7 +265,7 @@ contract PaymasterERC20GuarantorReducingMock is PaymasterERC20ReducingMock, Paym
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         address prefunder_,
         uint256 prefundAmount_
     )
@@ -274,12 +274,12 @@ contract PaymasterERC20GuarantorReducingMock is PaymasterERC20ReducingMock, Paym
         override(PaymasterERC20ReducingMock, PaymasterERC20Guarantor)
         returns (bool, address, uint256, bytes memory)
     {
-        return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount_);
+        return super._prefund(userOp, userOpHash, token, tokenPerNative, prefunder_, prefundAmount_);
     }
 
     function _refund(
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 tokenPerNative,
         uint256 actualAmount_,
         uint256 actualUserOpFeePerGas,
         address prefunder,
@@ -289,7 +289,7 @@ contract PaymasterERC20GuarantorReducingMock is PaymasterERC20ReducingMock, Paym
         return
             super._refund(
                 token,
-                tokenPrice,
+                tokenPerNative,
                 actualAmount_,
                 actualUserOpFeePerGas,
                 prefunder,
