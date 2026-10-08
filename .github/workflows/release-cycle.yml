@@ -132,7 +132,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      issues: write
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -151,12 +150,14 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
+      - name: Upgrade npm
+        # OIDC trusted publishing of dist-tags requires npm >= 11.21.0
+        run: npm install -g npm@^11.21.0
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-          GH_TOKEN: ${{ github.token }}
       - name: Create Github Release
         uses: actions/github-script@v9
         env:
