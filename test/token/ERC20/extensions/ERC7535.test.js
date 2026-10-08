@@ -79,16 +79,29 @@ describe('ERC7535', function () {
       await expect(this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost })).to.not.revert(ethers);
     });
 
-    it('mint keeps the excess as a donation when msg.value > cost', async function () {
+    it('mint refunds the excess when msg.value > cost', async function () {
       const shares = ethers.parseEther('1');
       const cost = await this.vault.previewMint(shares);
       const extra = ethers.parseEther('0.5');
 
       const tx = this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost + extra });
 
-      await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-(cost + extra), cost + extra]);
+      await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-cost, cost]);
       await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, shares);
-      await expect(this.vault.totalAssets()).to.eventually.equal(cost + extra);
+      await expect(this.vault.totalAssets()).to.eventually.equal(cost);
+    });
+
+    it('mint refund does not expose an inflated share price to reentrant calls', async function () {
+      const unit = 10n ** decimals;
+      await this.vault.connect(this.holder).deposit(0n, this.holder, { value: ethers.parseEther('1') });
+      const price = await this.vault.convertToAssets(unit);
+
+      const reentrant = await ethers.deployContract('ERC7535ReentrantMock', [this.vault]);
+      const shares = ethers.parseEther('1');
+      const cost = await this.vault.previewMint(shares);
+      await reentrant.mint(shares, { value: cost + 1n });
+
+      await expect(reentrant.observedAssets()).to.eventually.equal(price);
     });
   });
 

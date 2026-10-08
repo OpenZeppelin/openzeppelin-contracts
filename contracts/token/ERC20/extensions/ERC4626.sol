@@ -315,7 +315,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /// ERC-7535) can receive it as `msg.value`. The default implementation, used by ERC-20 vaults, expects no
     /// native value and reverts if any is sent — preserving the behavior of a non-`payable` entry point. Native
     /// asset vaults override this to require `msg.value` to cover the deposited amount.
-    function _checkPayment(uint256) internal virtual {
+    function _checkPayment(uint256) internal view virtual {
         if (msg.value != 0) revert ERC4626UnexpectedNativeValue(msg.value);
     }
 

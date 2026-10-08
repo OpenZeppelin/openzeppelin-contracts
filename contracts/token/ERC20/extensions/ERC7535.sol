@@ -46,8 +46,7 @@ import {ERC4626} from "./ERC4626.sol";
  *
  * NOTE: `deposit(assets, receiver)` deposits the entire `msg.value` and mints `previewDeposit(msg.value)` shares,
  * ignoring the `assets` argument (per ERC-7535). `mint(shares, receiver)` requires `msg.value` to be at least the
- * previewed cost; any excess `msg.value` on a `mint` is kept by the vault as a donation, raising the share price
- * for existing holders.
+ * previewed cost; any excess `msg.value` on a `mint` is refunded to the caller.
  *
  * To learn more, check out our xref:ROOT:erc7535.adoc[ERC-7535 guide].
  */
@@ -82,11 +81,10 @@ abstract contract ERC7535 is ERC4626 {
 
     /**
      * @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
-     * native value to cover the previewed cost `assets`; any excess is kept by the vault, raising the share price
-     * for existing holders. {deposit} is overridden to price shares directly off `msg.value` and does not route
-     * through this hook.
+     * native value to cover the previewed cost `assets`; any excess is refunded by {_deposit}. {deposit} is
+     * overridden to price shares directly off `msg.value` and does not route through this hook.
      */
-    function _checkPayment(uint256 assets) internal virtual override {
+    function _checkPayment(uint256 assets) internal view virtual override {
         if (msg.value < assets) {
             revert ERC7535InsufficientNativeValue(msg.value, assets);
         }
@@ -111,6 +109,19 @@ abstract contract ERC7535 is ERC4626 {
      */
     function _pretotalAssets() internal view virtual returns (uint256) {
         return totalAssets() - msg.value;
+    }
+
+    /**
+     * @dev See {ERC4626-_deposit}. Refunds any `msg.value` in excess of `assets` (on {mint}) to `caller`.
+     *
+     * The refund is performed after the shares are minted, so that a reentrant call during the refund sees a
+     * {totalAssets} and {totalSupply} that both account for this deposit.
+     */
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
+        super._deposit(caller, receiver, assets, shares);
+        if (msg.value > assets) {
+            _transferOut(caller, msg.value - assets);
+        }
     }
 
     /// @dev No-op: the native asset has already been received as `msg.value`. See {ERC4626-_transferIn}.
