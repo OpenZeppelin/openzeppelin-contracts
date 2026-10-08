@@ -125,12 +125,13 @@ jobs:
           # The action takes one config per line, not a JSON array
           jq -r '"configs<<EOF", .[], "EOF"' <<< "$CONFIGS" >> "$GITHUB_OUTPUT"
       - name: Submit verification jobs to Certora Prover
-        uses: Certora/certora-run-action@v2
+        uses: Certora/certora-run-action@b37dc99cef13413f8996b2a137b95e8a25749285 # v2.10.0
         with:
           configurations: ${{ steps.prepare.outputs.configs }}
           solc-versions: ${{ steps.prepare.outputs.solc-version }}
           job-name: Formal verification
           certora-key: ${{ secrets.CERTORAKEY }}
+          cli-version: 8.19.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # The action reports a failed submission as a pull request comment, and never removes it: a later
