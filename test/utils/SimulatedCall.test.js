@@ -1,7 +1,8 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { canCompileYul, compileAllYul, readYulBytecode } from '../../scripts/yul/yul-compile.js';
+import { readFileSync } from 'node:fs';
 
+const CallSimulator = JSON.parse(readFileSync('artifacts/yul/CallSimulator.json', 'utf8'));
 const {
   ethers,
   networkHelpers: { loadFixture },
@@ -9,9 +10,8 @@ const {
 
 const value = 42n;
 
-// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of contracts/utils/CallSimulator.yul
-// (out/CallSimulator.yul/CallSimulator.json). SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE
-// (initcode = creation stub + runtime), kept as two constants so each test reads directly.
+// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of contracts/utils/CallSimulator.yul.
+// SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE (initcode = creation stub + runtime).
 const SIMULATOR_INITCODE =
   '0x603080600a5f395ff3fe60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
 const SIMULATOR_RUNTIME =
@@ -53,14 +53,11 @@ describe('SimulateCall', function () {
     await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(SIMULATOR_RUNTIME);
   });
 
-  // Compile the .yul sources to out/ and read CallSimulator's bytecode back to compare.
-  // Skipped if .yul compilation is not available (`forge` missing)
-  it('syncs embedded simulator bytecode with .yul', async function () {
-    if (!canCompileYul()) this.skip();
-    compileAllYul();
-    const { creation, deployed } = readYulBytecode('CallSimulator');
-    expect(creation).to.equal(SIMULATOR_INITCODE);
-    expect(deployed).to.equal(SIMULATOR_RUNTIME);
+  // Compare the bytecode compiled from the .yul source against the embedded bytecode, so a change to the
+  // .yul source that is not mirrored in SimulateCall.sol (and the constants above) is caught.
+  it('syncs embedded simulator bytecode with .yul', function () {
+    expect(CallSimulator.bytecode).to.equal(SIMULATOR_INITCODE);
+    expect(CallSimulator.deployedBytecode).to.equal(SIMULATOR_RUNTIME);
   });
 
   describe('simulated call', function () {
