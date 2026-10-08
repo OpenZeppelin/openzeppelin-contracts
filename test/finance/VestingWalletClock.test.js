@@ -51,15 +51,15 @@ for (const { Contract, cliffDuration } of [
         });
 
         it('uses the clock for releasable amounts and keeps explicit timepoint queries', async function () {
-          expect(await this.mock.vestedAmount(...this.args, this.end)).to.equal(this.amount);
-          expect(await this.mock.releasable(...this.args)).to.equal(0n);
+          await expect(this.mock.vestedAmount(...this.args, this.end)).to.eventually.equal(this.amount);
+          await expect(this.mock.releasable(...this.args)).to.eventually.equal(0n);
 
           for (const timepoint of this.schedule) {
             await time.increaseTo.blockNumber(timepoint);
             const vested = this.vestingFn(timepoint);
 
-            expect(await this.mock.vestedAmount(...this.args, timepoint)).to.equal(vested);
-            expect(await this.mock.releasable(...this.args)).to.equal(vested);
+            await expect(this.mock.vestedAmount(...this.args, timepoint)).to.eventually.equal(vested);
+            await expect(this.mock.releasable(...this.args)).to.eventually.equal(vested);
           }
         });
 
@@ -73,13 +73,13 @@ for (const { Contract, cliffDuration } of [
             const vested = this.vestingFn(timepoint);
             const tx = await this.mock.release(...this.args);
 
-            expect(await time.clockFromReceipt.blockNumber(tx.wait())).to.equal(timepoint);
+            await expect(time.clockFromReceipt.blockNumber(tx.wait())).to.eventually.equal(timepoint);
             await expect(tx)
               .to.emit(this.mock, this.releasedEvent)
               .withArgs(...this.args, vested - released);
             await this.checkRelease(tx, vested - released);
-            expect(await this.mock.released(...this.args)).to.equal(vested);
-            expect(await this.mock.releasable(...this.args)).to.equal(0n);
+            await expect(this.mock.released(...this.args)).to.eventually.equal(vested);
+            await expect(this.mock.releasable(...this.args)).to.eventually.equal(0n);
             released = vested;
           }
         });
