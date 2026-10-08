@@ -55,6 +55,7 @@ contracts-exposed
 # Hardhat
 /cache
 /artifacts
+/artifacts-yul
 
 # Foundry
 /out

@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { readFileSync } from 'node:fs';
 
-const CallSimulator = JSON.parse(readFileSync('artifacts/yul/CallSimulator.json', 'utf8'));
+const CallSimulator = JSON.parse(readFileSync('artifacts-yul/CallSimulator.json', 'utf8'));
 const {
   ethers,
   networkHelpers: { loadFixture },

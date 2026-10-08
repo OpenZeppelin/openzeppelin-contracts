@@ -8,7 +8,7 @@ const hardhatYulPlugin: HardhatPlugin = {
     overrideTask('build')
       .setAction(() => import('./tasks/build.ts'))
       .build(),
-    task('compile-yul', 'Compiles contracts/**/*.yul and writes their bytecode to artifacts/yul')
+    task('compile-yul', 'Compiles contracts/**/*.yul and writes their bytecode to artifacts-yul/')
       .setAction(() => import('./tasks/compile-yul.ts'))
       .build(),
   ],

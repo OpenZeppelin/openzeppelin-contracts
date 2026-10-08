@@ -4,10 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { compileYul } from '../internal/compile.ts';
 
-// Compiles every `contracts/**/*.yul` object and writes to `artifacts/yul/<name>.json`
+// Compiles every `contracts/**/*.yul` object and writes to `artifacts-yul/<name>.json` (dedicated dir
+// since Hardhat rejects JSON without a `buildInfoId` in `artifacts/`
 export default async function compileYulTask(_args: TaskArguments, hre: HardhatRuntimeEnvironment) {
-  const { root, artifacts } = hre.config.paths;
-  const outDir = path.join(artifacts, 'yul');
+  const { root } = hre.config.paths;
+  const outDir = path.join(root, 'artifacts-yul');
 
   const sources = fs
     .readdirSync(path.join(root, 'contracts'), { recursive: true })
