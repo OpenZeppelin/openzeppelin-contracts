@@ -151,6 +151,7 @@ describe('ERC7390', function () {
     }
 
     for (const [title, binary] of Object.entries({
+      'not an evm format: non-canonical chainid with leading zero': '0x0001000002000100',
       'not an evm format: chainid too long':
         '0x00010000212dc7f03c13ad47809e88339107c33a612043d704c1c9693a74996e7f9c6bee8f2314d8da6bf26964af9d7eed9e03e53415d37aa96045',
       'not an evm format: address in not 20 bytes': '0x00010000010112d8da6bf26964af9d7eed9e03e53415d37aa9',
