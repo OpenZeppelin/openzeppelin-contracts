@@ -1,16 +1,15 @@
 import { network } from 'hardhat';
+import { ethers } from 'ethers';
 import { expect } from 'chai';
 
+import { ERC7786Bridge } from '../../helpers/erc7786';
 import { CALL_TYPE_CALL, encodeMode, encodeSingle } from '../../helpers/erc7579';
 import { GovernorHelper } from '../../helpers/governance';
 import { VoteType } from '../../helpers/enums';
 
-const connection = await network.create();
-const {
-  ethers,
-  helpers: { chain },
-  networkHelpers: { loadFixture },
-} = connection;
+const chainA = await network.create({ override: { chainId: 17 } });
+const chainB = await network.create({ override: { chainId: 42 } });
+const bridge = await ERC7786Bridge.create(chainA, chainB);
 
 const name = 'OZ-Governor';
 const version = '1';
@@ -22,14 +21,12 @@ const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
 async function fixture() {
-  const [owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
-
-  const gateway = await ethers.deployContract('$ERC7786GatewayMock');
-  const receiver = await ethers.deployContract('CallReceiverMock');
+  // governance lives on chain A, the executor (and what it operates on) on chain B
+  const [owner, proposer, voter1, voter2, voter3, voter4] = await chainA.ethers.getSigners();
 
   // Deploy governance
-  const token = await ethers.deployContract('$ERC20Votes', [tokenName, tokenSymbol, tokenName, version]);
-  const governor = await ethers.deployContract('$GovernorCrosschainMock', [
+  const token = await chainA.ethers.deployContract('$ERC20Votes', [tokenName, tokenSymbol, tokenName, version]);
+  const governor = await chainA.ethers.deployContract('$GovernorCrosschainMock', [
     name, // name
     votingDelay, // initialVotingDelay
     votingPeriod, // initialVotingPeriod
@@ -38,13 +35,17 @@ async function fixture() {
     10n, // quorumNumeratorValue
   ]);
 
-  // Deploy executor
-  const executor = await ethers.deployContract('$CrosschainRemoteExecutor', [gateway, chain.toErc7930(governor)]);
+  // Deploy executor (and its target) on chain B, controlled by the governor on chain A
+  const receiver = await chainB.ethers.deployContract('CallReceiverMock');
+  const executor = await chainB.ethers.deployContract('$CrosschainRemoteExecutor', [
+    bridge.gateway(chainB),
+    chainA.helpers.chain.toErc7930(governor),
+  ]);
 
   await owner.sendTransaction({ to: governor, value });
   await token.$_mint(owner, tokenSupply);
 
-  const helper = new GovernorHelper(connection, governor, 'blockNumber');
+  const helper = new GovernorHelper(chainA, governor, 'blockNumber');
   await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
   await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
   await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
@@ -57,7 +58,6 @@ async function fixture() {
     voter2,
     voter3,
     voter4,
-    gateway,
     receiver,
     token,
     governor,
@@ -68,7 +68,7 @@ async function fixture() {
 
 describe('GovernorCrosschain', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, await bridge.loadFixture(fixture));
   });
 
   it('execute with executor', async function () {
@@ -77,8 +77,8 @@ describe('GovernorCrosschain', function () {
         {
           target: this.governor.target,
           data: this.governor.interface.encodeFunctionData('relayCrosschain(address,bytes,bytes32,bytes)', [
-            this.gateway.target,
-            chain.toErc7930(this.executor),
+            bridge.gateway(chainA).target,
+            chainB.helpers.chain.toErc7930(this.executor),
             encodeMode({ callType: CALL_TYPE_CALL }),
             encodeSingle(this.receiver, 0n, this.receiver.interface.encodeFunctionData('mockFunctionExtra')),
           ]),
@@ -93,14 +93,19 @@ describe('GovernorCrosschain', function () {
     await this.helper.connect(this.voter2).vote({ support: VoteType.For });
     await this.helper.waitForDeadline();
 
-    await expect(this.helper.execute()).to.emit(this.receiver, 'MockFunctionCalledExtra').withArgs(this.executor, 0n);
+    await expect(this.helper.execute()).to.emit(bridge.gateway(chainA), 'MessageSent');
+
+    // The bridge delivers the instruction on chain B.
+    await expect(bridge.relay().then(([tx]) => tx))
+      .to.emit(this.receiver, 'MockFunctionCalledExtra')
+      .withArgs(this.executor, 0n);
   });
 
   it('relayCrosschain is onlyGovernance', async function () {
     await expect(
       this.governor.getFunction('relayCrosschain(address,bytes,bytes32,bytes)')(
-        this.gateway,
-        chain.toErc7930(this.executor),
+        bridge.gateway(chainA),
+        chainB.helpers.chain.toErc7930(this.executor),
         encodeMode({ callType: CALL_TYPE_CALL }),
         encodeSingle(this.receiver, 0n, this.receiver.interface.encodeFunctionData('mockFunctionExtra')),
       ),
@@ -108,7 +113,7 @@ describe('GovernorCrosschain', function () {
   });
 
   it('reconfigure executor', async function () {
-    const newGovernor = await ethers.deployContract('$GovernorCrosschainMock', [
+    const newGovernor = await chainA.ethers.deployContract('$GovernorCrosschainMock', [
       name, // name
       votingDelay, // initialVotingDelay
       votingPeriod, // initialVotingPeriod
@@ -118,8 +123,8 @@ describe('GovernorCrosschain', function () {
     ]);
 
     // Before reconfiguration
-    await expect(this.executor.gateway()).to.eventually.equal(this.gateway);
-    await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.governor));
+    await expect(this.executor.gateway()).to.eventually.equal(bridge.gateway(chainB));
+    await expect(this.executor.controller()).to.eventually.equal(chainA.helpers.chain.toErc7930(this.governor));
 
     // Propose reconfiguration
     this.helper.setProposal(
@@ -127,15 +132,15 @@ describe('GovernorCrosschain', function () {
         {
           target: this.governor.target,
           data: this.governor.interface.encodeFunctionData('relayCrosschain(address,bytes,bytes32,bytes)', [
-            this.gateway.target,
-            chain.toErc7930(this.executor),
+            bridge.gateway(chainA).target,
+            chainB.helpers.chain.toErc7930(this.executor),
             encodeMode({ callType: CALL_TYPE_CALL }),
             encodeSingle(
               this.executor,
               0n,
               this.executor.interface.encodeFunctionData('reconfigure', [
-                this.gateway.target,
-                chain.toErc7930(newGovernor),
+                bridge.gateway(chainB).target,
+                chainA.helpers.chain.toErc7930(newGovernor),
               ]),
             ),
           ]),
@@ -150,12 +155,15 @@ describe('GovernorCrosschain', function () {
     await this.helper.connect(this.voter2).vote({ support: VoteType.For });
     await this.helper.waitForDeadline();
 
-    await expect(this.helper.execute())
+    await expect(this.helper.execute()).to.emit(bridge.gateway(chainA), 'MessageSent');
+
+    // The bridge delivers the instruction on chain B.
+    await expect(bridge.relay().then(([tx]) => tx))
       .to.emit(this.executor, 'CrosschainControllerSet')
-      .withArgs(this.gateway, chain.toErc7930(newGovernor));
+      .withArgs(bridge.gateway(chainB), chainA.helpers.chain.toErc7930(newGovernor));
 
     // After reconfiguration
-    await expect(this.executor.gateway()).to.eventually.equal(this.gateway);
-    await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(newGovernor));
+    await expect(this.executor.gateway()).to.eventually.equal(bridge.gateway(chainB));
+    await expect(this.executor.controller()).to.eventually.equal(chainA.helpers.chain.toErc7930(newGovernor));
   });
 });
