@@ -477,7 +477,7 @@ contract ERC7535Test is Test {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Plain native-asset transfers hit receive() and MUST revert with ERC7535UnsolicitedDeposit.
+    // Plain native-asset transfers MUST revert (the vault has no receive() or fallback()).
     // Force-feeding via SELFDESTRUCT / coinbase / vm.deal bypasses the EVM code path and still works
     // (totalAssets rises) — the documented limitation the inflation-attack analysis accounts for.
     // --------------------------------------------------------------------------------------------
@@ -493,14 +493,14 @@ contract ERC7535Test is Test {
         (bool ok, bytes memory ret) = address(vault).call{value: 1}("");
 
         assertFalse(ok, "plain ETH transfer to vault should fail");
-        assertEq(bytes4(ret), 0x00000000, "revert selector should be ERC7535UnsolicitedDeposit");
+        assertEq(ret.length, 0, "plain ETH transfer should revert without data");
 
         assertEq(address(vault).balance, vaultBalBefore, "vault balance changed despite revert");
         assertEq(vault.totalAssets(), totalAssetsBefore, "totalAssets changed despite revert");
         assertEq(sender.balance, 1 ether, "sender lost ETH despite revert");
 
-        // Force-feeding via vm.deal (the SELFDESTRUCT / coinbase analogue) bypasses receive() and still raises
-        // totalAssets — documented limitation of the receive() guard.
+        // Force-feeding via vm.deal (the SELFDESTRUCT / coinbase analogue) executes no code on the vault and still
+        // raises totalAssets — documented limitation.
         uint256 forceFed = 7 ether;
         vm.deal(address(vault), vaultBalBefore + forceFed);
         assertEq(vault.totalAssets(), totalAssetsBefore + forceFed, "force-feed via vm.deal did not raise totalAssets");

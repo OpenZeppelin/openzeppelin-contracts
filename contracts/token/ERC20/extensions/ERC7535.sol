@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Address} from "../../../utils/Address.sol";
-import {Math} from "../../../utils/math/Math.sol";
 import {IERC20} from "../IERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
 
@@ -20,7 +19,8 @@ import {ERC4626} from "./ERC4626.sol";
  * Relative to {ERC4626}:
  *
  * * {asset} returns the ERC-7528 native-asset placeholder `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`.
- * * {totalAssets} returns the contract's own native-asset balance (`address(this).balance`).
+ * * {totalAssets} returns the contract's own native-asset balance (`address(this).balance`), excluding the
+ * `msg.value` of the current call. Shares are therefore priced against the pre-deposit balance, as in {ERC4626}.
  * * {deposit} and {mint} are `payable` (as declared by `IERC4626`): the native asset is provided as `msg.value`
  * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. {deposit}
  * prices shares off `msg.value` and ignores its `assets` argument (per ERC-7535); {mint} requires `msg.value` to
@@ -39,9 +39,9 @@ import {ERC4626} from "./ERC4626.sol";
  * the {ERC4626} documentation for the underlying math.
  *
  * A native asset vault can additionally be force-fed value (e.g. through `SELFDESTRUCT` or block-reward
- * payments) that bypasses the {receive} guard. Because {totalAssets} is balance-based it tracks such donations
- * exactly as a direct ERC-20 transfer would for {ERC4626}; the virtual-offset math, not the {receive} revert, is
- * the defense.
+ * payments), even though plain transfers revert (the contract has no `receive` or `fallback` function). Because
+ * {totalAssets} is balance-based it tracks such donations exactly as a direct ERC-20 transfer would for {ERC4626};
+ * the virtual-offset math is the defense.
  * ====
  *
  * NOTE: `deposit(assets, receiver)` deposits the entire `msg.value` and mints `previewDeposit(msg.value)` shares,
@@ -57,8 +57,6 @@ import {ERC4626} from "./ERC4626.sol";
  * To learn more, check out our xref:ROOT:erc7535.adoc[ERC-7535 guide].
  */
 abstract contract ERC7535 is ERC4626 {
-    using Math for uint256;
-
     /// @dev Attempted to {deposit} or {mint} with a `msg.value` below the required native amount.
     error ERC7535InsufficientNativeValue(uint256 value, uint256 expected);
 
@@ -69,9 +67,16 @@ abstract contract ERC7535 is ERC4626 {
     // argument verbatim into the initializer of every inheriting contract, where a private constant is not in scope.
     constructor() ERC4626(IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {}
 
-    /// @inheritdoc IERC4626
+    /**
+     * @inheritdoc IERC4626
+     *
+     * @dev Excludes the `msg.value` of the current call, so that {deposit} and {mint} price shares against the
+     * pre-deposit balance (and a standalone {previewDeposit} matches the subsequent {deposit}). Outside a `payable`
+     * call, `msg.value` is `0` and this is the full balance. Within {deposit} and {mint}, the whole `msg.value` is
+     * excluded for the duration of the call, including after the shares are minted and any excess refunded.
+     */
     function totalAssets() public view virtual override returns (uint256) {
-        return address(this).balance;
+        return address(this).balance - _msgValue();
     }
 
     /**
@@ -96,27 +101,6 @@ abstract contract ERC7535 is ERC4626 {
         }
     }
 
-    /// @inheritdoc ERC4626
-    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual override returns (uint256) {
-        return assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), _pretotalAssets() + 1, rounding);
-    }
-
-    /// @inheritdoc ERC4626
-    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual override returns (uint256) {
-        return shares.mulDiv(_pretotalAssets() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);
-    }
-
-    /**
-     * @dev Returns the value of {totalAssets} the share math is priced against — the contract's balance excluding
-     * any in-flight `msg.value` from the current `payable` call. In any non-`payable` context `msg.value` is `0`
-     * and this equals {totalAssets}; inside {deposit}/{mint} it yields the pre-call balance, so a standalone
-     * {previewDeposit} returns exactly the shares a subsequent {deposit} mints. Overrides MUST return a value less
-     * than or equal to {totalAssets}.
-     */
-    function _pretotalAssets() internal view virtual returns (uint256) {
-        return totalAssets() - msg.value;
-    }
-
     /**
      * @dev See {ERC4626-_deposit}. Refunds any `msg.value` in excess of `assets` (on {mint}) to `caller`.
      *
@@ -137,5 +121,10 @@ abstract contract ERC7535 is ERC4626 {
     /// {ERC4626-_transferOut}.
     function _transferOut(address to, uint256 assets) internal virtual override {
         Address.sendValue(payable(to), assets);
+    }
+
+    // `msg.value` cannot be read directly in a non-payable public function such as {totalAssets}.
+    function _msgValue() private view returns (uint256) {
+        return msg.value;
     }
 }
