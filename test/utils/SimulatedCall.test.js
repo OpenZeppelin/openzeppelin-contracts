@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { artifacts, network } from 'hardhat';
 import { expect } from 'chai';
 
 const {
@@ -12,23 +12,15 @@ async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$SimulateCall');
-  const simulator = ethers.getCreate2Address(
-    mock.target,
-    ethers.ZeroHash,
-    ethers.keccak256(
-      ethers.concat([
-        '0x60315f8160095f39f3',
-        '0x60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd',
-      ]),
-    ),
-  );
+  const artifact = await artifacts.readArtifact('contracts/utils/CallSimulator.yul:CallSimulator');
+  const simulator = ethers.getCreate2Address(mock.target, ethers.ZeroHash, ethers.keccak256(artifact.bytecode));
 
   const target = await ethers.deployContract('$CallReceiverMock');
 
   // fund the mock contract (for tests that use value)
   await other.sendTransaction({ to: mock, value });
 
-  return { mock, target, receiver, other, simulator };
+  return { mock, target, receiver, other, artifact, simulator };
 }
 
 describe('SimulateCall', function () {
@@ -46,6 +38,11 @@ describe('SimulateCall', function () {
 
     // Following calls use the same simulator
     await expect(this.mock.$getSimulator()).to.emit(this.mock, 'return$getSimulator').withArgs(this.simulator);
+  });
+
+  it('deploys the embedded simulator bytecode', async function () {
+    await this.mock.$getSimulator();
+    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(this.artifact.deployedBytecode);
   });
 
   describe('simulated call', function () {
