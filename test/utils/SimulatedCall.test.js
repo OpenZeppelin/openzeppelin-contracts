@@ -1,8 +1,6 @@
-import { network } from 'hardhat';
+import { artifacts, network } from 'hardhat';
 import { expect } from 'chai';
-import { readFileSync } from 'node:fs';
 
-const CallSimulator = JSON.parse(readFileSync('artifacts-yul/CallSimulator.json', 'utf8'));
 const {
   ethers,
   networkHelpers: { loadFixture },
@@ -10,25 +8,19 @@ const {
 
 const value = 42n;
 
-// Simulator bytecode embedded in SimulateCall.sol, copied from a fresh compile of contracts/utils/CallSimulator.yul.
-// SIMULATOR_RUNTIME is a substring of SIMULATOR_INITCODE (initcode = creation stub + runtime).
-const SIMULATOR_INITCODE =
-  '0x603080600a5f395ff3fe60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
-const SIMULATOR_RUNTIME =
-  '0x60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd';
-
 async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$SimulateCall');
-  const simulator = ethers.getCreate2Address(mock.target, ethers.ZeroHash, ethers.keccak256(SIMULATOR_INITCODE));
+  const artifact = await artifacts.readArtifact('CallSimulator');
+  const simulator = ethers.getCreate2Address(mock.target, ethers.ZeroHash, ethers.keccak256(artifact.bytecode));
 
   const target = await ethers.deployContract('$CallReceiverMock');
 
   // fund the mock contract (for tests that use value)
   await other.sendTransaction({ to: mock, value });
 
-  return { mock, target, receiver, other, simulator };
+  return { mock, target, receiver, other, artifact, simulator };
 }
 
 describe('SimulateCall', function () {
@@ -50,14 +42,7 @@ describe('SimulateCall', function () {
 
   it('deploys the embedded simulator bytecode', async function () {
     await this.mock.$getSimulator();
-    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(SIMULATOR_RUNTIME);
-  });
-
-  // Compare the bytecode compiled from the .yul source against the embedded bytecode, so a change to the
-  // .yul source that is not mirrored in SimulateCall.sol (and the constants above) is caught.
-  it('syncs embedded simulator bytecode with .yul', function () {
-    expect(CallSimulator.bytecode).to.equal(SIMULATOR_INITCODE);
-    expect(CallSimulator.deployedBytecode).to.equal(SIMULATOR_RUNTIME);
+    await expect(ethers.provider.getCode(this.simulator)).to.eventually.equal(this.artifact.deployedBytecode);
   });
 
   describe('simulated call', function () {
