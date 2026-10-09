@@ -14,6 +14,7 @@ delete_tag() {
 }
 
 if [ "$TAG" = tmp ]; then
+  sleep 300
   delete_tag "$TAG"
 elif [ "$TAG" = dev ]; then
   # Delete the next tag if it exists and is a prerelease for what is currently being published
