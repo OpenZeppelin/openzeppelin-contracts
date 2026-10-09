@@ -37,7 +37,7 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
         const sourceName = path.relative(root, file).split(path.sep).join('/');
         const outDir = path.join(artifacts, sourceName);
         fs.mkdirSync(outDir, { recursive: true });
-        for (const { contractName, bytecode, deployedBytecode } of await compileYul(context, sourceName)) {
+        for (const { contractName, buildInfoId, bytecode, deployedBytecode } of await compileYul(context, sourceName)) {
           const artifact = {
             _format: 'hh3-artifact-1',
             contractName,
@@ -47,6 +47,7 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
             linkReferences: {},
             deployedBytecode,
             deployedLinkReferences: {},
+            buildInfoId,
           };
           fs.writeFileSync(path.join(outDir, `${contractName}.json`), `${JSON.stringify(artifact, null, 2)}\n`);
         }
