@@ -108,8 +108,24 @@ describe('ERC7535', function () {
       const balance = await this.vault.totalAssets();
 
       await expect(reentrant.mint(this.vault, shares, { value: cost + extra }))
-        .to.emit(reentrant, 'ObservedDuringRefund')
+        .to.emit(reentrant, 'ObservedOnReceive')
         .withArgs(balance + cost, supply + shares, extra);
+    });
+
+    it('redeem burns shares before sending value to reentrant receivers', async function () {
+      const reentrant = await ethers.deployContract('ERC7535ReentrantMock');
+      await this.vault.connect(this.holder).deposit(0n, this.holder, { value: ethers.parseEther('1') });
+      await this.vault.connect(this.holder).deposit(0n, reentrant, { value: ethers.parseEther('1') });
+
+      const shares = await this.vault.balanceOf(reentrant);
+      const assets = await this.vault.previewRedeem(shares);
+
+      const supply = await this.vault.totalSupply();
+      const balance = await this.vault.totalAssets();
+
+      await expect(reentrant.redeem(this.vault, shares))
+        .to.emit(reentrant, 'ObservedOnReceive')
+        .withArgs(balance - assets, supply - shares, assets);
     });
   });
 
