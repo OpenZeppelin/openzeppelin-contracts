@@ -30,7 +30,7 @@ jobs:
       configs: ${{ steps.identify.outputs.configs }}
     steps:
       # Base branch (this workflow's own source under pull_request_target). The helper runs from HERE,
-      # never the PR: a PR that rewrote it to print `[]` would skip `verify` and pass `verified` green.
+      # never the PR: a PR that rewrote it to print `[]` would skip `verify` silently.
       - uses: actions/checkout@v7
         with:
           path: base
@@ -68,9 +68,9 @@ jobs:
             git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
               awk '{ print } /^fv\/diff\/.+[.]patch$/ { sub(/^fv\/diff\//, ""); sub(/[.]patch$/, ""); gsub(/_/, "/"); print "contracts/" $0 }' > changed.txt
             # Configs are discovered by listing `head/fv/specs`, so one the diff deletes is not there
-            # to be selected: delete every config and the set is empty, `verify` is skipped and
-            # `verified` passes green with the verification gone. Refuse unless the label says that
-            # was the intent -- labelling takes write access, which is what makes it a reviewed one.
+            # to be selected: delete every config and the set is empty, `verify` is skipped, silently
+            # dropping the verification. Refuse unless the label says that was the intent -- labelling
+            # takes write access, which is what makes it a reviewed one.
             REMOVED=$(git -C head diff --name-only --diff-filter=D "$BASE_SHA"..."$HEAD_SHA" -- 'fv/specs/*.conf')
             if [[ -n $REMOVED && $ALLOW_REMOVED != 'true' ]]; then
               # One config per line, joined: a workflow annotation is a single line.
@@ -92,57 +92,57 @@ jobs:
     needs: identify
     if: needs.identify.outputs.configs != '[]'
     runs-on: ubuntu-latest
-    # Cap the prover wait; override via CERTORA_TIMEOUT_MINUTES (a repo var, not env -- timeout-minutes can't read env).
-    timeout-minutes: ${{ vars.CERTORA_TIMEOUT_MINUTES && fromJSON(vars.CERTORA_TIMEOUT_MINUTES) || 120 }}
     # The only job that reads CERTORAKEY, so the only one gated. Reviewers MUST check the diff for key
-    # exfiltration before approving; one approval releases the whole matrix.
+    # exfiltration before approving.
     environment: certora
-    strategy:
-      fail-fast: false
-      matrix:
-        config: ${{ fromJSON(needs.identify.outputs.configs) }}
-    name: verify (${{ matrix.config }})
+    # Required by the Certora run action. Results are reported asynchronously, as commit statuses and a
+    # pull request review, by the Certora Run GitHub App, which must be installed on the repository.
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
     steps:
+      # Checked out at the workspace root: the action reports on `git rev-parse HEAD` under
+      # `pull_request_target`, so this is what puts the status on the pull request's head commit.
       - uses: actions/checkout@v7
         with:
           # Runs the contributor's code, which is what the approval above is protecting against.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           allow-unsafe-pr-checkout: true
           persist-credentials: false
-      - name: Set up environment
-        uses: ./.github/actions/setup
-        with:
-          # Read the cache, never write it. The scope is the base branch here, so a cache saved after
-          # the contributor's code has run would be restored by every other workflow.
-          cache: 'restore'
-          solc: 'on'
-          java: 'on'
-          python: 'on'
-          python-requirements: 'fv-requirements.txt'
-      - name: Verify specification
+      - name: Prepare the run
+        id: prepare
         env:
-          # Possibly-untrusted config name: passed via env, never interpolated, so no shell parses it.
-          CONFIG: ${{ matrix.config }}
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+          CONFIGS: ${{ needs.identify.outputs.configs }}
         run: |
-          set -o pipefail
           make -C fv apply
-          STATUS=0
-          certoraRun "$CONFIG" --wait_for_results | tee certora.log || STATUS=$?
-          URL=$(grep -om1 'https://prover.certora.com/output/[a-zA-Z0-9]*/[a-zA-Z0-9]*?anonymousKey=[a-zA-Z0-9]*' certora.log || true)
-          echo "- $([[ $STATUS = 0 ]] && echo '✅' || echo '❌') \`$CONFIG\` ${URL:+- [report]($URL)}" >> "$GITHUB_STEP_SUMMARY"
-          exit "$STATUS"
-
-  # single `required status check` for branch protection
-  verified:
-    needs: [identify, verify]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check the verification results
+          # Same compiler as the tests: the default in hardhat.config.ts, read as text so that loading the
+          # config (and so `npm ci`) is not needed
+          SOLC=$(sed -nE "s/^\s*compiler: \{ type: 'string', default: '([0-9.]+)' \},?$/\1/p" hardhat.config.ts)
+          [[ -n $SOLC ]] || { echo "::error::could not read the default compiler version from hardhat.config.ts"; exit 1; }
+          echo "solc-version=$SOLC" >> "$GITHUB_OUTPUT"
+          # The action takes one config per line, not a JSON array
+          jq -r '"configs<<EOF", .[], "EOF"' <<< "$CONFIGS" >> "$GITHUB_OUTPUT"
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@b37dc99cef13413f8996b2a137b95e8a25749285 # v2.10.0
+        with:
+          configurations: ${{ steps.prepare.outputs.configs }}
+          solc-versions: ${{ steps.prepare.outputs.solc-version }}
+          job-name: Formal verification
+          certora-key: ${{ secrets.CERTORAKEY }}
+          cli-version: 8.19.2
         env:
-          IDENTIFY: ${{ needs.identify.result }}
-          VERIFY: ${{ needs.verify.result }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The action reports a failed submission as a pull request comment, and never removes it: a later
+      # run edits it only if it fails too. Delete it once a submission goes through, so it doesn't
+      # outlive the failure it describes.
+      - name: Remove stale failure reports
+        if: github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
-          [[ $IDENTIFY = success ]] || { echo "::error::could not work out which configs to run"; exit 1; }
-          [[ $VERIFY = success || $VERIFY = skipped ]] || { echo "::error::verification $VERIFY"; exit 1; }
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- add-pr-comment:"))) | .id' |
+            xargs -r -I{} gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/comments/{}"
