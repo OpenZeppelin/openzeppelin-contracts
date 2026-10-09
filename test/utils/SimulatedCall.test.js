@@ -12,7 +12,7 @@ async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$SimulateCall');
-  const artifact = await artifacts.readArtifact('CallSimulator');
+  const artifact = await artifacts.readArtifact('contracts/utils/CallSimulator.yul:CallSimulator');
   const simulator = ethers.getCreate2Address(mock.target, ethers.ZeroHash, ethers.keccak256(artifact.bytecode));
 
   const target = await ethers.deployContract('$CallReceiverMock');
