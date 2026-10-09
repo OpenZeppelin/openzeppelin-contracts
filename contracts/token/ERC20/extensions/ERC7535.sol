@@ -48,6 +48,12 @@ import {ERC4626} from "./ERC4626.sol";
  * ignoring the `assets` argument (per ERC-7535). `mint(shares, receiver)` requires `msg.value` to be at least the
  * previewed cost; any excess `msg.value` on a `mint` is refunded to the caller.
  *
+ * WARNING: {deposit} and {mint} rely on `msg.value`, which is preserved across a `delegatecall`. A `payable`
+ * batching mechanism that `delegatecall`s into the vault itself would let the same `msg.value` be counted by every
+ * {deposit} or {mint} in the batch, minting shares several times for a single payment. {Multicall} is safe in
+ * this regard because {Multicall-multicall} is not `payable` (`msg.value` is always zero in its subcalls), but it
+ * MUST NOT be replaced by a `payable` variant.
+ *
  * To learn more, check out our xref:ROOT:erc7535.adoc[ERC-7535 guide].
  */
 abstract contract ERC7535 is ERC4626 {
