@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (finance/VestingWallet.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Ownable} from "../access/Ownable.sol";
+import {IERC6372} from "../interfaces/IERC6372.sol";
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
+import {ERC6372Utils} from "../utils/ERC6372Utils.sol";
+import {Time} from "../utils/types/Time.sol";
 
 /**
  * @dev A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these
@@ -19,6 +22,9 @@ import {Context} from "../utils/Context.sol";
  *
  * By setting the duration to 0, one can configure this contract to behave like an asset timelock that holds tokens for
  * a beneficiary until a specified time.
+ *
+ * NOTE: The vesting schedule uses {clock}, which defaults to timestamps. If overriding the clock, also override
+ * {CLOCK_MODE} and express the start, duration, and any cliff in the same unit as the clock.
  *
  * NOTE: Since the wallet is {Ownable}, and ownership can be transferred, it is possible to sell unvested tokens.
  * Preventing this in a smart contract is difficult, considering that: 1) a beneficiary address could be a
@@ -33,7 +39,7 @@ import {Context} from "../utils/Context.sol";
  * at 50% of the vesting period, the beneficiary can withdraw 50 A as ERC20 and 25 A as native currency (totaling 75 A).
  * Consider disabling one of the withdrawal methods.
  */
-contract VestingWallet is Context, Ownable {
+contract VestingWallet is Context, Ownable, IERC6372 {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
@@ -49,6 +55,17 @@ contract VestingWallet is Context, Ownable {
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;
         _duration = durationSeconds;
+    }
+
+    /// @inheritdoc IERC6372
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    /// @inheritdoc IERC6372
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual returns (string memory) {
+        return ERC6372Utils.timestampClockMode(clock());
     }
 
     /**
@@ -95,7 +112,7 @@ contract VestingWallet is Context, Ownable {
      * @dev Getter for the amount of releasable eth.
      */
     function releasable() public view virtual returns (uint256) {
-        return vestedAmount(uint64(block.timestamp)) - released();
+        return vestedAmount(clock()) - released();
     }
 
     /**
@@ -103,7 +120,7 @@ contract VestingWallet is Context, Ownable {
      * {IERC20} contract.
      */
     function releasable(address token) public view virtual returns (uint256) {
-        return vestedAmount(token, uint64(block.timestamp)) - released(token);
+        return vestedAmount(token, clock()) - released(token);
     }
 
     /**

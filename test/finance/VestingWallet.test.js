@@ -2,6 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { min } from '../helpers/math';
 import { envSetup, shouldBehaveLikeVesting } from './VestingWallet.behavior';
+import { shouldBehaveLikeERC6372 } from '../governance/utils/ERC6372.behavior';
 
 const connection = await network.create();
 const {
@@ -46,6 +47,10 @@ describe('VestingWallet', function () {
     expect(await this.mock.start()).to.equal(this.start);
     expect(await this.mock.duration()).to.equal(this.duration);
     expect(await this.mock.end()).to.equal(this.start + this.duration);
+  });
+
+  describe('ERC-6372 clock', function () {
+    shouldBehaveLikeERC6372('timestamp');
   });
 
   describe('vesting schedule', function () {
