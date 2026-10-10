@@ -22,8 +22,8 @@
  
      // Used to identify operations that are currently being executed via {execute}.
      // This should be transient storage when supported by the EVM.
--    bytes32 private _executionId;
-+    bytes32 internal _executionId; // private → internal for FV
+-    bytes32 private transient _executionId;
++    bytes32 internal transient _executionId; // private → internal for FV
  
      /**
       * @dev Check that the caller is authorized to perform the operation.
