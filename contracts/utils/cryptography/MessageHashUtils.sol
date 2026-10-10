@@ -13,7 +13,11 @@ import {Strings} from "../Strings.sol";
  * specifications.
  */
 library MessageHashUtils {
-    error ERC5267ExtensionsNotSupported();
+    /**
+     * @dev The `fields` bitmap sets a bit that is not supported: the ERC-5267 extensions bit (`0x20`)
+     * or one of the bits the standard leaves undefined (`0x40` and `0x80`).
+     */
+    error ERC5267UnsupportedFields(bytes1 fields);
 
     /**
      * @dev Returns the keccak256 digest of an ERC-191 signed data with version
@@ -180,7 +184,7 @@ library MessageHashUtils {
 
     /// @dev Builds an EIP-712 domain type hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
     function toDomainTypeHash(bytes1 fields) internal pure returns (bytes32 hash) {
-        if (fields & 0x20 == 0x20) revert ERC5267ExtensionsNotSupported();
+        if (fields & 0xe0 != 0) revert ERC5267UnsupportedFields(fields);
 
         assembly ("memory-safe") {
             // align fields to the right for easy processing
