@@ -67,7 +67,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         override
         returns (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext)
     {
-        address guarantor = _fetchGuarantor(userOp);
+        address guarantor = _guarantorOf(userOp);
         bool isGuaranteed = guarantor != address(0);
 
         // If there is a guarantor, add more funds to cover the extra postOp cost
@@ -167,14 +167,15 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     function _postOpGasBudget(PackedUserOperation calldata userOp) internal view virtual override returns (uint256) {
         return
             super._postOpGasBudget(userOp) +
-            Math.ternary(_fetchGuarantor(userOp) == address(0), 0, _guaranteedPostOpCost());
+            Math.ternary(_guarantorOf(userOp) == address(0), 0, _guaranteedPostOpCost());
     }
 
     /**
      * @dev Fetches the guarantor address and validation data from the user operation.
      *
      * NOTE: Return `address(0)` to disable the guarantor feature. If supported, ensure
-     * explicit consent (e.g., signature verification) to prevent unauthorized use.
+     * explicit consent (e.g., signature verification) to prevent unauthorized use. Returning
+     * `userOp.sender` is equivalent to returning `address(0)`: the operation is not guaranteed.
      */
     function _fetchGuarantor(PackedUserOperation calldata userOp) internal view virtual returns (address guarantor);
 
@@ -186,5 +187,11 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      */
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
         return 15_000;
+    }
+
+    /// @dev Returns the guarantor given by {_fetchGuarantor}, or `address(0)` if the sender is its own guarantor.
+    function _guarantorOf(PackedUserOperation calldata userOp) private view returns (address) {
+        address guarantor = _fetchGuarantor(userOp);
+        return address(uint160(Math.ternary(guarantor == userOp.sender, 0, uint160(guarantor))));
     }
 }
