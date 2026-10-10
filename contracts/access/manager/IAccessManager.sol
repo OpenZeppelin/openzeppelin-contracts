@@ -377,7 +377,9 @@ interface IAccessManager {
      *
      * Requirements:
      *
-     * - the caller must be the proposer, a guardian of the targeted function, or a global admin
+     * - the caller must be the proposer, a guardian of the targeted function, or a global admin. A {grantRole} or
+     *   {revokeRole} operation targeting this manager can also be cancelled by an admin of the role being granted
+     *   or revoked (see {getRoleAdmin}).
      *
      * Emits a {OperationCanceled} event.
      */
