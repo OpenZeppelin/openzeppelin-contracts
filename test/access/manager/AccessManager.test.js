@@ -8,7 +8,6 @@ import {
   formatAccess,
   EXPIRATION,
   MINSETBACK,
-  EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
   prepareOperation,
   hashOperation,
@@ -153,17 +152,6 @@ describe('AccessManager', function () {
         },
         open: {
           callerIsTheManager: {
-            executing() {
-              it('should return true and no delay', async function () {
-                const { immediate, delay } = await this.manager.canCall(
-                  this.caller,
-                  this.target,
-                  this.calldata.substring(0, 10),
-                );
-                expect(immediate).to.be.true;
-                expect(delay).to.equal(0n);
-              });
-            },
             notExecuting() {
               it('should return false and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
@@ -1826,9 +1814,6 @@ describe('AccessManager', function () {
         },
         open: {
           callerIsTheManager: {
-            executing() {
-              it.skip('is not reachable because schedule is not restrictable');
-            },
             notExecuting() {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
                 const { schedule } = await prepareOperation.bind(this)(this.manager, {
@@ -2102,11 +2087,6 @@ describe('AccessManager', function () {
         },
         open: {
           callerIsTheManager: {
-            executing() {
-              it('succeeds', async function () {
-                await this.manager.connect(this.caller).execute(this.target, this.calldata);
-              });
-            },
             notExecuting() {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
                 await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
@@ -2231,11 +2211,31 @@ describe('AccessManager', function () {
       expect(await this.manager.getSchedule(operationId)).to.equal(0n);
     });
 
-    it('keeps the original _executionId after finishing the call', async function () {
-      const executionIdBefore = await ethers.provider.getStorage(this.manager, EXECUTION_ID_STORAGE_SLOT);
-      await this.manager.connect(this.caller).execute(this.target, this.calldata);
-      const executionIdAfter = await ethers.provider.getStorage(this.manager, EXECUTION_ID_STORAGE_SLOT);
-      expect(executionIdBefore).to.equal(executionIdAfter);
+    it('restores the original _executionId after a nested call', async function () {
+      await this.manager.$_setTargetFunctionRole(
+        this.target,
+        this.target.interface.getFunction('fnRestrictedNested(address,bytes)').selector,
+        this.roles.SOME.id,
+      );
+      await this.manager.$_grantRole(this.roles.SOME.id, this.caller, 0, 0);
+      // the target performs the inner execute itself, so it needs the role of the inner function
+      await this.manager.$_grantRole(this.role.id, this.target, 0, 0);
+
+      await expect(
+        this.manager
+          .connect(this.caller)
+          .execute(
+            this.target,
+            this.target.interface.encodeFunctionData('fnRestrictedNested(address,bytes)', [
+              this.target.target,
+              this.calldata,
+            ]),
+          ),
+      )
+        .to.emit(this.target, 'CalledRestricted')
+        .withArgs(this.manager)
+        .to.emit(this.target, 'StillExecuting')
+        .withArgs(true);
     });
 
     it('reverts executing twice', async function () {

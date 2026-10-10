@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Multicall} from "../../utils/Multicall.sol";
+import {TransientSlot} from "../../utils/TransientSlot.sol";
 import {Time} from "../../utils/types/Time.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
 import {IAccessManager} from "./IAccessManager.sol";
@@ -65,6 +66,7 @@ import {IAccessManager} from "./IAccessManager.sol";
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
+    using TransientSlot for *;
 
     // Structure that stores the details for a target contract.
     struct TargetConfig {
@@ -118,8 +120,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // Used to identify operations that are currently being executed via {execute}.
-    // This should be transient storage when supported by the EVM.
-    bytes32 private _executionId;
+    /// @custom:oz-retyped-from bytes32
+    TransientSlot.TBytes32 private _executionId;
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
@@ -525,14 +527,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, _checkSelector(data));
+        bytes32 executionIdBefore = _executionId.tload();
+        _executionId.tstore(_hashExecutionId(target, _checkSelector(data)));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
 
         // Reset execute identifier
-        _executionId = executionIdBefore;
+        _executionId.tstore(executionIdBefore);
 
         return nonce;
     }
@@ -755,7 +757,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
     function _isExecuting(address target, bytes4 selector) private view returns (bool) {
-        return _executionId == _hashExecutionId(target, selector);
+        return _executionId.tload() == _hashExecutionId(target, selector);
     }
 
     /**
