@@ -52,8 +52,8 @@ describe('Base58', function () {
     });
 
     describe('decode invalid format', function () {
-      for (const chr of ['I', '-', '~'])
-        it(`Invalid base58 char ${chr}`, async function () {
+      for (const chr of ['I', '-', '~', '\x00'])
+        it(`Invalid base58 char ${JSON.stringify(chr)}`, async function () {
           const getHexCode = str => ethers.hexlify(ethers.toUtf8Bytes(str));
           const helper = { interface: ethers.Interface.from(['error InvalidBase58Char(bytes1)']) };
 
@@ -61,6 +61,22 @@ describe('Base58', function () {
             .to.be.revertedWithCustomError(helper, 'InvalidBase58Char')
             .withArgs(getHexCode(chr));
         });
+    });
+
+    describe('tryDecode', function () {
+      it('returns success and the decoded bytes for valid input', async function () {
+        const buffer = random.bytes(42);
+        const hex = ethers.hexlify(buffer);
+        const b58 = ethers.encodeBase58(buffer);
+
+        await expect(this.mock.$tryDecode(b58)).to.eventually.deep.equal([true, hex]);
+        await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
+      });
+
+      it('returns failure and an empty buffer instead of reverting on invalid input', async function () {
+        for (const chr of ['I', '-', '~', '\x00'])
+          await expect(this.mock.$tryDecode(`VYRWKp${chr}pnN7`)).to.eventually.deep.equal([false, '0x']);
+      });
     });
   });
 });
