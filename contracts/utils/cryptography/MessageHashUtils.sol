@@ -166,7 +166,7 @@ library MessageHashUtils {
                 ptr := add(ptr, 0x20)
             }
             if and(fields, 0x08) {
-                mstore(ptr, verifyingContract)
+                mstore(ptr, and(verifyingContract, shr(96, not(0))))
                 ptr := add(ptr, 0x20)
             }
             if and(fields, 0x10) {
