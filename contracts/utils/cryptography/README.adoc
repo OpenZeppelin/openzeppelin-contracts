@@ -8,7 +8,7 @@ A collection of contracts and libraries that implement various signature validat
  * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
  * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
  * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
- * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts, ERC-7913 signatures and ERC-7964 crosschain signatures.
  * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {TrieProof}: Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
