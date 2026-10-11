@@ -106,3 +106,29 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-ken-burns, .animate-fade-up { animation: none; }
 }
+
+/* Long-form policy text */
+.legal p,
+.legal li {
+  color: var(--color-mute);
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+.legal p + p,
+.legal p + ul,
+.legal p + ol,
+.legal ul + p,
+.legal ol + p {
+  margin-top: 1rem;
+}
+.legal ul,
+.legal ol {
+  padding-left: 1.25rem;
+}
+.legal ul { list-style: disc; }
+.legal ol { list-style: decimal; }
+.legal li { margin-top: 0.4rem; }
+.legal li::marker { color: var(--color-gold); }
+.legal strong { color: var(--color-bone); font-weight: 500; }
+.legal a { color: var(--color-gold); text-underline-offset: 3px; }
+.legal a:hover { text-decoration: underline; }

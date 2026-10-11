@@ -7,6 +7,7 @@ import { currentUser, hashPassword, requireAuth, signToken, verifyPassword } fro
 import { permissionsFor } from '../lib/rbac';
 import { conflict, unauthorized } from '../lib/errors';
 import { audit } from '../lib/audit';
+import { POLICIES_VERSION } from '../lib/legal';
 
 export const authRouter = Router();
 
@@ -42,7 +43,7 @@ authRouter.post('/register', async (req, res) => {
     .returning({ id: users.id })
     .get();
   req.user = { id: created.id, email: body.email, name: body.name, role: 'buyer' };
-  audit(req, 'user.register', 'user', created.id);
+  audit(req, 'user.register', 'user', created.id, { acceptedPolicies: POLICIES_VERSION });
   res.status(201).json({ token: signToken(created), user: profile(created.id) });
 });
 

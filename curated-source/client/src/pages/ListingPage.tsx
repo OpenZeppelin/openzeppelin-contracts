@@ -176,7 +176,7 @@ export default function ListingPage() {
               <div>
                 <div className="text-sm text-bone">Escrow Guarantee</div>
                 <p className="mt-1 text-xs leading-relaxed text-mute">
-                  Your payment is held securely by curated-source and only released to the gallery after you confirm the work has arrived as described.
+                  Your payment is held securely by Curated Art and only released to the gallery after you confirm the work has arrived as described.
                 </p>
               </div>
             </div>

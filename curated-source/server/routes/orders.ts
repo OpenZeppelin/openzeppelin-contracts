@@ -10,6 +10,7 @@ import { hydrateListing, hydrateListings } from '../lib/listings';
 import { badRequest, conflict, forbidden, notFound } from '../lib/errors';
 import { orderReference, shippingFor } from '../lib/util';
 import { audit } from '../lib/audit';
+import { acceptTermsSchema, POLICIES_VERSION } from '../lib/legal';
 
 export const ordersRouter = Router();
 
@@ -40,7 +41,9 @@ const addressSchema = z.object({
 });
 
 ordersRouter.post('/', requirePermission('order:create'), (req, res) => {
-  const body = z.object({ listingId: z.number().int().positive(), shippingAddress: addressSchema }).parse(req.body);
+  const body = z
+    .object({ listingId: z.number().int().positive(), shippingAddress: addressSchema, acceptTerms: acceptTermsSchema })
+    .parse(req.body);
   const user = currentUser(req);
   expireStaleOrders();
 
@@ -78,7 +81,11 @@ ordersRouter.post('/', requirePermission('order:create'), (req, res) => {
     tx.insert(orderEvents).values({ orderId: created.id, status: 'pending', note: `Reserved for ${PENDING_TTL_MINUTES} minutes pending payment`, actorId: user.id }).run();
     return created;
   });
-  audit(req, 'order.create', 'order', order.id, { listingId: order.listingId, totalCents: order.totalCents });
+  audit(req, 'order.create', 'order', order.id, {
+    listingId: order.listingId,
+    totalCents: order.totalCents,
+    acceptedPolicies: POLICIES_VERSION,
+  });
   res.status(201).json({ order });
 });
 

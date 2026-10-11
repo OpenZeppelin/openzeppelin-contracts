@@ -125,12 +125,12 @@ export default function Home() {
       <Page className="py-24">
         <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
           <div>
-            <div className="eyebrow mb-4">The curated-source guarantee</div>
+            <div className="eyebrow mb-4">The Curated Art guarantee</div>
             <h2 className="text-4xl sm:text-5xl">Your acquisition, protected at every stage.</h2>
           </div>
           <div className="grid gap-px border border-line bg-line sm:grid-cols-2">
             {[
-              [ShieldCheck, 'Secured in escrow', 'Your payment is held by curated-source, never released to the gallery on order.'],
+              [ShieldCheck, 'Secured in escrow', 'Your payment is held by Curated Art, never released to the gallery on order.'],
               [Truck, 'Insured dispatch', 'Galleries ship with tracked, insured fine-art logistics, domestic or international.'],
               [PackageCheck, 'Inspect on arrival', 'Confirm the work matches its description and condition report.'],
               [Wallet, 'Release with confidence', 'Funds are released only when you approve — or a specialist resolves any dispute.'],

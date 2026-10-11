@@ -5,6 +5,7 @@ import { ArtFrame } from '../components/ArtFrame';
 import { EscrowTimeline } from '../components/EscrowTimeline';
 import { Page } from '../components/Layout';
 import { ErrorNote, Field, Notice, Spinner } from '../components/ui';
+import { AgreeCheckbox } from '../components/AgreeCheckbox';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { COUNTRIES, money } from '../lib/format';
@@ -22,6 +23,7 @@ export default function Checkout() {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   if (loadError) return <Page className="py-20"><ErrorNote error={loadError} /></Page>;
   if (!listing) return <Spinner />;
@@ -35,7 +37,11 @@ export default function Checkout() {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ order: Order }>('/orders', { body: { listingId: listing.id, shippingAddress: { ...address, line2: address.line2 || undefined, region: address.region || undefined } } });
+      const r = await api<{ order: Order }>('/orders', { body: {
+          listingId: listing.id,
+          shippingAddress: { ...address, line2: address.line2 || undefined, region: address.region || undefined },
+          acceptTerms: agreed,
+        }, });
       setOrder(r.order);
     } catch (err) {
       setError(err);
@@ -82,8 +88,13 @@ export default function Checkout() {
                   </select>
                 </Field>
               </div>
+              <AgreeCheckbox checked={agreed} onChange={setAgreed}>
+                I agree to the <Link to="/legal/terms" target="_blank">Terms of Service</Link>, and I have read the{' '}
+                <Link to="/legal/refunds" target="_blank">Refunds &amp; Returns</Link> and <Link to="/legal/shipping" target="_blank">Shipping</Link> policies.
+                International orders may be subject to import duties payable on delivery.
+              </AgreeCheckbox>
               <ErrorNote error={error} />
-              <button className="btn-gold" disabled={busy}>{busy ? 'Reserving…' : 'Reserve & continue to payment'}</button>
+              <button className="btn-gold" disabled={busy || !agreed}>{busy ? 'Reserving…' : 'Reserve & continue to payment'}</button>
               <p className="text-xs text-faint">The piece is reserved for you for 30 minutes while you complete payment.</p>
             </form>
           ) : (

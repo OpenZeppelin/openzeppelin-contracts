@@ -7,6 +7,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { authenticate } from './lib/auth';
+import { POLICIES_VERSION } from './lib/legal';
 import { errorHandler, notFoundHandler } from './lib/errors';
 import { authRouter } from './routes/auth';
 import { catalogRouter } from './routes/catalog';
@@ -39,7 +40,7 @@ export function createApp() {
   api.use(authenticate);
   api.use('/auth', rateLimit({ windowMs: 15 * 60_000, limit: config.isProd ? 50 : 1000, standardHeaders: true, legacyHeaders: false }));
   api.get('/health', (_req, res) => void res.json({ ok: true, time: new Date().toISOString() }));
-  api.get('/config', (_req, res) => void res.json({ commissionRate: config.commissionRate }));
+  api.get('/config', (_req, res) => void res.json({ commissionRate: config.commissionRate, policiesVersion: POLICIES_VERSION }));
   api.use('/auth', authRouter);
   api.use('/orders', ordersRouter);
   api.use('/vendor', vendorRouter);

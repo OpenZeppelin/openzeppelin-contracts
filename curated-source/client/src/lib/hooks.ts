@@ -51,6 +51,6 @@ export function useClickOutside<T extends HTMLElement>(onOutside: () => void) {
 
 export function useDocumentTitle(title: string | undefined) {
   useEffect(() => {
-    if (title) document.title = `${title} — curated-source`;
+    if (title) document.title = `${title} — Curated Art`;
   }, [title]);
 }

@@ -56,7 +56,7 @@ test('full marketplace lifecycle: onboarding → listing → escrow → payout',
   assert.equal(reg.status, 201);
   let sellerToken = reg.body.token;
   assert.equal((await api('GET', '/vendor/listings', undefined, sellerToken)).status, 403, 'buyers cannot manage listings');
-  const apply = await api('POST', '/vendor/apply', { name: 'Test Gallery', country: 'FR' }, sellerToken);
+  const apply = await api('POST', '/vendor/apply', { name: 'Test Gallery', country: 'FR', acceptTerms: true }, sellerToken);
   assert.equal(apply.status, 201);
   sellerToken = await login('seller@t.io');
 
@@ -111,10 +111,11 @@ test('full marketplace lifecycle: onboarding → listing → escrow → payout',
   const quote = await api('GET', `/listings/${listing.id}/shipping?country=US`);
   assert.deepEqual([quote.body.region, quote.body.shippingCents], ['international', 20_000]);
   const address = { fullName: 'Bea Buyer', line1: '1 Main St', city: 'Boston', postalCode: '02110', country: 'US' };
-  const order = (await api('POST', '/orders', { listingId: listing.id, shippingAddress: address }, buyerToken)).body.order;
+  assert.equal((await api('POST', '/orders', { listingId: listing.id, shippingAddress: address }, buyerToken)).status, 400, 'terms must be accepted');
+  const order = (await api('POST', '/orders', { listingId: listing.id, shippingAddress: address, acceptTerms: true }, buyerToken)).body.order;
   assert.equal(order.status, 'pending');
   assert.equal(order.totalCents, 120_000);
-  assert.equal((await api('POST', '/orders', { listingId: listing.id, shippingAddress: address }, buyerToken)).status, 409, 'reserved listing cannot be bought twice');
+  assert.equal((await api('POST', '/orders', { listingId: listing.id, shippingAddress: address, acceptTerms: true }, buyerToken)).status, 409, 'reserved listing cannot be bought twice');
 
   const act = (a: string, token: string, body?: object) => api('POST', `/orders/${order.id}/actions/${a}`, body ?? {}, token);
   assert.equal((await act('dispatch', sellerToken, { carrier: 'DHL', trackingNumber: 'X' })).status, 400, 'cannot dispatch before payment');
@@ -146,6 +147,8 @@ test('full marketplace lifecycle: onboarding → listing → escrow → payout',
 
   // Audit trail captured the sensitive actions
   const logs = (await api('GET', '/admin/audit', undefined, modToken)).body.logs.map((l: any) => l.action);
+  const accepted = (await api('GET', '/admin/audit?action=order.create', undefined, modToken)).body.logs[0].metadata.acceptedPolicies;
+  assert.ok(accepted, 'policy version recorded with the order');
   for (const a of ['gallery.approved', 'category.approved', 'order.pay', 'order.resolve_release', 'payout.paid']) assert.ok(logs.includes(a), a);
 });
 

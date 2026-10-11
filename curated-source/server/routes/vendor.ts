@@ -12,6 +12,7 @@ import { galleryBalance } from '../lib/escrow';
 import { hydrateListings, mediaFor } from '../lib/listings';
 import { slugify, uniqueSuffix } from '../lib/util';
 import { audit } from '../lib/audit';
+import { acceptTermsSchema, POLICIES_VERSION } from '../lib/legal';
 import { withListings } from './orders';
 
 export const vendorRouter = Router();
@@ -33,8 +34,10 @@ vendorRouter.post('/apply', requirePermission('gallery:apply'), (req, res) => {
       bio: z.string().trim().max(4000).default(''),
       location: z.string().trim().max(120).default(''),
       country: z.string().trim().length(2).toUpperCase().default('US'),
+      acceptTerms: acceptTermsSchema,
     })
     .parse(req.body);
+  const { acceptTerms: _accepted, ...fields } = body;
   const user = currentUser(req);
   if (db.select({ id: galleries.id }).from(galleries).where(eq(galleries.ownerId, user.id)).get()) {
     throw conflict('You already have a gallery');
@@ -42,14 +45,14 @@ vendorRouter.post('/apply', requirePermission('gallery:apply'), (req, res) => {
   const gallery = db.transaction((tx) => {
     const g = tx
       .insert(galleries)
-      .values({ ...body, ownerId: user.id, slug: `${slugify(body.name)}-${uniqueSuffix()}` })
+      .values({ ...fields, ownerId: user.id, slug: `${slugify(fields.name)}-${uniqueSuffix()}` })
       .returning()
       .get();
     tx.update(users).set({ role: 'seller' }).where(eq(users.id, user.id)).run();
     return g;
   });
   req.user = { ...user, role: 'seller' };
-  audit(req, 'gallery.apply', 'gallery', gallery.id, { name: gallery.name });
+  audit(req, 'gallery.apply', 'gallery', gallery.id, { name: gallery.name, acceptedSellerAgreement: POLICIES_VERSION });
   res.status(201).json({ gallery });
 });
 

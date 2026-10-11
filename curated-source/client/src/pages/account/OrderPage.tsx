@@ -229,7 +229,7 @@ export default function OrderPage() {
             </div>
           )}
           <div className="flex gap-3 p-1 text-xs leading-relaxed text-faint">
-            <ShieldCheck size={16} className="shrink-0 text-gold" /> Protected by the curated-source Escrow Guarantee.
+            <ShieldCheck size={16} className="shrink-0 text-gold" /> Protected by the Curated Art Buyer Protection guarantee.
           </div>
         </aside>
       </div>

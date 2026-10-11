@@ -10,7 +10,7 @@ export default function Galleries() {
   return (
     <Page className="pt-12">
       <SectionHeading eyebrow="Vendors" title="The galleries" />
-      <p className="-mt-4 mb-12 max-w-2xl text-mute">Every gallery on curated-source is reviewed by our specialists before its first work goes on view.</p>
+      <p className="-mt-4 mb-12 max-w-2xl text-mute">Every gallery on Curated Art is reviewed by our specialists before its first work goes on view.</p>
       {loading ? <Spinner /> : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {data?.galleries.map((g, i) => <GalleryShowcase key={g.id} gallery={g} index={i} />)}

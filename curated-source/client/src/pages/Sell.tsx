@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Clock, ImageUp, Wallet } from 'lucide-react';
 import { Page } from '../components/Layout';
 import { ErrorNote, Field } from '../components/ui';
+import { AgreeCheckbox } from '../components/AgreeCheckbox';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { COUNTRIES } from '../lib/format';
@@ -16,6 +17,7 @@ export default function Sell() {
   const [form, setForm] = useState({ name: '', email: '', password: '', gallery: '', location: '', country: 'US' });
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.value });
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function Sell() {
     setError(null);
     try {
       if (!user) await register({ name: form.name, email: form.email, password: form.password, country: form.country });
-      await api('/vendor/apply', { body: { name: form.gallery, location: form.location, country: form.country } });
+      await api('/vendor/apply', { body: { name: form.gallery, location: form.location, country: form.country, acceptTerms: agreed } });
       await refresh();
       navigate('/vendor/listings/new?welcome=1');
     } catch (err) {
@@ -86,8 +88,12 @@ export default function Sell() {
                   </select>
                 </Field>
               </div>
+              <AgreeCheckbox checked={agreed} onChange={setAgreed}>
+                I agree to the <Link to="/legal/seller-agreement" target="_blank">Seller Agreement</Link> and the{' '}
+                <Link to="/legal/terms" target="_blank">Terms of Service</Link>, including the 14-day return right offered to buyers.
+              </AgreeCheckbox>
               <ErrorNote error={error} />
-              <button className="btn-gold w-full" disabled={busy}>{busy ? 'Opening…' : 'Open gallery & list first work'}</button>
+              <button className="btn-gold w-full" disabled={busy || !agreed}>{busy ? 'Opening…' : 'Open gallery & list first work'}</button>
               <p className="text-xs text-faint">
                 New galleries are reviewed by our team before works go public — usually within one business day.
                 {!user && <> Already have an account? <Link to="/login?next=/sell" className="text-gold">Sign in</Link>.</>}

@@ -49,7 +49,7 @@ export default function Login() {
           <button className="btn-gold w-full" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
         </form>
         <p className="mt-6 text-center text-sm text-mute">
-          New to curated-source? <Link to={`/register${params.get('next') ? `?next=${encodeURIComponent(params.get('next')!)}` : ''}`} className="text-gold hover:underline">Create an account</Link>
+          New to Curated Art? <Link to={`/register${params.get('next') ? `?next=${encodeURIComponent(params.get('next')!)}` : ''}`} className="text-gold hover:underline">Create an account</Link>
         </p>
         <div className="mt-12 border border-line p-5">
           <div className="eyebrow mb-4">Demo accounts</div>

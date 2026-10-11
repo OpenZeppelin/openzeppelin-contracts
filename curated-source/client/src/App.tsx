@@ -19,6 +19,8 @@ const Sell = lazy(() => import('./pages/Sell'));
 const VendorDashboard = lazy(() => import('./pages/vendor/VendorDashboard'));
 const ListingEditor = lazy(() => import('./pages/vendor/ListingEditor'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const LegalPage = lazy(() => import('./pages/legal/LegalPage'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 /** Client-side guard. The API enforces the same permissions server-side. */
 function Guard({ permission, children }: { permission?: string; children: ReactNode }) {
@@ -50,6 +52,8 @@ export function App() {
           <Route path="vendor/listings/new" element={<Guard permission="listing:manage"><ListingEditor /></Guard>} />
           <Route path="vendor/listings/:id" element={<Guard permission="listing:manage"><ListingEditor /></Guard>} />
           <Route path="admin" element={<Guard permission="admin:access"><AdminDashboard /></Guard>} />
+          <Route path="legal/:doc" element={<LegalPage />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

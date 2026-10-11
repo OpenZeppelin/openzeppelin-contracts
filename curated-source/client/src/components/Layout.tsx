@@ -5,13 +5,14 @@ import { useAuth } from '../lib/auth';
 import { useCategories } from '../lib/catalog';
 import { useClickOutside } from '../lib/hooks';
 import { SearchBox } from './SearchBox';
+import { SITE, tradingNameNotice } from '../lib/site';
 
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <Link to="/" className={`group inline-flex items-baseline gap-1 font-serif text-2xl tracking-tight ${className}`} aria-label="curated-source home">
+    <Link to="/" className={`group inline-flex items-baseline gap-1 font-serif text-2xl tracking-tight ${className}`} aria-label="Curated Art home">
       <span className="text-bone">curated</span>
       <span className="text-gold transition-transform group-hover:rotate-12">—</span>
-      <span className="italic text-bone">source</span>
+      <span className="italic text-bone">art</span>
     </Link>
   );
 }
@@ -189,14 +190,22 @@ function Header() {
   );
 }
 
+export const LEGAL_LINKS = [
+  ['/legal/terms', 'Terms of Service'],
+  ['/legal/seller-agreement', 'Seller Agreement'],
+  ['/legal/shipping', 'Shipping Policy'],
+  ['/legal/refunds', 'Refunds & Returns'],
+  ['/legal/privacy', 'Privacy Policy'],
+] as const;
+
 function Footer() {
   return (
     <footer className="mt-32 border-t border-line">
-      <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 sm:px-8 md:grid-cols-4">
+      <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 sm:px-8 md:grid-cols-5">
         <div className="md:col-span-2">
           <Logo />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-mute">
-            A curated marketplace for original art, collectible design and objects of enduring value. Every acquisition is held in escrow until you confirm the work has arrived as described.
+            A curated marketplace for original art, collectible design and objects of enduring value. Your payment is held until you confirm the work has arrived as described.
           </p>
         </div>
         <div>
@@ -206,19 +215,35 @@ function Footer() {
             <li><Link to="/galleries" className="hover:text-gold">Galleries</Link></li>
             <li><Link to="/account/orders" className="hover:text-gold">My acquisitions</Link></li>
           </ul>
-        </div>
-        <div>
-          <div className="eyebrow mb-4">Galleries</div>
+          <div className="eyebrow mb-4 mt-8">Galleries</div>
           <ul className="space-y-2 text-sm text-mute">
             <li><Link to="/sell" className="hover:text-gold">Open a gallery</Link></li>
             <li><Link to="/vendor" className="hover:text-gold">Vendor portal</Link></li>
           </ul>
         </div>
+        <div>
+          <div className="eyebrow mb-4">Policies</div>
+          <ul className="space-y-2 text-sm text-mute">
+            {LEGAL_LINKS.map(([to, label]) => (
+              <li key={to}><Link to={to} className="hover:text-gold">{label}</Link></li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="eyebrow mb-4">Help</div>
+          <ul className="space-y-2 text-sm text-mute">
+            <li><Link to="/contact" className="hover:text-gold">Contact us</Link></li>
+            <li><a href={`mailto:${SITE.supportEmail}`} className="hover:text-gold">{SITE.supportEmail}</a></li>
+          </ul>
+        </div>
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap justify-between gap-4 px-4 py-6 text-[11px] uppercase tracking-[0.2em] text-faint sm:px-8">
-          <span>© {new Date().getFullYear()} curated-source.com</span>
-          <span>Escrow-protected · Provenance verified</span>
+        <div className="mx-auto max-w-[1400px] space-y-3 px-4 py-6 sm:px-8">
+          <div className="flex flex-wrap justify-between gap-4 text-[11px] uppercase tracking-[0.2em] text-faint">
+            <span>© {new Date().getFullYear()} {SITE.company.legalName}</span>
+            <span>Buyer protection · Provenance verified</span>
+          </div>
+          <p className="text-xs leading-relaxed text-faint">{tradingNameNotice}</p>
         </div>
       </div>
     </footer>

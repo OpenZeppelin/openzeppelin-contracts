@@ -45,6 +45,10 @@ export default function Register() {
         </Field>
         <ErrorNote error={error} />
         <button className="btn-gold w-full" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
+        <p className="text-center text-xs leading-relaxed text-faint">
+          By creating an account you agree to our <Link to="/legal/terms" className="text-mute underline-offset-4 hover:underline">Terms of Service</Link> and confirm
+          you have read our <Link to="/legal/privacy" className="text-mute underline-offset-4 hover:underline">Privacy Policy</Link>.
+        </p>
         <p className="text-center text-sm text-mute">Already registered? <Link to="/login" className="text-gold hover:underline">Sign in</Link></p>
       </form>
     </Page>
