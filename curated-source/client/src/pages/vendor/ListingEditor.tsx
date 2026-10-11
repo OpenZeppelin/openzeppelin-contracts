@@ -6,7 +6,7 @@ import { ErrorNote, Field, Notice, Spinner } from '../../components/ui';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { COUNTRIES, money } from '../../lib/format';
-import { useApi, useDocumentTitle } from '../../lib/hooks';
+import { useApi, useDocumentTitle, usePlatformConfig } from '../../lib/hooks';
 import type { Media } from '../../lib/types';
 
 type Cat = { id: number; name: string; status: 'approved' | 'pending'; parentId: number | null; children: Cat[] };
@@ -27,8 +27,7 @@ export default function ListingEditor() {
   const cats = useApi<{ categories: Cat[] }>('/vendor/categories');
   const existing = useApi<{ listing: any }>(editing ? `/vendor/listings/${id}` : null);
   const gallery = useApi<{ gallery: { country: string; status: string } }>('/vendor/gallery');
-  const platform = useApi<{ commissionRate: number }>('/config');
-  const commission = platform.data?.commissionRate ?? 0.12;
+  const { commissionRate: commission, maxPriceCents } = usePlatformConfig();
 
   const [media, setMedia] = useState<Media[]>([]);
   const [f, setF] = useState({
@@ -169,7 +168,9 @@ export default function ListingEditor() {
 
           <section className="card space-y-5 p-6">
             <h2 className="text-2xl">Price & shipping</h2>
-            <Field label="Price (USD)"><input value={f.price} onChange={set('price')} className="field text-lg text-gold" inputMode="decimal" required placeholder="0" /></Field>
+            <Field label="Price (USD)" hint={`Up to ${money(maxPriceCents)} per work`}>
+              <input value={f.price} onChange={set('price')} className="field text-lg text-gold" inputMode="decimal" required placeholder="0" />
+            </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Domestic flat rate"><input value={f.shipDomestic} onChange={set('shipDomestic')} className="field" inputMode="decimal" required placeholder="0" /></Field>
               <Field label="International flat rate"><input value={f.shipInternational} onChange={set('shipInternational')} className="field" inputMode="decimal" required placeholder="0" /></Field>

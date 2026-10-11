@@ -1,18 +1,20 @@
 /**
  * Brand and legal-entity details shown in the footer, the policy pages and the contact page.
  * UK law requires the registered company name, number, place of registration and registered
- * office to appear on the website, so fill every [placeholder] before going live.
+ * office to appear on the website.
  */
 export const SITE = {
   name: 'Curated Art',
   domain: 'curated-art.shop',
   url: 'https://www.curated-art.shop',
   supportEmail: 'support@curated-art.shop',
+  phone: '+44 7868 142462',
+  phoneHref: 'tel:+447868142462',
   company: {
     legalName: 'FITMORF LTD',
-    number: '[COMPANY NUMBER]',
+    number: '16782808',
     registeredIn: 'England and Wales',
-    registeredOffice: '[REGISTERED OFFICE ADDRESS]',
+    registeredOffice: '2 Frederick Street, Kings Cross, London WC1X 0ND, United Kingdom',
   },
   /** Shown on the policy pages; keep in step with POLICIES_VERSION in server/lib/legal.ts. */
   policiesUpdated: '11 October 2026',

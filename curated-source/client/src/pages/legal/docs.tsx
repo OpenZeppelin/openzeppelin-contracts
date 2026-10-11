@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE } from '../../lib/site';
 
-export type LegalCtx = { commissionPct: number };
+export type LegalCtx = { commissionPct: number; maxPrice: string };
 export type LegalSection = { id: string; title: string; body: ReactNode };
 export type LegalDoc = { title: string; summary: string; sections: (ctx: LegalCtx) => LegalSection[] };
 
@@ -20,7 +20,7 @@ const whoWeAre: LegalSection = {
         with its registered office at {C.registeredOffice} (“{SITE.name}”, “we”, “us”).
       </p>
       <p>
-        You can contact us at <Email /> or through our <L to="/contact">contact page</L>.
+        You can contact us at <Email />, by phone on <a href={SITE.phoneHref}>{SITE.phone}</a>, or through our <L to="/contact">contact page</L>.
       </p>
     </>
   ),
@@ -31,7 +31,7 @@ const whoWeAre: LegalSection = {
 const terms: LegalDoc = {
   title: 'Terms of Service',
   summary: 'The rules for browsing, buying and using your account on Curated Art.',
-  sections: () => [
+  sections: ({ maxPrice }) => [
     whoWeAre,
     {
       id: 'marketplace',
@@ -73,6 +73,11 @@ const terms: LegalDoc = {
           <p>
             Prices are shown in US dollars (USD) and include the Gallery’s price for the work. Shipping is charged as a flat rate (domestic or international) shown on
             the listing and at checkout. Your card issuer may apply its own currency conversion fees.
+          </p>
+          <p>
+            Works are currently offered online at prices up to US${maxPrice} each, and one buyer’s purchases from the same Gallery are limited to US${maxPrice} in
+            total within any 90-day period. Larger acquisitions can be arranged by private enquiry through our <L to="/contact">contact page</L>, subject to
+            identity checks.
           </p>
           <p>
             Import duties, customs fees and local taxes charged by the destination country are not included unless stated, and are payable by you on delivery. See our{' '}
@@ -203,7 +208,7 @@ const terms: LegalDoc = {
 const sellerAgreement: LegalDoc = {
   title: 'Seller Agreement',
   summary: 'The agreement between Curated Art and the galleries, studios and artists who sell on the marketplace.',
-  sections: ({ commissionPct }) => [
+  sections: ({ commissionPct, maxPrice }) => [
     whoWeAre,
     {
       id: 'eligibility',
@@ -264,6 +269,10 @@ const sellerAgreement: LegalDoc = {
           <p>
             You are the seller of each work, and the contract of sale is between you and the buyer. You appoint us as your limited payment collection agent: when the
             buyer pays us, they have paid you.
+          </p>
+          <p>
+            Listing prices may not currently exceed <strong>US${maxPrice}</strong> per work. We also limit a single buyer’s purchases from your gallery to
+            that amount within any 90-day period. Larger sales may only be arranged with our agreement, following the checks in section 7.
           </p>
           <p>
             We charge a commission of <strong>{commissionPct}%</strong> of the price of each work sold (excluding shipping). The commission is deducted before the

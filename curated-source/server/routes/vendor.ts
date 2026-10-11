@@ -106,7 +106,11 @@ const listingFields = z.object({
   widthCm: z.number().positive().max(10000).nullable().optional(),
   heightCm: z.number().positive().max(10000).nullable().optional(),
   depthCm: z.number().positive().max(10000).nullable().optional(),
-  priceCents: z.number().int().min(100).max(10_000_000_000),
+  priceCents: z
+    .number()
+    .int()
+    .min(100)
+    .max(config.maxPriceCents, `Prices are currently limited to $${(config.maxPriceCents / 100).toLocaleString('en-US')} per work`),
   shippingDomesticCents: z.number().int().min(0).max(100_000_00),
   shippingInternationalCents: z.number().int().min(0).max(100_000_00),
   originCountry: z.string().trim().length(2).toUpperCase().optional(),

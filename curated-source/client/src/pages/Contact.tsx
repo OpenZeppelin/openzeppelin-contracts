@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Mail, MessageSquare, Phone, ShieldCheck } from 'lucide-react';
 import { Page } from '../components/Layout';
 import { SITE } from '../lib/site';
 import { useDocumentTitle } from '../lib/hooks';
@@ -15,11 +15,16 @@ export default function Contact() {
         Questions about a work, an order, a return or selling with us? Write to us and a member of our team will reply within one business day.
       </p>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-3">
+      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <a href={`mailto:${SITE.supportEmail}`} className="card group p-6 transition-colors hover:border-gold/50">
           <Mail size={22} strokeWidth={1.2} className="text-gold" />
           <h2 className="mt-5 text-2xl group-hover:text-gold">Email</h2>
           <p className="mt-2 text-sm text-mute">{SITE.supportEmail}</p>
+        </a>
+        <a href={SITE.phoneHref} className="card group p-6 transition-colors hover:border-gold/50">
+          <Phone size={22} strokeWidth={1.2} className="text-gold" />
+          <h2 className="mt-5 text-2xl group-hover:text-gold">Phone</h2>
+          <p className="mt-2 text-sm text-mute">{SITE.phone}</p>
         </a>
         <div className="card p-6">
           <ShieldCheck size={22} strokeWidth={1.2} className="text-gold" />

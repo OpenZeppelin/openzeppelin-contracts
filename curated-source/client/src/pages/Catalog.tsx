@@ -23,10 +23,10 @@ const SIZES = [
 ] as const;
 
 const PRICE_PRESETS: [string, number | '', number | ''][] = [
-  ['Under $10k', '', 10000],
-  ['$10k – $25k', 10000, 25000],
-  ['$25k – $50k', 25000, 50000],
-  ['$50k +', 50000, ''],
+  ['Under $1k', '', 1000],
+  ['$1k – $2.5k', 1000, 2500],
+  ['$2.5k – $5k', 2500, 5000],
+  ['$5k – $10k', 5000, 10000],
 ];
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {

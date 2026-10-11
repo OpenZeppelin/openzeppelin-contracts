@@ -40,7 +40,7 @@ export function createApp() {
   api.use(authenticate);
   api.use('/auth', rateLimit({ windowMs: 15 * 60_000, limit: config.isProd ? 50 : 1000, standardHeaders: true, legacyHeaders: false }));
   api.get('/health', (_req, res) => void res.json({ ok: true, time: new Date().toISOString() }));
-  api.get('/config', (_req, res) => void res.json({ commissionRate: config.commissionRate, policiesVersion: POLICIES_VERSION }));
+  api.get('/config', (_req, res) => void res.json({ commissionRate: config.commissionRate, policiesVersion: POLICIES_VERSION, maxPriceCents: config.maxPriceCents }));
   api.use('/auth', authRouter);
   api.use('/orders', ordersRouter);
   api.use('/vendor', vendorRouter);

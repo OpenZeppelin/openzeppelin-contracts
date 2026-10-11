@@ -234,6 +234,7 @@ function Footer() {
           <ul className="space-y-2 text-sm text-mute">
             <li><Link to="/contact" className="hover:text-gold">Contact us</Link></li>
             <li><a href={`mailto:${SITE.supportEmail}`} className="hover:text-gold">{SITE.supportEmail}</a></li>
+            <li><a href={SITE.phoneHref} className="hover:text-gold">{SITE.phone}</a></li>
           </ul>
         </div>
       </div>

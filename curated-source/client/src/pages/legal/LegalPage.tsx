@@ -1,18 +1,21 @@
 import { Link, useParams } from 'react-router-dom';
 import { Page, LEGAL_LINKS } from '../../components/Layout';
 import { SITE } from '../../lib/site';
-import { useApi, useDocumentTitle } from '../../lib/hooks';
+import { useDocumentTitle, usePlatformConfig } from '../../lib/hooks';
 import NotFound from '../NotFound';
 import { LEGAL_DOCS } from './docs';
 
 export default function LegalPage() {
   const { doc } = useParams();
   const legal = doc ? LEGAL_DOCS[doc] : undefined;
-  const platform = useApi<{ commissionRate: number }>('/config');
+  const platform = usePlatformConfig();
   useDocumentTitle(legal?.title);
   if (!legal) return <NotFound />;
 
-  const sections = legal.sections({ commissionPct: Math.round((platform.data?.commissionRate ?? 0.12) * 100) });
+  const sections = legal.sections({
+    commissionPct: Math.round(platform.commissionRate * 100),
+    maxPrice: (platform.maxPriceCents / 100).toLocaleString('en-US'),
+  });
 
   return (
     <Page className="py-12">

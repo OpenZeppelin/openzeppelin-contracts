@@ -26,3 +26,5 @@ services:
         value: "true"
       - key: PLATFORM_COMMISSION
         value: "0.12"
+      - key: MAX_PRICE_USD
+        value: "10000"

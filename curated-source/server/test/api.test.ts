@@ -152,6 +152,26 @@ test('full marketplace lifecycle: onboarding → listing → escrow → payout',
   for (const a of ['gallery.approved', 'category.approved', 'order.pay', 'order.resolve_release', 'payout.paid']) assert.ok(logs.includes(a), a);
 });
 
+test('price cap: listings and linked purchases stay under the AML threshold', async () => {
+  const seller = await login('seller@t.io');
+  const buyer = await login('buyer@t.io');
+  const cats = (await api('GET', '/categories')).body.categories;
+  const media = (await api('GET', '/vendor/listings', undefined, seller)).body.listings[0].cover;
+  const base = { artist: 'A. Painter', medium: 'Oil', shippingDomesticCents: 0, shippingInternationalCents: 0, categoryId: cats[0].id, media: [media] };
+  const create = (title: string, priceCents: number) => api('POST', '/vendor/listings', { ...base, title, priceCents }, seller);
+
+  assert.equal((await create('Too Dear', 1_000_001)).status, 400, 'listing above $10,000 is rejected');
+  const a = (await create('Study A', 600_000)).body.listing;
+  const b = (await create('Study B', 500_000)).body.listing;
+  const address = { fullName: 'Bea Buyer', line1: '1 Main St', city: 'Boston', postalCode: '02110', country: 'US' };
+  const order = (id: number) => api('POST', '/orders', { listingId: id, shippingAddress: address, acceptTerms: true }, buyer);
+
+  assert.equal((await order(a.id)).status, 201);
+  const linked = await order(b.id);
+  assert.equal(linked.status, 400, 'second purchase from the same gallery would exceed the 90-day limit');
+  assert.match(linked.body.error, /90 days/);
+});
+
 test('RBAC guards', async () => {
   const buyer = await login('buyer@t.io');
   assert.equal((await api('GET', '/admin/overview')).status, 401);

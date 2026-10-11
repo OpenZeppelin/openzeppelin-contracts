@@ -9,7 +9,7 @@ import NotFound from './NotFound';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { COUNTRIES, countryName, date, dims, money } from '../lib/format';
-import { useApi, useDocumentTitle } from '../lib/hooks';
+import { useApi, useDocumentTitle, usePlatformConfig } from '../lib/hooks';
 import type { Listing, ListingDetail, Question } from '../lib/types';
 
 type Resp = { listing: ListingDetail; questions: Question[]; related: Listing[] };
@@ -112,6 +112,7 @@ function QA({ listing, questions, onAsked }: { listing: ListingDetail; questions
 export default function ListingPage() {
   const { slug } = useParams();
   const { data, error, loading, reload } = useApi<Resp>(`/listings/${slug}`);
+  const platform = usePlatformConfig();
   const { user } = useAuth();
   const navigate = useNavigate();
   useDocumentTitle(data ? `${data.listing.title} by ${data.listing.artist}` : undefined);
@@ -121,7 +122,8 @@ export default function ListingPage() {
   if (error || !data) return <Page className="py-20"><ErrorNote error={error} /></Page>;
   const l = data.listing;
   const d = dims(l.widthCm, l.heightCm, l.depthCm);
-  const available = l.status === 'active';
+  const enquiryOnly = l.priceCents > platform.maxPriceCents;
+  const available = l.status === 'active' && !enquiryOnly;
 
   const acquire = () => {
     if (!user) return navigate(`/login?next=/checkout/${l.id}`);
@@ -165,6 +167,11 @@ export default function ListingPage() {
 
             {l.isOwner ? (
               <Link to={`/vendor/listings/${l.id}`} className="btn-outline w-full">Edit this listing</Link>
+            ) : enquiryOnly && l.status === 'active' ? (
+              <div className="space-y-3">
+                <Link to="/contact" className="btn-outline w-full py-4 text-sm">Enquire about this work</Link>
+                <p className="text-xs text-faint">This work is available by private enquiry. Contact us and we will arrange the acquisition.</p>
+              </div>
             ) : (
               <button onClick={acquire} disabled={!available} className="btn-gold w-full py-4 text-sm">
                 {available ? 'Acquire Piece' : l.status === 'reserved' ? 'Reserved' : 'Acquired'}
