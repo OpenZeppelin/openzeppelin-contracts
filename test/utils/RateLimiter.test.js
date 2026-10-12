@@ -246,6 +246,17 @@ describe('RateLimiter', function () {
         await expect(this.mock.state()).to.eventually.deep.equal([9n, 1n]);
       });
 
+      it('setting capacity to 0 does not revert and preserves used', async function () {
+        await this.mock.consume(42n);
+        await this.mock.updateSettings(WINDOW, 0n);
+        await time.increaseBy.timestamp(17n);
+
+        await expect(this.mock.state()).to.eventually.deep.equal([42n, 0n]);
+        await expect(this.mock.used()).to.eventually.equal(42n);
+        await expect(this.mock.available()).to.eventually.equal(0n);
+        await expect(this.mock.tryConsumeStatic(1n)).to.eventually.be.false;
+      });
+
       it('fully refills after a window has elapsed', async function () {
         await this.mock.consume(CAPACITY);
         await time.increaseBy.timestamp(WINDOW);

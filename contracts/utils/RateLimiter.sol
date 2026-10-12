@@ -195,26 +195,28 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) private view returns (uint256 used_, uint256 available_, uint48 timepoint_) {
-        uint256 capacity_ = self._capacity; // cache
-        uint256 window_ = Math.max(self._window, 1); // cache
-        RefillingBucketItem storage item_ = self._items[key]; // cache
-        uint256 lastUsed_ = item_._lastUsed;
-        uint48 lastTimepoint_ = item_._lastTimepoint;
+        unchecked {
+            // cache frequently used values to save gas
+            uint256 capacity_ = self._capacity;
+            uint256 window_ = Math.max(self._window, 1);
+            RefillingBucketItem storage item_ = self._items[key];
+            uint256 lastUsed_ = item_._lastUsed;
+            uint48 lastTimepoint_ = item_._lastTimepoint;
 
-        uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
-        if (refill >= lastUsed_) {
-            (used_, timepoint_) = (0, Time.timestamp());
-        } else if (refill == 0) {
-            (used_, timepoint_) = (lastUsed_, lastTimepoint_);
-        } else {
-            // `refill <= elapsed * capacity / window`, so the time it took to refill it is at most `elapsed`, which
-            // makes the cast safe and ensures the returned timepoint is not in the future.
-            (used_, timepoint_) = (
-                lastUsed_ - refill,
-                lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, capacity_))
-            );
+            // compute the amount of tokens to refill based on the elapsed time since the last timepoint
+            uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
+
+            return
+                refill < lastUsed_
+                    ? (
+                        lastUsed_ - refill,
+                        Math.saturatingSub(capacity_, lastUsed_ - refill),
+                        // `capacity_ == 0` implies `refill == 0`, so using `max(capacity_, 1)` avoids a division by
+                        // zero without changing the result.
+                        lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, Math.max(capacity_, 1)))
+                    )
+                    : (0, capacity_, Time.timestamp());
         }
-        available_ = Math.saturatingSub(capacity_, used_);
     }
 
     // ================================================= SlidingWindow =================================================
