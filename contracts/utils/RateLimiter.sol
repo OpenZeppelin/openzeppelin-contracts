@@ -203,7 +203,7 @@ library RateLimiter {
             uint256 lastUsed_ = item_._lastUsed;
             uint48 lastTimepoint_ = item_._lastTimepoint;
 
-            // compute the amount of tokens to refill based on the elapsed time since the last timepoint
+            // compute the quantity to refill based on the elapsed time since the last timepoint
             uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
 
             return
