@@ -107,14 +107,14 @@ library RateLimiter {
      * @dev Returns the currently used quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function used(RefillingBucket storage self, bytes32 key) internal view returns (uint256 used_) {
-        (used_, ) = state(self, key);
+        (used_, , ) = _refresh(self, key);
     }
 
     /**
      * @dev Returns the currently available quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function available(RefillingBucket storage self, bytes32 key) internal view returns (uint256 available_) {
-        (, available_) = state(self, key);
+        (, available_, ) = _refresh(self, key);
     }
 
     /**
