@@ -100,8 +100,7 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) internal view returns (uint256 used_, uint256 available_) {
-        (used_, ) = _refresh(self, key);
-        available_ = Math.saturatingSub(self._capacity, used_);
+        (used_, available_, ) = _refresh(self, key);
     }
 
     /**
@@ -128,8 +127,8 @@ library RateLimiter {
         if (quantity == 0) {
             return true;
         }
-        (uint256 used_, uint48 timepoint_) = _refresh(self, key);
-        if (quantity <= Math.saturatingSub(self._capacity, used_)) {
+        (uint256 used_, uint256 available_, uint48 timepoint_) = _refresh(self, key);
+        if (quantity <= available_) {
             self._items[key] = RefillingBucketItem({
                 _lastTimepoint: timepoint_,
                 _lastUsed: SafeCast.toUint208(used_ + quantity)
@@ -174,16 +173,17 @@ library RateLimiter {
      * @dev Refreshes the `key` bucket by applying the accrued refill since its last update timepoint to `lastUsed`
      * and `lastTimepoint`, effectively moving that entry's timepoint forward to now (or, if the bucket is not fully
      * replenished, to the moment the last whole unit was refilled). This can be used to mitigate the side effect of
-     * {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified. It must be called per key; there is no mechanism to sync all entries at once.
+     * {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified. It must
+     * be called per key; there is no mechanism to sync all entries at once.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
-        (uint256 used_, uint48 timepoint_) = _refresh(self, key);
+        (uint256 used_, , uint48 timepoint_) = _refresh(self, key);
         self._items[key] = RefillingBucketItem({_lastTimepoint: timepoint_, _lastUsed: uint208(used_)});
     }
 
     /**
-     * @dev Computes the current `used` quantity of the `key` bucket, along with the timepoint from which any further
-     * refill should be accounted.
+     * @dev Computes the current `used` and `available` quantities of the `key` bucket, along with the timepoint from
+     * which any further refill should be accounted.
      *
      * If the bucket is fully replenished, the timepoint is the current timestamp. Otherwise, it is the moment at which
      * the last whole unit was refilled, so that the partial refill accrued since then is not lost when the entry is
@@ -194,7 +194,7 @@ library RateLimiter {
     function _refresh(
         RefillingBucket storage self,
         bytes32 key
-    ) private view returns (uint256 used_, uint48 timepoint_) {
+    ) private view returns (uint256 used_, uint256 available_, uint48 timepoint_) {
         uint256 capacity_ = self._capacity; // cache
         uint256 window_ = Math.max(self._window, 1); // cache
         RefillingBucketItem storage item_ = self._items[key]; // cache
@@ -203,14 +203,18 @@ library RateLimiter {
 
         uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
         if (refill >= lastUsed_) {
-            return (0, Time.timestamp());
+            (used_, timepoint_) = (0, Time.timestamp());
         } else if (refill == 0) {
-            return (lastUsed_, lastTimepoint_);
+            (used_, timepoint_) = (lastUsed_, lastTimepoint_);
         } else {
             // `refill <= elapsed * capacity / window`, so the time it took to refill it is at most `elapsed`, which
             // makes the cast safe and ensures the returned timepoint is not in the future.
-            return (lastUsed_ - refill, lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, capacity_)));
+            (used_, timepoint_) = (
+                lastUsed_ - refill,
+                lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, capacity_))
+            );
         }
+        available_ = Math.saturatingSub(capacity_, used_);
     }
 
     // ================================================= SlidingWindow =================================================
