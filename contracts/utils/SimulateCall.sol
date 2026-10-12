@@ -37,13 +37,13 @@ library SimulateCall {
      * capturing the return data.
      */
     function getSimulator() internal returns (address instance) {
-        // Bytecode compiled from contracts/utils/CallSimulator.yul.
+        // Bytecode compiled from contracts/utils/SimulateCall.yul.
         // deployment prefix: 0x603080600a5f395ff3fe
-        // deployed bytecode: 0x60343610602c575f803660331901806034833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd
+        // deployed bytecode: 0x60343610602c575f803660331901806034833781601435813560601c5af13d5f803e6028573d5ff35b3d5ffd5b5f80fd
         assembly ("memory-safe") {
             let fmp := mload(0x40)
             // build initcode at FMP
-            mstore(add(fmp, 0x20), 0x34833781601435813560601c5af13d90815f803e6029575ff35b5ffd5b5f80fd)
+            mstore(add(fmp, 0x20), 0x34833781601435813560601c5af13d5f803e6028573d5ff35b3d5ffd5b5f80fd)
             mstore(fmp, 0x603080600a5f395ff3fe60343610602c575f8036603319018060)
             let initcodehash := keccak256(add(fmp, 0x06), 0x3a)
 
