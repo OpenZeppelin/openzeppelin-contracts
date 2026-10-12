@@ -100,14 +100,8 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) internal view returns (uint256 used_, uint256 available_) {
-        uint208 capacity_ = self._capacity; // cache
-        RefillingBucketItem storage item_ = self._items[key]; // cache
-
-        used_ = Math.saturatingSub(
-            item_._lastUsed,
-            Math.mulDiv(Time.timestamp() - item_._lastTimepoint, capacity_, Math.max(self._window, 1))
-        );
-        available_ = Math.saturatingSub(capacity_, used_);
+        (used_, ) = _refresh(self, key);
+        available_ = Math.saturatingSub(self._capacity, used_);
     }
 
     /**
@@ -134,10 +128,10 @@ library RateLimiter {
         if (quantity == 0) {
             return true;
         }
-        (uint256 used_, uint256 available_) = state(self, key);
-        if (quantity <= available_) {
+        (uint256 used_, uint48 timepoint_) = _refresh(self, key);
+        if (quantity <= Math.saturatingSub(self._capacity, used_)) {
             self._items[key] = RefillingBucketItem({
-                _lastTimepoint: Time.timestamp(),
+                _lastTimepoint: timepoint_,
                 _lastUsed: SafeCast.toUint208(used_ + quantity)
             });
             return true;
@@ -178,12 +172,45 @@ library RateLimiter {
 
     /**
      * @dev Refreshes the `key` bucket by applying the accrued refill since its last update timepoint to `lastUsed`
-     * and `lastTimepoint`, effectively moving that entry's timepoint forward to now. This can be used to mitigate the
-     * side effect of {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is
-     * modified. It must be called per key; there is no mechanism to sync all entries at once.
+     * and `lastTimepoint`, effectively moving that entry's timepoint forward to now (or, if the bucket is not fully
+     * replenished, to the moment the last whole unit was refilled). This can be used to mitigate the side effect of
+     * {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified. It must be called per key; there is no mechanism to sync all entries at once.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
-        self._items[key] = RefillingBucketItem({_lastTimepoint: Time.timestamp(), _lastUsed: uint208(used(self, key))});
+        (uint256 used_, uint48 timepoint_) = _refresh(self, key);
+        self._items[key] = RefillingBucketItem({_lastTimepoint: timepoint_, _lastUsed: uint208(used_)});
+    }
+
+    /**
+     * @dev Computes the current `used` quantity of the `key` bucket, along with the timepoint from which any further
+     * refill should be accounted.
+     *
+     * If the bucket is fully replenished, the timepoint is the current timestamp. Otherwise, it is the moment at which
+     * the last whole unit was refilled, so that the partial refill accrued since then is not lost when the entry is
+     * updated.
+     *
+     * NOTE: A `window` of 0 is treated as 1 second in the refill computation.
+     */
+    function _refresh(
+        RefillingBucket storage self,
+        bytes32 key
+    ) private view returns (uint256 used_, uint48 timepoint_) {
+        uint256 capacity_ = self._capacity; // cache
+        uint256 window_ = Math.max(self._window, 1); // cache
+        RefillingBucketItem storage item_ = self._items[key]; // cache
+        uint256 lastUsed_ = item_._lastUsed;
+        uint48 lastTimepoint_ = item_._lastTimepoint;
+
+        uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
+        if (refill >= lastUsed_) {
+            return (0, Time.timestamp());
+        } else if (refill == 0) {
+            return (lastUsed_, lastTimepoint_);
+        } else {
+            // `refill <= elapsed * capacity / window`, so the time it took to refill it is at most `elapsed`, which
+            // makes the cast safe and ensures the returned timepoint is not in the future.
+            return (lastUsed_ - refill, lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, capacity_)));
+        }
     }
 
     // ================================================= SlidingWindow =================================================

@@ -232,6 +232,20 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(refilled);
       });
 
+      it('partial refill is preserved across consumes', async function () {
+        // one unit every 360 seconds
+        await this.mock.updateSettings(WINDOW, 10n);
+        await this.mock.consume(10n);
+
+        // 1.5 units refilled
+        await time.increaseBy.timestamp(540n);
+        await this.mock.consume(1n);
+
+        // 2 units refilled since empty, 1 used
+        await time.increaseBy.timestamp(180n);
+        await expect(this.mock.state()).to.eventually.deep.equal([9n, 1n]);
+      });
+
       it('fully refills after a window has elapsed', async function () {
         await this.mock.consume(CAPACITY);
         await time.increaseBy.timestamp(WINDOW);
