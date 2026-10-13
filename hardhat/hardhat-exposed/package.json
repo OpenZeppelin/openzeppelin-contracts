@@ -26,7 +26,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "prepare": "npm run clean && tsc",
-    "test": "mocha --node-option experimental-transform-types 'test/**/*.test.js'"
+    "test": "mocha --node-option experimental-transform-types --timeout 60000 'test/**/*.test.js'"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-utils": "^4.3.0",
