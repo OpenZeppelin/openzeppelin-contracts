@@ -211,10 +211,13 @@ describe('hardhat-exposed: incremental generation', function () {
       fs.mkdirSync(dependency, { recursive: true });
       fs.writeFileSync(path.join(dependency, 'package.json'), '{"name":"dep","version":"1.0.0"}');
       fs.writeFileSync(path.join(dependency, 'Dep.sol'), contract('Dep'));
-      fs.writeFileSync(
-        this.source('Importer'),
-        contract('Importer').replace('contract Importer', 'import {Dep} from "dep/Dep.sol";\ncontract Importer is Dep'),
-      );
+      // Write a source that imports and extends Dep, so Dep gets an exposed wrapper via the `imports` option.
+      this.writeImporter = name =>
+        fs.writeFileSync(
+          this.source(name),
+          contract(name).replace(`contract ${name}`, `import {Dep} from "dep/Dep.sol";\ncontract ${name} is Dep`),
+        );
+      this.writeImporter('Importer');
       this.importedWrapper = () => this.wrappers().find(file => file.endsWith('Dep.sol'));
     });
 
@@ -231,6 +234,29 @@ describe('hardhat-exposed: incremental generation', function () {
       this.remove('Importer');
       await this.build({ imports: true });
       expect(this.wrappers()).to.deep.equal([]);
+    });
+
+    it('keeps an imported wrapper while another importer still needs it', async function () {
+      this.writeImporter('Importer2');
+      await this.build({ imports: true });
+      expect(this.importedWrapper()).to.not.equal(undefined);
+
+      this.remove('Importer'); // one of two importers gone
+      await this.build({ imports: true });
+      expect(this.importedWrapper()).to.not.equal(undefined); // Importer2 still needs it
+
+      this.remove('Importer2'); // last importer gone
+      await this.build({ imports: true });
+      expect(this.importedWrapper()).to.equal(undefined);
+    });
+
+    it('removes an imported wrapper when its only importer stops importing it', async function () {
+      await this.build({ imports: true });
+      expect(this.importedWrapper()).to.not.equal(undefined);
+
+      this.write('Importer'); // rewrite without the import, keeping the contract
+      await this.build({ imports: true });
+      expect(this.wrappers()).to.deep.equal(['contracts/Importer.sol']); // Dep wrapper pruned, Importer kept
     });
   });
 });
