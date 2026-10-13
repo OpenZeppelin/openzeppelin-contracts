@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "description": "Automatically expose internal functions for smart contract testing",
   "license": "MIT",
-  "author": "Francisco Giordano <frangio.1@gmail.com>",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OpenZeppelin/openzeppelin-contracts.git",
