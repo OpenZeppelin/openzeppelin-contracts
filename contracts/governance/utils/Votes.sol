@@ -213,7 +213,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     }
 
     /**
-     * @dev Get the `pos`-th checkpoint for `account`.
+     * @dev Get the `index`-th checkpoint for `account`.
      */
     function _checkpoints(
         address account,
