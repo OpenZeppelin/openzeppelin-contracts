@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { ExposedManifest } from '../internal/manifest.ts';
+import { ExposedManifest } from '../src/internal/manifest.ts';
 
 // Unit tests for the stale-exposed-file bookkeeping. The manifest is pure fs/path, so everything runs against a
 // throwaway temp directory: `rootDir` stands in for the project root, `outDir` for `contracts-exposed`.
