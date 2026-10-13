@@ -315,7 +315,7 @@ library RLP {
         require(length <= 33, RLPInvalidEncoding());
 
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPInvalidEncoding());
+        require(itemType == ItemType.Data && itemOffset + itemLength == length, RLPInvalidEncoding());
 
         return itemLength == 0 ? 0 : uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
     }
@@ -335,7 +335,7 @@ library RLP {
     /// @dev Decodes an RLP encoded bytes. See {encode-bytes}
     function readBytes(Memory.Slice item) internal pure returns (bytes memory) {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPInvalidEncoding());
+        require(itemType == ItemType.Data && offset + length == item.length(), RLPInvalidEncoding());
 
         // Length is checked by {slice}
         return item.slice(offset, length).toBytes();
