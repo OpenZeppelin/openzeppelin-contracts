@@ -52,9 +52,9 @@ contract VestingWallet is Context, Ownable, IERC6372 {
      * @dev Sets the beneficiary (owner), the start timestamp and the vesting duration (in seconds) of the vesting
      * wallet.
      */
-    constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
-        _start = startTimestamp;
-        _duration = durationSeconds;
+    constructor(address beneficiary, uint64 start_, uint64 duration_) payable Ownable(beneficiary) {
+        _start = start_;
+        _duration = duration_;
     }
 
     /// @inheritdoc IERC6372
