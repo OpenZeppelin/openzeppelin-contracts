@@ -171,14 +171,16 @@ library RateLimiter {
 
     /**
      * @dev Refreshes the `key` bucket by applying the accrued refill since its last update timepoint to `lastUsed`
-     * and `lastTimepoint`, effectively moving that entry's timepoint forward to now (or, if the bucket is not fully
-     * replenished, to the moment the last whole unit was refilled). This can be used to mitigate the side effect of
-     * {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified. It must
-     * be called per key; there is no mechanism to sync all entries at once.
+     * and `lastTimepoint`, effectively moving that entry's timepoint forward to now. This can be used to mitigate the
+     * side effect of {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is
+     * modified. It must be called per key; there is no mechanism to sync all entries at once.
+     *
+     * WARNING: Any partial refill accrued since the last whole unit was refilled is discarded. Calling this function
+     * repeatedly, at an interval shorter than the time it takes to refill one unit (`window / capacity`), prevents the
+     * bucket from refilling at all. Do not expose it to parties that should not be able to stall the refill of a key.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
-        (uint256 used_, , uint48 timepoint_) = _refresh(self, key);
-        self._items[key] = RefillingBucketItem({_lastTimepoint: timepoint_, _lastUsed: uint208(used_)});
+        self._items[key] = RefillingBucketItem({_lastTimepoint: Time.timestamp(), _lastUsed: uint208(used(self, key))});
     }
 
     /**

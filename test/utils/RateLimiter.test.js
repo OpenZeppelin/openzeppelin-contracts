@@ -359,6 +359,24 @@ describe('RateLimiter', function () {
         );
       });
 
+      it('sync moves the timepoint to now, discarding partial refill', async function () {
+        // one unit every 360 seconds
+        await this.mock.updateSettings(WINDOW, 10n);
+        await this.mock.consume(10n);
+
+        // half a unit refilled, then discarded by sync before speeding up the refill rate
+        await time.increaseBy.timestamp(180n, false);
+        await batchInBlock(
+          [
+            () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
+            () => this.mock.updateSettings(360n, 10n, { gasLimit: 200000 }),
+          ],
+          ethers.provider,
+        );
+
+        await expect(this.mock.state()).to.eventually.deep.equal([10n, 0n]);
+      });
+
       it('reset clears used', async function () {
         await this.mock.consume(CAPACITY / 2n);
 
