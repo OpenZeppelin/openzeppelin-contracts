@@ -41,60 +41,70 @@ rule stateDomain(env e, uint256 pId) {
 //     require clockSanity(e);
 //     require quorumNumeratorLength() < max_uint256; // sanity
 //
-//     IGovernor.ProposalState stateBefore = safeState(e, pId);
+//     bool                    createdBefore = proposalCreated(pId);
+//     IGovernor.ProposalState stateBefore   = safeState(e, pId);
 //     f(e, args);
-//     IGovernor.ProposalState stateAfter  = safeState(e, pId);
+//     bool                    createdAfter  = proposalCreated(pId);
+//     IGovernor.ProposalState stateAfter    = safeState(e, pId);
 //
-//     assert (stateBefore != stateAfter) => (
-//         (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == sig:propose(address[],uint256[],bytes[],string).selector ) ||
-//         (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector ) ||
-//         (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector  ) ||
-//         (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector) ||
-//         (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector)
+//     assert (createdBefore != createdAfter || stateBefore != stateAfter) => (
+//         (!createdBefore && createdAfter               && stateAfter == PENDING()  && f.selector == sig:propose(address[],uint256[],bytes[],string).selector ) ||
+//         ( createdBefore && stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector ) ||
+//         ( createdBefore && stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector  ) ||
+//         ( createdBefore && stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector) ||
+//         ( createdBefore && stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector)
 //     );
 // }
 
 /// This version also causes a lot of timeouts so we comment it out of now
-// function stateTransitionFnHelper(method f, uint8 s) returns uint8 {
+// function stateTransitionFnHelper(method f, IGovernor.ProposalState s) returns IGovernor.ProposalState {
 //     uint256 pId; env e; calldataarg args;
 //
 //     require clockSanity(e);
 //     require quorumNumeratorLength() < max_uint256; // sanity
 //
-//     require safeState(e, pId) == s; // constrain state before
+//     require proposalCreated(pId) && state(e, pId) == s; // constrain state before
 //     f(e, args);
-//     require safeState(e, pId) != s; // constrain state after
+//     require state(e, pId) != s; // constrain state after
 //
-//     return safeState(e, pId);
+//     return state(e, pId);
 // }
 //
 // rule stateTransitionFn_UNSET(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, UNSET());
-//     assert stateAfter == PENDING() && f.selector == sig:propose(address[],uint256[],bytes[],string).selector;
+//     uint256 pId; env e; calldataarg args;
+//
+//     require clockSanity(e);
+//     require quorumNumeratorLength() < max_uint256; // sanity
+//
+//     require !proposalCreated(pId); // constrain state before
+//     f(e, args);
+//     require proposalCreated(pId); // constrain state after
+//
+//     assert state(e, pId) == PENDING() && f.selector == sig:propose(address[],uint256[],bytes[],string).selector;
 // }
 //
 // rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, PENDING());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, PENDING());
 //     assert stateAfter == CANCELED() && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector;
 // }
 //
 // rule stateTransitionFn_ACTIVE(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, ACTIVE());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, ACTIVE());
 //     assert false;
 // }
 //
 // rule stateTransitionFn_CANCELED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, CANCELED());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, CANCELED());
 //     assert false;
 // }
 //
 // rule stateTransitionFn_DEFEATED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, DEFEATED());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, DEFEATED());
 //     assert false;
 // }
 //
 // rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, SUCCEEDED());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, SUCCEEDED());
 //     assert (
 //         (stateAfter == QUEUED()   && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector) ||
 //         (stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector)
@@ -102,12 +112,12 @@ rule stateDomain(env e, uint256 pId) {
 // }
 //
 // rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, QUEUED());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, QUEUED());
 //     assert stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector;
 // }
 //
 // rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
-//     uint8 stateAfter = stateTransitionFnHelper(f, EXECUTED());
+//     IGovernor.ProposalState stateAfter = stateTransitionFnHelper(f, EXECUTED());
 //     assert false;
 // }
 

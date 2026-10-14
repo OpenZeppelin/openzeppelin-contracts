@@ -16,7 +16,7 @@ use invariant votesImplySnapshotPassed;
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // invariant deadlineExtendedEquivQuorumReached(uint256 pId)
-//     getExtendedDeadline(pId) > 0 <=> (quorumReached(pId) && !isCanceled(pId))
+//     getExtendedDeadline(pId) > 0 <=> (quorumReached(pId) && !isCanceled(pId));
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

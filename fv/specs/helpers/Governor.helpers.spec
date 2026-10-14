@@ -44,6 +44,19 @@ definition EXECUTED()  returns IGovernor.ProposalState = IGovernor.ProposalState
 definition proposalCreated(uint256 pId) returns bool =
     proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0 && proposalProposer(pId) != 0;
 
+// This helper is an alternative to state(e, pId) that doesn't revert when the proposal does not exist (not created
+// yet). In that case, the returned value is arbitrary, and `proposalCreated(pId)` should be checked separately.
+function safeState(env e, uint256 pId) returns IGovernor.ProposalState {
+    IGovernor.ProposalState result;
+    if (proposalCreated(pId)) {
+        result = state(e, pId);
+    } else {
+        IGovernor.ProposalState unset;
+        result = unset;
+    }
+    return result;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Filters                                                                                                             │
