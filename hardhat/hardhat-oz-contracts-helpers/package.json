@@ -1,0 +1,51 @@
+{
+  "name": "hardhat-oz-contracts-helpers",
+  "version": "0.1.0",
+  "description": "Network helpers used by the OpenZeppelin Contracts test suite",
+  "license": "MIT",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenZeppelin/openzeppelin-contracts.git",
+    "directory": "hardhat/hardhat-oz-contracts-helpers"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "prepare": "npm run clean && tsc"
+  },
+  "dependencies": {
+    "ethers": "^6.16.0",
+    "interoperable-addresses": "^0.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.4",
+    "hardhat": "^3.9.1",
+    "rimraf": "^6.1.2",
+    "typescript": "^7.0.2",
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.11"
+  },
+  "peerDependencies": {
+    "hardhat": "^3.9.1",
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.11"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

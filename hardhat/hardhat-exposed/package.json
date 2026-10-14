@@ -1,0 +1,50 @@
+{
+  "name": "hardhat-exposed",
+  "version": "0.4.0",
+  "description": "Automatically expose internal functions for smart contract testing",
+  "license": "MIT",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenZeppelin/openzeppelin-contracts.git",
+    "directory": "hardhat/hardhat-exposed"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "prepare": "npm run clean && tsc",
+    "test": "mocha --node-option experimental-transform-types --timeout 60000 'test/**/*.test.js'"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-utils": "^4.3.0",
+    "solidity-ast": "^0.4.61"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.4",
+    "chai": "^5.3.3",
+    "hardhat": "^3.9.1",
+    "mocha": "^12.0.2",
+    "rimraf": "^6.1.2",
+    "typescript": "^7.0.2"
+  },
+  "peerDependencies": {
+    "hardhat": "^3.9.1"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

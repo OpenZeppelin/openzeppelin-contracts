@@ -1,0 +1,42 @@
+name: plugins
+
+on:
+  push:
+    branches:
+      - master
+      - next-v*
+      - release-v*
+    paths:
+      - 'hardhat/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/actions/setup/action.yml'
+      - '.github/workflows/plugins.yml'
+  pull_request:
+    paths:
+      - 'hardhat/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/actions/setup/action.yml'
+      - '.github/workflows/plugins.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: plugins-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v7
+      # Builds (and type-checks) the plugins, either through `npm ci` or `npm run plugins:prepare` on a cache hit.
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run plugin tests
+        run: npm run plugins:test
