@@ -1,103 +1,115 @@
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { getDomain, domainSeparator, hashTypedData } from '../../helpers/eip712';
+import { formatType } from '../../helpers/eip712-types';
+import * as random from '../../helpers/random';
 
-const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { getChainId } = require('../../helpers/chainid');
-const { mapValues } = require('../../helpers/map-values');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const EIP712Verifier = artifacts.require('$EIP712Verifier');
-const Clones = artifacts.require('$Clones');
+const name = 'A Name';
+const version = '1';
 
-contract('EIP712', function (accounts) {
-  const [mailTo] = accounts;
+const fixture = async () => {
+  const [from, to] = await ethers.getSigners();
 
-  const shortName = 'A Name';
-  const shortVersion = '1';
+  const eip712 = await ethers.deployContract('$EIP712Verifier', [name, version]);
+  const domain = await ethers.provider.getNetwork().then(({ chainId }) => ({
+    name,
+    version,
+    chainId,
+    verifyingContract: eip712.target,
+  }));
 
-  const longName = 'A'.repeat(40);
-  const longVersion = 'B'.repeat(40);
+  return { from, to, eip712, domain };
+};
 
-  const cases = [
-    ['short', shortName, shortVersion],
-    ['long', longName, longVersion],
-  ];
+describe('EIP712', function () {
+  beforeEach('deploying', async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
-  for (const [shortOrLong, name, version] of cases) {
-    describe(`with ${shortOrLong} name and version`, function () {
-      beforeEach('deploying', async function () {
-        this.eip712 = await EIP712Verifier.new(name, version);
+  describe('with short name and version', function () {
+    describe('domain separator', function () {
+      it('is internally available', async function () {
+        const expected = await domainSeparator(this.domain);
 
-        this.domain = {
-          name,
-          version,
-          chainId: await getChainId(),
-          verifyingContract: this.eip712.address,
-        };
-        this.domainType = domainType(this.domain);
+        await expect(this.eip712.$_domainSeparatorV4()).to.eventually.equal(expected);
       });
 
-      describe('domain separator', function () {
-        it('is internally available', async function () {
-          const expected = await domainSeparator(this.domain);
-
-          expect(await this.eip712.$_domainSeparatorV4()).to.equal(expected);
-        });
-
-        it("can be rebuilt using EIP-5267's eip712Domain", async function () {
-          const rebuildDomain = await getDomain(this.eip712);
-          expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
-        });
-
-        if (shortOrLong === 'short') {
-          // Long strings are in storage, and the proxy will not be properly initialized unless
-          // the upgradeable contract variant is used and the initializer is invoked.
-
-          it('adjusts when behind proxy', async function () {
-            const factory = await Clones.new();
-            const cloneReceipt = await factory.$clone(this.eip712.address);
-            const cloneAddress = cloneReceipt.logs.find(({ event }) => event === 'return$clone').args.instance;
-            const clone = new EIP712Verifier(cloneAddress);
-
-            const cloneDomain = { ...this.domain, verifyingContract: clone.address };
-
-            const reportedDomain = await getDomain(clone);
-            expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
-
-            const expectedSeparator = await domainSeparator(cloneDomain);
-            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
-          });
-        }
+      it("can be rebuilt using EIP-5267's eip712Domain", async function () {
+        const rebuildDomain = await getDomain(this.eip712);
+        expect(rebuildDomain).to.be.deep.equal(this.domain);
       });
 
-      it('hash digest', async function () {
-        const structhash = web3.utils.randomHex(32);
-        expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
-      });
+      it('adjusts when behind proxy', async function () {
+        const factory = await ethers.deployContract('$Clones');
 
-      it('digest', async function () {
-        const message = {
-          to: mailTo,
-          contents: 'very interesting',
-        };
+        const clone = await factory
+          .$clone(this.eip712)
+          .then(tx => tx.wait())
+          .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone_address').args.instance)
+          .then(address => ethers.getContractAt('$EIP712Verifier', address));
 
-        const data = {
-          types: {
-            EIP712Domain: this.domainType,
-            Mail: [
-              { name: 'to', type: 'address' },
-              { name: 'contents', type: 'string' },
-            ],
-          },
-          domain: this.domain,
-          primaryType: 'Mail',
-          message,
-        };
+        const expectedDomain = { ...this.domain, verifyingContract: clone.target };
+        await expect(getDomain(clone)).to.eventually.deep.equal(expectedDomain);
 
-        const wallet = Wallet.generate();
-        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-
-        await this.eip712.verify(signature, wallet.getAddressString(), message.to, message.contents);
+        const expectedSeparator = await domainSeparator(expectedDomain);
+        await expect(clone.$_domainSeparatorV4()).to.eventually.equal(expectedSeparator);
       });
     });
-  }
+
+    it('hash digest', async function () {
+      const structhash = random.bytes32();
+      await expect(this.eip712.$_hashTypedDataV4(structhash)).to.eventually.equal(
+        hashTypedData(this.domain, structhash),
+      );
+    });
+
+    it('digest', async function () {
+      const types = {
+        Mail: formatType({
+          to: 'address',
+          contents: 'string',
+        }),
+      };
+
+      const message = {
+        to: this.to.address,
+        contents: 'very interesting',
+      };
+
+      const signature = await this.from.signTypedData(this.domain, types, message);
+
+      await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.be.not.revert(
+        ethers,
+      );
+    });
+
+    it('name', async function () {
+      await expect(this.eip712.$_EIP712Name()).to.eventually.equal(name);
+    });
+
+    it('version', async function () {
+      await expect(this.eip712.$_EIP712Version()).to.eventually.equal(version);
+    });
+  });
+
+  describe('with long name and version', function () {
+    it('deployment fails with long name', async function () {
+      const longName = 'A'.repeat(32);
+      await expect(ethers.deployContract('$EIP712Verifier', [longName, version]))
+        .to.be.revertedWithCustomError(this.eip712, 'StringTooLong')
+        .withArgs(longName);
+    });
+
+    it('deployment fails with long version', async function () {
+      const longVersion = 'B'.repeat(32);
+      await expect(ethers.deployContract('$EIP712Verifier', [name, longVersion]))
+        .to.be.revertedWithCustomError(this.eip712, 'StringTooLong')
+        .withArgs(longVersion);
+    });
+  });
 });

@@ -1,99 +1,184 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
-const { expectRevertCustomError } = require('../../helpers/customError');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 
-const DoubleEndedQueue = artifacts.require('$DoubleEndedQueue');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-/** Rebuild the content of the deque as a JS array. */
-const getContent = deque =>
-  deque.$length(0).then(bn =>
-    Promise.all(
-      Array(bn.toNumber())
-        .fill()
-        .map((_, i) => deque.$at(0, i)),
-    ),
-  );
+async function fixture() {
+  const mock = await ethers.deployContract('$DoubleEndedQueue');
 
-contract('DoubleEndedQueue', function () {
-  const bytesA = '0xdeadbeef'.padEnd(66, '0');
-  const bytesB = '0x0123456789'.padEnd(66, '0');
-  const bytesC = '0x42424242'.padEnd(66, '0');
-  const bytesD = '0x171717'.padEnd(66, '0');
+  /** Rebuild the content of the deque as a JS array. */
+  const getContent = () =>
+    mock.$length(0).then(length => Promise.all(Array.from({ length: Number(length) }, (_, i) => mock.$at(0, i))));
+
+  return { mock, getContent };
+}
+
+describe('DoubleEndedQueue', function () {
+  const coder = ethers.AbiCoder.defaultAbiCoder();
+  const bytesA = coder.encode(['uint256'], [0xdeadbeef]);
+  const bytesB = coder.encode(['uint256'], [0x0123456789]);
+  const bytesC = coder.encode(['uint256'], [0x42424242]);
+  const bytesD = coder.encode(['uint256'], [0x171717]);
 
   beforeEach(async function () {
-    this.deque = await DoubleEndedQueue.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('when empty', function () {
     it('getters', async function () {
-      expect(await this.deque.$empty(0)).to.be.equal(true);
-      expect(await getContent(this.deque)).to.have.ordered.members([]);
+      await expect(this.mock.$empty(0)).to.eventually.be.true;
+      await expect(this.getContent()).to.eventually.have.ordered.members([]);
     });
 
     it('reverts on accesses', async function () {
-      await expectRevertCustomError(this.deque.$popBack(0), 'Empty()');
-      await expectRevertCustomError(this.deque.$popFront(0), 'Empty()');
-      await expectRevertCustomError(this.deque.$back(0), 'Empty()');
-      await expectRevertCustomError(this.deque.$front(0), 'Empty()');
+      await expect(this.mock.$popBack(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+      await expect(this.mock.$popFront(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+      await expect(this.mock.$back(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      await expect(this.mock.$front(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('try getters return false/zero on empty', async function () {
+      await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+      await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+      await expect(this.mock.$tryAt(0, 0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+    });
+
+    it('try pops return false/zero on empty', async function () {
+      await expect(this.mock.$tryPopFront(0)).to.emit(this.mock, 'return$tryPopFront').withArgs(false, ethers.ZeroHash);
+      await expect(this.mock.$tryPopBack(0)).to.emit(this.mock, 'return$tryPopBack').withArgs(false, ethers.ZeroHash);
+    });
+
+    it('try pushes succeed on empty', async function () {
+      await expect(this.mock.$tryPushFront(0, bytesA)).to.emit(this.mock, 'return$tryPushFront').withArgs(true);
+      await expect(this.mock.$tryPushBack(0, bytesB)).to.emit(this.mock, 'return$tryPushBack').withArgs(true);
+
+      await expect(this.getContent()).to.eventually.have.ordered.members([bytesA, bytesB]);
+    });
+
+    it('values returns empty array', async function () {
+      await expect(this.mock.$values(0, 0, 0)).to.eventually.deep.equal([]);
+      await expect(this.mock.$values(0, 0, 10)).to.eventually.deep.equal([]);
+      await expect(this.mock.$values(0, 5, 10)).to.eventually.deep.equal([]);
     });
   });
 
   describe('when not empty', function () {
     beforeEach(async function () {
-      await this.deque.$pushBack(0, bytesB);
-      await this.deque.$pushFront(0, bytesA);
-      await this.deque.$pushBack(0, bytesC);
+      await this.mock.$pushBack(0, bytesB);
+      await this.mock.$pushFront(0, bytesA);
+      await this.mock.$pushBack(0, bytesC);
       this.content = [bytesA, bytesB, bytesC];
     });
 
     it('getters', async function () {
-      expect(await this.deque.$empty(0)).to.be.equal(false);
-      expect(await this.deque.$length(0)).to.be.bignumber.equal(this.content.length.toString());
-      expect(await this.deque.$front(0)).to.be.equal(this.content[0]);
-      expect(await this.deque.$back(0)).to.be.equal(this.content[this.content.length - 1]);
-      expect(await getContent(this.deque)).to.have.ordered.members(this.content);
+      await expect(this.mock.$empty(0)).to.eventually.be.false;
+      await expect(this.mock.$length(0)).to.eventually.equal(this.content.length);
+      await expect(this.mock.$front(0)).to.eventually.equal(this.content[0]);
+      await expect(this.mock.$back(0)).to.eventually.equal(this.content[this.content.length - 1]);
+      await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
     });
 
     it('out of bounds access', async function () {
-      await expectRevertCustomError(this.deque.$at(0, this.content.length), 'OutOfBounds()');
+      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
+    });
+
+    it('try getters return true/value when not empty', async function () {
+      await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([true, this.content[0]]);
+      await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([true, this.content[this.content.length - 1]]);
+      await expect(this.mock.$tryAt(0, 1)).to.eventually.deep.equal([true, this.content[1]]);
+    });
+
+    it('tryAt returns false/zero on out of bounds', async function () {
+      await expect(this.mock.$tryAt(0, this.content.length)).to.eventually.deep.equal([false, ethers.ZeroHash]);
     });
 
     describe('push', function () {
       it('front', async function () {
-        await this.deque.$pushFront(0, bytesD);
+        await this.mock.$pushFront(0, bytesD);
         this.content.unshift(bytesD); // add element at the beginning
 
-        expect(await getContent(this.deque)).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('back', async function () {
-        await this.deque.$pushBack(0, bytesD);
+        await this.mock.$pushBack(0, bytesD);
         this.content.push(bytesD); // add element at the end
 
-        expect(await getContent(this.deque)).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
     });
 
     describe('pop', function () {
       it('front', async function () {
         const value = this.content.shift(); // remove first element
-        expectEvent(await this.deque.$popFront(0), 'return$popFront', { value });
+        await expect(this.mock.$popFront(0)).to.emit(this.mock, 'return$popFront').withArgs(value);
 
-        expect(await getContent(this.deque)).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('back', async function () {
         const value = this.content.pop(); // remove last element
-        expectEvent(await this.deque.$popBack(0), 'return$popBack', { value });
+        await expect(this.mock.$popBack(0)).to.emit(this.mock, 'return$popBack').withArgs(value);
 
-        expect(await getContent(this.deque)).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
+      });
+
+      it('try front', async function () {
+        const value = this.content.shift();
+        await expect(this.mock.$tryPopFront(0)).to.emit(this.mock, 'return$tryPopFront').withArgs(true, value);
+
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
+      });
+
+      it('try back', async function () {
+        const value = this.content.pop();
+        await expect(this.mock.$tryPopBack(0)).to.emit(this.mock, 'return$tryPopBack').withArgs(true, value);
+
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
     });
 
     it('clear', async function () {
-      await this.deque.$clear(0);
+      await this.mock.$clear(0);
 
-      expect(await this.deque.$empty(0)).to.be.equal(true);
-      expect(await getContent(this.deque)).to.have.ordered.members([]);
+      await expect(this.mock.$empty(0)).to.eventually.be.true;
+      await expect(this.getContent()).to.eventually.have.ordered.members([]);
+    });
+
+    describe('values', function () {
+      it('returns the full content for [0, length)', async function () {
+        await expect(this.mock.$values(0, 0, this.content.length)).to.eventually.deep.equal(this.content);
+      });
+
+      it('paginates across all begin/end combinations', async function () {
+        for (const begin of [0, 1, 2, 3, 4])
+          for (const end of [0, 1, 2, 3, 4]) {
+            await expect(this.mock.$values(0, begin, end)).to.eventually.deep.equal(this.content.slice(begin, end));
+          }
+      });
+
+      it('clamps end to length', async function () {
+        await expect(this.mock.$values(0, 0, ethers.MaxUint256)).to.eventually.deep.equal(this.content);
+        await expect(this.mock.$values(0, 1, ethers.MaxUint256)).to.eventually.deep.equal(this.content.slice(1));
+      });
+
+      it('clamps start to end', async function () {
+        await expect(this.mock.$values(0, ethers.MaxUint256, ethers.MaxUint256)).to.eventually.deep.equal([]);
+        await expect(this.mock.$values(0, 2, 1)).to.eventually.deep.equal([]);
+      });
+
+      it('reflects pushFront/pushBack ordering (wraparound indices)', async function () {
+        await this.mock.$pushFront(0, bytesD);
+        const expected = [bytesD, ...this.content];
+        await expect(this.mock.$values(0, 0, expected.length)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$values(0, 1, 3)).to.eventually.deep.equal(expected.slice(1, 3));
+      });
     });
   });
 });

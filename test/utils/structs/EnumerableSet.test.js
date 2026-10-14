@@ -1,79 +1,67 @@
-const EnumerableSet = artifacts.require('$EnumerableSet');
-const { mapValues } = require('../../helpers/map-values');
+import { network } from 'hardhat';
+import { mapValues } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
+import { SET_TYPES } from '../../../scripts/generate/data.js';
+import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 
-const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const getMethods = ms => {
-  return mapValues(
-    ms,
-    m =>
-      (self, ...args) =>
-        self.methods[m](0, ...args),
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
+
+async function fixture() {
+  const mock = await ethers.deployContract('$EnumerableSet');
+
+  const env = Object.fromEntries(
+    SET_TYPES.map(({ name, value }) => [
+      name,
+      {
+        value,
+        values: Array.from({ length: 3 }, randomOf(value.type)),
+        methods: mapValues(
+          {
+            add: `$add(uint256,${value.type})`,
+            remove: `$remove(uint256,${value.type})`,
+            removeAt: `$removeAt_EnumerableSet_${name}(uint256,uint256)`,
+            contains: `$contains(uint256,${value.type})`,
+            clear: `$clear_EnumerableSet_${name}(uint256)`,
+            length: `$length_EnumerableSet_${name}(uint256)`,
+            at: `$at_EnumerableSet_${name}(uint256,uint256)`,
+            values: `$values_EnumerableSet_${name}(uint256)`,
+            valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
+          },
+          fnSig =>
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
+        ),
+        events: {
+          addReturn: `return$add_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
+          removeReturn: `return$remove_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
+        },
+      },
+    ]),
   );
-};
 
-// Get the name of the library. In the transpiled code it will be EnumerableSetUpgradeable.
-const library = EnumerableSet._json.contractName.replace(/^\$/, '');
+  return { mock, env };
+}
 
-contract('EnumerableSet', function (accounts) {
+describe('EnumerableSet', function () {
   beforeEach(async function () {
-    this.set = await EnumerableSet.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  // Bytes32Set
-  describe('EnumerableBytes32Set', function () {
-    shouldBehaveLikeSet(
-      ['0xdeadbeef', '0x0123456789', '0x42424242'].map(e => e.padEnd(66, '0')),
-      getMethods({
-        add: '$add(uint256,bytes32)',
-        remove: '$remove(uint256,bytes32)',
-        contains: '$contains(uint256,bytes32)',
-        length: `$length_${library}_Bytes32Set(uint256)`,
-        at: `$at_${library}_Bytes32Set(uint256,uint256)`,
-        values: `$values_${library}_Bytes32Set(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_Bytes32Set_bytes32`,
-        removeReturn: `return$remove_${library}_Bytes32Set_bytes32`,
-      },
-    );
-  });
+  for (const { name, value } of SET_TYPES) {
+    describe(`${name} (enumerable set of ${value.type})`, function () {
+      beforeEach(function () {
+        Object.assign(this, this.env[name]);
+        [this.valueA, this.valueB, this.valueC] = this.values;
+      });
 
-  // AddressSet
-  describe('EnumerableAddressSet', function () {
-    shouldBehaveLikeSet(
-      accounts,
-      getMethods({
-        add: '$add(uint256,address)',
-        remove: '$remove(uint256,address)',
-        contains: '$contains(uint256,address)',
-        length: `$length_${library}_AddressSet(uint256)`,
-        at: `$at_${library}_AddressSet(uint256,uint256)`,
-        values: `$values_${library}_AddressSet(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_AddressSet_address`,
-        removeReturn: `return$remove_${library}_AddressSet_address`,
-      },
-    );
-  });
-
-  // UintSet
-  describe('EnumerableUintSet', function () {
-    shouldBehaveLikeSet(
-      [1234, 5678, 9101112].map(e => web3.utils.toBN(e)),
-      getMethods({
-        add: '$add(uint256,uint256)',
-        remove: '$remove(uint256,uint256)',
-        contains: '$contains(uint256,uint256)',
-        length: `$length_${library}_UintSet(uint256)`,
-        at: `$at_${library}_UintSet(uint256,uint256)`,
-        values: `$values_${library}_UintSet(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_UintSet_uint256`,
-        removeReturn: `return$remove_${library}_UintSet_uint256`,
-      },
-    );
-  });
+      shouldBehaveLikeSet();
+    });
+  }
 });

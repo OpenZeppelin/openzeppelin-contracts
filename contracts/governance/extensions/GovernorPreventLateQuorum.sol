@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorPreventLateQuorum.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
-import "../Governor.sol";
-import "../../utils/math/Math.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from
@@ -15,13 +15,13 @@ import "../../utils/math/Math.sol";
  * least a specified time has passed (the "vote extension" parameter). This parameter can be set through a governance
  * proposal.
  *
- * _Available since v4.5._
+ * NOTE: This module only reacts to the first time a proposal reaches quorum. If quorum can later be lost, for example
+ * when combined with {GovernorCountingOverridable}, reaching quorum again will not trigger another vote extension.
  */
 abstract contract GovernorPreventLateQuorum is Governor {
-    uint64 private _voteExtension;
+    uint48 private _voteExtension;
 
-    /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
-    mapping(uint256 => uint64) private _extendedDeadlines;
+    mapping(uint256 proposalId => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
@@ -29,12 +29,15 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /// @dev Emitted when the {lateQuorumVoteExtension} parameter is changed.
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
+    /// @dev Thrown when the {lateQuorumVoteExtension} parameter is set to a value larger than {_maxLateQuorumVoteExtension}.
+    error GovernorPreventLateQuorumVoteExtensionTooLarge(uint256 newVoteExtension, uint256 maxVoteExtension);
+
     /**
-     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the governor
-     * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
-     * necessary the voting period will be extended beyond the one set during proposal creation.
+     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the
+     * governor clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period
+     * ends. If necessary the voting period will be extended beyond the one set during proposal creation.
      */
-    constructor(uint64 initialVoteExtension) {
+    constructor(uint48 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);
     }
 
@@ -47,22 +50,18 @@ abstract contract GovernorPreventLateQuorum is Governor {
     }
 
     /**
-     * @dev Casts a vote and detects if it caused quorum to be reached, potentially extending the voting period. See
-     * {Governor-_castVote}.
+     * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
+     *
+     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()`. Since {lateQuorumVoteExtension}
+     * is bounded by {_maxLateQuorumVoteExtension} when set, this addition cannot overflow in practice and brick
+     * governance mid-vote.
      *
      * May emit a {ProposalExtended} event.
      */
-    function _castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason,
-        bytes memory params
-    ) internal virtual override returns (uint256) {
-        uint256 result = super._castVote(proposalId, account, support, reason, params);
-
+    function _tallyUpdated(uint256 proposalId) internal virtual override {
+        super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint64 extendedDeadline = clock() + lateQuorumVoteExtension();
+            uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -70,16 +69,27 @@ abstract contract GovernorPreventLateQuorum is Governor {
 
             _extendedDeadlines[proposalId] = extendedDeadline;
         }
-
-        return result;
     }
 
     /**
      * @dev Returns the current value of the vote extension parameter: the number of blocks that are required to pass
      * from the time a proposal reaches quorum until its voting period ends.
      */
-    function lateQuorumVoteExtension() public view virtual returns (uint64) {
+    function lateQuorumVoteExtension() public view virtual returns (uint48) {
         return _voteExtension;
+    }
+
+    /**
+     * @dev Upper bound applied to {lateQuorumVoteExtension} when it is set. Defaults to the voting period,
+     * resulting in a total maximum voting period of twice the governor's documented voting period.
+     * Can be overridden to provide a different upper bound.
+     *
+     * NOTE: {_tallyUpdated} adds `lateQuorumVoteExtension()` to `clock()` using `uint48` arithmetic, which is
+     * safe under the default bound. Overriding this to a value close to (or greater than) `type(uint48).max`
+     * can make that addition overflow and revert the quorum-reaching vote, bricking governance.
+     */
+    function _maxLateQuorumVoteExtension() internal view virtual returns (uint256) {
+        return votingPeriod();
     }
 
     /**
@@ -88,7 +98,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function setLateQuorumVoteExtension(uint64 newVoteExtension) public virtual onlyGovernance {
+    function setLateQuorumVoteExtension(uint48 newVoteExtension) public virtual onlyGovernance {
         _setLateQuorumVoteExtension(newVoteExtension);
     }
 
@@ -98,7 +108,11 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function _setLateQuorumVoteExtension(uint64 newVoteExtension) internal virtual {
+    function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
+        uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
+        if (newVoteExtension > maxVoteExtension) {
+            revert GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension);
+        }
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }

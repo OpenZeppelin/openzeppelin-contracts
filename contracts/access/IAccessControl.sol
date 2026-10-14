@@ -1,27 +1,37 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (access/IAccessControl.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.4;
 
 /**
- * @dev External interface of AccessControl declared to support ERC165 detection.
+ * @dev External interface of AccessControl declared to support ERC-165 detection.
  */
 interface IAccessControl {
+    /**
+     * @dev The `account` is missing a role.
+     */
+    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
+
+    /**
+     * @dev The caller of a function is not the expected one.
+     *
+     * NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
+     */
+    error AccessControlBadConfirmation();
+
     /**
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
      *
      * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-     * {RoleAdminChanged} not being emitted signaling this.
-     *
-     * _Available since v3.1._
+     * {RoleAdminChanged} not being emitted to signal this.
      */
     event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
 
     /**
      * @dev Emitted when `account` is granted `role`.
      *
-     * `sender` is the account that originated the contract call, an admin role
-     * bearer except when using {AccessControl-_setupRole}.
+     * `sender` is the account that originated the contract call. This account bears the admin role (for the granted role).
+     * Expected in cases where the role was granted using the internal {AccessControl-_grantRole}.
      */
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 
@@ -82,7 +92,7 @@ interface IAccessControl {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      */
-    function renounceRole(bytes32 role, address account) external;
+    function renounceRole(bytes32 role, address callerConfirmation) external;
 }

@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC1155/IERC1155Receiver.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/IERC1155Receiver.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity >=0.6.2;
 
-import "../../utils/introspection/IERC165.sol";
+import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
- * @dev _Available since v3.1._
+ * @dev Interface that must be implemented by smart contracts in order to receive
+ * ERC-1155 token transfers.
  */
 interface IERC1155Receiver is IERC165 {
     /**
-     * @dev Handles the receipt of a single ERC1155 token type. This function is
+     * @dev Handles the receipt of a single ERC-1155 token type. This function is
      * called at the end of a `safeTransferFrom` after the balance has been updated.
      *
      * NOTE: To accept the transfer, this must return
@@ -33,7 +34,7 @@ interface IERC1155Receiver is IERC165 {
     ) external returns (bytes4);
 
     /**
-     * @dev Handles the receipt of a multiple ERC1155 token types. This function
+     * @dev Handles the receipt of a multiple ERC-1155 token types. This function
      * is called at the end of a `safeBatchTransferFrom` after the balances have
      * been updated.
      *

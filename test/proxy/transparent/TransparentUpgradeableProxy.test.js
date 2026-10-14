@@ -1,17 +1,36 @@
-const shouldBehaveLikeProxy = require('../Proxy.behaviour');
-const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
+import { network } from 'hardhat';
+import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
+import { shouldBehaveLikeTransparentUpgradeableProxy } from './TransparentUpgradeableProxy.behaviour';
 
-const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
-const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
-contract('TransparentUpgradeableProxy', function (accounts) {
-  const [proxyAdminAddress, proxyAdminOwner] = accounts;
+async function fixture() {
+  const [owner, other, ...accounts] = await ethers.getSigners();
 
-  const createProxy = async function (logic, admin, initData, opts) {
-    const { address } = await TransparentUpgradeableProxy.new(logic, admin, initData, opts);
-    return ITransparentUpgradeableProxy.at(address);
+  const implementation = await ethers.deployContract('DummyImplementation');
+
+  const createProxy = function (logic, initData, opts = undefined) {
+    return ethers.deployContract('TransparentUpgradeableProxy', [logic, owner, initData], opts);
   };
 
-  shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyAdminOwner);
-  shouldBehaveLikeTransparentUpgradeableProxy(createProxy, accounts);
+  return { nonContractAddress: owner, owner, other, accounts, implementation, createProxy };
+}
+
+describe('TransparentUpgradeableProxy', function () {
+  before(async function () {
+    Object.assign(this, connection);
+  });
+
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
+  shouldBehaveLikeProxy();
+
+  // createProxy, owner, otherAccounts
+  shouldBehaveLikeTransparentUpgradeableProxy();
 });

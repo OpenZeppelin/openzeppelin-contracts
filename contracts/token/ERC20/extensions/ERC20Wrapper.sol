@@ -1,37 +1,49 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/extensions/ERC20Wrapper.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC20Wrapper.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../ERC20.sol";
-import "../utils/SafeERC20.sol";
+import {Math} from "../../../utils/math/Math.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
 
 /**
- * @dev Extension of the ERC20 token contract to support token wrapping.
+ * @dev Extension of the ERC-20 token contract to support token wrapping.
  *
  * Users can deposit and withdraw "underlying tokens" and receive a matching number of "wrapped tokens". This is useful
  * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC20Votes} will allow the
- * wrapping of an existing "basic" ERC20 into a governance token.
+ * wrapping of an existing "basic" ERC-20 into a governance token.
  *
- * _Available since v4.2._
+ * WARNING: Any mechanism in which the underlying token changes the {balanceOf} of an account without an explicit transfer
+ * may desynchronize this contract's supply and its underlying balance. Please exercise caution when wrapping tokens that
+ * may undercollateralize the wrapper (i.e. wrapper's total supply is higher than its underlying balance). See {_recover}
+ * for recovering value accrued to the wrapper.
  */
 abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;
 
+    /**
+     * @dev The underlying token couldn't be wrapped.
+     */
+    error ERC20InvalidUnderlying(address token);
+
     constructor(IERC20 underlyingToken) {
-        require(underlyingToken != this, "ERC20Wrapper: cannot self wrap");
+        if (address(underlyingToken) == address(this)) {
+            revert ERC20InvalidUnderlying(address(this));
+        }
         _underlying = underlyingToken;
     }
 
     /**
-     * @dev See {ERC20-decimals}.
+     * @dev See {IERC20Metadata}. Uses {Math-ternary} for branchless selection, which evaluates both branches. This is safe
+     * because the default {ERC20-decimals} is commonly a constant.
+     *
+     * NOTE: If a derived contract overrides `super.decimals()` to read from
+     * storage, it should also override this function and use a conditional ternary instead.
      */
     function decimals() public view virtual override returns (uint8) {
-        try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {
-            return value;
-        } catch {
-            return super.decimals();
-        }
+        (bool success, uint8 decimals_) = SafeERC20.tryGetDecimals(_underlying);
+        return uint8(Math.ternary(success, decimals_, super.decimals())); // Safe cast. Both are uint8.
     }
 
     /**
@@ -44,26 +56,34 @@ abstract contract ERC20Wrapper is ERC20 {
     /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
-    function depositFor(address account, uint256 amount) public virtual returns (bool) {
+    function depositFor(address account, uint256 value) public virtual returns (bool) {
         address sender = _msgSender();
-        require(sender != address(this), "ERC20Wrapper: wrapper can't deposit");
-        SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
-        _mint(account, amount);
+        if (sender == address(this)) {
+            revert ERC20InvalidSender(address(this));
+        }
+        if (account == address(this)) {
+            revert ERC20InvalidReceiver(account);
+        }
+        SafeERC20.safeTransferFrom(_underlying, sender, address(this), value);
+        _mint(account, value);
         return true;
     }
 
     /**
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
      */
-    function withdrawTo(address account, uint256 amount) public virtual returns (bool) {
-        _burn(_msgSender(), amount);
-        SafeERC20.safeTransfer(_underlying, account, amount);
+    function withdrawTo(address account, uint256 value) public virtual returns (bool) {
+        if (account == address(this)) {
+            revert ERC20InvalidReceiver(account);
+        }
+        _burn(_msgSender(), value);
+        SafeERC20.safeTransfer(_underlying, account, value);
         return true;
     }
 
     /**
-     * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
-     * function that can be exposed with access control if desired.
+     * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake or acquired from
+     * rebasing mechanisms. Internal function that can be exposed with access control if desired.
      */
     function _recover(address account) internal virtual returns (uint256) {
         uint256 value = _underlying.balanceOf(address(this)) - totalSupply();

@@ -1,17 +1,22 @@
-require('@openzeppelin/test-helpers');
+import { network } from 'hardhat';
+import { shouldBehaveLikeRegularContext } from './Context.behavior';
 
-const ContextMock = artifacts.require('ContextMock');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
+async function fixture() {
+  const [sender] = await ethers.getSigners();
+  const context = await ethers.deployContract('ContextMock', []);
+  const contextHelper = await ethers.deployContract('ContextMockCaller', []);
+  return { sender, context, contextHelper };
+}
 
-contract('Context', function (accounts) {
-  const [sender] = accounts;
-
+describe('Context', function () {
   beforeEach(async function () {
-    this.context = await ContextMock.new();
-    this.caller = await ContextMockCaller.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeRegularContext(sender);
+  shouldBehaveLikeRegularContext();
 });

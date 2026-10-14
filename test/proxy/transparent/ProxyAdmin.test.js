@@ -1,125 +1,84 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ImplementationLabel } from '../../helpers/storage';
 
-const { expect } = require('chai');
+const {
+  ethers,
+  helpers: { storage },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const ImplV1 = artifacts.require('DummyImplementation');
-const ImplV2 = artifacts.require('DummyImplementationV2');
-const ProxyAdmin = artifacts.require('ProxyAdmin');
-const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
-const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
+async function fixture() {
+  const [admin, other] = await ethers.getSigners();
 
-contract('ProxyAdmin', function (accounts) {
-  const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
+  const v1 = await ethers.deployContract('DummyImplementation');
+  const v2 = await ethers.deployContract('DummyImplementationV2');
 
-  before('set implementations', async function () {
-    this.implementationV1 = await ImplV1.new();
-    this.implementationV2 = await ImplV2.new();
-  });
+  const proxy = await ethers
+    .deployContract('TransparentUpgradeableProxy', [v1, admin, v1.interface.encodeFunctionData('initializeNonPayable')])
+    .then(instance => ethers.getContractAt('ITransparentUpgradeableProxy', instance));
 
+  const proxyAdmin = await ethers.getContractAt(
+    'ProxyAdmin',
+    ethers.getCreateAddress({ from: proxy.target, nonce: 1n }),
+  );
+
+  return { admin, other, v1, v2, proxy, proxyAdmin };
+}
+
+describe('ProxyAdmin', function () {
   beforeEach(async function () {
-    const initializeData = Buffer.from('');
-    this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
-    const proxy = await TransparentUpgradeableProxy.new(
-      this.implementationV1.address,
-      this.proxyAdmin.address,
-      initializeData,
-      { from: proxyAdminOwner },
-    );
-    this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('has an owner', async function () {
-    expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
+    expect(await this.proxyAdmin.owner()).to.equal(this.admin);
   });
 
-  describe('#getProxyAdmin', function () {
-    it('returns proxyAdmin as admin of the proxy', async function () {
-      const admin = await this.proxyAdmin.getProxyAdmin(this.proxy.address);
-      expect(admin).to.be.equal(this.proxyAdmin.address);
-    });
-
-    it('call to invalid proxy', async function () {
-      await expectRevert.unspecified(this.proxyAdmin.getProxyAdmin(this.implementationV1.address));
-    });
+  it('has an interface version', async function () {
+    expect(await this.proxyAdmin.UPGRADE_INTERFACE_VERSION()).to.equal('5.0.0');
   });
 
-  describe('#changeProxyAdmin', function () {
-    it('fails to change proxy admin if its not the proxy owner', async function () {
-      await expectRevert(
-        this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
-        'caller is not the owner',
-      );
-    });
-
-    it('changes proxy admin', async function () {
-      await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-      expect(await this.proxy.admin.call({ from: newAdmin })).to.eq(newAdmin);
-    });
-  });
-
-  describe('#getProxyImplementation', function () {
-    it('returns proxy implementation address', async function () {
-      const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-      expect(implementationAddress).to.be.equal(this.implementationV1.address);
-    });
-
-    it('call to invalid proxy', async function () {
-      await expectRevert.unspecified(this.proxyAdmin.getProxyImplementation(this.implementationV1.address));
-    });
-  });
-
-  describe('#upgrade', function () {
-    context('with unauthorized account', function () {
+  describe('without data', function () {
+    describe('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        await expectRevert(
-          this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'caller is not the owner',
-        );
+        await expect(this.proxyAdmin.connect(this.other).upgradeAndCall(this.proxy, this.v2, '0x'))
+          .to.be.revertedWithCustomError(this.proxyAdmin, 'OwnableUnauthorizedAccount')
+          .withArgs(this.other);
       });
     });
 
-    context('with authorized account', function () {
+    describe('with authorized account', function () {
       it('upgrades implementation', async function () {
-        await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-        const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-        expect(implementationAddress).to.be.equal(this.implementationV2.address);
+        await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, '0x');
+        expect(await storage.getAddressInSlot(this.proxy, ImplementationLabel)).to.equal(this.v2);
       });
     });
   });
 
-  describe('#upgradeAndCall', function () {
-    context('with unauthorized account', function () {
+  describe('with data', function () {
+    describe('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
-        await expectRevert(
-          this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
-            from: anotherAccount,
-          }),
-          'caller is not the owner',
-        );
+        const data = this.v1.interface.encodeFunctionData('initializeNonPayableWithValue', [1337n]);
+        await expect(this.proxyAdmin.connect(this.other).upgradeAndCall(this.proxy, this.v2, data))
+          .to.be.revertedWithCustomError(this.proxyAdmin, 'OwnableUnauthorizedAccount')
+          .withArgs(this.other);
       });
     });
 
-    context('with authorized account', function () {
-      context('with invalid callData', function () {
+    describe('with authorized account', function () {
+      describe('with invalid callData', function () {
         it('fails to upgrade', async function () {
-          const callData = '0x12345678';
-          await expectRevert.unspecified(
-            this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
-              from: proxyAdminOwner,
-            }),
-          );
+          const data = '0x12345678';
+          await expect(this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data)).to.revert(ethers);
         });
       });
 
-      context('with valid callData', function () {
+      describe('with valid callData', function () {
         it('upgrades implementation', async function () {
-          const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
-          await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
-            from: proxyAdminOwner,
-          });
-          const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-          expect(implementationAddress).to.be.equal(this.implementationV2.address);
+          const data = this.v2.interface.encodeFunctionData('initializeNonPayableWithValue', [1337n]);
+          await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data);
+          expect(await storage.getAddressInSlot(this.proxy, ImplementationLabel)).to.equal(this.v2);
         });
       });
     });

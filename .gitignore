@@ -29,20 +29,15 @@ npm-debug.log
 # local env variables
 .env
 
-# truffle build directory
-build/
-
 # macOS
 .DS_Store
-
-# truffle
-.node-xmlhttprequest-*
 
 # IntelliJ IDE
 .idea
 
 # docs artifacts
 docs/modules/api
+build/site
 
 # only used to package @openzeppelin/contracts
 contracts/build/
@@ -63,6 +58,7 @@ contracts-exposed
 
 # Foundry
 /out
+/cache_forge
 
 # Certora
 .certora*

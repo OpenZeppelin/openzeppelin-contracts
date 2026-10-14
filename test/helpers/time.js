@@ -1,17 +1,6 @@
-const ozHelpers = require('@openzeppelin/test-helpers');
-const helpers = require('@nomicfoundation/hardhat-network-helpers');
-
-module.exports = {
-  clock: {
-    blocknumber: () => helpers.time.latestBlock(),
-    timestamp: () => helpers.time.latest(),
-  },
-  clockFromReceipt: {
-    blocknumber: receipt => Promise.resolve(receipt.blockNumber),
-    timestamp: receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp),
-  },
-  forward: {
-    blocknumber: ozHelpers.time.advanceBlockTo,
-    timestamp: helpers.time.increaseTo,
-  },
-};
+export const seconds = n => BigInt(n);
+export const minutes = n => seconds(n) * 60n;
+export const hours = n => minutes(n) * 60n;
+export const days = n => hours(n) * 24n;
+export const weeks = n => days(n) * 7n;
+export const years = n => days(n) * 365n;

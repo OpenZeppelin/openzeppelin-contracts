@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/DoubleEndedQueue.sol)
-pragma solidity ^0.8.4;
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/DoubleEndedQueue.sol)
 
-import "../math/SafeCast.sol";
+pragma solidity ^0.8.20;
+
+import {Math} from "../math/Math.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of
@@ -15,88 +17,125 @@ import "../math/SafeCast.sol";
  * ```solidity
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
- *
- * _Available since v4.6._
  */
 library DoubleEndedQueue {
     /**
-     * @dev An operation (e.g. {front}) couldn't be completed due to the queue being empty.
-     */
-    error Empty();
-
-    /**
-     * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.
-     */
-    error OutOfBounds();
-
-    /**
-     * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end
-     * are packed in a single storage slot for efficient access. Since the items are added one at a time we can safely
-     * assume that these 128-bit indices will not overflow, and use unchecked arithmetic.
+     * @dev Indices are 128 bits so begin and end are packed in a single storage slot for efficient access.
      *
      * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
      * lead to unexpected behavior.
      *
-     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item is at
-     * data[end - 1].
+     * The first item is at data[begin] and the last item is at data[end - 1]. This range can wrap around.
      */
     struct Bytes32Deque {
-        int128 _begin;
-        int128 _end;
-        mapping(int128 => bytes32) _data;
+        uint128 _begin;
+        uint128 _end;
+        mapping(uint128 index => bytes32) _data;
     }
 
     /**
      * @dev Inserts an item at the end of the queue.
+     *
+     * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
-        int128 backIndex = deque._end;
-        deque._data[backIndex] = value;
+        bool success = tryPushBack(deque, value);
+        if (!success) Panic.panic(Panic.RESOURCE_ERROR);
+    }
+
+    /**
+     * @dev Attempts to insert an item at the end of the queue.
+     *
+     * Returns `false` if the queue is full. Never reverts.
+     */
+    function tryPushBack(Bytes32Deque storage deque, bytes32 value) internal returns (bool success) {
         unchecked {
+            uint128 backIndex = deque._end;
+            if (backIndex + 1 == deque._begin) return false;
+            deque._data[backIndex] = value;
             deque._end = backIndex + 1;
+            return true;
         }
     }
 
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
-    function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
-        int128 backIndex;
+    function popBack(Bytes32Deque storage deque) internal returns (bytes32) {
+        (bool success, bytes32 value) = tryPopBack(deque);
+        if (!success) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        return value;
+    }
+
+    /**
+     * @dev Attempts to remove the item at the end of the queue and return it.
+     *
+     * Returns `(false, 0x00)` if the queue is empty. Never reverts.
+     */
+    function tryPopBack(Bytes32Deque storage deque) internal returns (bool success, bytes32 value) {
         unchecked {
-            backIndex = deque._end - 1;
+            uint128 backIndex = deque._end;
+            if (backIndex == deque._begin) return (false, bytes32(0));
+            --backIndex;
+            success = true;
+            value = deque._data[backIndex];
+            delete deque._data[backIndex];
+            deque._end = backIndex;
         }
-        value = deque._data[backIndex];
-        delete deque._data[backIndex];
-        deque._end = backIndex;
     }
 
     /**
      * @dev Inserts an item at the beginning of the queue.
+     *
+     * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
-        int128 frontIndex;
+        bool success = tryPushFront(deque, value);
+        if (!success) Panic.panic(Panic.RESOURCE_ERROR);
+    }
+
+    /**
+     * @dev Attempts to insert an item at the beginning of the queue.
+     *
+     * Returns `false` if the queue is full. Never reverts.
+     */
+    function tryPushFront(Bytes32Deque storage deque, bytes32 value) internal returns (bool success) {
         unchecked {
-            frontIndex = deque._begin - 1;
+            uint128 frontIndex = deque._begin - 1;
+            if (frontIndex == deque._end) return false;
+            deque._data[frontIndex] = value;
+            deque._begin = frontIndex;
+            return true;
         }
-        deque._data[frontIndex] = value;
-        deque._begin = frontIndex;
     }
 
     /**
      * @dev Removes the item at the beginning of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
-    function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
-        int128 frontIndex = deque._begin;
-        value = deque._data[frontIndex];
-        delete deque._data[frontIndex];
+    function popFront(Bytes32Deque storage deque) internal returns (bytes32) {
+        (bool success, bytes32 value) = tryPopFront(deque);
+        if (!success) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        return value;
+    }
+
+    /**
+     * @dev Attempts to remove the item at the beginning of the queue and
+     * return it.
+     *
+     * Returns `(false, 0x00)` if the queue is empty. Never reverts.
+     */
+    function tryPopFront(Bytes32Deque storage deque) internal returns (bool success, bytes32 value) {
         unchecked {
+            uint128 frontIndex = deque._begin;
+            if (frontIndex == deque._end) return (false, bytes32(0));
+            success = true;
+            value = deque._data[frontIndex];
+            delete deque._data[frontIndex];
             deque._begin = frontIndex + 1;
         }
     }
@@ -104,39 +143,112 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the beginning of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
-    function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
-        int128 frontIndex = deque._begin;
-        return deque._data[frontIndex];
+    function front(Bytes32Deque storage deque) internal view returns (bytes32) {
+        (bool success, bytes32 value) = tryFront(deque);
+        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return value;
+    }
+
+    /**
+     * @dev Attempts to return the item at the beginning of the queue.
+     *
+     * Returns `(false, 0x00)` if the queue is empty. Never reverts.
+     */
+    function tryFront(Bytes32Deque storage deque) internal view returns (bool success, bytes32 value) {
+        if (empty(deque)) return (false, bytes32(0));
+        return (true, deque._data[deque._begin]);
     }
 
     /**
      * @dev Returns the item at the end of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
-    function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
-        int128 backIndex;
+    function back(Bytes32Deque storage deque) internal view returns (bytes32) {
+        (bool success, bytes32 value) = tryBack(deque);
+        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return value;
+    }
+
+    /**
+     * @dev Attempts to return the item at the end of the queue.
+     *
+     * Returns `(false, 0x00)` if the queue is empty. Never reverts.
+     */
+    function tryBack(Bytes32Deque storage deque) internal view returns (bool success, bytes32 value) {
+        if (empty(deque)) return (false, bytes32(0));
         unchecked {
-            backIndex = deque._end - 1;
+            return (true, deque._data[deque._end - 1]);
         }
-        return deque._data[backIndex];
     }
 
     /**
      * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
      * `length(deque) - 1`.
      *
-     * Reverts with `OutOfBounds` if the index is out of bounds.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
-    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
-        // int256(deque._begin) is a safe upcast
-        int128 idx = SafeCast.toInt128(int256(deque._begin) + SafeCast.toInt256(index));
-        if (idx >= deque._end) revert OutOfBounds();
-        return deque._data[idx];
+    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
+        return pos(deque, index);
+    }
+
+    /**
+     * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
+     * `length(deque) - 1`.
+     *
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
+        (bool success, bytes32 value) = tryAt(deque, index);
+        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return value;
+    }
+
+    /**
+     * @dev Attempts to return the item at a position in the queue given by `index`, with the first item at
+     * 0 and the last item at `length(deque) - 1`.
+     *
+     * Returns `(false, 0x00)` if the index is out of bounds. Never reverts.
+     */
+    function tryAt(Bytes32Deque storage deque, uint256 index) internal view returns (bool success, bytes32 value) {
+        if (index >= length(deque)) return (false, bytes32(0));
+        // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
+        unchecked {
+            return (true, deque._data[deque._begin + uint128(index)]);
+        }
+    }
+
+    /**
+     * @dev Return a slice of the queue in an array, with the first item at `start` (inclusive) and the last item at
+     * `end` (exclusive). Out-of-bound values for `start` and `end` are clamped to the queue length.
+     *
+     * WARNING: This operation will copy a portion of the storage to memory, which can be quite expensive. This is
+     * designed to mostly be used by view accessors that are queried without any gas fees. Developers should keep in
+     * mind that this function has an unbounded cost, and using it as part of a state-changing function may render the
+     * function uncallable if the queue grows to a point where copying to memory consumes too much gas to fit in a
+     * block.
+     */
+    function values(Bytes32Deque storage deque, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
+        unchecked {
+            end = Math.min(end, length(deque));
+            start = Math.min(start, end);
+
+            uint256 len = end - start;
+            bytes32[] memory result = new bytes32[](len);
+
+            uint128 offset = deque._begin + uint128(start);
+            for (uint128 i = 0; i < len; ++i) {
+                result[i] = deque._data[offset + i];
+            }
+            return result;
+        }
     }
 
     /**
@@ -154,10 +266,8 @@ library DoubleEndedQueue {
      * @dev Returns the number of items in the queue.
      */
     function length(Bytes32Deque storage deque) internal view returns (uint256) {
-        // The interface preserves the invariant that begin <= end so we assume this will not overflow.
-        // We also assume there are at most int256.max items in the queue.
         unchecked {
-            return uint256(int256(deque._end) - int256(deque._begin));
+            return uint256(deque._end - deque._begin);
         }
     }
 
@@ -165,6 +275,6 @@ library DoubleEndedQueue {
      * @dev Returns true if the queue is empty.
      */
     function empty(Bytes32Deque storage deque) internal view returns (bool) {
-        return deque._end <= deque._begin;
+        return deque._end == deque._begin;
     }
 }

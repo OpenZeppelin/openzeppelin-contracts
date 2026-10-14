@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (vendor/compound/ICompoundTimelock.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (vendor/compound/ICompoundTimelock.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity >=0.6.9;
 
 /**
- * https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[Compound's timelock] interface
+ * https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[Compound timelock] interface
  */
 interface ICompoundTimelock {
     event NewAdmin(address indexed newAdmin);

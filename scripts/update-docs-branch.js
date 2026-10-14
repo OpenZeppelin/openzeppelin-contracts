@@ -1,4 +1,7 @@
-const proc = require('child_process');
+import proc from 'child_process';
+import fs from 'fs';
+import path from 'path';
+
 const read = cmd => proc.execSync(cmd, { encoding: 'utf8' }).trim();
 const run = cmd => {
   proc.execSync(cmd, { stdio: 'inherit' });
@@ -6,7 +9,7 @@ const run = cmd => {
 const tryRead = cmd => {
   try {
     return read(cmd);
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
@@ -21,8 +24,10 @@ if (!match) {
   process.exit(1);
 }
 
-if (/-.*$/.test(require('../package.json').version)) {
-  console.error('Refusing to update docs: prerelease detected');
+const pkgVersion = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../package.json'), 'utf8')).version;
+
+if (pkgVersion.includes('-') && !pkgVersion.includes('.0.0-')) {
+  console.error('Refusing to update docs: non-major prerelease detected');
   process.exit(0);
 }
 

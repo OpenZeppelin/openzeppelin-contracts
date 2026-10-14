@@ -1,0 +1,63 @@
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
+
+const slot = ethers.id('some.storage.slot');
+const otherSlot = ethers.id('some.other.storage.slot');
+
+// Non-value types are not supported by the `TransientSlot` library.
+const TYPES = [
+  { name: 'Boolean', type: 'bool', value: true, zero: false },
+  { name: 'Address', type: 'address', value: random.address(), zero: random.address.zero },
+  { name: 'Bytes32', type: 'bytes32', value: random.bytes32(), zero: random.bytes32.zero },
+  { name: 'Uint256', type: 'uint256', value: random.uint256(), zero: random.uint256.zero },
+  { name: 'Int256', type: 'int256', value: random.int256(), zero: random.int256.zero },
+];
+
+async function fixture() {
+  return { mock: await ethers.deployContract('TransientSlotMock') };
+}
+
+describe('TransientSlot', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
+  for (const { name, type, value, zero } of TYPES) {
+    describe(`${type} transient slot`, function () {
+      const load = `tload${name}(bytes32)`;
+      const store = `tstore(bytes32,${type})`;
+      const event = `${name}Value`;
+
+      it('load', async function () {
+        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
+      });
+
+      it('store and load (2 txs)', async function () {
+        await this.mock[store](slot, value);
+        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
+      });
+
+      it('store and load (batched)', async function () {
+        await expect(
+          this.mock.multicall([
+            this.mock.interface.encodeFunctionData(store, [slot, value]),
+            this.mock.interface.encodeFunctionData(load, [slot]),
+            this.mock.interface.encodeFunctionData(load, [otherSlot]),
+          ]),
+        )
+          .to.emit(this.mock, event)
+          .withArgs(slot, value)
+          .to.emit(this.mock, event)
+          .withArgs(otherSlot, zero);
+
+        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
+      });
+    });
+  }
+});

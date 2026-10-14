@@ -1,34 +1,44 @@
-= Cross Chain Awareness
+= Cross chain interoperability
 
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
 
-This directory provides building blocks to improve cross-chain awareness of smart contracts.
+This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
 
-- {CrossChainEnabled} is an abstraction that contains accessors and modifiers to control the execution flow when receiving cross-chain messages.
+* {CrosschainLinked}: helper to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways.
+* {CrosschainRemoteExecutor}: executor contract that relays transaction from a controller on a remote chain.
+* {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway.
 
-== CrossChainEnabled specializations
+Additionally there are multiple bridge constructions:
 
-The following specializations of {CrossChainEnabled} provide implementations of the {CrossChainEnabled} abstraction for specific bridges. This can be used to complex cross-chain aware components such as {AccessControlCrossChain}.
+* {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
+* {BridgeNonFungible}: Core bridging logic for crosschain ERC-721 transfer. Used by {BridgeERC721} and {ERC721Crosschain},
+* {BridgeMultiToken}: Core bridging logic for crosschain ERC-1155 transfer. Used by {BridgeERC1155} and {ERC1155Crosschain},
+* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
+* {BridgeERC721}: Standalone bridge contract to connect an ERC-721 token contract with counterparts on remote chains,
+* {BridgeERC1155}: Standalone bridge contract to connect an ERC-1155 token contract with counterparts on remote chains,
+* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
 
-{{CrossChainEnabledAMB}}
+== Helpers
 
-{{CrossChainEnabledArbitrumL1}}
+{{CrosschainLinked}}
 
-{{CrossChainEnabledArbitrumL2}}
+{{CrosschainRemoteExecutor}}
 
-{{CrossChainEnabledOptimism}}
+{{ERC7786Recipient}}
 
-{{CrossChainEnabledPolygonChild}}
+== Bridges
 
-== Libraries for cross-chain
+{{BridgeFungible}}
 
-In addition to the {CrossChainEnabled} abstraction, cross-chain awareness is also available through libraries. These libraries can be used to build complex designs such as contracts with the ability to interact with multiple bridges.
+{{BridgeNonFungible}}
 
-{{LibAMB}}
+{{BridgeMultiToken}}
 
-{{LibArbitrumL1}}
+{{BridgeERC20}}
 
-{{LibArbitrumL2}}
+{{BridgeERC721}}
 
-{{LibOptimism}}
+{{BridgeERC1155}}
+
+{{BridgeERC7802}}

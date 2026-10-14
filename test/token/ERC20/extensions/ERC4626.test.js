@@ -1,70 +1,72 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { Enum } from '../../../helpers/enums';
 
-const { Enum } = require('../../../helpers/enums');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
-const ERC4626 = artifacts.require('$ERC4626');
-const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
-const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
-const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
-const ERC20Reentrant = artifacts.require('$ERC20Reentrant');
+const name = 'My Token';
+const symbol = 'MTKN';
+const decimals = 18n;
 
-contract('ERC4626', function (accounts) {
-  const [holder, recipient, spender, other, user1, user2] = accounts;
+async function fixture() {
+  const [holder, recipient, spender, other, ...accounts] = await ethers.getSigners();
+  return { holder, recipient, spender, other, accounts };
+}
 
-  const name = 'My Token';
-  const symbol = 'MTKN';
-  const decimals = web3.utils.toBN(18);
+describe('ERC4626', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
   it('inherit decimals if from asset', async function () {
-    for (const decimals of [0, 9, 12, 18, 36].map(web3.utils.toBN)) {
-      const token = await ERC20Decimals.new('', '', decimals);
-      const vault = await ERC4626.new('', '', token.address);
-      expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+    for (const decimals of [0n, 9n, 12n, 18n, 36n]) {
+      const token = await ethers.deployContract('$ERC20DecimalsMock', ['', '', decimals]);
+      const vault = await ethers.deployContract('$ERC4626', ['', '', token]);
+      expect(await vault.decimals()).to.equal(decimals);
     }
   });
 
   it('asset has not yet been created', async function () {
-    const vault = await ERC4626.new('', '', other);
-    expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+    const vault = await ethers.deployContract('$ERC4626', ['', '', this.other.address]);
+    expect(await vault.decimals()).to.equal(decimals);
   });
 
   it('underlying excess decimals', async function () {
-    const token = await ERC20ExcessDecimalsMock.new();
-    const vault = await ERC4626.new('', '', token.address);
-    expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+    const token = await ethers.deployContract('$ERC20ExcessDecimalsMock');
+    const vault = await ethers.deployContract('$ERC4626', ['', '', token]);
+    expect(await vault.decimals()).to.equal(decimals);
   });
 
   it('decimals overflow', async function () {
-    for (const offset of [243, 250, 255].map(web3.utils.toBN)) {
-      const token = await ERC20Decimals.new('', '', decimals);
-      const vault = await ERC4626OffsetMock.new(name + ' Vault', symbol + 'V', token.address, offset);
-      await expectRevert(
-        vault.decimals(),
-        'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
-      );
+    for (const offset of [243n, 250n, 255n]) {
+      const token = await ethers.deployContract('$ERC20DecimalsMock', ['', '', decimals]);
+      const vault = await ethers.deployContract('$ERC4626OffsetMock', ['', '', token, offset]);
+      await expect(vault.decimals()).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
     }
   });
 
-  describe('reentrancy', async function () {
+  describe('reentrancy', function () {
     const reenterType = Enum('No', 'Before', 'After');
 
-    const amount = web3.utils.toBN(1000000000000000000);
-    const reenterAmount = web3.utils.toBN(1000000000);
-    let token;
-    let vault;
+    const value = 1_000_000_000_000_000_000n;
+    const reenterValue = 1_000_000_000n;
 
     beforeEach(async function () {
-      token = await ERC20Reentrant.new();
       // Use offset 1 so the rate is not 1:1 and we can't possibly confuse assets and shares
-      vault = await ERC4626OffsetMock.new('', '', token.address, 1);
+      const token = await ethers.deployContract('$ERC20Reentrant');
+      const vault = await ethers.deployContract('$ERC4626OffsetMock', ['', '', token, 1n]);
       // Funds and approval for tests
-      await token.$_mint(holder, amount);
-      await token.$_mint(other, amount);
-      await token.$_approve(holder, vault.address, constants.MAX_UINT256);
-      await token.$_approve(other, vault.address, constants.MAX_UINT256);
-      await token.$_approve(token.address, vault.address, constants.MAX_UINT256);
+      await token.$_mint(this.holder, value);
+      await token.$_mint(this.other, value);
+      await token.$_approve(this.holder, vault, ethers.MaxUint256);
+      await token.$_approve(this.other, vault, ethers.MaxUint256);
+      await token.$_approve(token, vault, ethers.MaxUint256);
+
+      Object.assign(this, { token, vault });
     });
 
     // During a `_deposit`, the vault does `transferFrom(depositor, vault, assets)` -> `_mint(receiver, shares)`
@@ -73,40 +75,29 @@ contract('ERC4626', function (accounts) {
     // intermediate state in which the ratio of assets/shares has been decreased (more shares than assets).
     it('correct share price is observed during reentrancy before deposit', async function () {
       // mint token for deposit
-      await token.$_mint(token.address, reenterAmount);
+      await this.token.$_mint(this.token, reenterValue);
 
       // Schedules a reentrancy from the token contract
-      await token.scheduleReenter(
+      await this.token.scheduleReenter(
         reenterType.Before,
-        vault.address,
-        vault.contract.methods.deposit(reenterAmount, holder).encodeABI(),
+        this.vault,
+        this.vault.interface.encodeFunctionData('deposit', [reenterValue, this.holder.address]),
       );
 
       // Initial share price
-      const sharesForDeposit = await vault.previewDeposit(amount, { from: holder });
-      const sharesForReenter = await vault.previewDeposit(reenterAmount, { from: holder });
+      const sharesForDeposit = await this.vault.previewDeposit(value);
+      const sharesForReenter = await this.vault.previewDeposit(reenterValue);
 
-      // Do deposit normally, triggering the _beforeTokenTransfer hook
-      const receipt = await vault.deposit(amount, holder, { from: holder });
-
-      // Main deposit event
-      await expectEvent(receipt, 'Deposit', {
-        sender: holder,
-        owner: holder,
-        assets: amount,
-        shares: sharesForDeposit,
-      });
-      // Reentrant deposit event → uses the same price
-      await expectEvent(receipt, 'Deposit', {
-        sender: token.address,
-        owner: holder,
-        assets: reenterAmount,
-        shares: sharesForReenter,
-      });
+      await expect(this.vault.connect(this.holder).deposit(value, this.holder))
+        // Deposit normally, reentering before the internal `_update`
+        .to.emit(this.vault, 'Deposit')
+        .withArgs(this.holder, this.holder, value, sharesForDeposit)
+        // Reentrant deposit event → uses the same price
+        .to.emit(this.vault, 'Deposit')
+        .withArgs(this.token, this.holder, reenterValue, sharesForReenter);
 
       // Assert prices is kept
-      const sharesAfter = await vault.previewDeposit(amount, { from: holder });
-      expect(sharesForDeposit).to.be.bignumber.eq(sharesAfter);
+      expect(await this.vault.previewDeposit(value)).to.equal(sharesForDeposit);
     });
 
     // During a `_withdraw`, the vault does `_burn(owner, shares)` -> `transfer(receiver, assets)`
@@ -114,256 +105,245 @@ contract('ERC4626', function (accounts) {
     // If the order of burn -> transfer is changed to transfer -> burn, the reentrancy could be triggered on an
     // intermediate state in which the ratio of shares/assets has been decreased (more assets than shares).
     it('correct share price is observed during reentrancy after withdraw', async function () {
-      // Deposit into the vault: holder gets `amount` share, token.address gets `reenterAmount` shares
-      await vault.deposit(amount, holder, { from: holder });
-      await vault.deposit(reenterAmount, token.address, { from: other });
+      // Deposit into the vault: holder gets `value` share, token.address gets `reenterValue` shares
+      await this.vault.connect(this.holder).deposit(value, this.holder);
+      await this.vault.connect(this.other).deposit(reenterValue, this.token);
 
       // Schedules a reentrancy from the token contract
-      await token.scheduleReenter(
+      await this.token.scheduleReenter(
         reenterType.After,
-        vault.address,
-        vault.contract.methods.withdraw(reenterAmount, holder, token.address).encodeABI(),
+        this.vault,
+        this.vault.interface.encodeFunctionData('withdraw', [reenterValue, this.holder.address, this.token.target]),
       );
 
       // Initial share price
-      const sharesForWithdraw = await vault.previewWithdraw(amount, { from: holder });
-      const sharesForReenter = await vault.previewWithdraw(reenterAmount, { from: holder });
+      const sharesForWithdraw = await this.vault.previewWithdraw(value);
+      const sharesForReenter = await this.vault.previewWithdraw(reenterValue);
 
       // Do withdraw normally, triggering the _afterTokenTransfer hook
-      const receipt = await vault.withdraw(amount, holder, holder, { from: holder });
-
-      // Main withdraw event
-      await expectEvent(receipt, 'Withdraw', {
-        sender: holder,
-        receiver: holder,
-        owner: holder,
-        assets: amount,
-        shares: sharesForWithdraw,
-      });
-      // Reentrant withdraw event → uses the same price
-      await expectEvent(receipt, 'Withdraw', {
-        sender: token.address,
-        receiver: holder,
-        owner: token.address,
-        assets: reenterAmount,
-        shares: sharesForReenter,
-      });
+      await expect(this.vault.connect(this.holder).withdraw(value, this.holder, this.holder))
+        // Main withdraw event
+        .to.emit(this.vault, 'Withdraw')
+        .withArgs(this.holder, this.holder, this.holder, value, sharesForWithdraw)
+        // Reentrant withdraw event → uses the same price
+        .to.emit(this.vault, 'Withdraw')
+        .withArgs(this.token, this.holder, this.token, reenterValue, sharesForReenter);
 
       // Assert price is kept
-      const sharesAfter = await vault.previewWithdraw(amount, { from: holder });
-      expect(sharesForWithdraw).to.be.bignumber.eq(sharesAfter);
+      expect(await this.vault.previewWithdraw(value)).to.equal(sharesForWithdraw);
     });
 
-    // Donate newly minted tokens to the vault during the reentracy causes the share price to increase.
-    // Still, the deposit that trigger the reentracy is not affected and get the previewed price.
-    // Further deposits will get a different price (getting fewer shares for the same amount of assets)
-    it('share price change during reentracy does not affect deposit', async function () {
+    // Donate newly minted tokens to the vault during the reentrancy causes the share price to increase.
+    // Still, the deposit that trigger the reentrancy is not affected and get the previewed price.
+    // Further deposits will get a different price (getting fewer shares for the same value of assets)
+    it('share price change during reentrancy does not affect deposit', async function () {
       // Schedules a reentrancy from the token contract that mess up the share price
-      await token.scheduleReenter(
+      await this.token.scheduleReenter(
         reenterType.Before,
-        token.address,
-        token.contract.methods.$_mint(vault.address, reenterAmount).encodeABI(),
+        this.token,
+        this.token.interface.encodeFunctionData('$_mint', [this.vault.target, reenterValue]),
       );
 
       // Price before
-      const sharesBefore = await vault.previewDeposit(amount);
+      const sharesBefore = await this.vault.previewDeposit(value);
 
-      // Deposit, triggering the _beforeTokenTransfer hook
-      const receipt = await vault.deposit(amount, holder, { from: holder });
-
-      // Price is as previewed
-      await expectEvent(receipt, 'Deposit', {
-        sender: holder,
-        owner: holder,
-        assets: amount,
-        shares: sharesBefore,
-      });
+      // Deposit, reentering before the internal `_update`
+      await expect(this.vault.connect(this.holder).deposit(value, this.holder))
+        // Price is as previewed
+        .to.emit(this.vault, 'Deposit')
+        .withArgs(this.holder, this.holder, value, sharesBefore);
 
       // Price was modified during reentrancy
-      const sharesAfter = await vault.previewDeposit(amount);
-      expect(sharesAfter).to.be.bignumber.lt(sharesBefore);
+      expect(await this.vault.previewDeposit(value)).to.lt(sharesBefore);
     });
 
-    // Burn some tokens from the vault during the reentracy causes the share price to drop.
-    // Still, the withdraw that trigger the reentracy is not affected and get the previewed price.
-    // Further withdraw will get a different price (needing more shares for the same amount of assets)
-    it('share price change during reentracy does not affect withdraw', async function () {
-      await vault.deposit(amount, other, { from: other });
-      await vault.deposit(amount, holder, { from: holder });
+    // Burn some tokens from the vault during the reentrancy causes the share price to drop.
+    // Still, the withdraw that trigger the reentrancy is not affected and get the previewed price.
+    // Further withdraw will get a different price (needing more shares for the same value of assets)
+    it('share price change during reentrancy does not affect withdraw', async function () {
+      await this.vault.connect(this.holder).deposit(value, this.holder);
+      await this.vault.connect(this.other).deposit(value, this.other);
 
       // Schedules a reentrancy from the token contract that mess up the share price
-      await token.scheduleReenter(
+      await this.token.scheduleReenter(
         reenterType.After,
-        token.address,
-        token.contract.methods.$_burn(vault.address, reenterAmount).encodeABI(),
+        this.token,
+        this.token.interface.encodeFunctionData('$_burn', [this.vault.target, reenterValue]),
       );
 
       // Price before
-      const sharesBefore = await vault.previewWithdraw(amount);
+      const sharesBefore = await this.vault.previewWithdraw(value);
 
       // Withdraw, triggering the _afterTokenTransfer hook
-      const receipt = await vault.withdraw(amount, holder, holder, { from: holder });
-
-      // Price is as previewed
-      await expectEvent(receipt, 'Withdraw', {
-        sender: holder,
-        receiver: holder,
-        owner: holder,
-        assets: amount,
-        shares: sharesBefore,
-      });
+      await expect(this.vault.connect(this.holder).withdraw(value, this.holder, this.holder))
+        // Price is as previewed
+        .to.emit(this.vault, 'Withdraw')
+        .withArgs(this.holder, this.holder, this.holder, value, sharesBefore);
 
       // Price was modified during reentrancy
-      const sharesAfter = await vault.previewWithdraw(amount);
-      expect(sharesAfter).to.be.bignumber.gt(sharesBefore);
+      expect(await this.vault.previewWithdraw(value)).to.gt(sharesBefore);
     });
   });
 
-  for (const offset of [0, 6, 18].map(web3.utils.toBN)) {
-    const parseToken = token => web3.utils.toBN(10).pow(decimals).muln(token);
-    const parseShare = share => web3.utils.toBN(10).pow(decimals.add(offset)).muln(share);
+  describe('limits', function () {
+    beforeEach(async function () {
+      const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
+      const vault = await ethers.deployContract('$ERC4626LimitsMock', ['', '', token]);
 
-    const virtualAssets = web3.utils.toBN(1);
-    const virtualShares = web3.utils.toBN(10).pow(offset);
+      Object.assign(this, { token, vault });
+    });
+
+    it('reverts on deposit() above max deposit', async function () {
+      const maxDeposit = await this.vault.maxDeposit(this.holder);
+      await expect(this.vault.connect(this.holder).deposit(maxDeposit + 1n, this.recipient))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626ExceededMaxDeposit')
+        .withArgs(this.recipient, maxDeposit + 1n, maxDeposit);
+    });
+
+    it('reverts on mint() above max mint', async function () {
+      const maxMint = await this.vault.maxMint(this.holder);
+
+      await expect(this.vault.connect(this.holder).mint(maxMint + 1n, this.recipient))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626ExceededMaxMint')
+        .withArgs(this.recipient, maxMint + 1n, maxMint);
+    });
+
+    it('reverts on withdraw() above max withdraw', async function () {
+      const maxWithdraw = await this.vault.maxWithdraw(this.holder);
+
+      await expect(this.vault.connect(this.holder).withdraw(maxWithdraw + 1n, this.recipient, this.holder))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626ExceededMaxWithdraw')
+        .withArgs(this.holder, maxWithdraw + 1n, maxWithdraw);
+    });
+
+    it('reverts on redeem() above max redeem', async function () {
+      const maxRedeem = await this.vault.maxRedeem(this.holder);
+
+      await expect(this.vault.connect(this.holder).redeem(maxRedeem + 1n, this.recipient, this.holder))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626ExceededMaxRedeem')
+        .withArgs(this.holder, maxRedeem + 1n, maxRedeem);
+    });
+  });
+
+  for (const offset of [0n, 6n, 18n]) {
+    const parseToken = token => token * 10n ** decimals;
+    const parseShare = share => share * 10n ** (decimals + offset);
+
+    const virtualAssets = 1n;
+    const virtualShares = 10n ** offset;
 
     describe(`offset: ${offset}`, function () {
       beforeEach(async function () {
-        this.token = await ERC20Decimals.new(name, symbol, decimals);
-        this.vault = await ERC4626OffsetMock.new(name + ' Vault', symbol + 'V', this.token.address, offset);
+        const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
+        const vault = await ethers.deployContract('$ERC4626OffsetMock', [name + ' Vault', symbol + 'V', token, offset]);
 
-        await this.token.$_mint(holder, constants.MAX_INT256); // 50% of maximum
-        await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
-        await this.vault.approve(spender, constants.MAX_UINT256, { from: holder });
+        await token.$_mint(this.holder, ethers.MaxUint256 / 2n); // 50% of maximum
+        await token.$_approve(this.holder, vault, ethers.MaxUint256);
+        await vault.$_approve(this.holder, this.spender, ethers.MaxUint256);
+
+        Object.assign(this, { token, vault });
       });
 
       it('metadata', async function () {
-        expect(await this.vault.name()).to.be.equal(name + ' Vault');
-        expect(await this.vault.symbol()).to.be.equal(symbol + 'V');
-        expect(await this.vault.decimals()).to.be.bignumber.equal(decimals.add(offset));
-        expect(await this.vault.asset()).to.be.equal(this.token.address);
+        expect(await this.vault.name()).to.equal(name + ' Vault');
+        expect(await this.vault.symbol()).to.equal(symbol + 'V');
+        expect(await this.vault.decimals()).to.equal(decimals + offset);
+        expect(await this.vault.asset()).to.equal(this.token);
       });
 
       describe('empty vault: no assets & no shares', function () {
         it('status', async function () {
-          expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
+          expect(await this.vault.totalAssets()).to.equal(0n);
         });
 
         it('deposit', async function () {
-          expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(1));
+          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewDeposit(parseToken(1n))).to.equal(parseShare(1n));
 
-          const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).deposit(parseToken(1n), this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: parseToken(1),
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: parseShare(1),
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: parseToken(1),
-            shares: parseShare(1),
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-parseToken(1n), parseToken(1n)],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, parseShare(1n));
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, parseToken(1n))
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, parseShare(1n))
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, parseToken(1n), parseShare(1n));
         });
 
         it('mint', async function () {
-          expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal(parseToken(1));
+          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewMint(parseShare(1n))).to.equal(parseToken(1n));
 
-          const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).mint(parseShare(1n), this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: parseToken(1),
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: parseShare(1),
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: parseToken(1),
-            shares: parseShare(1),
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-parseToken(1n), parseToken(1n)],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, parseShare(1n));
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, parseToken(1n))
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, parseShare(1n))
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, parseToken(1n), parseShare(1n));
         });
 
         it('withdraw', async function () {
-          expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
-          expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
+          expect(await this.vault.maxWithdraw(this.holder)).to.equal(0n);
+          expect(await this.vault.previewWithdraw(0n)).to.equal(0n);
 
-          const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).withdraw(0n, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: '0',
-            shares: '0',
-          });
+          await expect(tx).to.changeTokenBalances(ethers, this.token, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, 0n)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, 0n)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, 0n, 0n);
         });
 
         it('redeem', async function () {
-          expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
-          expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
+          expect(await this.vault.maxRedeem(this.holder)).to.equal(0n);
+          expect(await this.vault.previewRedeem(0n)).to.equal(0n);
 
-          const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).redeem(0n, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: '0',
-            shares: '0',
-          });
+          await expect(tx).to.changeTokenBalances(ethers, this.token, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, 0n)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, 0n)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, 0n, 0n);
         });
       });
 
       describe('inflation attack: offset price by direct deposit of assets', function () {
         beforeEach(async function () {
           // Donate 1 token to the vault to offset the price
-          await this.token.$_mint(this.vault.address, parseToken(1));
+          await this.token.$_mint(this.vault, parseToken(1n));
         });
 
         it('status', async function () {
-          expect(await this.vault.totalSupply()).to.be.bignumber.equal('0');
-          expect(await this.vault.totalAssets()).to.be.bignumber.equal(parseToken(1));
+          expect(await this.vault.totalSupply()).to.equal(0n);
+          expect(await this.vault.totalAssets()).to.equal(parseToken(1n));
         });
 
         /**
@@ -378,35 +358,31 @@ contract('ERC4626', function (accounts) {
          * was trying to deposit
          */
         it('deposit', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const depositAssets = parseToken(1);
-          const expectedShares = depositAssets.mul(effectiveShares).div(effectiveAssets);
+          const depositAssets = parseToken(1n);
+          const expectedShares = (depositAssets * effectiveShares) / effectiveAssets;
 
-          expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewDeposit(depositAssets)).to.be.bignumber.equal(expectedShares);
+          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewDeposit(depositAssets)).to.equal(expectedShares);
 
-          const { tx } = await this.vault.deposit(depositAssets, recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).deposit(depositAssets, this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: depositAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: expectedShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: depositAssets,
-            shares: expectedShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-depositAssets, depositAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, depositAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, expectedShares)
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, depositAssets, expectedShares);
         });
 
         /**
@@ -421,102 +397,78 @@ contract('ERC4626', function (accounts) {
          * large deposits.
          */
         it('mint', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const mintShares = parseShare(1);
-          const expectedAssets = mintShares.mul(effectiveAssets).div(effectiveShares);
+          const mintShares = parseShare(1n);
+          const expectedAssets = (mintShares * effectiveAssets) / effectiveShares;
 
-          expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewMint(mintShares)).to.be.bignumber.equal(expectedAssets);
+          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewMint(mintShares)).to.equal(expectedAssets);
 
-          const { tx } = await this.vault.mint(mintShares, recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).mint(mintShares, this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: expectedAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: mintShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: expectedAssets,
-            shares: mintShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-expectedAssets, expectedAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, mintShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, expectedAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, mintShares)
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, expectedAssets, mintShares);
         });
 
         it('withdraw', async function () {
-          expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
-          expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
+          expect(await this.vault.maxWithdraw(this.holder)).to.equal(0n);
+          expect(await this.vault.previewWithdraw(0n)).to.equal(0n);
 
-          const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).withdraw(0n, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: '0',
-            shares: '0',
-          });
+          await expect(tx).to.changeTokenBalances(ethers, this.token, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, 0n)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, 0n)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, 0n, 0n);
         });
 
         it('redeem', async function () {
-          expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
-          expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
+          expect(await this.vault.maxRedeem(this.holder)).to.equal(0n);
+          expect(await this.vault.previewRedeem(0n)).to.equal(0n);
 
-          const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).redeem(0n, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: '0',
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: '0',
-            shares: '0',
-          });
+          await expect(tx).to.changeTokenBalances(ethers, this.token, [this.vault, this.recipient], [0n, 0n]);
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, 0n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, 0n)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, 0n)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, 0n, 0n);
         });
       });
 
       describe('full vault: assets & shares', function () {
         beforeEach(async function () {
           // Add 1 token of underlying asset and 100 shares to the vault
-          await this.token.$_mint(this.vault.address, parseToken(1));
-          await this.vault.$_mint(holder, parseShare(100));
+          await this.token.$_mint(this.vault, parseToken(1n));
+          await this.vault.$_mint(this.holder, parseShare(100n));
         });
 
         it('status', async function () {
-          expect(await this.vault.totalSupply()).to.be.bignumber.equal(parseShare(100));
-          expect(await this.vault.totalAssets()).to.be.bignumber.equal(parseToken(1));
+          expect(await this.vault.totalSupply()).to.equal(parseShare(100n));
+          expect(await this.vault.totalAssets()).to.equal(parseToken(1n));
         });
 
         /**
@@ -529,35 +481,31 @@ contract('ERC4626', function (accounts) {
          * Virtual shares & assets captures part of the value
          */
         it('deposit', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const depositAssets = parseToken(1);
-          const expectedShares = depositAssets.mul(effectiveShares).div(effectiveAssets);
+          const depositAssets = parseToken(1n);
+          const expectedShares = (depositAssets * effectiveShares) / effectiveAssets;
 
-          expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewDeposit(depositAssets)).to.be.bignumber.equal(expectedShares);
+          expect(await this.vault.maxDeposit(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewDeposit(depositAssets)).to.equal(expectedShares);
 
-          const { tx } = await this.vault.deposit(depositAssets, recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).deposit(depositAssets, this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: depositAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: expectedShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: depositAssets,
-            shares: expectedShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-depositAssets, depositAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, depositAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, expectedShares)
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, depositAssets, expectedShares);
         });
 
         /**
@@ -570,246 +518,223 @@ contract('ERC4626', function (accounts) {
          * Virtual shares & assets captures part of the value
          */
         it('mint', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const mintShares = parseShare(1);
-          const expectedAssets = mintShares.mul(effectiveAssets).div(effectiveShares).addn(1); // add for the rounding
+          const mintShares = parseShare(1n);
+          const expectedAssets = (mintShares * effectiveAssets) / effectiveShares + 1n; // add for the rounding
 
-          expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-          expect(await this.vault.previewMint(mintShares)).to.be.bignumber.equal(expectedAssets);
+          expect(await this.vault.maxMint(this.holder)).to.equal(ethers.MaxUint256);
+          expect(await this.vault.previewMint(mintShares)).to.equal(expectedAssets);
 
-          const { tx } = await this.vault.mint(mintShares, recipient, { from: holder });
+          const tx = this.vault.connect(this.holder).mint(mintShares, this.recipient);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: holder,
-            to: this.vault.address,
-            value: expectedAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
-            to: recipient,
-            value: mintShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
-            sender: holder,
-            owner: recipient,
-            assets: expectedAssets,
-            shares: mintShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.holder, this.vault],
+            [-expectedAssets, expectedAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, mintShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.vault, expectedAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(ethers.ZeroAddress, this.recipient, mintShares)
+            .to.emit(this.vault, 'Deposit')
+            .withArgs(this.holder, this.recipient, expectedAssets, mintShares);
         });
 
         it('withdraw', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const withdrawAssets = parseToken(1);
-          const expectedShares = withdrawAssets.mul(effectiveShares).div(effectiveAssets).addn(1); // add for the rounding
+          const withdrawAssets = parseToken(1n);
+          const expectedShares = (withdrawAssets * effectiveShares) / effectiveAssets + 1n; // add for the rounding
 
-          expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal(withdrawAssets);
-          expect(await this.vault.previewWithdraw(withdrawAssets)).to.be.bignumber.equal(expectedShares);
+          expect(await this.vault.maxWithdraw(this.holder)).to.equal(withdrawAssets);
+          expect(await this.vault.previewWithdraw(withdrawAssets)).to.equal(expectedShares);
 
-          const { tx } = await this.vault.withdraw(withdrawAssets, recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).withdraw(withdrawAssets, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: withdrawAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: expectedShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: withdrawAssets,
-            shares: expectedShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.vault, this.recipient],
+            [-withdrawAssets, withdrawAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, -expectedShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, withdrawAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, expectedShares)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, withdrawAssets, expectedShares);
         });
 
         it('withdraw with approval', async function () {
-          await expectRevert(
-            this.vault.withdraw(parseToken(1), recipient, holder, { from: other }),
-            'ERC20: insufficient allowance',
-          );
+          const assets = await this.vault.previewWithdraw(parseToken(1n));
 
-          await this.vault.withdraw(parseToken(1), recipient, holder, { from: spender });
+          await expect(this.vault.connect(this.other).withdraw(parseToken(1n), this.recipient, this.holder))
+            .to.be.revertedWithCustomError(this.vault, 'ERC20InsufficientAllowance')
+            .withArgs(this.other, 0n, assets);
+
+          await expect(
+            this.vault.connect(this.spender).withdraw(parseToken(1n), this.recipient, this.holder),
+          ).to.not.be.revert(ethers);
         });
 
         it('redeem', async function () {
-          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
-          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
+          const effectiveAssets = (await this.vault.totalAssets()) + virtualAssets;
+          const effectiveShares = (await this.vault.totalSupply()) + virtualShares;
 
-          const redeemShares = parseShare(100);
-          const expectedAssets = redeemShares.mul(effectiveAssets).div(effectiveShares);
+          const redeemShares = parseShare(100n);
+          const expectedAssets = (redeemShares * effectiveAssets) / effectiveShares;
 
-          expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(redeemShares);
-          expect(await this.vault.previewRedeem(redeemShares)).to.be.bignumber.equal(expectedAssets);
+          expect(await this.vault.maxRedeem(this.holder)).to.equal(redeemShares);
+          expect(await this.vault.previewRedeem(redeemShares)).to.equal(expectedAssets);
 
-          const { tx } = await this.vault.redeem(redeemShares, recipient, holder, { from: holder });
+          const tx = this.vault.connect(this.holder).redeem(redeemShares, this.recipient, this.holder);
 
-          await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-            from: this.vault.address,
-            to: recipient,
-            value: expectedAssets,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-            from: holder,
-            to: constants.ZERO_ADDRESS,
-            value: redeemShares,
-          });
-
-          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
-            sender: holder,
-            receiver: recipient,
-            owner: holder,
-            assets: expectedAssets,
-            shares: redeemShares,
-          });
+          await expect(tx).to.changeTokenBalances(
+            ethers,
+            this.token,
+            [this.vault, this.recipient],
+            [-expectedAssets, expectedAssets],
+          );
+          await expect(tx).to.changeTokenBalance(ethers, this.vault, this.holder, -redeemShares);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.vault, this.recipient, expectedAssets)
+            .to.emit(this.vault, 'Transfer')
+            .withArgs(this.holder, ethers.ZeroAddress, redeemShares)
+            .to.emit(this.vault, 'Withdraw')
+            .withArgs(this.holder, this.recipient, this.holder, expectedAssets, redeemShares);
         });
 
         it('redeem with approval', async function () {
-          await expectRevert(
-            this.vault.redeem(parseShare(100), recipient, holder, { from: other }),
-            'ERC20: insufficient allowance',
-          );
+          await expect(this.vault.connect(this.other).redeem(parseShare(100n), this.recipient, this.holder))
+            .to.be.revertedWithCustomError(this.vault, 'ERC20InsufficientAllowance')
+            .withArgs(this.other, 0n, parseShare(100n));
 
-          await this.vault.redeem(parseShare(100), recipient, holder, { from: spender });
+          await expect(
+            this.vault.connect(this.spender).redeem(parseShare(100n), this.recipient, this.holder),
+          ).to.not.be.revert(ethers);
         });
       });
     });
   }
 
   describe('ERC4626Fees', function () {
-    const feeBasePoint = web3.utils.toBN(5e3);
-    const amountWithoutFees = web3.utils.toBN(10000);
-    const fees = amountWithoutFees.mul(feeBasePoint).divn(1e5);
-    const amountWithFees = amountWithoutFees.add(fees);
+    const feeBasisPoints = 500n; // 5%
+    const valueWithoutFees = 10_000n;
+    const fees = (valueWithoutFees * feeBasisPoints) / 10_000n;
+    const valueWithFees = valueWithoutFees + fees;
 
     describe('input fees', function () {
       beforeEach(async function () {
-        this.token = await ERC20Decimals.new(name, symbol, 18);
-        this.vault = await ERC4626FeesMock.new(
-          name + ' Vault',
-          symbol + 'V',
-          this.token.address,
-          feeBasePoint,
-          other,
-          0,
-          constants.ZERO_ADDRESS,
-        );
+        const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, 18n]);
+        const vault = await ethers.deployContract('$ERC4626FeesMock', [
+          '',
+          '',
+          token,
+          feeBasisPoints,
+          this.other,
+          0n,
+          ethers.ZeroAddress,
+        ]);
 
-        await this.token.$_mint(holder, constants.MAX_INT256);
-        await this.token.approve(this.vault.address, constants.MAX_INT256, { from: holder });
+        await token.$_mint(this.holder, ethers.MaxUint256 / 2n);
+        await token.$_approve(this.holder, vault, ethers.MaxUint256 / 2n);
+
+        Object.assign(this, { token, vault });
       });
 
       it('deposit', async function () {
-        expect(await this.vault.previewDeposit(amountWithFees)).to.be.bignumber.equal(amountWithoutFees);
-        ({ tx: this.tx } = await this.vault.deposit(amountWithFees, recipient, { from: holder }));
+        expect(await this.vault.previewDeposit(valueWithFees)).to.equal(valueWithoutFees);
+        this.tx = this.vault.connect(this.holder).deposit(valueWithFees, this.recipient);
       });
 
       it('mint', async function () {
-        expect(await this.vault.previewMint(amountWithoutFees)).to.be.bignumber.equal(amountWithFees);
-        ({ tx: this.tx } = await this.vault.mint(amountWithoutFees, recipient, { from: holder }));
+        expect(await this.vault.previewMint(valueWithoutFees)).to.equal(valueWithFees);
+        this.tx = this.vault.connect(this.holder).mint(valueWithoutFees, this.recipient);
       });
 
       afterEach(async function () {
-        // get total
-        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
-          from: holder,
-          to: this.vault.address,
-          value: amountWithFees,
-        });
-
-        // redirect fees
-        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
-          from: this.vault.address,
-          to: other,
-          value: fees,
-        });
-
-        // mint shares
-        await expectEvent.inTransaction(this.tx, this.vault, 'Transfer', {
-          from: constants.ZERO_ADDRESS,
-          to: recipient,
-          value: amountWithoutFees,
-        });
-
-        // deposit event
-        await expectEvent.inTransaction(this.tx, this.vault, 'Deposit', {
-          sender: holder,
-          owner: recipient,
-          assets: amountWithFees,
-          shares: amountWithoutFees,
-        });
+        await expect(this.tx).to.changeTokenBalances(
+          ethers,
+          this.token,
+          [this.holder, this.vault, this.other],
+          [-valueWithFees, valueWithoutFees, fees],
+        );
+        await expect(this.tx).to.changeTokenBalance(ethers, this.vault, this.recipient, valueWithoutFees);
+        await expect(this.tx)
+          // get total
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.holder, this.vault, valueWithFees)
+          // redirect fees
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.vault, this.other, fees)
+          // mint shares
+          .to.emit(this.vault, 'Transfer')
+          .withArgs(ethers.ZeroAddress, this.recipient, valueWithoutFees)
+          // deposit event
+          .to.emit(this.vault, 'Deposit')
+          .withArgs(this.holder, this.recipient, valueWithFees, valueWithoutFees);
       });
     });
 
     describe('output fees', function () {
       beforeEach(async function () {
-        this.token = await ERC20Decimals.new(name, symbol, 18);
-        this.vault = await ERC4626FeesMock.new(
-          name + ' Vault',
-          symbol + 'V',
-          this.token.address,
-          0,
-          constants.ZERO_ADDRESS,
-          5e3, // 5%
-          other,
-        );
+        const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, 18n]);
+        const vault = await ethers.deployContract('$ERC4626FeesMock', [
+          '',
+          '',
+          token,
+          0n,
+          ethers.ZeroAddress,
+          feeBasisPoints,
+          this.other,
+        ]);
 
-        await this.token.$_mint(this.vault.address, constants.MAX_INT256);
-        await this.vault.$_mint(holder, constants.MAX_INT256);
+        await token.$_mint(vault, ethers.MaxUint256 / 2n);
+        await vault.$_mint(this.holder, ethers.MaxUint256 / 2n);
+
+        Object.assign(this, { token, vault });
       });
 
       it('redeem', async function () {
-        expect(await this.vault.previewRedeem(amountWithFees)).to.be.bignumber.equal(amountWithoutFees);
-        ({ tx: this.tx } = await this.vault.redeem(amountWithFees, recipient, holder, { from: holder }));
+        expect(await this.vault.previewRedeem(valueWithFees)).to.equal(valueWithoutFees);
+        this.tx = this.vault.connect(this.holder).redeem(valueWithFees, this.recipient, this.holder);
       });
 
       it('withdraw', async function () {
-        expect(await this.vault.previewWithdraw(amountWithoutFees)).to.be.bignumber.equal(amountWithFees);
-        ({ tx: this.tx } = await this.vault.withdraw(amountWithoutFees, recipient, holder, { from: holder }));
+        expect(await this.vault.previewWithdraw(valueWithoutFees)).to.equal(valueWithFees);
+        this.tx = this.vault.connect(this.holder).withdraw(valueWithoutFees, this.recipient, this.holder);
       });
 
       afterEach(async function () {
-        // withdraw principal
-        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
-          from: this.vault.address,
-          to: recipient,
-          value: amountWithoutFees,
-        });
-
-        // redirect fees
-        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
-          from: this.vault.address,
-          to: other,
-          value: fees,
-        });
-
-        // mint shares
-        await expectEvent.inTransaction(this.tx, this.vault, 'Transfer', {
-          from: holder,
-          to: constants.ZERO_ADDRESS,
-          value: amountWithFees,
-        });
-
-        // withdraw event
-        await expectEvent.inTransaction(this.tx, this.vault, 'Withdraw', {
-          sender: holder,
-          receiver: recipient,
-          owner: holder,
-          assets: amountWithoutFees,
-          shares: amountWithFees,
-        });
+        await expect(this.tx).to.changeTokenBalances(
+          ethers,
+          this.token,
+          [this.vault, this.recipient, this.other],
+          [-valueWithFees, valueWithoutFees, fees],
+        );
+        await expect(this.tx).to.changeTokenBalance(ethers, this.vault, this.holder, -valueWithFees);
+        await expect(this.tx)
+          // withdraw principal
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.vault, this.recipient, valueWithoutFees)
+          // redirect fees
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.vault, this.other, fees)
+          // mint shares
+          .to.emit(this.vault, 'Transfer')
+          .withArgs(this.holder, ethers.ZeroAddress, valueWithFees)
+          // withdraw event
+          .to.emit(this.vault, 'Withdraw')
+          .withArgs(this.holder, this.recipient, this.holder, valueWithoutFees, valueWithFees);
       });
     });
   });
@@ -818,214 +743,161 @@ contract('ERC4626', function (accounts) {
   /// https://github.com/transmissions11/solmate/blob/main/src/test/ERC4626.t.sol
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
-    this.token = await ERC20Decimals.new(name, symbol, 18);
-    this.vault = await ERC4626.new(name + ' Vault', symbol + 'V', this.token.address);
+    const [alice, bruce] = this.accounts;
+    const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, 18n]);
+    const vault = await ethers.deployContract('$ERC4626', ['', '', token]);
 
-    await this.token.$_mint(user1, 4000);
-    await this.token.$_mint(user2, 7001);
-    await this.token.approve(this.vault.address, 4000, { from: user1 });
-    await this.token.approve(this.vault.address, 7001, { from: user2 });
+    await token.$_mint(alice, 4000n);
+    await token.$_mint(bruce, 7001n);
+    await token.connect(alice).approve(vault, 4000n);
+    await token.connect(bruce).approve(vault, 7001n);
 
     // 1. Alice mints 2000 shares (costs 2000 tokens)
-    {
-      const { tx } = await this.vault.mint(2000, user1, { from: user1 });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: user1,
-        to: this.vault.address,
-        value: '2000',
-      });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: user1,
-        value: '2000',
-      });
+    await expect(vault.connect(alice).mint(2000n, alice))
+      .to.emit(token, 'Transfer')
+      .withArgs(alice, vault, 2000n)
+      .to.emit(vault, 'Transfer')
+      .withArgs(ethers.ZeroAddress, alice, 2000n);
 
-      expect(await this.vault.previewDeposit(2000)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('0');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('0');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('2000');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('2000');
-    }
+    expect(await vault.previewDeposit(2000n)).to.equal(2000n);
+    expect(await vault.balanceOf(alice)).to.equal(2000n);
+    expect(await vault.balanceOf(bruce)).to.equal(0n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(2000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(0n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(2000n);
+    expect(await vault.totalSupply()).to.equal(2000n);
+    expect(await vault.totalAssets()).to.equal(2000n);
 
-    // 2. Bob deposits 4000 tokens (mints 4000 shares)
-    {
-      const { tx } = await this.vault.mint(4000, user2, { from: user2 });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: user2,
-        to: this.vault.address,
-        value: '4000',
-      });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: user2,
-        value: '4000',
-      });
+    // 2. Bruce deposits 4000 tokens (mints 4000 shares)
+    await expect(vault.connect(bruce).mint(4000n, bruce))
+      .to.emit(token, 'Transfer')
+      .withArgs(bruce, vault, 4000n)
+      .to.emit(vault, 'Transfer')
+      .withArgs(ethers.ZeroAddress, bruce, 4000n);
 
-      expect(await this.vault.previewDeposit(4000)).to.be.bignumber.equal('4000');
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('4000');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('6000');
-    }
+    expect(await vault.previewDeposit(4000n)).to.equal(4000n);
+    expect(await vault.balanceOf(alice)).to.equal(2000n);
+    expect(await vault.balanceOf(bruce)).to.equal(4000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(2000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(4000n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(6000n);
+    expect(await vault.totalSupply()).to.equal(6000n);
+    expect(await vault.totalAssets()).to.equal(6000n);
 
     // 3. Vault mutates by +3000 tokens (simulated yield returned from strategy)
-    await this.token.$_mint(this.vault.address, 3000);
+    await token.$_mint(vault, 3000n);
 
-    expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-    expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
-    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2999'); // used to be 3000, but virtual assets/shares captures part of the yield
-    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('5999'); // used to be 6000, but virtual assets/shares captures part of the yield
-    expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
-    expect(await this.vault.totalAssets()).to.be.bignumber.equal('9000');
+    expect(await vault.balanceOf(alice)).to.equal(2000n);
+    expect(await vault.balanceOf(bruce)).to.equal(4000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(2999n); // used to be 3000, but virtual assets/shares captures part of the yield
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(5999n); // used to be 6000, but virtual assets/shares captures part of the yield
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(6000n);
+    expect(await vault.totalSupply()).to.equal(6000n);
+    expect(await vault.totalAssets()).to.equal(9000n);
 
     // 4. Alice deposits 2000 tokens (mints 1333 shares)
-    {
-      const { tx } = await this.vault.deposit(2000, user1, { from: user1 });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: user1,
-        to: this.vault.address,
-        value: '2000',
-      });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: user1,
-        value: '1333',
-      });
+    await expect(vault.connect(alice).deposit(2000n, alice))
+      .to.emit(token, 'Transfer')
+      .withArgs(alice, vault, 2000n)
+      .to.emit(vault, 'Transfer')
+      .withArgs(ethers.ZeroAddress, alice, 1333n);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('4999');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('6000');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('7333');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('11000');
-    }
+    expect(await vault.balanceOf(alice)).to.equal(3333n);
+    expect(await vault.balanceOf(bruce)).to.equal(4000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(4999n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(6000n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(7333n);
+    expect(await vault.totalSupply()).to.equal(7333n);
+    expect(await vault.totalAssets()).to.equal(11000n);
 
-    // 5. Bob mints 2000 shares (costs 3001 assets)
-    // NOTE: Bob's assets spent got rounded up
-    // NOTE: Alices's vault assets got rounded up
-    {
-      const { tx } = await this.vault.mint(2000, user2, { from: user2 });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: user2,
-        to: this.vault.address,
-        value: '3000', // used to be 3001
-      });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: user2,
-        value: '2000',
-      });
+    // 5. Bruce mints 2000 shares (costs 3001 assets)
+    // NOTE: Bruce's assets spent got rounded towards infinity
+    // NOTE: Alices's vault assets got rounded towards infinity
+    await expect(vault.connect(bruce).mint(2000n, bruce))
+      .to.emit(token, 'Transfer')
+      .withArgs(bruce, vault, 3000n)
+      .to.emit(vault, 'Transfer')
+      .withArgs(ethers.ZeroAddress, bruce, 2000n);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('4999'); // used to be 5000
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('9000');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('14000'); // used to be 14001
-    }
+    expect(await vault.balanceOf(alice)).to.equal(3333n);
+    expect(await vault.balanceOf(bruce)).to.equal(6000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(4999n); // used to be 5000
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(9000n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(9333n);
+    expect(await vault.totalSupply()).to.equal(9333n);
+    expect(await vault.totalAssets()).to.equal(14000n); // used to be 14001
 
     // 6. Vault mutates by +3000 tokens
     // NOTE: Vault holds 17001 tokens, but sum of assetsOf() is 17000.
-    await this.token.$_mint(this.vault.address, 3000);
+    await token.$_mint(vault, 3000n);
 
-    expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
-    expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
-    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('6070'); // used to be 6071
-    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10928'); // used to be 10929
-    expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
-    expect(await this.vault.totalAssets()).to.be.bignumber.equal('17000'); // used to be 17001
+    expect(await vault.balanceOf(alice)).to.equal(3333n);
+    expect(await vault.balanceOf(bruce)).to.equal(6000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(6070n); // used to be 6071
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(10928n); // used to be 10929
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(9333n);
+    expect(await vault.totalSupply()).to.equal(9333n);
+    expect(await vault.totalAssets()).to.equal(17000n); // used to be 17001
 
     // 7. Alice redeem 1333 shares (2428 assets)
-    {
-      const { tx } = await this.vault.redeem(1333, user1, user1, { from: user1 });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: user1,
-        to: constants.ZERO_ADDRESS,
-        value: '1333',
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: this.vault.address,
-        to: user1,
-        value: '2427', // used to be 2428
-      });
+    await expect(vault.connect(alice).redeem(1333n, alice, alice))
+      .to.emit(vault, 'Transfer')
+      .withArgs(alice, ethers.ZeroAddress, 1333n)
+      .to.emit(token, 'Transfer')
+      .withArgs(vault, alice, 2427n); // used to be 2428
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3643');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10929');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('8000');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('14573');
-    }
+    expect(await vault.balanceOf(alice)).to.equal(2000n);
+    expect(await vault.balanceOf(bruce)).to.equal(6000n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(3643n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(10929n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(8000n);
+    expect(await vault.totalSupply()).to.equal(8000n);
+    expect(await vault.totalAssets()).to.equal(14573n);
 
-    // 8. Bob withdraws 2929 assets (1608 shares)
-    {
-      const { tx } = await this.vault.withdraw(2929, user2, user2, { from: user2 });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: user2,
-        to: constants.ZERO_ADDRESS,
-        value: '1608',
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: this.vault.address,
-        to: user2,
-        value: '2929',
-      });
+    // 8. Bruce withdraws 2929 assets (1608 shares)
+    await expect(vault.connect(bruce).withdraw(2929n, bruce, bruce))
+      .to.emit(vault, 'Transfer')
+      .withArgs(bruce, ethers.ZeroAddress, 1608n)
+      .to.emit(token, 'Transfer')
+      .withArgs(vault, bruce, 2929n);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4392');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3643');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('8000');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('6392');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('11644');
-    }
+    expect(await vault.balanceOf(alice)).to.equal(2000n);
+    expect(await vault.balanceOf(bruce)).to.equal(4392n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(3643n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(8000n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(6392n);
+    expect(await vault.totalSupply()).to.equal(6392n);
+    expect(await vault.totalAssets()).to.equal(11644n);
 
     // 9. Alice withdraws 3643 assets (2000 shares)
-    // NOTE: Bob's assets have been rounded back up
-    {
-      const { tx } = await this.vault.withdraw(3643, user1, user1, { from: user1 });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: user1,
-        to: constants.ZERO_ADDRESS,
-        value: '2000',
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: this.vault.address,
-        to: user1,
-        value: '3643',
-      });
+    // NOTE: Bruce's assets have been rounded back towards infinity
+    await expect(vault.connect(alice).withdraw(3643n, alice, alice))
+      .to.emit(vault, 'Transfer')
+      .withArgs(alice, ethers.ZeroAddress, 2000n)
+      .to.emit(token, 'Transfer')
+      .withArgs(vault, alice, 3643n);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('0');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4392');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('0');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('8000'); // used to be 8001
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('4392');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('8001');
-    }
+    expect(await vault.balanceOf(alice)).to.equal(0n);
+    expect(await vault.balanceOf(bruce)).to.equal(4392n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(0n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(8000n); // used to be 8001
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(4392n);
+    expect(await vault.totalSupply()).to.equal(4392n);
+    expect(await vault.totalAssets()).to.equal(8001n);
 
-    // 10. Bob redeem 4392 shares (8001 tokens)
-    {
-      const { tx } = await this.vault.redeem(4392, user2, user2, { from: user2 });
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
-        from: user2,
-        to: constants.ZERO_ADDRESS,
-        value: '4392',
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: this.vault.address,
-        to: user2,
-        value: '8000', // used to be 8001
-      });
+    // 10. Bruce redeem 4392 shares (8001 tokens)
+    await expect(vault.connect(bruce).redeem(4392n, bruce, bruce))
+      .to.emit(vault, 'Transfer')
+      .withArgs(bruce, ethers.ZeroAddress, 4392n)
+      .to.emit(token, 'Transfer')
+      .withArgs(vault, bruce, 8000n); // used to be 8001
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('0');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('0');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('0');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('0');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('0');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('1'); // used to be 0
-    }
+    expect(await vault.balanceOf(alice)).to.equal(0n);
+    expect(await vault.balanceOf(bruce)).to.equal(0n);
+    expect(await vault.convertToAssets(await vault.balanceOf(alice))).to.equal(0n);
+    expect(await vault.convertToAssets(await vault.balanceOf(bruce))).to.equal(0n);
+    expect(await vault.convertToShares(await token.balanceOf(vault))).to.equal(0n);
+    expect(await vault.totalSupply()).to.equal(0n);
+    expect(await vault.totalAssets()).to.equal(1n); // used to be 0
   });
 });
