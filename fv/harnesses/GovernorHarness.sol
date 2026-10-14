@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.24;
 
-import "../patched/governance/Governor.sol";
-import "../patched/governance/extensions/GovernorCountingSimple.sol";
-import "../patched/governance/extensions/GovernorTimelockControl.sol";
-import "../patched/governance/extensions/GovernorVotes.sol";
-import "../patched/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../patched/token/ERC20/extensions/ERC20Votes.sol";
+import {IVotes} from "../patched/governance/utils/IVotes.sol";
+import {TimelockController} from "../patched/governance/TimelockController.sol";
+import {Governor} from "../patched/governance/Governor.sol";
+import {GovernorCountingSimple} from "../patched/governance/extensions/GovernorCountingSimple.sol";
+import {GovernorTimelockControl} from "../patched/governance/extensions/GovernorTimelockControl.sol";
+import {GovernorVotes} from "../patched/governance/extensions/GovernorVotes.sol";
+import {GovernorVotesQuorumFraction} from "../patched/governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorHarness is
     Governor,
@@ -15,32 +16,41 @@ contract GovernorHarness is
     GovernorVotes,
     GovernorVotesQuorumFraction
 {
-    constructor(IVotes _token, TimelockController _timelock, uint256 _quorumNumeratorValue)
+    constructor(
+        IVotes token_,
+        TimelockController timelock_,
+        uint256 quorumNumeratorValue
+    )
         Governor("Harness")
-        GovernorTimelockControl(_timelock)
-        GovernorVotes(_token)
-        GovernorVotesQuorumFraction(_quorumNumeratorValue)
+        GovernorTimelockControl(timelock_)
+        GovernorVotes(token_)
+        GovernorVotesQuorumFraction(quorumNumeratorValue)
     {}
 
     // Harness from Votes
-    function token_getPastTotalSupply(uint256 blockNumber) public view returns(uint256) {
-        return token.getPastTotalSupply(blockNumber);
+    function token_getPastTotalSupply(uint256 timepoint) public view returns (uint256) {
+        return token().getPastTotalSupply(timepoint);
     }
 
-    function token_getPastVotes(address account, uint256 blockNumber) public view returns(uint256) {
-        return token.getPastVotes(account, blockNumber);
+    function token_getPastVotes(address account, uint256 timepoint) public view returns (uint256) {
+        return token().getPastVotes(account, timepoint);
     }
 
     function token_clock() public view returns (uint48) {
-        return token.clock();
+        return token().clock();
     }
 
     function token_CLOCK_MODE() public view returns (string memory) {
-        return token.CLOCK_MODE();
+        return token().CLOCK_MODE();
     }
 
     // Harness from Governor
-    function hashProposal(address[] memory targets,uint256[] memory values,bytes[] memory calldatas,string memory description) public pure returns (uint256) {
+    function hashProposal(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public pure returns (uint256) {
         return hashProposal(targets, values, calldatas, keccak256(bytes(description)));
     }
 
@@ -74,21 +84,21 @@ contract GovernorHarness is
 
     // Harness from GovernorCountingSimple
     function getAgainstVotes(uint256 proposalId) public view returns (uint256) {
-        (uint256 againstVotes,,) = proposalVotes(proposalId);
+        (uint256 againstVotes, , ) = proposalVotes(proposalId);
         return againstVotes;
     }
 
     function getForVotes(uint256 proposalId) public view returns (uint256) {
-        (,uint256 forVotes,) = proposalVotes(proposalId);
+        (, uint256 forVotes, ) = proposalVotes(proposalId);
         return forVotes;
     }
 
     function getAbstainVotes(uint256 proposalId) public view returns (uint256) {
-        (,,uint256 abstainVotes) = proposalVotes(proposalId);
+        (, , uint256 abstainVotes) = proposalVotes(proposalId);
         return abstainVotes;
     }
 
-    // The following functions are overrides required by Solidity added by OZ Wizard.
+    // Settings
     function votingDelay() public pure override returns (uint256) {
         return 1; // 1 block
     }
@@ -97,36 +107,39 @@ contract GovernorHarness is
         return 45818; // 1 week
     }
 
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(IGovernor, GovernorVotesQuorumFraction)
-        returns (uint256)
-    {
-        return super.quorum(blockNumber);
+    // The following functions are overrides required by Solidity.
+    function quorum(uint256 timepoint) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+        return super.quorum(timepoint);
     }
 
     function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function propose(
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.proposalNeedsQueuing(proposalId);
+    }
+
+    function _queueOperations(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        string memory description
-    ) public override(Governor, IGovernor) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
-    function _execute(
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(
@@ -140,14 +153,5 @@ contract GovernorHarness is
 
     function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }
