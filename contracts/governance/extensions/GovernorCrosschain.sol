@@ -12,7 +12,7 @@ abstract contract GovernorCrosschain is Governor {
     /**
      * @dev Send crosschain instruction to an arbitrary remote executor via an arbitrary ERC-7786 gateway.
      *
-     * Any value sent with this call is forwarded to the gateway. Some gateways require it as a message fee.
+     * Any value sent with this call is forwarded to the gateway.
      *
      * Returns the `sendId` reported by the gateway. A non-zero value means the message requires further,
      * gateway specific, processing before it is delivered to the destination chain.
