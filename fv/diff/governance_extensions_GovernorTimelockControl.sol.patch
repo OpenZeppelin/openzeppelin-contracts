@@ -1,16 +1,16 @@
---- governance/extensions/GovernorTimelockControl.sol	2023-05-04 11:44:55.587737817 +0200
-+++ governance/extensions/GovernorTimelockControl.sol	2023-05-04 15:18:42.661075263 +0200
-@@ -24,7 +24,7 @@
-  * _Available since v4.3._
+--- governance/extensions/GovernorTimelockControl.sol	2026-10-14 11:21:57.576855298 +0200
++++ governance/extensions/GovernorTimelockControl.sol	2026-10-14 11:35:20.553577495 +0200
+@@ -22,7 +22,7 @@
+  * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
   */
- abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
+ abstract contract GovernorTimelockControl is Governor {
 -    TimelockController private _timelock;
 +    TimelockController public _timelock; // FV: public for link
-     mapping(uint256 => bytes32) private _timelockIds;
+     mapping(uint256 proposalId => bytes32) private _timelockIds;
  
      /**
-@@ -84,6 +84,11 @@
-         return eta == 1 ? 0 : eta; // _DONE_TIMESTAMP (1) should be replaced with a 0 value
+@@ -71,6 +71,11 @@
+         return true;
      }
  
 +    // FV
@@ -21,9 +21,9 @@
      /**
       * @dev Function to queue a proposal to the timelock.
       */
-@@ -163,4 +168,9 @@
-         emit TimelockChange(address(_timelock), address(newTimelock));
-         _timelock = newTimelock;
+@@ -164,4 +169,9 @@
+     function _timelockSalt(bytes32 descriptionHash) private view returns (bytes32) {
+         return bytes20(address(this)) ^ descriptionHash;
      }
 +
 +    // FV
