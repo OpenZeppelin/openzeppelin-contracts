@@ -127,7 +127,10 @@ describe('GovernorCrosschain', function () {
     await this.helper.connect(this.voter2).vote({ support: VoteType.For });
     await this.helper.waitForDeadline();
 
-    await expect(this.helper.execute())
+    const tx = this.helper.execute();
+
+    // the message carries the fee and is still delivered and executed
+    await expect(tx)
       .to.emit(this.gateway, 'MessageSent')
       .withArgs(
         ethers.ZeroHash,
@@ -136,10 +139,12 @@ describe('GovernorCrosschain', function () {
         ethers.concat([mode, executionCalldata]),
         fee,
         [],
-      );
+      )
+      .to.emit(this.receiver, 'MockFunctionCalledExtra')
+      .withArgs(this.executor, 0n);
 
-    // the gateway mock forwards the fee to the recipient, so it lands on the executor
-    await expect(ethers.provider.getBalance(this.executor)).to.eventually.equal(fee);
+    // the fee leaves the governor and, through the gateway mock, lands on the executor
+    await expect(tx).to.changeEtherBalances(ethers, [this.governor, this.executor], [-fee, fee]);
   });
 
   it('relayCrosschain is onlyGovernance', async function () {
