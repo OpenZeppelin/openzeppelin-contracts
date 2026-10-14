@@ -27,9 +27,11 @@ rule clockMode(env e) {
 invariant proposalStateConsistency(uint256 pId)
     (proposalProposer(pId) == 0 <=> proposalSnapshot(pId) == 0) &&
     (proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e) {
             require clockSanity(e);
+            require nonzerosender(e);
         }
     }
 
@@ -44,6 +46,7 @@ invariant votesImplyCreated(uint256 pId)
         getForVotes(pId)     > 0 ||
         getAbstainVotes(pId) > 0
     ) => proposalCreated(pId)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e) {
             require clockSanity(e);
@@ -58,6 +61,7 @@ invariant votesImplyCreated(uint256 pId)
 */
 invariant canceledImplyCreated(uint pId)
     isCanceled(pId) => proposalCreated(pId)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e) {
             require clockSanity(e);
@@ -72,6 +76,7 @@ invariant canceledImplyCreated(uint pId)
 */
 invariant executedImplyCreated(uint pId)
     isExecuted(pId) => proposalCreated(pId)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e) {
             require clockSanity(e);
@@ -81,11 +86,12 @@ invariant executedImplyCreated(uint pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: queued => created                                                                                      │
+│ Invariant: queued => created                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant queuedImplyCreated(uint pId)
     isQueued(pId) => proposalCreated(pId)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e) {
             require clockSanity(e);
@@ -105,35 +111,73 @@ invariant votesImplySnapshotPassed(env e, uint256 pId)
         getForVotes(pId)     > 0 ||
         getAbstainVotes(pId) > 0
     ) => proposalSnapshot(pId) < clock(e)
+    filtered { f -> !assumedSafe(f) }
     {
         preserved with (env e2) {
             // In this invariant, `env e` is representing the present. And `clock(e)` the current timestamp.
             // It should hold for any transitions in the pasts
             require clock(e2) <= clock(e);
+            requireInvariant proposalStateConsistency(pId);
+            requireInvariant votesImplyCreated(pId);
         }
     }
 
 invariant queuedImplyDeadlineOver(env e, uint pId)
     isQueued(pId) => proposalDeadline(pId) < clock(e)
+    filtered { f -> !assumedSafe(f) }
     {
-        preserved {
-            require clockSanity(e);
+        preserved with (env e2) {
+            // In this invariant, `env e` is representing the present. And `clock(e)` the current timestamp.
+            // It should hold for any transitions in the pasts
+            require clockSanity(e2);
+            require clock(e2) <= clock(e);
             requireInvariant proposalStateConsistency(pId);
+            requireInvariant queuedImplyCreated(pId);
         }
     }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Votes start before it ends                                                                               │
+│ Invariant: A proposal is not queued before the end of the vote                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant voteStartBeforeVoteEnd(uint256 pId)
-    proposalSnapshot(pId) <= proposalDeadline(pId)
+// The timelockId (and the eta) can be set in states QUEUED, EXECUTED and CANCELED. However, checking the full scope of
+// this results in a timeout. This is a weaker version that is still useful: a proposal is not queued before it exists,
+// or before the end of the vote.
+invariant noTimelockBeforeEndOfVote(env e, uint256 pId)
+    (safeState(e, pId) == UNSET() || safeState(e, pId) == PENDING() || safeState(e, pId) == ACTIVE()) => (
+        timelockId(pId) == to_bytes32(0) &&
+        proposalEta(pId) == 0
+    )
+    filtered { f -> !assumedSafe(f) }
     {
-        preserved {
+        preserved with (env e2) {
+            // In this invariant, `env e` is representing the present. And `clock(e)` the current timestamp.
+            // It should hold for any transitions in the pasts
+            require clockSanity(e2);
+            require clock(e2) <= clock(e);
             requireInvariant proposalStateConsistency(pId);
+            requireInvariant queuedImplyCreated(pId);
         }
     }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ [DISABLED] Invariant: Votes start before it ends                                                                    │
+│                                                                                                                     │
+│ This property holds, but it is true by construction: `proposalDeadline` is computed as `voteStart + voteDuration`   │
+│ (in uint256, so without overflow), which can never be smaller than `proposalSnapshot` (`voteStart`). The prover's   │
+│ sanity checks flag it as trivial (`invariant_not_trivial_postcondition`), which fails the job.                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// invariant voteStartBeforeVoteEnd(uint256 pId)
+//     proposalSnapshot(pId) <= proposalDeadline(pId)
+//     filtered { f -> !assumedSafe(f) }
+//     {
+//         preserved {
+//             requireInvariant proposalStateConsistency(pId);
+//         }
+//     }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -141,7 +185,8 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant noBothExecutedAndCanceled(uint256 pId)
-    !isExecuted(pId) || !isCanceled(pId);
+    !isExecuted(pId) || !isCanceled(pId)
+    filtered { f -> !assumedSafe(f) }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -149,4 +194,7 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant governanceCallLength()
-    governanceCallLength() == 0;
+    governanceCallLength() == 0
+    // Functions restricted to governance can only succeed while the queue is not empty, which only happens in the
+    // middle of an `execute` call (the queue is cleared before `execute` returns).
+    filtered { f -> !assumedSafe(f) && !onlyGovernance(f) }

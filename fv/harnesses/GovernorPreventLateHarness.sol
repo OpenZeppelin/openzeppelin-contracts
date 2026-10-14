@@ -58,6 +58,11 @@ contract GovernorPreventLateHarness is
         return hashProposal(targets, values, calldatas, keccak256(bytes(description)));
     }
 
+    // Same as `state`, but returns 255 (instead of reverting) if the proposal doesn't exist
+    function safeState(uint256 proposalId) public view returns (uint8) {
+        return proposalSnapshot(proposalId) == 0 ? type(uint8).max : uint8(state(proposalId));
+    }
+
     function getExecutor() public view returns (address) {
         return _executor();
     }
@@ -105,6 +110,38 @@ contract GovernorPreventLateHarness is
     function getAbstainVotes(uint256 proposalId) public view returns (uint256) {
         (, , uint256 abstainVotes) = proposalVotes(proposalId);
         return abstainVotes;
+    }
+
+    // Harness from GovernorTimelockControl: timelock configuration
+    function hasTimelockProposerRole() public view returns (bool) {
+        return _timelock.hasRole(_timelock.PROPOSER_ROLE(), address(this));
+    }
+
+    function isTimelockOperation(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public view returns (bool) {
+        // Same salt as GovernorTimelockControl._timelockSalt (private)
+        bytes32 salt = bytes20(address(this)) ^ descriptionHash;
+        return _timelock.isOperation(_timelock.hashOperationBatch(targets, values, calldatas, 0, salt));
+    }
+
+    function timelockMinDelay() public view returns (uint256) {
+        return _timelock.getMinDelay();
+    }
+
+    // Clock: GovernorVotes wraps the calls to the token in a try/catch (to fall back to block numbers), and the prover
+    // cannot resolve the function selector of these calls. The tokens used in the harnesses implement ERC-6372, so the
+    // fallback is not needed.
+    function clock() public view override(Governor, GovernorVotes) returns (uint48) {
+        return token().clock();
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view override(Governor, GovernorVotes) returns (string memory) {
+        return token().CLOCK_MODE();
     }
 
     // Settings

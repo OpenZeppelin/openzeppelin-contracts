@@ -15,8 +15,8 @@ use invariant votesImplySnapshotPassed;
 │ change, which causes the quorum() to change. Not sure how to fix that.                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-// invariant deadlineExtendedEquivQuorumReached(uint256 pId)
-//     getExtendedDeadline(pId) > 0 <=> (quorumReached(pId) && !isCanceled(pId));
+// invariant deadlineExtendedEquivQuorumReached(env e, uint256 pId)
+//     getExtendedDeadline(pId) > 0 <=> (quorumReached(e, pId) && !isCanceled(pId));
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

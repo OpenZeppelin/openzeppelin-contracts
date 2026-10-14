@@ -41,9 +41,10 @@ rule changes(uint256 pId, env e, method f, calldataarg args)
     assert isExecutedAfter != isExecutedBefore => (!isExecutedBefore && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector);
     assert isCanceledAfter != isCanceledBefore => (!isCanceledBefore && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector);
 
-    // queue is cleared on cancel
+    // queue is cleared on execute and cancel
     assert isQueuedAfter != isQueuedBefore => (
         (!isQueuedBefore && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector) ||
+        (isQueuedBefore  && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector) ||
         (isQueuedBefore  && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector)
     );
 

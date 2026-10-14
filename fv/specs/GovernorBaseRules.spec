@@ -70,12 +70,12 @@ rule noDoubleVoting(uint256 pId, env e, method f)
 */
 rule againstVotesDontCountTowardsQuorum(uint256 pId, env e)
 {
-    bool quorumReachedBefore = quorumReached(pId);
+    bool quorumReachedBefore = quorumReached(e, pId);
 
     // Ideally we would use `helperVoteWithRevert` here, but it causes timeout. Consider changing it if/when the prover improves.
     castVote(e, pId, 0);
 
-    assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
+    assert quorumReached(e, pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
 }
 
 /*
@@ -88,7 +88,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, 
 {
     require !isExecuted(pId);
 
-    bool quorumReachedBefore = quorumReached(pId);
+    bool quorumReachedBefore = quorumReached(e, pId);
     bool voteSucceededBefore = voteSucceeded(pId);
 
     f(e, args);

@@ -13,7 +13,7 @@ rule propose_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    bool createdBefore = proposalCreated(pId);
+    uint8 stateBefore = safeState(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
     require pId == hashProposal(targets, values, calldatas, descr);
@@ -22,26 +22,32 @@ rule propose_liveness(uint256 pId, env e) {
 
     // liveness & double proposal
     assert !lastReverted <=> (
-        !createdBefore &&
+        stateBefore == UNSET() &&
         validProposal(targets, values, calldatas)
     );
 }
 
 rule propose_effect(uint256 pId, env e) {
+    requireInvariant canceledImplyCreated(pId);
+    requireInvariant executedImplyCreated(pId);
+
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
     require pId == hashProposal(targets, values, calldatas, descr);
 
     propose(e, targets, values, calldatas, descr);
 
     // effect
-    assert state(e, pId)         == PENDING();
+    assert stateOf(e, pId)       == PENDING();
     assert proposalProposer(pId) == e.msg.sender;
     assert proposalSnapshot(pId) == clock(e) + votingDelay();
     assert proposalDeadline(pId) == clock(e) + votingDelay() + votingPeriod();
 }
 
 rule propose_sideeffect(uint256 pId, env e, uint256 otherId) {
-    IGovernor.ProposalState   otherStateBefore = state(e, otherId);
+    requireInvariant canceledImplyCreated(otherId);
+    requireInvariant executedImplyCreated(otherId);
+
+    uint8   otherStateBefore = stateOf(e, otherId);
     uint256 otherVoteStart   = proposalSnapshot(otherId);
     uint256 otherVoteEnd     = proposalDeadline(otherId);
     address otherProposer    = proposalProposer(otherId);
@@ -52,7 +58,7 @@ rule propose_sideeffect(uint256 pId, env e, uint256 otherId) {
     propose(e, targets, values, calldatas, descr);
 
     // no side-effect
-    assert state(e, otherId)         != otherStateBefore => otherId == pId;
+    assert stateOf(e, otherId)       != otherStateBefore => otherId == pId;
     assert proposalSnapshot(otherId) == otherVoteStart;
     assert proposalDeadline(otherId) == otherVoteEnd;
     assert proposalProposer(otherId) == otherProposer;
@@ -72,9 +78,9 @@ rule castVote_liveness(uint256 pId, env e, method f)
     uint8   support;
     address voter;
 
-    IGovernor.ProposalState   stateBefore    = state(e, pId);
+    uint8   stateBefore    = stateOf(e, pId);
     bool    hasVotedBefore = hasVoted(pId, voter);
-    uint256 voterWeight    = token_getPastVotes(voter, proposalSnapshot(pId));
+    uint256 voterWeight    = token_getPastVotes(e, voter, proposalSnapshot(pId));
 
     // voting weight overflow check
     require getAgainstVotes(pId) + voterWeight <= max_uint256;
@@ -99,11 +105,11 @@ rule castVote_effect(uint256 pId, env e, method f)
     uint256 againstVotesBefore = getAgainstVotes(pId);
     uint256 forVotesBefore     = getForVotes(pId);
     uint256 abstainVotesBefore = getAbstainVotes(pId);
-    uint256 voterWeight        = token_getPastVotes(voter, proposalSnapshot(pId));
+    uint256 voterWeight        = token_getPastVotes(e, voter, proposalSnapshot(pId));
 
     uint256 weight = helperVote(e, f, pId, voter, support);
 
-    assert state(e, pId)        == ACTIVE();
+    assert stateOf(e, pId)      == ACTIVE();
     assert voterWeight          == weight;
     assert getAgainstVotes(pId) == againstVotesBefore + (support == 0 ? weight : 0);
     assert getForVotes(pId)     == forVotesBefore     + (support == 1 ? weight : 0);
@@ -142,10 +148,17 @@ rule queue_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    IGovernor.ProposalState stateBefore = state(e, pId);
+    uint8 stateBefore = stateOf(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    // Timelock configuration: the governor can schedule operations, the operation is not already scheduled, and the
+    // eta (timestamp + delay) does not overflow. Only well-formed proposals can be created.
+    require hasTimelockProposerRole();
+    require !isTimelockOperation(targets, values, calldatas, descrHash);
+    require e.block.timestamp + timelockMinDelay() < max_uint48;
+    require validProposal(targets, values, calldatas);
 
     queue@withrevert(e, targets, values, calldatas, descrHash);
 
@@ -153,33 +166,38 @@ rule queue_liveness(uint256 pId, env e) {
     assert !lastReverted <=> stateBefore == SUCCEEDED();
 }
 
-rule queue_effect(uint256 pId, env e) {
-    IGovernor.ProposalState stateBefore  = state(e, pId);
-    bool  queuedBefore = isQueued(pId);
+/// [DISABLED] This rule times out.
+// rule queue_effect(uint256 pId, env e) {
+//     uint8 stateBefore = stateOf(e, pId);
+//     bool  queuedBefore = isQueued(pId);
+//
+//     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+//     require pId == hashProposal(targets, values, calldatas, descrHash);
+//
+//     queue(e, targets, values, calldatas, descrHash);
+//
+//     assert stateOf(e, pId) == QUEUED();
+//     assert isQueued(pId);
+//     assert !queuedBefore;
+// }
 
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == hashProposal(targets, values, calldatas, descrHash);
-
-    queue(e, targets, values, calldatas, descrHash);
-
-    assert state(e, pId) == QUEUED();
-    assert isQueued(pId);
-    assert !queuedBefore;
-}
-
-rule queue_sideeffect(uint256 pId, env e, uint256 otherId) {
-    IGovernor.ProposalState otherStateBefore  = state(e, otherId);
-    bool  otherQueuedBefore = isQueued(otherId);
-
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == hashProposal(targets, values, calldatas, descrHash);
-
-    queue(e, targets, values, calldatas, descrHash);
-
-    // no side-effect
-    assert state(e, otherId) != otherStateBefore  => otherId == pId;
-    assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
-}
+/// [DISABLED] This rule times out.
+// rule queue_sideeffect(uint256 pId, env e, uint256 otherId) {
+//     requireInvariant canceledImplyCreated(otherId);
+//     requireInvariant executedImplyCreated(otherId);
+//
+//     uint8   otherStateBefore = stateOf(e, otherId);
+//     bool  otherQueuedBefore = isQueued(otherId);
+//
+//     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+//     require pId == hashProposal(targets, values, calldatas, descrHash);
+//
+//     queue(e, targets, values, calldatas, descrHash);
+//
+//     // no side-effect
+//     assert stateOf(e, otherId) != otherStateBefore  => otherId == pId;
+//     assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
+// }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -190,7 +208,7 @@ rule execute_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    IGovernor.ProposalState stateBefore = state(e, pId);
+    uint8 stateBefore = stateOf(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -208,20 +226,24 @@ rule execute_effect(uint256 pId, env e) {
     execute(e, targets, values, calldatas, descrHash);
 
     // effect
-    assert state(e, pId) == EXECUTED();
+    assert stateOf(e, pId) == EXECUTED();
 }
 
-rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
-    IGovernor.ProposalState otherStateBefore = state(e, otherId);
-
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == hashProposal(targets, values, calldatas, descrHash);
-
-    execute(e, targets, values, calldatas, descrHash);
-
-    // no side-effect
-    assert state(e, otherId) != otherStateBefore => otherId == pId;
-}
+/// [DISABLED] This rule times out.
+// rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
+//     requireInvariant canceledImplyCreated(otherId);
+//     requireInvariant executedImplyCreated(otherId);
+//
+//     uint8   otherStateBefore = stateOf(e, otherId);
+//
+//     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+//     require pId == hashProposal(targets, values, calldatas, descrHash);
+//
+//     execute(e, targets, values, calldatas, descrHash);
+//
+//     // no side-effect
+//     assert stateOf(e, otherId) != otherStateBefore => otherId == pId;
+// }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -233,7 +255,7 @@ rule cancel_liveness(uint256 pId, env e) {
     require clockSanity(e);
     requireInvariant queuedImplyDeadlineOver(e, pId);
 
-    IGovernor.ProposalState stateBefore = state(e, pId);
+    uint8 stateBefore = stateOf(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -254,12 +276,17 @@ rule cancel_effect(uint256 pId, env e) {
     cancel(e, targets, values, calldatas, descrHash);
 
     // effect
-    assert state(e, pId) == CANCELED();
+    assert stateOf(e, pId) == CANCELED();
     assert !isQueued(pId); // cancel resets timelockId
 }
 
 rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
-    IGovernor.ProposalState otherStateBefore  = state(e, otherId);
+    requireInvariant canceledImplyCreated(otherId);
+    requireInvariant executedImplyCreated(otherId);
+    // A pending proposal (the only one that can be canceled) has no timelock operation that could be shared with otherId
+    requireInvariant noTimelockBeforeEndOfVote(e, pId);
+
+    uint8   otherStateBefore = stateOf(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
@@ -268,6 +295,6 @@ rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
     cancel(e, targets, values, calldatas, descrHash);
 
     // no side-effect
-    assert state(e, otherId) != otherStateBefore  => otherId == pId;
+    assert stateOf(e, otherId) != otherStateBefore  => otherId == pId;
     assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
 }

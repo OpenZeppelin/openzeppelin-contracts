@@ -2,6 +2,19 @@ import "helpers.spec";
 import "../methods/IGovernor.spec";
 import "../methods/ITimelockController.spec";
 
+methods {
+    // Proposals (executed through the timelock) and `relay` perform arbitrary calls. Without a summary, the prover
+    // assumes these calls can modify the storage of any contract, including the governor. Calls back into the
+    // governor go through its external functions, which are all covered by the rules and invariants when called by
+    // an arbitrary sender.
+    unresolved external in _._ => DISPATCH [] default NONDET;
+
+    // The prover's pointer analysis fails on the assembly in this function, which prevents it from resolving the
+    // external calls (to the token and the timelock) made by its callers (`propose`). It is only used to read the
+    // `#proposer=` marker of the description, so returning an arbitrary value is a sound over-approximation.
+    function Governor._unsafeReadBytesOffset(bytes memory, uint256) internal returns (bytes32) => NONDET;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Sanity                                                                                                              │
@@ -32,30 +45,22 @@ function sanityBytes(bytes b) returns bool {
 │ States                                                                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition PENDING()   returns IGovernor.ProposalState = IGovernor.ProposalState.Pending;
-definition ACTIVE()    returns IGovernor.ProposalState = IGovernor.ProposalState.Active;
-definition CANCELED()  returns IGovernor.ProposalState = IGovernor.ProposalState.Canceled;
-definition DEFEATED()  returns IGovernor.ProposalState = IGovernor.ProposalState.Defeated;
-definition SUCCEEDED() returns IGovernor.ProposalState = IGovernor.ProposalState.Succeeded;
-definition QUEUED()    returns IGovernor.ProposalState = IGovernor.ProposalState.Queued;
-definition EXPIRED()   returns IGovernor.ProposalState = IGovernor.ProposalState.Expired;
-definition EXECUTED()  returns IGovernor.ProposalState = IGovernor.ProposalState.Executed;
+definition UNSET()     returns uint8 = 255;
+definition PENDING()   returns uint8 = 0;
+definition ACTIVE()    returns uint8 = 1;
+definition CANCELED()  returns uint8 = 2;
+definition DEFEATED()  returns uint8 = 3;
+definition SUCCEEDED() returns uint8 = 4;
+definition QUEUED()    returns uint8 = 5;
+definition EXPIRED()   returns uint8 = 6;
+definition EXECUTED()  returns uint8 = 7;
+
+// The state of a proposal, as a uint8. Reverts if the proposal does not exist. The harness function `safeState` is an
+// alternative that returns UNSET() instead of reverting.
+definition stateOf(env e, uint256 pId) returns uint8 = assert_uint8(state(e, pId));
 
 definition proposalCreated(uint256 pId) returns bool =
     proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0 && proposalProposer(pId) != 0;
-
-// This helper is an alternative to state(e, pId) that doesn't revert when the proposal does not exist (not created
-// yet). In that case, the returned value is arbitrary, and `proposalCreated(pId)` should be checked separately.
-function safeState(env e, uint256 pId) returns IGovernor.ProposalState {
-    IGovernor.ProposalState result;
-    if (proposalCreated(pId)) {
-        result = state(e, pId);
-    } else {
-        IGovernor.ProposalState unset;
-        result = unset;
-    }
-    return result;
-}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -69,6 +74,11 @@ definition assumedSafe(method f) returns bool =
     f.selector == sig:onERC721Received(address,address,uint256,bytes).selector ||
     f.selector == sig:onERC1155Received(address,address,uint256,uint256,bytes).selector ||
     f.selector == sig:onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector;
+
+// These functions are restricted to the executor (`onlyGovernance`). `relay` is covered by assumedSafe.
+definition onlyGovernance(method f) returns bool =
+    f.selector == sig:updateQuorumNumerator(uint256).selector ||
+    f.selector == sig:updateTimelock(address).selector;
 
 // These function are covered by helperFunctionsWithRevert
 definition operateOnProposal(method f) returns bool =

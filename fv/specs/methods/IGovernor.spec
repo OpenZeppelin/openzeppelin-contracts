@@ -13,11 +13,12 @@ methods {
     function proposalSnapshot(uint256)                         external returns (uint256) envfree;
     function proposalDeadline(uint256)                         external returns (uint256) envfree;
     function proposalProposer(uint256)                         external returns (address) envfree;
+    function proposalEta(uint256)                              external returns (uint256) envfree;
     function votingDelay()                                     external returns (uint256) envfree;
     function votingPeriod()                                    external returns (uint256) envfree;
-    function quorum(uint256)                                   external returns (uint256) envfree;
-    function getVotes(address,uint256)                         external returns (uint256) envfree;
-    function getVotesWithParams(address,uint256,bytes)         external returns (uint256) envfree;
+    function quorum(uint256)                                   external returns (uint256);
+    function getVotes(address,uint256)                         external returns (uint256);
+    function getVotesWithParams(address,uint256,bytes)         external returns (uint256);
     function hasVoted(uint256,address)                         external returns (bool)    envfree;
     function quorumNumerator()                                 external returns (uint256) envfree;
     function quorumNumerator(uint256)                          external returns (uint256) envfree;
@@ -36,13 +37,17 @@ methods {
     function updateTimelock(address)                                                        external;
 
     // harness
-    function token_getPastTotalSupply(uint256)                external returns (uint256) envfree;
-    function token_getPastVotes(address,uint256)              external returns (uint256) envfree;
+    function token_getPastTotalSupply(uint256)                external returns (uint256);
+    function token_getPastVotes(address,uint256)              external returns (uint256);
     function token_clock()                                    external returns (uint48);
     function token_CLOCK_MODE()                               external returns (string);
     function hashProposal(address[],uint256[],bytes[],string) external returns (uint256) envfree;
+    function safeState(uint256)                               external returns (uint8);
+    function hasTimelockProposerRole()                        external returns (bool)    envfree;
+    function isTimelockOperation(address[],uint256[],bytes[],bytes32) external returns (bool) envfree;
+    function timelockMinDelay()                               external returns (uint256) envfree;
     function getExecutor()                                    external returns (address) envfree;
-    function quorumReached(uint256)                           external returns (bool)    envfree;
+    function quorumReached(uint256)                           external returns (bool);
     function voteSucceeded(uint256)                           external returns (bool)    envfree;
     function isExecuted(uint256)                              external returns (bool)    envfree;
     function isCanceled(uint256)                              external returns (bool)    envfree;
