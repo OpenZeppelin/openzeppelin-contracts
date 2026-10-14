@@ -20,6 +20,8 @@ permissions:
 
 env:
   NODE_OPTIONS: --max_old_space_size=8192
+  # npm replaces NODE_OPTIONS with its `node-options` setting (see .npmrc), so it must repeat them.
+  npm_config_node_options: --conditions=source --max_old_space_size=8192
 
 jobs:
   lint:
