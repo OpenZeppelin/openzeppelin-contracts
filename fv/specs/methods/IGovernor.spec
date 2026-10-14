@@ -1,56 +1,56 @@
 // includes some non standard (from extension) and harness functions
 methods {
-    name()                                            returns string  envfree
-    version()                                         returns string  envfree
-    token()                                           returns address envfree
-    timelock()                                        returns address envfree
-    clock()                                           returns uint48
-    CLOCK_MODE()                                      returns string
-    COUNTING_MODE()                                   returns string  envfree
-    hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
-    state(uint256)                                    returns uint8
-    proposalThreshold()                               returns uint256 envfree
-    proposalSnapshot(uint256)                         returns uint256 envfree
-    proposalDeadline(uint256)                         returns uint256 envfree
-    votingDelay()                                     returns uint256 envfree
-    votingPeriod()                                    returns uint256 envfree
-    quorum(uint256)                                   returns uint256 envfree
-    getVotes(address,uint256)                         returns uint256 envfree
-    getVotesWithParams(address,uint256,bytes)         returns uint256 envfree
-    hasVoted(uint256,address)                         returns bool    envfree
-    quorumNumerator()                                 returns uint256 envfree
-    quorumNumerator(uint256)                          returns uint256 envfree
-    quorumDenominator()                               returns uint256 envfree
+    function name()                                            external returns (string)  envfree;
+    function version()                                         external returns (string)  envfree;
+    function token()                                           external returns (address) envfree;
+    function timelock()                                        external returns (address) envfree;
+    function clock()                                           external returns (uint48);
+    function CLOCK_MODE()                                      external returns (string);
+    function COUNTING_MODE()                                   external returns (string)  envfree;
+    function hashProposal(address[],uint256[],bytes[],bytes32) external returns (uint256) envfree;
+    function state(uint256)                                    external returns (IGovernor.ProposalState);
+    function proposalThreshold()                               external returns (uint256) envfree;
+    function proposalSnapshot(uint256)                         external returns (uint256) envfree;
+    function proposalDeadline(uint256)                         external returns (uint256) envfree;
+    function proposalProposer(uint256)                         external returns (address) envfree;
+    function votingDelay()                                     external returns (uint256) envfree;
+    function votingPeriod()                                    external returns (uint256) envfree;
+    function quorum(uint256)                                   external returns (uint256) envfree;
+    function getVotes(address,uint256)                         external returns (uint256) envfree;
+    function getVotesWithParams(address,uint256,bytes)         external returns (uint256) envfree;
+    function hasVoted(uint256,address)                         external returns (bool)    envfree;
+    function quorumNumerator()                                 external returns (uint256) envfree;
+    function quorumNumerator(uint256)                          external returns (uint256) envfree;
+    function quorumDenominator()                               external returns (uint256) envfree;
 
-    propose(address[],uint256[],bytes[],string)                                        returns uint256
-    execute(address[],uint256[],bytes[],bytes32)                                       returns uint256
-    queue(address[], uint256[], bytes[], bytes32)                                      returns uint256
-    cancel(address[],uint256[],bytes[],bytes32)                                        returns uint256
-    castVote(uint256,uint8)                                                            returns uint256
-    castVoteWithReason(uint256,uint8,string)                                           returns uint256
-    castVoteWithReasonAndParams(uint256,uint8,string,bytes)                            returns uint256
-    castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)                                 returns uint256
-    castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32) returns uint256
-    updateQuorumNumerator(uint256)
-    updateTimelock(address)
+    function propose(address[],uint256[],bytes[],string)                                    external returns (uint256);
+    function execute(address[],uint256[],bytes[],bytes32)                                   external returns (uint256);
+    function queue(address[],uint256[],bytes[],bytes32)                                     external returns (uint256);
+    function cancel(address[],uint256[],bytes[],bytes32)                                    external returns (uint256);
+    function castVote(uint256,uint8)                                                        external returns (uint256);
+    function castVoteWithReason(uint256,uint8,string)                                       external returns (uint256);
+    function castVoteWithReasonAndParams(uint256,uint8,string,bytes)                        external returns (uint256);
+    function castVoteBySig(uint256,uint8,address,bytes)                                     external returns (uint256);
+    function castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes)     external returns (uint256);
+    function updateQuorumNumerator(uint256)                                                 external;
+    function updateTimelock(address)                                                        external;
 
     // harness
-    token_getPastTotalSupply(uint256)                returns uint256 envfree
-    token_getPastVotes(address,uint256)              returns uint256 envfree
-    token_clock()                                    returns uint48
-    token_CLOCK_MODE()                               returns string
-    hashProposal(address[],uint256[],bytes[],string) returns uint256 envfree
-    getExecutor()                                    returns address envfree
-    proposalProposer(uint256)                        returns address envfree
-    quorumReached(uint256)                           returns bool    envfree
-    voteSucceeded(uint256)                           returns bool    envfree
-    isExecuted(uint256)                              returns bool    envfree
-    isCanceled(uint256)                              returns bool    envfree
-    isQueued(uint256)                                returns bool    envfree
-    governanceCallLength()                           returns uint256 envfree
-    getAgainstVotes(uint256)                         returns uint256 envfree
-    getForVotes(uint256)                             returns uint256 envfree
-    getAbstainVotes(uint256)                         returns uint256 envfree
-    quorumNumeratorLength()                          returns uint256 envfree
-    timelockId(uint256)                              returns bytes32 envfree
+    function token_getPastTotalSupply(uint256)                external returns (uint256) envfree;
+    function token_getPastVotes(address,uint256)              external returns (uint256) envfree;
+    function token_clock()                                    external returns (uint48);
+    function token_CLOCK_MODE()                               external returns (string);
+    function hashProposal(address[],uint256[],bytes[],string) external returns (uint256) envfree;
+    function getExecutor()                                    external returns (address) envfree;
+    function quorumReached(uint256)                           external returns (bool)    envfree;
+    function voteSucceeded(uint256)                           external returns (bool)    envfree;
+    function isExecuted(uint256)                              external returns (bool)    envfree;
+    function isCanceled(uint256)                              external returns (bool)    envfree;
+    function isQueued(uint256)                                external returns (bool)    envfree;
+    function governanceCallLength()                           external returns (uint256) envfree;
+    function getAgainstVotes(uint256)                         external returns (uint256) envfree;
+    function getForVotes(uint256)                             external returns (uint256) envfree;
+    function getAbstainVotes(uint256)                         external returns (uint256) envfree;
+    function quorumNumeratorLength()                          external returns (uint256) envfree;
+    function timelockId(uint256)                              external returns (bytes32) envfree;
 }

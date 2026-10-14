@@ -1,16 +1,15 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
-import "GovernorInvariants.spec"
+import "helpers/Governor.helpers.spec";
+import "GovernorInvariants.spec";
 
-use invariant proposalStateConsistency
-use invariant votesImplySnapshotPassed
+use invariant proposalStateConsistency;
+use invariant votesImplySnapshotPassed;
 
 definition assumedSafeOrDuplicate(method f) returns bool =
     assumedSafe(f)
-    || f.selector == castVoteWithReason(uint256,uint8,string).selector
-    || f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
-    || f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector
-    || f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector;
+    || f.selector == sig:castVoteWithReason(uint256,uint8,string).selector
+    || f.selector == sig:castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
+    || f.selector == sig:castVoteBySig(uint256,uint8,address,bytes).selector
+    || f.selector == sig:castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes).selector;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -18,9 +17,8 @@ definition assumedSafeOrDuplicate(method f) returns bool =
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateDomain(env e, uint256 pId) {
-    uint8 result = safeState(e, pId);
+    IGovernor.ProposalState result = state(e, pId);
     assert (
-        result == UNSET()     ||
         result == PENDING()   ||
         result == ACTIVE()    ||
         result == CANCELED()  ||
@@ -43,16 +41,16 @@ rule stateDomain(env e, uint256 pId) {
 //     require clockSanity(e);
 //     require quorumNumeratorLength() < max_uint256; // sanity
 //
-//     uint8 stateBefore = safeState(e, pId);
+//     IGovernor.ProposalState stateBefore = safeState(e, pId);
 //     f(e, args);
-//     uint8 stateAfter  = safeState(e, pId);
+//     IGovernor.ProposalState stateAfter  = safeState(e, pId);
 //
 //     assert (stateBefore != stateAfter) => (
-//         (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == propose(address[],uint256[],bytes[],string).selector ) ||
-//         (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector ) ||
-//         (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector  ) ||
-//         (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector) ||
-//         (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
+//         (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == sig:propose(address[],uint256[],bytes[],string).selector ) ||
+//         (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector ) ||
+//         (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector  ) ||
+//         (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector) ||
+//         (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector)
 //     );
 // }
 
@@ -72,12 +70,12 @@ rule stateDomain(env e, uint256 pId) {
 //
 // rule stateTransitionFn_UNSET(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
 //     uint8 stateAfter = stateTransitionFnHelper(f, UNSET());
-//     assert stateAfter == PENDING() && f.selector == propose(address[],uint256[],bytes[],string).selector;
+//     assert stateAfter == PENDING() && f.selector == sig:propose(address[],uint256[],bytes[],string).selector;
 // }
 //
 // rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
 //     uint8 stateAfter = stateTransitionFnHelper(f, PENDING());
-//     assert stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector;
+//     assert stateAfter == CANCELED() && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector;
 // }
 //
 // rule stateTransitionFn_ACTIVE(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
@@ -98,14 +96,14 @@ rule stateDomain(env e, uint256 pId) {
 // rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
 //     uint8 stateAfter = stateTransitionFnHelper(f, SUCCEEDED());
 //     assert (
-//         (stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
-//         (stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
+//         (stateAfter == QUEUED()   && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector) ||
+//         (stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector)
 //     );
 // }
 //
 // rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
 //     uint8 stateAfter = stateTransitionFnHelper(f, QUEUED());
-//     assert stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector;
+//     assert stateAfter == EXECUTED() && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector;
 // }
 //
 // rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
@@ -121,7 +119,7 @@ rule stateDomain(env e, uint256 pId) {
 // The timelockId can be set in states QUEUED, EXECUTED and CANCELED. However, checking the full scope of this results
 // in a timeout. This is a weaker version that is still useful. Ideally we would check `safeState`.
 invariant noTimelockBeforeEndOfVote(env e, uint256 pId)
-    state(e, pId) == ACTIVE() => timelockId(pId) == 0
+    state(e, pId) == ACTIVE() => timelockId(pId) == to_bytes32(0);
 
 rule stateTransitionWait(uint256 pId, env e1, env e2) {
     require clockSanity(e1);
@@ -134,8 +132,8 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
     requireInvariant votesImplySnapshotPassed(e1, pId);
     requireInvariant noTimelockBeforeEndOfVote(e1, pId);
 
-    uint8 stateBefore = state(e1, pId); // Ideally we would use "safeState(e1, pId)"
-    uint8 stateAfter  = state(e2, pId); // Ideally we would use "safeState(e2, pId)"
+    IGovernor.ProposalState stateBefore = state(e1, pId); // Ideally we would also cover proposals that don't exist
+    IGovernor.ProposalState stateAfter  = state(e2, pId); // Ideally we would also cover proposals that don't exist
 
     assert (stateBefore != stateAfter) => (
         (stateBefore == PENDING() && stateAfter == ACTIVE()   ) ||
@@ -153,13 +151,14 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
 rule stateIsConsistentWithVotes(uint256 pId, env e) {
     require clockSanity(e);
     requireInvariant proposalStateConsistency(pId);
+    require proposalCreated(pId); // state() reverts for proposals that don't exist
 
-    uint48  currentClock  = clock(e);
-    uint8   currentState  = safeState(e, pId);
-    uint256 snapshot      = proposalSnapshot(pId);
-    uint256 deadline      = proposalDeadline(pId);
-    bool    quorumSuccess = quorumReached(pId);
-    bool    voteSuccess   = voteSucceeded(pId);
+    uint48                  currentClock  = clock(e);
+    IGovernor.ProposalState currentState  = state(e, pId);
+    uint256                 snapshot      = proposalSnapshot(pId);
+    uint256                 deadline      = proposalDeadline(pId);
+    bool                    quorumSuccess = quorumReached(pId);
+    bool                    voteSuccess   = voteSucceeded(pId);
 
     // Pending: before vote starts
     assert currentState == PENDING() => (

@@ -1,9 +1,8 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
-import "GovernorInvariants.spec"
+import "helpers/Governor.helpers.spec";
+import "GovernorInvariants.spec";
 
-use invariant proposalStateConsistency
-use invariant queuedImplyDeadlineOver
+use invariant proposalStateConsistency;
+use invariant queuedImplyDeadlineOver;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -14,7 +13,7 @@ rule propose_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    uint8 stateBefore = state(e, pId);
+    bool createdBefore = proposalCreated(pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
     require pId == hashProposal(targets, values, calldatas, descr);
@@ -23,7 +22,7 @@ rule propose_liveness(uint256 pId, env e) {
 
     // liveness & double proposal
     assert !lastReverted <=> (
-        stateBefore == UNSET() &&
+        !createdBefore &&
         validProposal(targets, values, calldatas)
     );
 }
@@ -42,7 +41,7 @@ rule propose_effect(uint256 pId, env e) {
 }
 
 rule propose_sideeffect(uint256 pId, env e, uint256 otherId) {
-    uint8   otherStateBefore = state(e, otherId);
+    IGovernor.ProposalState   otherStateBefore = state(e, otherId);
     uint256 otherVoteStart   = proposalSnapshot(otherId);
     uint256 otherVoteEnd     = proposalDeadline(otherId);
     address otherProposer    = proposalProposer(otherId);
@@ -73,7 +72,7 @@ rule castVote_liveness(uint256 pId, env e, method f)
     uint8   support;
     address voter;
 
-    uint8   stateBefore    = state(e, pId);
+    IGovernor.ProposalState   stateBefore    = state(e, pId);
     bool    hasVotedBefore = hasVoted(pId, voter);
     uint256 voterWeight    = token_getPastVotes(voter, proposalSnapshot(pId));
 
@@ -82,9 +81,9 @@ rule castVote_liveness(uint256 pId, env e, method f)
     require getForVotes(pId)     + voterWeight <= max_uint256;
     require getAbstainVotes(pId) + voterWeight <= max_uint256;
 
-    helperVoteWithRevert(e, f, pId, voter, support);
+    bool success = helperVoteWithRevert(e, f, pId, voter, support);
 
-    assert !lastReverted <=> (
+    assert success <=> (
         stateBefore == ACTIVE() &&
         !hasVotedBefore &&
         (support == 0 || support == 1 || support == 2)
@@ -102,8 +101,7 @@ rule castVote_effect(uint256 pId, env e, method f)
     uint256 abstainVotesBefore = getAbstainVotes(pId);
     uint256 voterWeight        = token_getPastVotes(voter, proposalSnapshot(pId));
 
-    uint256 weight = helperVoteWithRevert(e, f, pId, voter, support);
-    require !lastReverted;
+    uint256 weight = helperVote(e, f, pId, voter, support);
 
     assert state(e, pId)        == ACTIVE();
     assert voterWeight          == weight;
@@ -126,8 +124,7 @@ rule castVote_sideeffect(uint256 pId, env e, method f)
     uint256 otherForVotesBefore     = getForVotes(otherId);
     uint256 otherAbstainVotesBefore = getAbstainVotes(otherId);
 
-    helperVoteWithRevert(e, f, pId, voter, support);
-    require !lastReverted;
+    helperVote(e, f, pId, voter, support);
 
     // no side-effect
     assert hasVoted(otherId, otherVoter) != otherVotedBefore        => (otherId == pId && otherVoter == voter);
@@ -145,7 +142,7 @@ rule queue_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    uint8 stateBefore = state(e, pId);
+    IGovernor.ProposalState stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -157,7 +154,7 @@ rule queue_liveness(uint256 pId, env e) {
 }
 
 rule queue_effect(uint256 pId, env e) {
-    uint8 stateBefore  = state(e, pId);
+    IGovernor.ProposalState stateBefore  = state(e, pId);
     bool  queuedBefore = isQueued(pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
@@ -171,7 +168,7 @@ rule queue_effect(uint256 pId, env e) {
 }
 
 rule queue_sideeffect(uint256 pId, env e, uint256 otherId) {
-    uint8 otherStateBefore  = state(e, otherId);
+    IGovernor.ProposalState otherStateBefore  = state(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
@@ -193,7 +190,7 @@ rule execute_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
-    uint8 stateBefore = state(e, pId);
+    IGovernor.ProposalState stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -215,7 +212,7 @@ rule execute_effect(uint256 pId, env e) {
 }
 
 rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
-    uint8 otherStateBefore = state(e, otherId);
+    IGovernor.ProposalState otherStateBefore = state(e, otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -236,7 +233,7 @@ rule cancel_liveness(uint256 pId, env e) {
     require clockSanity(e);
     requireInvariant queuedImplyDeadlineOver(e, pId);
 
-    uint8 stateBefore = state(e, pId);
+    IGovernor.ProposalState stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
@@ -262,7 +259,7 @@ rule cancel_effect(uint256 pId, env e) {
 }
 
 rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
-    uint8 otherStateBefore  = state(e, otherId);
+    IGovernor.ProposalState otherStateBefore  = state(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;

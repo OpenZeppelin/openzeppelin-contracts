@@ -1,8 +1,7 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
-import "GovernorInvariants.spec"
+import "helpers/Governor.helpers.spec";
+import "GovernorInvariants.spec";
 
-use invariant proposalStateConsistency
+use invariant proposalStateConsistency;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -38,14 +37,14 @@ rule changes(uint256 pId, env e, method f, calldataarg args)
     uint256 votesAbstainAfter = getAbstainVotes(pId);
 
     // propose, execute, cancel
-    assert existAfter      != existBefore      => (!existBefore      && f.selector == propose(address[],uint256[],bytes[],string).selector);
-    assert isExecutedAfter != isExecutedBefore => (!isExecutedBefore && f.selector == execute(address[],uint256[],bytes[],bytes32).selector);
-    assert isCanceledAfter != isCanceledBefore => (!isCanceledBefore && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector);
+    assert existAfter      != existBefore      => (!existBefore      && f.selector == sig:propose(address[],uint256[],bytes[],string).selector);
+    assert isExecutedAfter != isExecutedBefore => (!isExecutedBefore && f.selector == sig:execute(address[],uint256[],bytes[],bytes32).selector);
+    assert isCanceledAfter != isCanceledBefore => (!isCanceledBefore && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector);
 
     // queue is cleared on cancel
     assert isQueuedAfter != isQueuedBefore => (
-        (!isQueuedBefore && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
-        (isQueuedBefore  && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector)
+        (!isQueuedBefore && f.selector == sig:queue(address[],uint256[],bytes[],bytes32).selector) ||
+        (isQueuedBefore  && f.selector == sig:cancel(address[],uint256[],bytes[],bytes32).selector)
     );
 
     // votes

@@ -1,11 +1,10 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
-import "GovernorInvariants.spec"
+import "helpers/Governor.helpers.spec";
+import "GovernorInvariants.spec";
 
-use invariant proposalStateConsistency
-use invariant canceledImplyCreated
-use invariant executedImplyCreated
-use invariant noBothExecutedAndCanceled
+use invariant proposalStateConsistency;
+use invariant canceledImplyCreated;
+use invariant executedImplyCreated;
+use invariant noBothExecutedAndCanceled;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -59,9 +58,9 @@ rule noDoubleVoting(uint256 pId, env e, method f)
 
     bool votedCheck = hasVoted(pId, voter);
 
-    helperVoteWithRevert(e, f, pId, voter, support);
+    bool success = helperVoteWithRevert(e, f, pId, voter, support);
 
-    assert votedCheck => lastReverted, "double voting occurred";
+    assert votedCheck => !success, "double voting occurred";
 }
 
 /*
@@ -157,9 +156,9 @@ rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant executedImplyCreated(pId);
 
-    helperFunctionsWithRevert(e, f, pId);
+    bool success = helperFunctionsWithRevert(e, f, pId);
 
-    assert lastReverted, "Function was not reverted";
+    assert !success, "Function was not reverted";
 }
 
 /*
@@ -178,9 +177,9 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant canceledImplyCreated(pId);
 
-    helperFunctionsWithRevert(e, f, pId);
+    bool success = helperFunctionsWithRevert(e, f, pId);
 
-    assert lastReverted, "Function was not reverted";
+    assert !success, "Function was not reverted";
 }
 
 /*

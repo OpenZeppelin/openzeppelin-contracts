@@ -1,14 +1,13 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
-import "GovernorInvariants.spec"
+import "helpers/Governor.helpers.spec";
+import "GovernorInvariants.spec";
 
 methods {
-    lateQuorumVoteExtension()    returns uint64 envfree
-    getExtendedDeadline(uint256) returns uint64 envfree
+    function lateQuorumVoteExtension()    external returns (uint48) envfree;
+    function getExtendedDeadline(uint256) external returns (uint64) envfree;
 }
 
-use invariant proposalStateConsistency
-use invariant votesImplySnapshotPassed
+use invariant proposalStateConsistency;
+use invariant votesImplySnapshotPassed;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -51,7 +50,7 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
         (
             !deadlineExtendedBefore &&
             !deadlineExtendedAfter &&
-            f.selector == propose(address[], uint256[], bytes[], string).selector
+            f.selector == sig:propose(address[], uint256[], bytes[], string).selector
         ) || (
             !deadlineExtendedBefore &&
             deadlineExtendedAfter &&

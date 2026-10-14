@@ -1,5 +1,4 @@
-import "helpers/helpers.spec"
-import "helpers/Governor.helpers.spec"
+import "helpers/Governor.helpers.spec";
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -142,7 +141,7 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant noBothExecutedAndCanceled(uint256 pId)
-    !isExecuted(pId) || !isCanceled(pId)
+    !isExecuted(pId) || !isCanceled(pId);
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -150,4 +149,4 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant governanceCallLength()
-    governanceCallLength() == 0
+    governanceCallLength() == 0;
