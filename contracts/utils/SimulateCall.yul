@@ -21,16 +21,14 @@ object "SimulationRelayer" {
       let len := sub(calldatasize(), 0x34)
       calldatacopy(0x00, 0x34, len)
       let success := call(gas(), shr(0x60, calldataload(0x00)), calldataload(0x14), 0x00, len, 0x00, 0x00)
-      switch success
-      case 0 {
-        let size := returndatasize()
-        if gt(size, 0x800) { size := 0x800 }
-        returndatacopy(0x00, 0x00, size)
-        return(0x00, size)
-      }
-      default {
+      if success {
         returndatacopy(0x00, 0x00, returndatasize())
         revert(0x00, returndatasize())
+      } /* else */ {
+        // size = min(returndatasize(), 0x800)
+        let size := xor(returndatasize(), mul(xor(returndatasize(), 0x800), gt(returndatasize(), 0x800)))
+        returndatacopy(0x00, 0x00, size)
+        return(0x00, size)
       }
     }
   }

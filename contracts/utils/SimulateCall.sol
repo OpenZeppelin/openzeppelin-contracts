@@ -43,16 +43,15 @@ library SimulateCall {
      */
     function getSimulator() internal returns (address instance) {
         // Bytecode compiled from contracts/utils/SimulateCall.yul.
-        // deployment prefix: 0x603b80600a5f395ff3fe
-        // deployed bytecode: 0x5f803660331901806034833781601435813560601c5af1156022573d5f803e3d5ffd5b3d61080081116033575b805f803e5ff35b50610800602c56
+        // deployment prefix: 0x603580600a5f395ff3fe
+        // deployed bytecode: 0x5f803660331901806034833781601435813560601c5af1602d576108003d116108003d18023d18805f803e5ff35b3d5f803e3d5ffd
         assembly ("memory-safe") {
             let fmp := mload(0x40)
 
             // build initcode at FMP
-            mstore(add(fmp, 0x40), 0x3d5f803e3d5ffd5b3d61080081116033575b805f803e5ff35b50610800602c56)
-            mstore(add(fmp, 0x20), 0x5f395ff3fe5f803660331901806034833781601435813560601c5af115602257)
-            mstore(fmp, 0x603b80600a)
-            let initcodehash := keccak256(add(fmp, 0x1b), 0x45)
+            mstore(add(fmp, 0x20), 0x5af1602d576108003d116108003d18023d18805f803e5ff35b3d5f803e3d5ffd)
+            mstore(fmp, 0x603580600a5f395ff3fe5f803660331901806034833781601435813560601c)
+            let initcodehash := keccak256(add(fmp, 0x01), 0x3f)
 
             // compute create2 address
             mstore(0x40, initcodehash)
@@ -63,7 +62,7 @@ library SimulateCall {
 
             // if simulator not yet deployed, deploy it
             if iszero(extcodesize(instance)) {
-                if iszero(create2(0, add(fmp, 0x1b), 0x45, 0)) {
+                if iszero(create2(0, add(fmp, 0x01), 0x3f, 0)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
