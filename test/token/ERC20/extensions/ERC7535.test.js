@@ -176,13 +176,13 @@ describe('ERC7535', function () {
     it('withdraw to a receiver whose receive() reverts bubbles the failure', async function () {
       await expect(
         this.vault.connect(this.holder).withdraw(1n, this.rejector, this.holder),
-      ).to.be.revertedWithCustomError(this.vault, 'FailedCall');
+      ).to.be.revertedWithCustomError(this.rejector, 'EtherReceiveRejected');
     });
 
     it('redeem to a receiver whose receive() reverts bubbles the failure', async function () {
       await expect(
         this.vault.connect(this.holder).redeem(1n, this.rejector, this.holder),
-      ).to.be.revertedWithCustomError(this.vault, 'FailedCall');
+      ).to.be.revertedWithCustomError(this.rejector, 'EtherReceiveRejected');
     });
   });
 
