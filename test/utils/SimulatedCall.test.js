@@ -105,33 +105,29 @@ describe('SimulateCall', function () {
       const bombData = length =>
         ethers.zeroPadBytes(ethers.concat([ethers.ZeroHash, ethers.ZeroHash, ethers.toBeHex(0x80, 32)]), length);
 
-      beforeEach(function () {
-        this.prepareCall = (success = true, length = 100_000) =>
-          this.mock.$simulateCall(
-            ethers.Typed.address(this.target),
-            ethers.Typed.bytes(
-              this.target.interface.encodeFunctionData(success ? 'mockFunctionReturnBomb' : 'mockFunctionRevertBomb', [
-                length,
-              ]),
-            ),
-            {
-              gasLimit: 1_000_000n,
-            },
-          );
-      });
+      const simulateBomb = ({ mock, target }, success, length) =>
+        mock.$simulateCall(
+          ethers.Typed.address(target),
+          ethers.Typed.bytes(
+            target.interface.encodeFunctionData(success ? 'mockFunctionReturnBomb' : 'mockFunctionRevertBomb', [
+              length,
+            ]),
+          ),
+          { gasLimit: 1_000_000n },
+        );
 
       it('"small" return bomb', async function () {
         // 100kB: the target (~50k gas) and the simulator's full copy fit in the gas budget, so the library call succeeds
         // with the full return data (~190k gas in total). The transaction then runs out of gas when the `$simulateCall`
         // wrapper emits that data in its return event (~800k gas for the LOG alone).
-        await expect(this.prepareCall(true, 100_000)).to.be.revert(ethers);
+        await expect(simulateBomb(this, true, 100_000)).to.be.revert(ethers);
       });
 
       it('"medium" return bomb', async function () {
         // 500kB: the target can afford the memory expansion (~545k gas), but the simulator, left with the gas the target
         // did not use, cannot afford the same memory expansion to copy the full return data on its success path. The
         // simulator runs out of gas, which the library reports as a success, with empty return data.
-        await expect(this.prepareCall(true, 500_000))
+        await expect(simulateBomb(this, true, 500_000))
           .to.emit(this.mock, 'return$simulateCall_address_bytes')
           .withArgs(true, '0x');
       });
@@ -139,7 +135,7 @@ describe('SimulateCall', function () {
       it('"large" return bomb', async function () {
         // 2MB: the target cannot afford the memory expansion (~7.8M gas) and runs out of gas, without any return data.
         // The call is reported as a failure with empty return data.
-        await expect(this.prepareCall(true, 2_000_000))
+        await expect(simulateBomb(this, true, 2_000_000))
           .to.emit(this.mock, 'return$simulateCall_address_bytes')
           .withArgs(false, '0x');
       });
@@ -147,7 +143,7 @@ describe('SimulateCall', function () {
       it('"small" revert bomb', async function () {
         // 100kB: the target can afford the memory expansion, and the simulator only copies the first 2048 bytes of the
         // revert data, which it can always afford. The call is reported as a failure with truncated revert data.
-        await expect(this.prepareCall(false, 100_000))
+        await expect(simulateBomb(this, false, 100_000))
           .to.emit(this.mock, 'return$simulateCall_address_bytes')
           .withArgs(false, bombData(2048));
       });
@@ -156,7 +152,7 @@ describe('SimulateCall', function () {
         // 500kB: the target can afford the memory expansion (~545k gas). Contrary to the "medium" return bomb, the
         // simulator only copies the first 2048 bytes of the revert data, which it can afford with the gas the target did
         // not use. The call is reported as a failure with truncated revert data.
-        await expect(this.prepareCall(false, 500_000))
+        await expect(simulateBomb(this, false, 500_000))
           .to.emit(this.mock, 'return$simulateCall_address_bytes')
           .withArgs(false, bombData(2048));
       });
@@ -164,7 +160,7 @@ describe('SimulateCall', function () {
       it('"large" revert bomb', async function () {
         // 2MB: the target cannot afford the memory expansion (~7.8M gas) and runs out of gas, without any revert data.
         // The call is reported as a failure with empty revert data.
-        await expect(this.prepareCall(false, 2_000_000))
+        await expect(simulateBomb(this, false, 2_000_000))
           .to.emit(this.mock, 'return$simulateCall_address_bytes')
           .withArgs(false, '0x');
       });
