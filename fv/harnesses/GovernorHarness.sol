@@ -116,7 +116,8 @@ contract GovernorHarness is
     ) public view returns (bool) {
         // Same salt as GovernorTimelockControl._timelockSalt (private)
         bytes32 salt = bytes20(address(this)) ^ descriptionHash;
-        return _timelock.isOperation(_timelock.hashOperationBatch(targets, values, calldatas, 0, salt));
+        // Equivalent to `isOperation`, without reading `block.timestamp` (so it can be envfree)
+        return _timelock.getTimestamp(_timelock.hashOperationBatch(targets, values, calldatas, 0, salt)) > 0;
     }
 
     function timelockMinDelay() public view returns (uint256) {

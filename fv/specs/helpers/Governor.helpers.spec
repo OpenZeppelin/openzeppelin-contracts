@@ -21,8 +21,8 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 function clockSanity(env e) returns bool {
-    return e.block.number    < max_uint48
-        && e.block.timestamp < max_uint48
+    return e.block.number    > 0 && e.block.number    < max_uint48
+        && e.block.timestamp > 0 && e.block.timestamp < max_uint48
         && clock(e) > 0;
 }
 
