@@ -11,6 +11,7 @@ import hardhatDocgen from './hardhat/hardhat-solidity-docgen/plugin.ts';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
 import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
+import hardhatYul from './hardhat/hardhat-yul/plugin.ts';
 import './hardhat/async-test-sanity.ts';
 
 // Parameters
@@ -41,6 +42,7 @@ export default defineConfig({
     hardhatExposed,
     hardhatTranspiler,
     hardhatOzContractsHelpers,
+    hardhatYul,
   ],
   paths: {
     sources: argv.src,
