@@ -8,6 +8,10 @@ const {
 
 const value = 42n;
 
+// CallReceiverMock's bomb functions return (or revert with) memory starting at 0, which includes the free memory pointer (0x80) at 0x40
+const bombData = length =>
+  ethers.zeroPadBytes(ethers.concat([ethers.ZeroHash, ethers.ZeroHash, ethers.toBeHex(0x80, 32)]), length);
+
 async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
@@ -99,16 +103,28 @@ describe('SimulateCall', function () {
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
     });
 
-    it('target revert with bomb', async function () {
-      const bomb = await ethers.deployContract('RevertBombMock');
-      await this.mock.$simulateCall(ethers.Typed.address(this.target), ethers.Typed.bytes('0x')); // deploy simulator
-      const txPromise = this.mock.$simulateCall(ethers.Typed.address(bomb), ethers.Typed.bytes('0x'), {
-        gasLimit: 1_000_000n,
-      });
-      await expect(txPromise).to.emit(this.mock, 'return$simulateCall_address_bytes').withArgs(
-        false, // reverting target is a failure (bounded copy can't be starved into an OOG)
-        ethers.zeroPadBytes('0x', 2048), // failure; reason copied up to the 2048-byte cap
+    it('target return with bomb', async function () {
+      const txPromise = this.mock.$simulateCall(
+        ethers.Typed.address(this.target),
+        ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionReturnBomb')),
+        {
+          gasLimit: 1_000_000n,
+        },
       );
+      // Bomb is bubbled, causing the library call to fail with out of gas. The helper return bombs the caller.
+      await expect(txPromise).to.be.revert(ethers);
+    });
+
+    it('target revert with bomb', async function () {
+      const txPromise = this.mock.$simulateCall(
+        ethers.Typed.address(this.target),
+        ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionRevertBomb')),
+        {
+          gasLimit: 1_000_000n,
+        },
+      );
+      // Revert data is truncated to 2048 bytes and call is identified as a failure.
+      await expect(txPromise).to.emit(this.mock, 'return$simulateCall_address_bytes').withArgs(false, bombData(2048));
     });
   });
 });

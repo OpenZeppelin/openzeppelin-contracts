@@ -92,6 +92,18 @@ contract CallReceiverMock {
         emit MockFunctionCalledExtra(msg.sender, msg.value);
         return (msg.sender, msg.value);
     }
+
+    function mockFunctionReturnBomb() public payable {
+        assembly ("memory-safe") {
+            return(0, 101500)
+        }
+    }
+
+    function mockFunctionRevertBomb() public payable {
+        assembly ("memory-safe") {
+            revert(0, 101500)
+        }
+    }
 }
 
 contract CallReceiverMockTrustingForwarder is CallReceiverMock {
