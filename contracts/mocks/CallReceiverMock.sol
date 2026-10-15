@@ -93,15 +93,15 @@ contract CallReceiverMock {
         return (msg.sender, msg.value);
     }
 
-    function mockFunctionReturnBomb() public payable {
+    function mockFunctionReturnBomb(uint256 size) public payable {
         assembly ("memory-safe") {
-            return(0, 101500)
+            return(0, size)
         }
     }
 
-    function mockFunctionRevertBomb() public payable {
+    function mockFunctionRevertBomb(uint256 size) public payable {
         assembly ("memory-safe") {
-            revert(0, 101500)
+            revert(0, size)
         }
     }
 }
