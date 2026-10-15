@@ -47,6 +47,10 @@ Queuing a proposal moves it to the `QUEUED` state and sets its timelock id. Time
 
 Queuing a proposal does not change the state (or the queued status) of any other proposal. Times out, even when assuming `canceledImplyCreated` and `executedImplyCreated` for the other proposal.
 
+### `cancel_sideeffect` _(CVL2 port)_
+
+Canceling a proposal does not change the state (or the queued status) of any other proposal. Hits the job's global time limit, even when assuming `canceledImplyCreated`, `executedImplyCreated` (for the other proposal) and `noTimelockBeforeEndOfVote` (for the canceled one).
+
 ## `GovernorPreventLateQuorum.spec`
 
 ### `deadlineExtendedEquivQuorumReached`

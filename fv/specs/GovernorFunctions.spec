@@ -280,21 +280,22 @@ rule cancel_effect(uint256 pId, env e) {
     assert !isQueued(pId); // cancel resets timelockId
 }
 
-rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
-    requireInvariant canceledImplyCreated(otherId);
-    requireInvariant executedImplyCreated(otherId);
-    // A pending proposal (the only one that can be canceled) has no timelock operation that could be shared with otherId
-    requireInvariant noTimelockBeforeEndOfVote(e, pId);
-
-    uint8   otherStateBefore = stateOf(e, otherId);
-    bool  otherQueuedBefore = isQueued(otherId);
-
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == hashProposal(targets, values, calldatas, descrHash);
-
-    cancel(e, targets, values, calldatas, descrHash);
-
-    // no side-effect
-    assert stateOf(e, otherId) != otherStateBefore  => otherId == pId;
-    assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
-}
+/// [DISABLED] This rule times out.
+// rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
+//     requireInvariant canceledImplyCreated(otherId);
+//     requireInvariant executedImplyCreated(otherId);
+//     // A pending proposal (the only one that can be canceled) has no timelock operation that could be shared with otherId
+//     requireInvariant noTimelockBeforeEndOfVote(e, pId);
+//
+//     uint8   otherStateBefore = stateOf(e, otherId);
+//     bool  otherQueuedBefore = isQueued(otherId);
+//
+//     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+//     require pId == hashProposal(targets, values, calldatas, descrHash);
+//
+//     cancel(e, targets, values, calldatas, descrHash);
+//
+//     // no side-effect
+//     assert stateOf(e, otherId) != otherStateBefore  => otherId == pId;
+//     assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
+// }
