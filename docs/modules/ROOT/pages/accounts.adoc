@@ -50,7 +50,7 @@ Most smart accounts are deployed by a factory, the best practice is to create xr
 
 [source,solidity]
 ----
-import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {Account} from "@openzeppelin/contracts/account/Account.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {SignerECDSA} from "@openzeppelin/contracts/utils/cryptography/signers/SignerECDSA.sol";
 
@@ -94,8 +94,8 @@ Here's an example of how to use batched execution using EIP-7702:
 
 [source,solidity]
 ----
-import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
-import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
+import {Account} from "@openzeppelin/contracts/account/Account.sol";
+import {ERC7821} from "@openzeppelin/contracts/account/extensions/draft-ERC7821.sol";
 import {SignerEIP7702} from "@openzeppelin/contracts/utils/cryptography/signers/SignerEIP7702.sol";
 
 contract MyAccount is Account, SignerEIP7702, ERC7821 {
