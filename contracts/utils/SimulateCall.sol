@@ -11,8 +11,19 @@ pragma solidity ^0.8.20;
  * the address of the sender is preserved, this supports simulating calls that perform token swap that use the caller's
  * balance, or any operation that is restricted to the caller.
  *
- * WARNING: On a reverting call, only the first 2048 bytes of the revert data are returned (successful-call data is not
- * truncated).
+ * WARNING: The target controls the size of the data it returns (or reverts with), and the cost of copying that data
+ * grows quadratically with its size. This puts the following limits on the simulation:
+ *
+ * * On a reverting call, only the first 2048 bytes of the revert data are returned. This bounds the cost of handling
+ *   a failure, so that a target cannot make a failed call look like a success by reverting with oversized data.
+ * * On a successful call, the return data is not truncated: the simulator copies it in full. If the target can afford
+ *   to produce its return data, but the simulator cannot afford to copy it with the gas the target did not use, the
+ *   simulator runs out of gas and the call is reported as a *success with empty return data*.
+ * * If the target cannot afford to produce its return (or revert) data, it runs out of gas. The call is then reported
+ *   as a *failure with empty return data*, like any other out-of-gas failure, even if the target would have succeeded
+ *   with more gas.
+ * * When the simulation completes, the caller still has to pay for receiving the return data, which may cause it to
+ *   run out of gas.
  */
 library SimulateCall {
     /// @dev Simulates a call to the target contract through a dynamically deployed simulator.

@@ -82,6 +82,12 @@ contract CallReceiverMock {
         assert(false);
     }
 
+    function mockFunctionInvalid() public payable {
+        assembly ("memory-safe") {
+            invalid()
+        }
+    }
+
     function mockFunctionOutOfGas() public payable {
         for (uint256 i = 0; ; ++i) {
             _array.push(i);

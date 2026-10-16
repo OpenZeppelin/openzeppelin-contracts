@@ -99,6 +99,18 @@ describe('SimulateCall', function () {
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
     });
 
+    it('target invalid opcode', async function () {
+      // `invalid()` consumes all the gas forwarded to the target and returns no data. The simulator keeps 1/64th of its
+      // gas, which is enough to process the failure. The call is reported as a failure with empty revert data.
+      const txPromise = this.mock.$simulateCall(
+        ethers.Typed.address(this.target),
+        ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionInvalid')),
+      );
+
+      await expect(txPromise).to.changeEtherBalances(ethers, [this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise).to.emit(this.mock, 'return$simulateCall_address_bytes').withArgs(false, '0x');
+    });
+
     describe('returndata bomb', function () {
       // CallReceiverMock's bomb functions return (or revert with) memory starting at 0, which includes the free memory
       // pointer (0x80) at 0x40.
