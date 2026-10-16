@@ -172,6 +172,32 @@ describe('ERC7390', function () {
     }
   });
 
+  describe('isValidAddressLength', function () {
+    for (const { title, chainType, valid, invalid } of [
+      { title: 'eip155', chainType: '0x0000', valid: [20], invalid: [0, 19, 21, 32] },
+      { title: 'solana', chainType: '0x0002', valid: [32], invalid: [0, 20, 31, 33] },
+      { title: 'unknown chain type', chainType: '0x0042', valid: [1, 20, 32, 255], invalid: [0] },
+    ]) {
+      describe(title, function () {
+        for (const length of valid) {
+          it(`${length} bytes address is valid`, async function () {
+            const addr = random.hexBytes(length);
+            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.true;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.true;
+          });
+        }
+
+        for (const length of invalid) {
+          it(`${length} bytes address is invalid`, async function () {
+            const addr = random.hexBytes(length);
+            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.false;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.false;
+          });
+        }
+      });
+    }
+  });
+
   describe('handles large references and addresses', function () {
     it('large', async function () {
       const chainType = '0x0000';
