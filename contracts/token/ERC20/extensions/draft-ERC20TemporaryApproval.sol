@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/extensions/draft-ERC20TemporaryApproval.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC7674} from "../../../interfaces/draft-IERC7674.sol";
 import {Math} from "../../../utils/math/Math.sol";

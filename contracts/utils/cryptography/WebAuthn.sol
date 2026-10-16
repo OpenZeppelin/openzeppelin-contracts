@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/WebAuthn.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Base64} from "../Base64.sol";
 import {Bytes} from "../Bytes.sol";
