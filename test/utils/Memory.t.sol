@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, stdError} from "forge-std/Test.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 
@@ -27,21 +27,62 @@ contract MemoryTest is Test {
         assertTrue(slice.isReserved());
     }
 
-    function testSlice(bytes memory input, uint256 offset) public pure {
-        offset = bound(offset, 0, input.length);
+    function testSlice(bytes memory input, uint256 start) public pure {
+        start = bound(start, 0, input.length);
 
-        Memory.Slice slice = input.asSlice().slice(offset);
-        assertEq(slice.toBytes(), input.slice(offset));
+        Memory.Slice slice = input.asSlice().slice(start);
+        assertEq(slice.toBytes(), input.slice(start));
         assertTrue(slice.isReserved());
     }
 
-    function testSlice(bytes memory input, uint256 offset, uint256 length) public pure {
-        offset = bound(offset, 0, input.length);
-        length = bound(length, 0, input.length - offset);
-
-        Memory.Slice slice = input.asSlice().slice(offset, length);
-        assertEq(slice.toBytes(), input.slice(offset, offset + length));
+    function testSlice(bytes memory input, uint256 start, uint256 end) public pure {
+        Memory.Slice slice = input.asSlice().slice(start, end);
+        assertEq(slice.toBytes(), input.slice(start, end));
         assertTrue(slice.isReserved());
+    }
+
+    function testAsConstSliceToBytes(bytes memory input) public pure {
+        Memory.ConstSlice slice = input.asConstSlice();
+        assertEq(slice.length(), input.length);
+        assertEq(slice.toBytes(), input);
+        assertTrue(slice.isReserved());
+    }
+
+    function testAsConstMatchesAsConstSlice(bytes memory input) public pure {
+        assertEq(Memory.ConstSlice.unwrap(input.asSlice().asConst()), Memory.ConstSlice.unwrap(input.asConstSlice()));
+    }
+
+    function testConstSlice(bytes memory input, uint256 start, uint256 end) public pure {
+        assertEq(input.asConstSlice().slice(start).toBytes(), input.slice(start));
+        assertEq(input.asConstSlice().slice(start, end).toBytes(), input.slice(start, end));
+    }
+
+    function testWrite(bytes memory input, uint256 extra) public pure {
+        bytes memory buffer = new bytes(input.length + bound(extra, 0, 256));
+
+        bytes memory result = input.asSlice().write(buffer);
+        assertEq(result, input);
+        // the buffer is modified in place and shrunk to the length of the slice
+        assertEq(buffer, input);
+        assertEq(buffer.length, input.length);
+    }
+
+    function testWriteConst(bytes memory input, uint256 extra) public pure {
+        bytes memory buffer = new bytes(input.length + bound(extra, 0, 256));
+        assertEq(input.asConstSlice().write(buffer), input);
+    }
+
+    function testWriteBufferTooSmall(bytes memory input, uint256 bufferLength) public {
+        vm.assume(input.length > 0);
+        bytes memory buffer = new bytes(bound(bufferLength, 0, input.length - 1));
+
+        vm.expectRevert(stdError.indexOOBError);
+        this.writeExternal(input, buffer);
+    }
+
+    /// @dev External wrapper: {vm-expectRevert} only observes reverts across a call boundary.
+    function writeExternal(bytes memory input, bytes memory buffer) external pure {
+        input.asSlice().write(buffer);
     }
 
     function testInvalidSliceOutOfBound() public pure {
@@ -70,21 +111,26 @@ contract MemoryTest is Test {
         assertEq(Memory.equal(sliceA, sliceB), expected);
     }
 
+    /// @dev Covers the four `equal` overloads (Slice/ConstSlice in either position).
+    function testEqualConstOverloads(bytes memory a, bytes memory b) public pure {
+        bool expected = keccak256(a) == keccak256(b);
+        assertEq(a.asSlice().equal(b.asSlice()), expected);
+        assertEq(a.asConstSlice().equal(b.asSlice()), expected);
+        assertEq(a.asSlice().equal(b.asConstSlice()), expected);
+        assertEq(a.asConstSlice().equal(b.asConstSlice()), expected);
+    }
+
     function testEqual(
         bytes memory a,
-        uint256 offsetA,
-        uint256 lengthA,
+        uint256 startA,
+        uint256 endA,
         bytes memory b,
-        uint256 offsetB,
-        uint256 lengthB
+        uint256 startB,
+        uint256 endB
     ) public pure {
-        offsetA = bound(offsetA, 0, a.length);
-        offsetB = bound(offsetB, 0, b.length);
-        lengthA = bound(lengthA, 0, a.length - offsetA);
-        lengthB = bound(lengthB, 0, b.length - offsetB);
         assertEq(
-            a.asSlice().slice(offsetA, lengthA).equal(b.asSlice().slice(offsetB, lengthB)),
-            keccak256(a.slice(offsetA, offsetA + lengthA)) == keccak256(b.slice(offsetB, offsetB + lengthB))
+            a.asSlice().slice(startA, endA).equal(b.asSlice().slice(startB, endB)),
+            keccak256(a.slice(startA, endA)) == keccak256(b.slice(startB, endB))
         );
     }
 }
