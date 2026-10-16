@@ -128,6 +128,14 @@ describe('SimulateCall', function () {
           { gasLimit: 1_000_000n },
         );
 
+      it('"tiny" return bomb', async function () {
+        // 10kB: small enough that the full copy and the return event's LOG fit the gas budget, so the call succeeds
+        // with the data in full. Unlike a revert bomb (capped at 2048 bytes), a successful return is not truncated.
+        await expect(simulateBomb(this, true, 10_000))
+          .to.emit(this.mock, 'return$simulateCall_address_bytes')
+          .withArgs(true, bombData(10_000));
+      });
+
       it('"small" return bomb', async function () {
         // 100kB: the target (~50k gas) and the simulator's full copy fit in the gas budget, so the library call succeeds
         // with the full return data (~190k gas in total). The transaction then runs out of gas when the `$simulateCall`
