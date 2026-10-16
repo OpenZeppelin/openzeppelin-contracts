@@ -54,7 +54,23 @@ interface IVotes {
     function delegate(address delegatee) external;
 
     /**
-     * @dev Delegates votes from signer to `delegatee`.
+     * @dev Delegates votes from signer to `delegatee` using an EIP-712 signature.
+     *
+     * The signed message is an EIP-712 typed structured data payload whose primary type is:
+     *
+     * ```
+     * Delegation(address delegatee,uint256 nonce,uint256 expiry)
+     * ```
+     *
+     * The EIP-712 domain is the signing contract's domain as defined by {EIP712} (typically `name`, `version`,
+     * `chainId`, and `verifyingContract`). `nonce` must be the signer's current nonce (see {Nonces-nonces}). `expiry`
+     * is a UNIX timestamp after which the signature is no longer valid.
+     *
+     * Requirements:
+     *
+     * - `expiry` must be a timestamp in the future.
+     * - `v`, `r` and `s` must be a valid `secp256k1` signature from the delegator over that typed data.
+     * - the signature must use the signer's current nonce (see {Nonces-nonces}).
      */
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external;
 }
