@@ -100,28 +100,21 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) internal view returns (uint256 used_, uint256 available_) {
-        uint208 capacity_ = self._capacity; // cache
-        RefillingBucketItem storage item_ = self._items[key]; // cache
-
-        used_ = Math.saturatingSub(
-            item_._lastUsed,
-            Math.mulDiv(Time.timestamp() - item_._lastTimepoint, capacity_, Math.max(self._window, 1))
-        );
-        available_ = Math.saturatingSub(capacity_, used_);
+        (used_, available_, ) = _refresh(self, key);
     }
 
     /**
      * @dev Returns the currently used quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function used(RefillingBucket storage self, bytes32 key) internal view returns (uint256 used_) {
-        (used_, ) = state(self, key);
+        (used_, , ) = _refresh(self, key);
     }
 
     /**
      * @dev Returns the currently available quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function available(RefillingBucket storage self, bytes32 key) internal view returns (uint256 available_) {
-        (, available_) = state(self, key);
+        (, available_, ) = _refresh(self, key);
     }
 
     /**
@@ -134,10 +127,10 @@ library RateLimiter {
         if (quantity == 0) {
             return true;
         }
-        (uint256 used_, uint256 available_) = state(self, key);
+        (uint256 used_, uint256 available_, uint48 timepoint_) = _refresh(self, key);
         if (quantity <= available_) {
             self._items[key] = RefillingBucketItem({
-                _lastTimepoint: Time.timestamp(),
+                _lastTimepoint: timepoint_,
                 _lastUsed: SafeCast.toUint208(used_ + quantity)
             });
             return true;
@@ -181,9 +174,51 @@ library RateLimiter {
      * and `lastTimepoint`, effectively moving that entry's timepoint forward to now. This can be used to mitigate the
      * side effect of {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is
      * modified. It must be called per key; there is no mechanism to sync all entries at once.
+     *
+     * WARNING: Any partial refill accrued since the last whole unit was refilled is discarded. Calling this function
+     * repeatedly, at an interval shorter than the time it takes to refill one unit (`window / capacity`), prevents the
+     * bucket from refilling at all. Do not expose it to parties that should not be able to stall the refill of a key.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
         self._items[key] = RefillingBucketItem({_lastTimepoint: Time.timestamp(), _lastUsed: uint208(used(self, key))});
+    }
+
+    /**
+     * @dev Computes the current `used` and `available` quantities of the `key` bucket, along with the timepoint from
+     * which any further refill should be accounted.
+     *
+     * If the bucket is fully replenished, the timepoint is the current timestamp. Otherwise, it is the moment at which
+     * the last whole unit was refilled, so that the partial refill accrued since then is not lost when the entry is
+     * updated.
+     *
+     * NOTE: A `window` of 0 is treated as 1 second in the refill computation.
+     */
+    function _refresh(
+        RefillingBucket storage self,
+        bytes32 key
+    ) private view returns (uint256 used_, uint256 available_, uint48 timepoint_) {
+        unchecked {
+            // cache frequently used values to save gas
+            uint256 capacity_ = self._capacity;
+            uint256 window_ = Math.max(self._window, 1);
+            RefillingBucketItem storage item_ = self._items[key];
+            uint256 lastUsed_ = item_._lastUsed;
+            uint48 lastTimepoint_ = item_._lastTimepoint;
+
+            // compute the quantity to refill based on the elapsed time since the last timepoint
+            uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
+
+            return
+                refill < lastUsed_
+                    ? (
+                        lastUsed_ - refill,
+                        Math.saturatingSub(capacity_, lastUsed_ - refill),
+                        // `capacity_ == 0` implies `refill == 0`, so using `max(capacity_, 1)` avoids a division by
+                        // zero without changing the result.
+                        lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, Math.max(capacity_, 1)))
+                    )
+                    : (0, capacity_, Time.timestamp());
+        }
     }
 
     // ================================================= SlidingWindow =================================================
