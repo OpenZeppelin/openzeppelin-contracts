@@ -5,7 +5,7 @@ description: Solidity style and safety conventions for contract source files. Us
 
 # Solidity style and safety
 
-The conventions below are not enforced by solhint. For the lint-enforced rules (private state vars, underscore prefixes, library visibility, etc.), see the project root `CLAUDE.md`.
+The conventions below are not enforced by solhint. For the lint-enforced rules (private state vars, underscore prefixes, library visibility, etc.), see the project root `AGENTS.md`.
 
 ## Errors
 
