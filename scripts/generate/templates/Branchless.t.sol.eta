@@ -1,0 +1,12 @@
+pragma solidity ^0.8.20;
+
+import {Test} from "forge-std/Test.sol";
+import {Branchless} from "@openzeppelin/contracts/utils/Branchless.sol";
+
+contract BranchlessTest is Test {
+<%- for (const { name, type } of Object.values(it.TYPES).filter(({ size, upcastTo }) => size && !upcastTo)) { %>
+    function testSymbolicTernary<%= name %>(bool condition, <%= type %> a, <%= type %> b) public pure {
+        assertEq(Branchless.ternary(condition, a, b), condition ? a : b);
+    }
+<% } -%>
+}

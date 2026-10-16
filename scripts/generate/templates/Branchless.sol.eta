@@ -1,0 +1,26 @@
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Library of branchless ternary evaluations (i.e. `condition ? a : b`). Gas costs are constant.
+ *
+ * The `ternary` function is only implemented for `address`, `bool`, `bytes32`, `uint256` and `int256`. Smaller types
+ * (e.g. `uint8`, `int64` or `bytes4`) implicitly convert to the largest type of their family, so they can be passed
+ * directly. The result must then be explicitly downcast (e.g. `uint8(Branchless.ternary(condition, a, b))`).
+ *
+ * IMPORTANT: These functions may reduce bytecode size and consume less gas when used standalone. However, the
+ * compiler may optimize Solidity ternary operations (i.e. `condition ? a : b`) to only compute one branch when
+ * needed, making these functions more expensive.
+ */
+library Branchless {
+<%- for (const entry of Object.values(it.TYPES).filter(({ size, upcastTo }) => size && !upcastTo)) { %>
+    /// @dev Branchless ternary evaluation for `condition ? a : b` on `<%= entry.type %>` values.
+    function ternary(bool condition, <%= entry.type %> a, <%= entry.type %> b) internal pure returns (<%= entry.type %> r) {
+        // branchless ternary works because:
+        // b ^ (a ^ b) == a
+        // b ^ 0 == b
+        assembly ("memory-safe") {
+            r := xor(b, mul(xor(a, b), iszero(iszero(condition))))
+        }
+    }
+<% } -%>
+}
