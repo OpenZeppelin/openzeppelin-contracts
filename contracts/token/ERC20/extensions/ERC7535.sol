@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.24;
+
+import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {Address} from "../../../utils/Address.sol";
+import {IERC20} from "../IERC20.sol";
+import {ERC4626} from "./ERC4626.sol";
+
+/**
+ * @dev Implementation of the ERC-7535 "Native Asset ERC-4626 Tokenized Vault" as defined in
+ * https://eips.ethereum.org/EIPS/eip-7535[ERC-7535].
+ *
+ * ERC-7535 is an adaptation of {ERC4626} that uses the chain's native asset (e.g. Ether) as the underlying
+ * asset instead of an ERC-20 token. It is implemented as a thin extension of {ERC4626}: the share accounting,
+ * rounding directions, virtual-offset inflation mitigation, preview functions, and checks-effects-interactions
+ * ordering are all inherited unchanged. Only the asset-movement seams differ.
+ *
+ * Relative to {ERC4626}:
+ *
+ * * {asset} returns the ERC-7528 native-asset placeholder `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`.
+ * * {totalAssets} returns the contract's own native-asset balance (`address(this).balance`), excluding the
+ * `msg.value` of the current call. Shares are therefore priced against the pre-deposit balance, as in {ERC4626}.
+ * * {deposit} and {mint} are `payable` (as declared by `IERC4626`): the native asset is provided as `msg.value`
+ * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. {deposit}
+ * prices shares off `msg.value` and ignores its `assets` argument (per ERC-7535); {mint} requires `msg.value` to
+ * cover the previewed cost through the inherited {ERC4626-_checkPayment} hook.
+ * * {ERC4626-_transferIn} is a no-op (the value has already arrived as `msg.value`) and {ERC4626-_transferOut}
+ * sends the native asset out with `Address.sendValue`.
+ *
+ * IMPORTANT: A vault backed by a wrapped native asset (such as WETH9) MUST NOT use this contract; per ERC-7528
+ * and ERC-7535 such a vault is a plain {ERC4626} over the wrapper ERC-20 and MUST report that wrapper's address
+ * from {asset}, not the native-asset placeholder.
+ *
+ * [CAUTION]
+ * ====
+ * Like {ERC4626}, an empty (or nearly empty) vault is exposed to a donation / inflation attack, and the same
+ * configurable virtual shares and assets mitigate it. Override `_decimalsOffset()` to harden a deployment; see
+ * the {ERC4626} documentation for the underlying math.
+ *
+ * A native asset vault can additionally be force-fed value (e.g. through `SELFDESTRUCT` or block-reward
+ * payments), even though plain transfers revert (the contract has no `receive` or `fallback` function). Because
+ * {totalAssets} is balance-based it tracks such donations exactly as a direct ERC-20 transfer would for {ERC4626};
+ * the virtual-offset math is the defense.
+ * ====
+ *
+ * NOTE: `deposit(assets, receiver)` deposits the entire `msg.value` and mints `previewDeposit(msg.value)` shares,
+ * ignoring the `assets` argument (per ERC-7535). `mint(shares, receiver)` requires `msg.value` to be at least the
+ * previewed cost; any excess `msg.value` on a `mint` is refunded to the caller.
+ *
+ * WARNING: {deposit} and {mint} rely on `msg.value`, which is preserved across a `delegatecall`. A `payable`
+ * batching mechanism that `delegatecall`s into the vault itself would let the same `msg.value` be counted by every
+ * {deposit} or {mint} in the batch, minting shares several times for a single payment. {Multicall} is safe in
+ * this regard because {Multicall-multicall} is not `payable` (`msg.value` is always zero in its subcalls), but it
+ * MUST NOT be replaced by a `payable` variant.
+ *
+ * To learn more, check out our xref:ROOT:erc7535.adoc[ERC-7535 guide].
+ */
+abstract contract ERC7535 is ERC4626 {
+    /// @dev Attempted to {deposit} or {mint} with a `msg.value` below the required native amount.
+    error ERC7535InsufficientNativeValue(uint256 value, uint256 expected);
+
+    /// @dev Configures the vault with the ERC-7528 native-asset placeholder, exposed through {asset}. The placeholder
+    /// address has no `decimals()`, so the inherited {ERC4626} decimals detection falls back to 18, the native asset's
+    /// decimals.
+    // The address is inlined (rather than a private constant) because the upgradeable transpiler copies this
+    // argument verbatim into the initializer of every inheriting contract, where a private constant is not in scope.
+    constructor() ERC4626(IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {}
+
+    /**
+     * @inheritdoc IERC4626
+     *
+     * @dev Excludes the `msg.value` of the current call, so that {deposit} and {mint} price shares against the
+     * pre-deposit balance (and a standalone {previewDeposit} matches the subsequent {deposit}). Outside a `payable`
+     * call, `msg.value` is `0` and this is the full balance. Within {deposit} and {mint}, the whole `msg.value` is
+     * excluded for the duration of the call, including after the shares are minted and any excess refunded.
+     */
+    function totalAssets() public view virtual override returns (uint256) {
+        return address(this).balance - _msgValue();
+    }
+
+    /**
+     * @inheritdoc IERC4626
+     *
+     * @dev Per ERC-7535, the deposited amount is the entire `msg.value`: shares are priced off `msg.value` and the
+     * `assets` argument is ignored, so the full native value sent is always converted to shares (none is silently
+     * retained as a donation). Reverts via {maxDeposit} if `msg.value` exceeds the maximum.
+     */
+    function deposit(uint256, address receiver) public payable virtual override returns (uint256) {
+        return super.deposit(msg.value, receiver);
+    }
+
+    /**
+     * @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
+     * native value to cover the previewed cost `assets`; any excess is refunded by {_deposit}. {deposit} is
+     * overridden to price shares directly off `msg.value` and does not route through this hook.
+     */
+    function _checkPayment(uint256 assets) internal view virtual override {
+        if (msg.value < assets) {
+            revert ERC7535InsufficientNativeValue(msg.value, assets);
+        }
+    }
+
+    /**
+     * @dev See {ERC4626-_deposit}. Refunds any `msg.value` in excess of `assets` (on {mint}) to `caller`.
+     *
+     * The refund is performed after the shares are minted, so that a reentrant call during the refund sees a
+     * {totalAssets} and {totalSupply} that both account for this deposit.
+     */
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
+        super._deposit(caller, receiver, assets, shares);
+        if (msg.value > assets) {
+            _transferOut(caller, msg.value - assets);
+        }
+    }
+
+    /// @dev No-op: the native asset has already been received as `msg.value`. See {ERC4626-_transferIn}.
+    function _transferIn(address /* from */, uint256 /* assets */) internal virtual override {}
+
+    /// @dev Sends the native asset out with `Address.sendValue`, which forwards all remaining gas. See
+    /// {ERC4626-_transferOut}.
+    function _transferOut(address to, uint256 assets) internal virtual override {
+        Address.sendValue(payable(to), assets);
+    }
+
+    // `msg.value` cannot be read directly in a non-payable public function such as {totalAssets}.
+    function _msgValue() private view returns (uint256) {
+        return msg.value;
+    }
+}
