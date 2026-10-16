@@ -6,7 +6,7 @@ pragma solidity ^0.8.24;
  * Transient slots are often used to store temporary values that are removed after the current transaction.
  * This library helps with reading and writing to such slots without the need for inline assembly.
  *
- *  * Example reading and writing values using transient storage:
+ * Example reading and writing values using transient storage:
  * ```solidity
  * contract Lock {
  *     using TransientSlot for *;
@@ -24,10 +24,40 @@ pragma solidity ^0.8.24;
  * }
  * ```
  *
+ * Alternatively, the slot can be reserved by declaring a state variable, letting the compiler allocate it:
+ * ```solidity
+ * contract Lock {
+ *     using TransientSlot for *;
+ *
+ *     // Reserve a slot. The compiler allocates it, just like it would for any other state variable.
+ *     TransientSlot.TBoolean private _lock;
+ *
+ *     modifier locked() {
+ *         require(!_lock.tload());
+ *
+ *         _lock.tstore(true);
+ *         _;
+ *         _lock.tstore(false);
+ *     }
+ * }
+ * ```
+ *
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library TransientSlot {
 <%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    /**
+     * @dev Struct that reserves a slot in the (persistent) storage layout, to hold <%= type == 'address' ? 'an' : 'a' %> <%= type %> in transient storage.
+     *
+     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
+     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
+     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
+     * same way it namespaces the persistent ones.
+     */
+    struct T<%= name %> {
+        bytes32 _placeholder;
+    }
+
     /**
      * @dev UDVT that represents a slot holding <%= type == 'address' ? 'an' : 'a' %> <%= type %>.
      */
@@ -51,11 +81,29 @@ library TransientSlot {
     }
 
     /**
+     * @dev Load the value held in the transient slot reserved by `self`.
+     */
+    function tload(T<%= name %> storage self) internal view returns (<%= type %> value) {
+        assembly ("memory-safe") {
+            value := tload(self.slot)
+        }
+    }
+
+    /**
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(<%= name %>Slot slot, <%= type %> value) internal {
         assembly ("memory-safe") {
             tstore(slot, value)
+        }
+    }
+
+    /**
+     * @dev Store `value` in the transient slot reserved by `self`.
+     */
+    function tstore(T<%= name %> storage self, <%= type %> value) internal {
+        assembly ("memory-safe") {
+            tstore(self.slot, value)
         }
     }
 <% } -%>

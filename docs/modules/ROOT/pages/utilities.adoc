@@ -424,6 +424,27 @@ function erc7201Pointer() internal view returns (bytes32) {
 }
 ----
 
+Alternatively, `TransientSlot` can let the compiler pick the slot. Declaring one of its reservation structs (`TAddress`, `TBoolean`, `TBytes32`, `TUint256`, `TInt256`) as a state variable reserves a slot in the persistent storage layout; that slot is never written to, and only its number is reused in transient storage.
+
+[source,solidity]
+----
+using TransientSlot for *;
+
+TransientSlot.TBoolean private _lock;
+
+function _getTransientLock() internal view returns (bool) {
+    return _lock.tload();
+}
+
+function _setTransientLock(bool lock) internal {
+    _lock.tstore(lock);
+}
+----
+
+Because the compiler allocates the slot, this composes with the rules above: a reservation declared inside an ERC-7201 namespaced storage struct gets a namespaced transient slot, in the same way its persistent neighbours do. The trade-off is that one persistent slot is reserved (and left unused) per transient value.
+
+WARNING: The reserved slot depends on the persistent storage layout, so it moves if state variables are added, removed or reordered. Do not use it for transient values that several contracts, or several facets of a diamond, must agree on.
+
 === Base64
 
 xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation.
