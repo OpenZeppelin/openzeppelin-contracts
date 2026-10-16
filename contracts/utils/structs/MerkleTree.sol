@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.31;
 
-import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
+import {Hashes} from "../cryptography/Hashes.sol";
 import {Panic} from "../Panic.sol";
 import {StorageSlot} from "../StorageSlot.sol";
 

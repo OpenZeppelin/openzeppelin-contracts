@@ -7,13 +7,7 @@
     "contracts/proxy/**/*Proxy*.sol",
     "contracts/proxy/beacon/UpgradeableBeacon.sol"
   ],
-  "publicInitializers": [
-    "contracts/access/manager/AccessManager.sol",
-    "contracts/crosschain/CrosschainRemoteExecutor.sol",
-    "contracts/finance/VestingWallet.sol",
-    "contracts/governance/TimelockController.sol",
-    "contracts/metatx/ERC2771Forwarder.sol"
-  ],
+  "publicInitializers": ["!contracts/mocks/**/*"],
   "namespaced": true,
   "namespaceExclude": ["contracts/mocks/**/*"],
   "peerProject": "@openzeppelin/"

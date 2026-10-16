@@ -1,4 +1,4 @@
-module.exports = ({ github, context }) =>
+export default ({ github, context }) =>
   github.rest.actions.createWorkflowDispatch({
     owner: context.repo.owner,
     repo: context.repo.repo,

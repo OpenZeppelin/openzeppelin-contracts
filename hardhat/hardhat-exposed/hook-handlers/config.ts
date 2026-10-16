@@ -29,6 +29,9 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
     if (userConfig.exposed?.initializers !== undefined && typeof userConfig.exposed?.initializers !== 'boolean') {
       results.push({ path: ['exposed', 'initializers'], message: 'Expected an optional boolean.' });
     }
+    if (userConfig.exposed?.imports !== undefined && typeof userConfig.exposed?.imports !== 'boolean') {
+      results.push({ path: ['exposed', 'imports'], message: 'Expected an optional boolean.' });
+    }
     return results;
   },
 
@@ -38,23 +41,18 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
     const makeAbsolutePath = (p: string) =>
       path.isAbsolute(p) ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
 
-    const outDir = makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed');
-
+    // Note: the output directory is deliberately NOT added to `paths.sources.solidity` here. The `build` task adds it,
+    // in place, right after generating its content. That way tasks that don't generate the exposed contracts (docgen,
+    // transpile, `build --noExpose`, ...) neither compile them nor see them as one of the project source directories.
     return {
       ...partiallyResolvedConfig,
-      paths: {
-        ...partiallyResolvedConfig.paths,
-        sources: {
-          ...partiallyResolvedConfig.paths.sources,
-          solidity: [...partiallyResolvedConfig.paths.sources.solidity, outDir],
-        },
-      },
       exposed: {
         prefix: userConfig.exposed?.prefix ?? '$',
         exclude: (userConfig.exposed?.exclude ?? []).map(makeAbsolutePath),
         include: (userConfig.exposed?.include ?? ['**/*']).map(makeAbsolutePath),
-        outDir,
+        outDir: makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed'),
         initializers: userConfig.exposed?.initializers ?? false,
+        imports: userConfig.exposed?.imports ?? false,
       },
     };
   },

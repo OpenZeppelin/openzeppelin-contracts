@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
 import * as random from '../../helpers/random';
-import { MAP_TYPES, typeDescr, toMapTypeDescr } from '../../../scripts/generate/templates/Enumerable.opts';
+import { TYPES, MAP_TYPES } from '../../../scripts/generate/data.js';
 import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
 const {
@@ -10,7 +10,7 @@ const {
 } = await network.create();
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
-MAP_TYPES.unshift(toMapTypeDescr({ key: typeDescr({ type: 'bytes32' }), value: typeDescr({ type: 'bytes32' }) }));
+MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPES.bytes32 });
 
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
@@ -28,12 +28,13 @@ async function fixture() {
         values: Array.from({ length: 3 }, randomOf(value.type)),
         zeroValue: randomOf(value.type).zero,
         methods: mapValues(
-          MAP_TYPES.filter(map => map.key.name == key.name).length == 1
+          MAP_TYPES.filter(map => map.key.type == key.type).length == 1
             ? {
                 set: `$set(uint256,${key.type},${value.type})`,
                 get: `$get(uint256,${key.type})`,
                 tryGet: `$tryGet(uint256,${key.type})`,
                 remove: `$remove(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -46,6 +47,7 @@ async function fixture() {
                 get: `$get_EnumerableMap_${name}(uint256,${key.type})`,
                 tryGet: `$tryGet_EnumerableMap_${name}(uint256,${key.type})`,
                 remove: `$remove_EnumerableMap_${name}(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -54,14 +56,15 @@ async function fixture() {
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },
           fnSig =>
-            (...args) =>
-              mock.getFunction(fnSig)(0, ...args),
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
         ),
         events: {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
           removeReturn: `return$remove_EnumerableMap_${name}_${key.type}`,
         },
-        error: key.memory || value.memory ? `EnumerableMapNonexistent${key.name}Key` : `EnumerableMapNonexistentKey`,
+        error: key.size && value.size ? `EnumerableMapNonexistentKey` : `EnumerableMapNonexistent${key.name}Key`,
       },
     ]),
   );

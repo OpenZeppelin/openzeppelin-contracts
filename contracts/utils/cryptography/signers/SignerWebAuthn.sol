@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.31;
 
-import {SignerP256} from "./SignerP256.sol";
 import {WebAuthn} from "../WebAuthn.sol";
+import {SignerP256} from "./SignerP256.sol";
 
 /**
  * @dev Implementation of {SignerP256} that supports WebAuthn authentication assertions.

@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.31;
 
-import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {SafeCast} from "../../../utils/math/SafeCast.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
 import {Paymaster} from "../Paymaster.sol";
 
 /**
@@ -115,16 +115,18 @@ abstract contract PaymasterERC20 is Paymaster {
             userOp.paymasterPostOpGasLimit().saturatingSub(_postOpGasBudget(userOp))
         );
 
-        // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
-        // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
         // Saturating arithmetic keeps an overflow in the native cost from wrapping: it saturates to
-        // `type(uint256).max`, which `_erc20Cost` also returns, and fails the prefund instead of undercharging.
+        // `type(uint256).max`. We treat this as an invalid/unchargeable amount and fail validation early to avoid
+        // relying on token behavior when asked to `transferFrom(..., type(uint256).max)`.
         //
         // native cost is computed as: maxCost + ((_postOpCost() + penaltyGas) * userOp.maxFeePerGas())
         uint256 maxTokenCost = _erc20Cost(
             _postOpCost().saturatingAdd(penaltyGas).saturatingMul(userOp.maxFeePerGas()).saturatingAdd(maxCost),
             tokenPerNative
         );
+        if (maxTokenCost == type(uint256).max) {
+            return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        }
         (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
@@ -323,7 +325,7 @@ abstract contract PaymasterERC20 is Paymaster {
      * retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and have the paymaster
      * absorb the resulting penalty on every operation, draining its deposit.
      *
-     * The default mirrors the 10% penalty the EntryPoint (v0.7-v0.9) applies to unused postOp gas. It deliberately
+     * The default mirrors the 10% penalty the EntryPoint (v0.8-v0.9) applies to unused postOp gas. It deliberately
      * does not reproduce the EntryPoint's 40_000 gas threshold below which no penalty applies: `unusedPostOpGas` is
      * an upper bound on the real unused amount, so claiming that relief here can price the charge below the penalty
      * the EntryPoint actually debits.
