@@ -28,8 +28,13 @@ function getAllLinks(items) {
   const res = {};
   linksCache.set(items, res);
   for (const item of items) {
+    // {xref-Contract-fn-argtypes-}[label]: key "xref-ERC20-transfer-address-uint256-" -> "xref:token/ERC20.adoc#ERC20-transfer-address-uint256-"
     res[`xref-${item.anchor}`] = `xref:${item.__item_context.page}#${item.anchor}`;
+    // {Contract-fn}: key "ERC20-transfer" -> pass:normal[xref:token/ERC20.adoc#ERC20-transfer-address-uint256-[`ERC20.transfer`]]
     res[slug(item.fullName)] = `pass:normal[xref:${item.__item_context.page}#${item.anchor}[\`${item.fullName}\`]]`;
+    // {Contract-fn-argtypes}: key "ERC20-transfer-address-uint256" -> pass:normal[xref:token/ERC20.adoc#ERC20-transfer-address-uint256-[`ERC20.transfer`]]
+    res[item.anchor.replace(/-$/, '')] =
+      `pass:normal[xref:${item.__item_context.page}#${item.anchor}[\`${item.fullName}\`]]`;
   }
   return res;
 }

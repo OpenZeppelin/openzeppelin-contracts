@@ -97,7 +97,7 @@ library ERC1967Clones {
     }
 
     /**
-     * @dev Same as {xref-ERC1967Clones-clone-address-}[clone], but with a `value` parameter to send native
+     * @dev Same as {ERC1967Clones-clone-address}, but with a `value` parameter to send native
      * currency to the new contract.
      *
      * Emits an {IERC1967-Upgraded} event from the deployed proxy.
@@ -148,7 +148,7 @@ library ERC1967Clones {
     }
 
     /**
-     * @dev Same as {xref-ERC1967Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a
+     * @dev Same as {ERC1967Clones-cloneDeterministic-address-bytes32}, but with a
      * `value` parameter to send native currency to the new contract.
      *
      * Emits an {IERC1967-Upgraded} event from the deployed proxy.
