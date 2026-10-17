@@ -18,9 +18,14 @@ export function defineGetterMemoized<K extends keyof any, T, O extends { [k in K
 
         case 'todo':
           state = 'doing';
-          value = getter();
-          state = 'done';
-          return value;
+          try {
+            value = getter();
+            state = 'done';
+            return value;
+          } catch (error) {
+            state = 'todo';
+            throw error;
+          }
       }
     },
   });
