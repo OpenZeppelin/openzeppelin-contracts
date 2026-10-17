@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {WebAuthn} from "../WebAuthn.sol";
 import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
+import {WebAuthn} from "../WebAuthn.sol";
 
 /**
  * @dev ERC-7913 signature verifier that supports WebAuthn authentication assertions.

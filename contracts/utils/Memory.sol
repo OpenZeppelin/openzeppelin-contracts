@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {Panic} from "./Panic.sol";
 import {Math} from "./math/Math.sol";
+import {Panic} from "./Panic.sol";
 
 /**
  * @dev Utilities to manipulate memory.

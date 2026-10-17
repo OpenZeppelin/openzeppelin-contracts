@@ -4,6 +4,7 @@ export interface ExposedUserConfig {
   include?: string[];
   outDir?: string;
   initializers?: boolean;
+  imports?: boolean;
 }
 
 export interface ExposedConfig {
@@ -12,4 +13,5 @@ export interface ExposedConfig {
   include: string[];
   outDir: string;
   initializers: boolean;
+  imports: boolean;
 }

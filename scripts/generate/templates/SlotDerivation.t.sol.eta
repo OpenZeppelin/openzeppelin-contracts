@@ -36,8 +36,9 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
     }
-<% for (const { name, type, size } of it.SLOT_TYPES.flatMap(type => [ type, ...type.upcastOf.filter(({ size }) => size === 32) ])) { %>
-<% if (size) { %>
+
+<%- for (const { name, type, size } of it.SLOT_TYPES.flatMap(type => [ type, ...type.upcastOf.filter(({ size }) => size === 32) ])) { %>
+<% if (size) { -%>
     mapping(<%= type %> => bytes) private _<%= type %>Mapping;
 
     function testSymbolicDeriveMapping<%= name %>(<%= type %> key) public view {
@@ -54,7 +55,7 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
-<% } else { %>
+<% } else { -%>
     mapping(<%= type %> => bytes) private _<%= type %>Mapping;
 
     function testDeriveMapping<%= name %>(<%= type %> memory key) public view {
@@ -79,9 +80,9 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
-<% } %>
-<% } %>
-<% for (const { name, type } of [it.TYPES.bool, it.TYPES.address]) { %>
+<% } -%>
+<% } -%>
+<%- for (const { name, type } of [it.TYPES.bool, it.TYPES.address]) { %>
     function testSymbolicDeriveMapping<%= name %>Dirty(bytes32 dirtyKey) public view {
         <%= type %> key;
         assembly {
@@ -91,5 +92,5 @@ contract SlotDerivationTest is Test, SymTest {
         // run the "normal" test using a potentially dirty value
         testSymbolicDeriveMapping<%= name %>(key);
     }
-<% } %>
+<% } -%>
 }

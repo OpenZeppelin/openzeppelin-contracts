@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.20;
 
-import {AuthorityUtils} from "./AuthorityUtils.sol";
-import {IAccessManager} from "./IAccessManager.sol";
-import {IAccessManaged} from "./IAccessManaged.sol";
 import {Context} from "../../utils/Context.sol";
+import {AuthorityUtils} from "./AuthorityUtils.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 
 /**
  * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
@@ -62,7 +62,13 @@ abstract contract AccessManaged is Context, IAccessManaged {
         return _authority;
     }
 
-    /// @inheritdoc IAccessManaged
+    /**
+     * @dev Transfers control to a new authority. The caller must be the current authority.
+     *
+     * NOTE: Authorization depends only on the caller being the current authority, not on the function that entered
+     * the contract. A target that delegatecalls into itself (e.g. {Multicall}) can reach this function from any
+     * entry point its authority allows.
+     */
     function setAuthority(address newAuthority) public virtual {
         address caller = _msgSender();
         if (caller != authority()) {

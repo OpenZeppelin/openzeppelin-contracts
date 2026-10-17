@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC6909} from "../ERC6909.sol";
 import {IERC6909Metadata} from "../../../interfaces/IERC6909.sol";
 import {IERC165} from "../../../utils/introspection/IERC165.sol";
+import {ERC6909} from "../ERC6909.sol";
 
 /**
  * @dev Implementation of the Metadata extension defined in ERC6909. Exposes the name, symbol, and decimals of each token id.
