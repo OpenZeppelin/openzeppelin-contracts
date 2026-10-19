@@ -1,14 +1,15 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { MAX_UINT48 } from '../../helpers/constants';
-import { packValidationData, UserOperation } from '../../helpers/erc4337';
+import { ERC4337Helper, packValidationData, UserOperation } from '../../helpers/erc4337';
 import { ValidationRange } from '../../helpers/enums';
 
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = await network.create();
+} = connection;
 
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 const BLOCK_RANGE_FLAG = 0x800000000000n; // 1n << 47n
@@ -578,6 +579,61 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$hash(userOp.packed, instance)).to.eventually.equal(expected);
       });
     }
+  });
+
+  describe('initCodeHash', function () {
+    const MARKER = '0x7702000000000000000000000000000000000000';
+
+    beforeEach(async function () {
+      // create an EIP-7702 account instance
+      this.account = await new ERC4337Helper(connection).newAccount(
+        '$AccountEIP7702Mock',
+        ['AccountEIP7702Mock', '1'],
+        { eip7702signer: this.sender },
+      );
+
+      // create an empty user operation for the account
+      this.userOp = await this.account.createUserOp();
+    });
+
+    for (const [name, marker, tail] of [
+      ['short marker', '0x7702', '0x'],
+      ['full marker', MARKER, '0x'],
+      ['marker + initData', MARKER, '0xdeadbeef'],
+    ]) {
+      it(`binds the delegate (${name})`, async function () {
+        const initCode = ethers.concat([marker, tail]);
+
+        // Before delegation
+        const undelegatedSubstitution = ethers.concat([ethers.ZeroAddress, tail]);
+
+        await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+          ethers.keccak256(undelegatedSubstitution),
+        );
+        await expect(this.userOp.hash({ initCode }))
+          .to.be.revertedWithCustomError(this.account.env.entrypoint, 'Eip7702SenderWithoutCode')
+          .withArgs(this.account);
+
+        // After delegation
+        const { delegate } = await this.account.deploy();
+        const delegatedSubstitution = ethers.concat([delegate.target, tail]);
+
+        await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+          ethers.keccak256(delegatedSubstitution),
+        );
+        await expect(this.userOp.hash({ initCode })).to.eventually.equal(
+          await this.userOp.hash({ initCode: delegatedSubstitution }),
+        );
+      });
+    }
+
+    it('ignores the delegate for a non-zero-tail factory', async function () {
+      const initCode = '0x7702aabbccddeeff00112233445566778899aabb'; // 0x7702 prefix but non-zero tail -> not a marker
+
+      await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+        ethers.keccak256(initCode),
+      );
+    });
   });
 
   describe('userOp values', function () {
