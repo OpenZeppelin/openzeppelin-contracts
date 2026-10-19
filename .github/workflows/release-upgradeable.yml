@@ -11,11 +11,11 @@ jobs:
     if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
@@ -38,14 +38,16 @@ jobs:
     if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+          submodules: recursive
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack
@@ -58,12 +60,14 @@ jobs:
         with:
           name: ${{ github.ref_name }}-upgradeable
           path: ${{ steps.pack.outputs.tarball }}
+      - name: Upgrade npm
+        # OIDC dist-tags need npm >= 11.21.0: bump to the newest release of the installed major, no downgrade/major jump.
+        run: npm install -g "npm@^$(npm -v | cut -d. -f1)" # TODO: remove once runners ship npm >= 11.21.0
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: false
       - name: Create Github Release
         uses: actions/github-script@v9
@@ -73,7 +77,7 @@ jobs:
           REPO_SUFFIX: -upgradeable
         with:
           github-token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-          script: await require('./scripts/release/workflow/github-release.js')({ github, context })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/github-release.js').then(m => m.default({ github, context }))
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
@@ -82,7 +86,7 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}

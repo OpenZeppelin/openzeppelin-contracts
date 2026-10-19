@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const graphlib = require('graphlib');
-const semver = require('semver');
-const pLimit = require('p-limit').default;
-const { hideBin } = require('yargs/helpers');
-const yargs = require('yargs/yargs');
+import fs from 'fs';
+import graphlib from 'graphlib';
+import semver from 'semver';
+import pLimit from 'p-limit';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
 
-const getContractsMetadata = require('./get-contracts-metadata');
-const { versions: allSolcVersions, compile } = require('./solc-versions');
+import { getContractsMetadata } from './get-contracts-metadata.js';
+import { versions as allSolcVersions, compile } from './solc-versions.js';
 
 const {
   argv: { pattern, skipPatterns, minVersionForContracts, minVersionForInterfaces, concurrency, _: artifacts },

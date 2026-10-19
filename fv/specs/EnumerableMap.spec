@@ -53,7 +53,7 @@ invariant indexedContained(uint256 index)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: A value can only be stored at a single location                                                          │
+│ Invariant: A key can only be stored at a single location                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
@@ -72,9 +72,9 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: index <> value relationship is consistent                                                                │
+│ Invariant: index <> key relationship is consistent                                                                  │
 │                                                                                                                     │
-│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one        │
+│ Note that the two consistencyXxx invariants, put together, prove that key_at and _positionOf are inverse of one     │
 │ another. This proves that we have a bijection between indices (the enumerability part) and keys (the entries that   │
 │ are set and removed from the EnumerableMap).                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

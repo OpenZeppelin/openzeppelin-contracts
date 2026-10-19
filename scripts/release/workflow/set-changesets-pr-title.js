@@ -1,8 +1,10 @@
-const { coerce, inc, rsort } = require('semver');
-const { join } = require('path');
-const { version } = require(join(__dirname, '../../../package.json'));
+import { coerce, inc, rsort } from 'semver';
+import fs from 'fs';
+import path from 'path';
 
-module.exports = async ({ core }) => {
+const { version } = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../../../package.json'), 'utf8'));
+
+export default async ({ core }) => {
   // Variables not in the context
   const refName = process.env.GITHUB_REF_NAME;
 

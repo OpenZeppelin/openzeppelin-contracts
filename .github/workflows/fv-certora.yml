@@ -1,0 +1,148 @@
+name: Formal verification - Certora
+
+on:
+  # Base-repo context so a fork's PR can reach the CERTORAKEY secret. Only `verify` reads it, gated by
+  # the `certora` environment's manual approval -- reviewers MUST check the diff for key exfiltration.
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # No secret, no environment, read-only token: running the dependency helper here needs no more trust
+  # than an ordinary `pull_request` job.
+  identify:
+    runs-on: ubuntu-latest
+    # The helper walks an import graph from a pull request that may be untrusted, so bound it
+    timeout-minutes: 10
+    outputs:
+      configs: ${{ steps.identify.outputs.configs }}
+    steps:
+      # Base branch (this workflow's own source under pull_request_target). The helper runs from HERE,
+      # never the PR: a PR that rewrote it to print `[]` would skip `verify` silently.
+      - uses: actions/checkout@v7
+        with:
+          path: base
+          persist-credentials: false
+      # The PR, read as data only (never executed); checkout needs the fork risk acknowledged.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          fetch-depth: 0 # full history so the base...head diff can find its merge-base
+          path: head
+          persist-credentials: false
+      # No setup step: `list-dependencies.js` uses node builtins only, so the runner's node is enough.
+      - name: Identify the configs that need to be run
+        id: identify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
+          ALLOW_REMOVED: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') }}
+        run: |
+          set -o pipefail
+          if [[ $FORCE_ALL = 'true' ]]; then
+            # An empty change list reaches every config, which is what forcing all of them asks for.
+            : > changed.txt
+          else
+            # A harness imports `../patched/<p>`, and `make -C fv apply` builds that file out of two
+            # tracked ones: `contracts/<p>`, plus `fv/diff/<p, with / written as _>.patch` applied on
+            # top. A change to either is a change to what the prover reads, so either has to select
+            # the config. `--redirect` rewrites the import onto `contracts/<p>`, which covers the
+            # first; the walker has no notion of the second, so map a changed patch back onto the
+            # contract it applies to and let that path do the selecting. Added, edited or deleted,
+            # the patch is named in the diff either way. Undoing the `_` is what `make apply` does
+            # too, so a name that breaks this breaks the patch step as well.
+            git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+              awk '{ print } /^fv\/diff\/.+[.]patch$/ { sub(/^fv\/diff\//, ""); sub(/[.]patch$/, ""); gsub(/_/, "/"); print "contracts/" $0 }' > changed.txt
+            # Configs are discovered by listing `head/fv/specs`, so one the diff deletes is not there
+            # to be selected: delete every config and the set is empty, `verify` is skipped, silently
+            # dropping the verification. Refuse unless the label says that was the intent -- labelling
+            # takes write access, which is what makes it a reviewed one.
+            REMOVED=$(git -C head diff --name-only --diff-filter=D "$BASE_SHA"..."$HEAD_SHA" -- 'fv/specs/*.conf')
+            if [[ -n $REMOVED && $ALLOW_REMOVED != 'true' ]]; then
+              # One config per line, joined: a workflow annotation is a single line.
+              echo "::error::This change removes ${REMOVED//$'\n'/, }, which cannot appear in the affected set. Label the pull request 'formal-verification-allow-removal' to confirm the verification is meant to go away with it."
+              exit 1
+            fi
+          fi
+          {
+            printf 'configs='
+            node base/scripts/list-dependencies.js --root=head --src=fv/specs --ext=.conf --redirect=fv/patched/:contracts/ < changed.txt
+          } >> "$GITHUB_OUTPUT"
+      - name: Report the affected configs
+        env:
+          CONFIGS: ${{ steps.identify.outputs.configs }}
+        run: |
+          echo "Configs affected by this diff: $CONFIGS" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: identify
+    if: needs.identify.outputs.configs != '[]'
+    runs-on: ubuntu-latest
+    # The only job that reads CERTORAKEY, so the only one gated. Reviewers MUST check the diff for key
+    # exfiltration before approving.
+    environment: certora
+    # Required by the Certora run action. Results are reported asynchronously, as commit statuses and a
+    # pull request review, by the Certora Run GitHub App, which must be installed on the repository.
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      # Checked out at the workspace root: the action reports on `git rev-parse HEAD` under
+      # `pull_request_target`, so this is what puts the status on the pull request's head commit.
+      - uses: actions/checkout@v7
+        with:
+          # Runs the contributor's code, which is what the approval above is protecting against.
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          persist-credentials: false
+      - name: Prepare the run
+        id: prepare
+        env:
+          CONFIGS: ${{ needs.identify.outputs.configs }}
+        run: |
+          make -C fv apply
+          # Same compiler as the tests: the default in hardhat.config.ts, read as text so that loading the
+          # config (and so `npm ci`) is not needed
+          SOLC=$(sed -nE "s/^\s*compiler: \{ type: 'string', default: '([0-9.]+)' \},?$/\1/p" hardhat.config.ts)
+          [[ -n $SOLC ]] || { echo "::error::could not read the default compiler version from hardhat.config.ts"; exit 1; }
+          echo "solc-version=$SOLC" >> "$GITHUB_OUTPUT"
+          # The action takes one config per line, not a JSON array
+          jq -r '"configs<<EOF", .[], "EOF"' <<< "$CONFIGS" >> "$GITHUB_OUTPUT"
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@b37dc99cef13413f8996b2a137b95e8a25749285 # v2.10.0
+        with:
+          configurations: ${{ steps.prepare.outputs.configs }}
+          solc-versions: ${{ steps.prepare.outputs.solc-version }}
+          job-name: Formal verification
+          certora-key: ${{ secrets.CERTORAKEY }}
+          cli-version: 8.19.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The action reports a failed submission as a pull request comment, and never removes it: a later
+      # run edits it only if it fails too. Delete it once a submission goes through, so it doesn't
+      # outlive the failure it describes.
+      - name: Remove stale failure reports
+        if: github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- add-pr-comment:"))) | .id' |
+            xargs -r -I{} gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/comments/{}"

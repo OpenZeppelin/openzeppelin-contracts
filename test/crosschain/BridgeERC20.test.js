@@ -1,14 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeBridgeERC20 } from './BridgeERC20.behavior';
 
-const { impersonate } = require('../helpers/account');
-const { getLocalChain } = require('../helpers/chains');
-
-const { shouldBehaveLikeBridgeERC20 } = require('./BridgeERC20.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { chain, impersonate },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
-  const chain = await getLocalChain();
   const accounts = await ethers.getSigners();
 
   // Mock gateway
@@ -29,12 +30,12 @@ async function fixture() {
     .withArgs(gateway, chain.toErc7930(bridgeB));
   await tokenB.$_setBridge(bridgeB);
 
-  return { chain, accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
+  return { accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
 }
 
 describe('CrosschainBridgeERC20', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('token getters', async function () {

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol)
 
 pragma solidity ^0.8.24;
 
-import {WebAuthn} from "../WebAuthn.sol";
 import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
+import {WebAuthn} from "../WebAuthn.sol";
 
 /**
  * @dev ERC-7913 signature verifier that supports WebAuthn authentication assertions.
@@ -28,8 +28,18 @@ contract ERC7913WebAuthnVerifier is IERC7913SignatureVerifier {
         return
             decodeSuccess &&
                 key.length == 0x40 &&
-                WebAuthn.verify(abi.encodePacked(hash), auth, bytes32(key[0x00:0x20]), bytes32(key[0x20:0x40]))
+                WebAuthn.verify(
+                    abi.encodePacked(hash),
+                    auth,
+                    bytes32(key[0x00:0x20]),
+                    bytes32(key[0x20:0x40]),
+                    _requireUV()
+                )
                 ? IERC7913SignatureVerifier.verify.selector
                 : bytes4(0xFFFFFFFF);
+    }
+
+    function _requireUV() internal pure virtual returns (bool) {
+        return true;
     }
 }

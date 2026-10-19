@@ -1,14 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { ProposalState } = require('./enums');
-const { unique } = require('./iterate');
-const time = require('./time');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { ProposalState } from './enums';
+import { unique } from './iterate';
 
-const timelockSalt = (address, descriptionHash) =>
+export const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
 
-class GovernorHelper {
-  constructor(governor, mode = 'blockNumber') {
+export class GovernorHelper {
+  constructor(connection, governor, mode = 'blockNumber') {
+    this.connection = connection;
     this.governor = governor;
     this.mode = mode;
   }
@@ -71,17 +71,23 @@ class GovernorHelper {
 
   /// Proposal lifecycle
   delegate(delegation) {
-    return Promise.all([
-      delegation.token.connect(delegation.to).delegate(delegation.to),
-      delegation.value === undefined ||
-        delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value),
-      delegation.tokenId === undefined ||
-        delegation.token
-          .ownerOf(delegation.tokenId)
-          .then(owner =>
-            delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
-          ),
-    ]);
+    return delegation.token
+      .connect(delegation.to)
+      .delegate(delegation.to)
+      .then(
+        () =>
+          delegation.value === undefined ||
+          delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value),
+      )
+      .then(
+        () =>
+          delegation.tokenId === undefined ||
+          delegation.token
+            .ownerOf(delegation.tokenId)
+            .then(owner =>
+              delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
+            ),
+      );
   }
 
   propose() {
@@ -151,17 +157,17 @@ class GovernorHelper {
   /// Clock helpers
   async waitForSnapshot(offset = 0n) {
     const timepoint = await this.governor.proposalSnapshot(await this.id);
-    return time.increaseTo[this.mode](timepoint + offset);
+    return this.connection.helpers.time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForDeadline(offset = 0n) {
     const timepoint = await this.governor.proposalDeadline(await this.id);
-    return time.increaseTo[this.mode](timepoint + offset);
+    return this.connection.helpers.time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0n) {
     const timestamp = await this.governor.proposalEta(await this.id);
-    return time.increaseTo.timestamp(timestamp + offset);
+    return this.connection.helpers.time.increaseTo.timestamp(timestamp + offset);
   }
 
   /// Other helpers
@@ -211,8 +217,3 @@ class GovernorHelper {
     return ethers.toBeHex(result, 32);
   }
 }
-
-module.exports = {
-  GovernorHelper,
-  timelockSalt,
-};

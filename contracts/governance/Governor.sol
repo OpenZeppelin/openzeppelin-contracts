@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.24;
 
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
 import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
-import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
-import {Address} from "../utils/Address.sol";
-import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
+import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
@@ -348,8 +348,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+
+        if (!needsQueueing) {
+            revert GovernorProposalQueueingNotRequired(proposalId);
+        }
 
         uint48 etaSeconds = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
 
@@ -357,7 +362,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             _proposals[proposalId].etaSeconds = etaSeconds;
             emit ProposalQueued(proposalId, etaSeconds);
         } else {
-            revert GovernorQueueNotImplemented();
+            revert GovernorProposalQueueingFailed(proposalId);
         }
 
         return proposalId;

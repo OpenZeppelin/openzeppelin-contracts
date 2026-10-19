@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC721/extensions/ERC721Crosschain.sol)
 
 pragma solidity ^0.8.26;
 
-import {ERC721} from "../ERC721.sol";
 import {BridgeNonFungible} from "../../../crosschain/bridges/abstract/BridgeNonFungible.sol";
+import {ERC721} from "../ERC721.sol";
 
 /**
  * @dev Extension of {ERC721} that makes it natively cross-chain using the ERC-7786 based {BridgeNonFungible}.
