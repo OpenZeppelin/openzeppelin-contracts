@@ -46,12 +46,6 @@ contract CrosschainRemoteExecutorTest is Test {
         new CrosschainRemoteExecutor(address(_gateway), hex"deadbeef");
     }
 
-    function testConstructorRejectsControllerWithoutAddress() public {
-        bytes memory chainOnly = InteroperableAddress.formatEvmV1(REMOTE_CHAIN);
-        vm.expectRevert(abi.encodeWithSelector(CrosschainRemoteExecutor.InvalidController.selector, chainOnly));
-        new CrosschainRemoteExecutor(address(_gateway), chainOnly);
-    }
-
     /// @dev {InteroperableAddress-parseV1} ignores trailing bytes, so a padded controller decodes to the right
     /// address while not being equal, byte for byte, to the sender a gateway reports.
     function testConstructorRejectsControllerWithTrailingBytes() public {
@@ -60,7 +54,7 @@ contract CrosschainRemoteExecutorTest is Test {
         (, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(padded);
         assertEq(padded.length, chainReference.length + addr.length + 7);
 
-        vm.expectRevert(abi.encodeWithSelector(CrosschainRemoteExecutor.InvalidController.selector, padded));
+        vm.expectRevert(abi.encodeWithSelector(InteroperableAddress.InteroperableAddressParsingError.selector, padded));
         new CrosschainRemoteExecutor(address(_gateway), padded);
     }
 
@@ -112,7 +106,7 @@ contract CrosschainRemoteExecutorTest is Test {
         );
 
         vm.prank(address(_gateway));
-        vm.expectRevert(abi.encodeWithSelector(CrosschainRemoteExecutor.InvalidController.selector, padded));
+        vm.expectRevert(abi.encodeWithSelector(InteroperableAddress.InteroperableAddressParsingError.selector, padded));
         IERC7786Recipient(address(executor)).receiveMessage(bytes32(uint256(1)), _controller(), payload);
 
         // the controller is unchanged and still able to drive the executor

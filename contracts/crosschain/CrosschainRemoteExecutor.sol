@@ -32,9 +32,6 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
     /// @dev Reverted when a non-controller tries to relay instructions to this executor.
     error AccessRestricted();
 
-    /// @dev Reverted when the controller is not a full interoperable address (chain reference and address).
-    error InvalidController(bytes controller);
-
     constructor(address initialGateway, bytes memory initialController) {
         _setup(initialGateway, initialController);
     }
@@ -67,36 +64,13 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
         // supportsAttribute returns data, accounts without code would fail that test (nothing returned).
         IERC7786GatewaySource(gateway_).supportsAttribute(bytes4(0));
 
-        _validateController(controller_);
+        // try parsing the controller interoperable address in strict: ensures it is a valid interoperable address
+        InteroperableAddress.parseV1(controller_, true);
 
         _gateway = gateway_;
         _controller = controller_;
 
         emit CrosschainControllerSet(gateway_, controller_);
-    }
-
-    /**
-     * @dev Checks that `controller_` is a full interoperable address, and reverts with {InvalidController}
-     * otherwise. Every configuration path goes through {_setup}, so this holds for the stored controller at all
-     * times.
-     *
-     * Authorization in {_isAuthorizedGateway} is a strict byte comparison between the controller and the sender
-     * reported by the gateway, which is always a full interoperable address. A controller that is not one can never
-     * match, which would permanently lock this executor: {reconfigure} is only reachable through a message from the
-     * controller, so neither the executor nor the assets it holds could be recovered.
-     *
-     * {InteroperableAddress-parseV1} ignores trailing bytes, so the encoding must also be checked for length: a
-     * padded controller decodes to the right address but is not equal, byte for byte, to what a gateway reports.
-     * This is a length check, not a canonicalization of the components themselves.
-     */
-    function _validateController(bytes memory controller_) private pure {
-        (, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(controller_);
-        require(
-            chainReference.length > 0 &&
-                addr.length > 0 &&
-                controller_.length == 6 + chainReference.length + addr.length,
-            InvalidController(controller_)
-        );
     }
 
     /// @inheritdoc ERC7786Recipient
