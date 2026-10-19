@@ -174,7 +174,8 @@ library ERC7579Utils {
 
     /// @dev Decodes a batch of executions. See {encodeBatch}.
     ///
-    /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
+    /// NOTE: This function checks that every execution lies within `executionCalldata` and will throw a
+    /// {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         unchecked {
             uint256 bufferPtr;
@@ -220,26 +221,52 @@ library ERC7579Utils {
     /**
      * @dev Calldata sanity check
      *
-     * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
-     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
-     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
-     * that point to the memory space between the end of the `executionCalldata` buffer.
-     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
-     * array, checking that everything is valid.
+     * Solidity performs "lazy" verification of calldata objects when they are dereferenced. These checks are
+     * against `msg.data.length` rather than the end of the `executionCalldata` buffer, and they accept relative
+     * offsets that wrap around 2**256. As a result, an ill-formed `executionCalldata` may resolve to different
+     * executions depending on what surrounds it in `msg.data` (e.g. when a user operation is validated and when
+     * it is executed). This function traverses the array and checks that every execution, including its
+     * `callData`, lies within the buffer. Like `abi.decode`, offsets are unsigned and can only point forward.
      */
-    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
-        if (bound < msg.data.length) {
-            for (uint256 i = 0; i < executionBatch.length; ++i) {
-                Execution calldata item = executionBatch[i];
-                bytes calldata itemCalldata = item.callData;
+    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bufferEnd) private pure {
+        unchecked {
+            uint256 arrayPtr;
+            uint256 arrayLength;
+            assembly ("memory-safe") {
+                arrayPtr := executionBatch.offset
+                arrayLength := executionBatch.length
+            }
 
-                uint256 itemEnd;
-                uint256 itemCalldataEnd;
+            // Bytes from the start of the array to the end of the buffer. Doesn't underflow because {decodeBatch}
+            // checked that the array is within the buffer.
+            uint256 arrayAvailable = bufferEnd - arrayPtr;
+
+            for (uint256 i = 0; i < arrayLength; ++i) {
+                // Offset of the item, relative to the start of the array. Reading it is safe because {decodeBatch}
+                // checked that the buffer holds `arrayLength` pointers.
+                uint256 itemOffset;
                 assembly ("memory-safe") {
-                    itemEnd := add(item, 0x60)
-                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
+                    itemOffset := calldataload(add(arrayPtr, shl(5, i)))
                 }
-                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
+
+                // The item head (target, value and callData offset) takes 3 words.
+                if (arrayAvailable < 0x60 || itemOffset > arrayAvailable - 0x60) revert ERC7579DecodingError();
+                uint256 itemPtr = arrayPtr + itemOffset;
+                uint256 itemAvailable = arrayAvailable - itemOffset; // at least 0x60
+
+                // Offset of the callData length, relative to the start of the item.
+                uint256 callDataOffset;
+                assembly ("memory-safe") {
+                    callDataOffset := calldataload(add(itemPtr, 0x40))
+                }
+                if (callDataOffset > itemAvailable - 0x20) revert ERC7579DecodingError();
+
+                // Length of the callData, which follows its length word.
+                uint256 callDataLength;
+                assembly ("memory-safe") {
+                    callDataLength := calldataload(add(itemPtr, callDataOffset))
+                }
+                if (callDataLength > itemAvailable - callDataOffset - 0x20) revert ERC7579DecodingError();
             }
         }
     }

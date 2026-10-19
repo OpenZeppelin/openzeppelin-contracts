@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`ERC7579Utils`: Add in-depth sanity check when `executionCalldata` is not the last buffer in calldata.
+`ERC7579Utils`: Check in `decodeBatch` that every execution, including its `callData`, lies within `executionCalldata`.
