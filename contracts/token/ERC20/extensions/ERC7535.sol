@@ -91,9 +91,8 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /**
-     * @dev See {ERC4626-_checkNativeValue}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
-     * native value to cover the previewed cost `assets`; any excess is refunded by {_deposit}. {deposit} is
-     * overridden to price shares directly off `msg.value` and does not route through this hook.
+     * @dev See {ERC4626-_checkNativeValue}. Requires `msg.value` to cover `assets`. On {deposit}, `assets` is
+     * `msg.value`, so the check always passes.
      */
     function _checkNativeValue(uint256 assets) internal view virtual override {
         if (msg.value < assets) {
