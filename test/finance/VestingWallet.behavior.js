@@ -35,13 +35,13 @@ export async function envSetup(connection, mock, beneficiary, token) {
   };
 }
 
-export function shouldBehaveLikeVesting() {
+export function shouldBehaveLikeVesting(clock = 'timestamp') {
   it('check vesting schedule', async function () {
-    for (const timestamp of this.schedule) {
-      await this.helpers.time.increaseTo.timestamp(timestamp);
-      const vesting = this.vestingFn(timestamp);
+    for (const timepoint of this.schedule) {
+      await this.helpers.time.increaseTo[clock](timepoint);
+      const vesting = this.vestingFn(timepoint);
 
-      expect(await this.mock.vestedAmount(...this.args, timestamp)).to.equal(vesting);
+      expect(await this.mock.vestedAmount(...this.args, timepoint)).to.equal(vesting);
       expect(await this.mock.releasable(...this.args)).to.equal(vesting);
     }
   });
@@ -57,9 +57,9 @@ export function shouldBehaveLikeVesting() {
       await this.checkRelease(tx, 0n);
     }
 
-    for (const timestamp of this.schedule) {
-      await this.helpers.time.increaseTo.timestamp(timestamp, false);
-      const vested = this.vestingFn(timestamp);
+    for (const timepoint of this.schedule) {
+      await this.helpers.time.increaseTo[clock](timepoint, false);
+      const vested = this.vestingFn(timepoint);
 
       const tx = await this.mock.release(...this.args);
       await expect(tx).to.emit(this.mock, this.releasedEvent);
@@ -72,8 +72,8 @@ export function shouldBehaveLikeVesting() {
   it('should revert on transaction failure', async function () {
     const { args, error } = await this.setupFailure();
 
-    for (const timestamp of this.schedule) {
-      await this.helpers.time.increaseTo.timestamp(timestamp);
+    for (const timepoint of this.schedule) {
+      await this.helpers.time.increaseTo[clock](timepoint);
 
       await expect(this.mock.release(...args)).to.be.revertedWithCustomError(...error);
     }
