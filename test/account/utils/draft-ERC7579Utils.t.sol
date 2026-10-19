@@ -300,6 +300,79 @@ contract ERC7579UtilsTest is Test {
         _collectAndPrintLogs(true);
     }
 
+    function testExecuteBatchDecodeWrappingPointer() public {
+        // The entry offset wraps around 2**256 to a location before the batch. During execution, `executionCalldata`
+        // is the last buffer in calldata, and the entry resolves to target `address(0)` (i.e. the account itself)
+        // with calldata read further in the buffer. During validation, the same buffer sits inside the user
+        // operation, and the entry resolves to a target read from the user operation header.
+        bytes memory payload = abi.encodeCall(
+            SampleAccount.execute,
+            (
+                ERC7579Utils.encodeMode(
+                    ERC7579Utils.CALLTYPE_SINGLE,
+                    ERC7579Utils.EXECTYPE_DEFAULT,
+                    ModeSelector.wrap(0x00),
+                    ModePayload.wrap(0x00)
+                ),
+                abi.encodePacked(_recipient2, uint256(0.5 ether)) // single execution, see {ERC7579Utils-encodeSingle}
+            )
+        );
+
+        // Execution: `executionCalldata` starts at 100, so the array starts at 164 and the entry at 2**256 - 27.
+        // The entry's calldata offset is read at 37, which spans the `bytes` offset (0x40) and the high byte of the
+        // `bytes` length, giving 0x4000. The entry's calldata length is then at 2**256 - 27 + 0x4000 = 16357.
+        bytes memory execCallData = abi.encodePacked(
+            uint256(0x20), // offset pointing to the next segment
+            uint256(1), // Length of execution[]
+            type(uint256).max - 191 + 1, // offset of calls[0], relative to the array start (wraps)
+            new bytes(16357 - 100 - 0x60), // padding up to the calldata of calls[0], as resolved during execution
+            uint256(payload.length), // Length of the calldata of calls[0]
+            payload
+        );
+
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = PackedUserOperation({
+            sender: _account,
+            nonce: 0,
+            initCode: "",
+            callData: abi.encodeCall(
+                SampleAccount.execute,
+                (
+                    ERC7579Utils.encodeMode(
+                        ERC7579Utils.CALLTYPE_BATCH,
+                        ERC7579Utils.EXECTYPE_DEFAULT,
+                        ModeSelector.wrap(0x00),
+                        ModePayload.wrap(0x00)
+                    ),
+                    execCallData
+                )
+            ),
+            accountGasLimits: _packGas(500_000, 500_000),
+            preVerificationGas: 0,
+            gasFees: _packGas(1, 1),
+            paymasterAndData: "",
+            signature: ""
+        });
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            _ownerKey,
+            this.hashUserOperation(userOps[0]).toEthSignedMessageHash()
+        );
+        userOps[0].signature = abi.encodePacked(r, s, v);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IEntryPoint.FailedOpWithRevert.selector,
+                0,
+                "AA23 reverted",
+                abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
+            )
+        );
+        ERC4337Utils.ENTRYPOINT_V07.handleOps(userOps, payable(_beneficiary));
+
+        assertEq(_recipient2.balance, 0);
+    }
+
     // BAD: buffer empty
     function testDecodeBatchEmptyBuffer() public {
         _testDecodeBatch("", false);
@@ -412,6 +485,14 @@ contract ERC7579UtilsTest is Test {
         _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 95), false);
     }
 
+    // BAD: the offset of the first element wraps around to the start of the buffer
+    function testDecodeBatchElementOffsetWraps() public {
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0 (-64) element 0 offset
+        _testDecodeBatch(abi.encode(32, 1, type(uint256).max - 0x3f), false);
+    }
+
     // BAD: the offset of the first element wraps around, pointing past the end of msg.data
     function testDecodeBatchItemOffsetOverflow() public {
         _testDecodeBatch(abi.encode(32, 1, 1 << 255), false);
@@ -460,6 +541,44 @@ contract ERC7579UtilsTest is Test {
         _testDecodeBatch(abi.encode(32, 1, 32, _recipient1, 42, 96, 64), false);
     }
 
+    // GOOD
+    function testDecodeBatchEncoded() public view {
+        Execution[] memory executionBatch = new Execution[](2);
+        executionBatch[0] = Execution({target: _recipient1, value: 1, callData: bytes("Hello World!")});
+        executionBatch[1] = Execution({target: _recipient2, value: 2, callData: ""});
+        bytes memory encoded = ERC7579Utils.encodeBatch(executionBatch);
+
+        assertEq(bytes("Hello World!"), this.callDecodeBatchAndGetFirstBytes(encoded));
+        assertEq(bytes("Hello World!"), this.callDecodeBatchAndGetFirstBytesWithCalldata(encoded, new bytes(256)));
+    }
+
+    // Decoding must not depend on what follows `executionCalldata` in calldata, including with offsets that wrap.
+    function testFuzzDecodeBatchSameWithCalldata(
+        int256 elementOffset,
+        int256 callDataOffset,
+        uint256 callDataLength
+    ) public view {
+        bytes memory encoded = abi.encode(
+            32,
+            1,
+            bound(elementOffset, -0x100, 0x100),
+            _recipient1,
+            42,
+            bound(callDataOffset, -0x100, 0x100),
+            bound(callDataLength, 0, 0x40),
+            bytes32("Hello World!")
+        );
+
+        (bool success, bytes memory result) = address(this).staticcall(
+            abi.encodeCall(this.callDecodeBatchAndGetFirstBytes, (encoded))
+        );
+        (bool successWithCalldata, bytes memory resultWithCalldata) = address(this).staticcall(
+            abi.encodeCall(this.callDecodeBatchAndGetFirstBytesWithCalldata, (encoded, new bytes(256)))
+        );
+        assertEq(success, successWithCalldata);
+        assertEq(result, resultWithCalldata);
+    }
+
     function _testDecodeBatch(bytes memory encoded, bool valid) private {
         if (!valid) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
         this.callDecodeBatch(encoded);
@@ -476,6 +595,13 @@ contract ERC7579UtilsTest is Test {
     }
 
     function callDecodeBatchAndGetFirstBytes(bytes calldata executionCalldata) public pure returns (bytes calldata) {
+        return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
+    }
+
+    function callDecodeBatchAndGetFirstBytesWithCalldata(
+        bytes calldata executionCalldata,
+        bytes calldata
+    ) public pure returns (bytes calldata) {
         return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
     }
 
