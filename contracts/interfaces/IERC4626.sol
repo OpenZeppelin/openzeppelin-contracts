@@ -107,7 +107,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
      * NOTE: most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
      *
      * NOTE: This function is `payable` to support vaults whose underlying is the chain's native asset (see
-     * ERC-7535). Vaults over an ERC-20 underlying do not expect a native value and should reject a non-zero
+     * {ERC7535}). Vaults over an ERC-20 underlying do not expect a native value and should reject a non-zero
      * `msg.value`.
      */
     function deposit(uint256 assets, address receiver) external payable returns (uint256 shares);
