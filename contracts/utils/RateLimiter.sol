@@ -158,11 +158,14 @@ library RateLimiter {
      * @dev Updates the shared `capacity` and `window` of the limiter, affecting every entry.
      *
      * NOTE: The new settings will retroactively affect all the keys. The new replenishing rate (capacity / window) is
-     * applied from the last update timepoint of each key. Therefore, if the new settings correspond to a faster
-     * replenishing rate, some quantity may become available immediately. Conversely, if the new settings correspond
-     * to a slower replenishing rate, some quantity that would otherwise be available immediately may become
-     * unavailable. This side effect can be mitigated by calling {sync} on the relevant keys before updating the
-     * settings. There is no mechanism to automatically sync all the keys in a single operation.
+     * applied from the last update timepoint of each key. When a key is not fully replenished, that timepoint is the
+     * moment its last whole unit was refilled, which may precede its last consumption by less than one unit-period
+     * (`window / capacity` seconds under the previous settings); that interval is re-accounted at the new rate.
+     * Therefore, if the new settings correspond to a faster replenishing rate, some quantity may become available
+     * immediately. Conversely, if the new settings correspond to a slower replenishing rate, some quantity that would
+     * otherwise be available immediately may become unavailable. This side effect can be mitigated by calling {sync}
+     * on the relevant keys before updating the settings, at the cost of discarding their partial refill. There is no
+     * mechanism to automatically sync all the keys in a single operation.
      */
     function updateSettings(RefillingBucket storage self, uint48 newWindow, uint208 newCapacity) internal {
         self._capacity = newCapacity;
@@ -197,16 +200,18 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) private view returns (uint256 used_, uint256 available_, uint48 timepoint_) {
-        unchecked {
-            // cache frequently used values to save gas
-            uint256 capacity_ = self._capacity;
-            uint256 window_ = Math.max(self._window, 1);
-            RefillingBucketItem storage item_ = self._items[key];
-            uint256 lastUsed_ = item_._lastUsed;
-            uint48 lastTimepoint_ = item_._lastTimepoint;
+        // cache frequently used values to save gas
+        uint256 capacity_ = self._capacity;
+        uint256 window_ = Math.max(self._window, 1);
+        RefillingBucketItem storage item_ = self._items[key];
+        uint256 lastUsed_ = item_._lastUsed;
+        uint48 lastTimepoint_ = item_._lastTimepoint;
 
+        uint48 elapsed = Time.timestamp() - lastTimepoint_;
+
+        unchecked {
             // compute the quantity to refill based on the elapsed time since the last timepoint
-            uint256 refill = Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, window_);
+            uint256 refill = Math.mulDiv(elapsed, capacity_, window_);
 
             return
                 refill < lastUsed_
