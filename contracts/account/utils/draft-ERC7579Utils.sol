@@ -177,98 +177,55 @@ library ERC7579Utils {
     /// NOTE: This function checks that every execution lies within `executionCalldata` and will throw a
     /// {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
-        unchecked {
-            uint256 bufferPtr;
-            uint256 bufferLength;
-            assembly ("memory-safe") {
-                bufferPtr := executionCalldata.offset
-                bufferLength := executionCalldata.length
-            }
+        bool valid;
+        assembly ("memory-safe") {
+            // Like `abi.decode`, every offset and length must fit in 64 bits. Additions of these values to a
+            // calldata pointer cannot overflow, so every pointer resolves forward, and comparing it to the end of
+            // the buffer is enough to check it lies within `executionCalldata`.
+            let bufferEnd := add(executionCalldata.offset, executionCalldata.length)
 
-            // Check executionCalldata is not empty.
-            if (bufferLength < 0x20) revert ERC7579DecodingError();
+            // Offset of the array (pointer to the array length), and the array length.
+            let arrayOffset := calldataload(executionCalldata.offset)
+            let arrayPtr := add(executionCalldata.offset, arrayOffset)
+            let arrayLength := calldataload(arrayPtr)
+            executionBatch.offset := add(arrayPtr, 0x20)
+            executionBatch.length := arrayLength
+            // The buffer must hold the array offset, the array length and one pointer per element.
+            valid := iszero(
+                or(
+                    lt(executionCalldata.length, 0x20),
+                    or(
+                        shr(64, or(arrayOffset, arrayLength)),
+                        gt(add(executionBatch.offset, shl(5, arrayLength)), bufferEnd)
+                    )
+                )
+            )
 
-            // Get the offset of the array (pointer to the array length).
-            uint256 arrayLengthOffset = uint256(bytes32(executionCalldata[0x00:0x20]));
+            for {
+                let i := 0
+            } and(valid, lt(i, arrayLength)) {
+                i := add(i, 1)
+            } {
+                // Each element is a (target, value, callData offset) head, with offsets relative to its start.
+                let itemOffset := calldataload(add(executionBatch.offset, shl(5, i)))
+                let itemPtr := add(executionBatch.offset, itemOffset)
+                let callDataOffset := calldataload(add(itemPtr, 0x40))
+                let callDataPtr := add(itemPtr, callDataOffset)
+                let callDataLength := calldataload(callDataPtr)
 
-            // The array length (at arrayLengthOffset) should be 32 bytes long. We check that this is within the
-            // buffer bounds. Since we know bufferLength is at least 32, we can subtract with no overflow risk.
-            if (arrayLengthOffset > bufferLength - 0x20) revert ERC7579DecodingError();
-
-            // Get the array length. arrayLengthOffset + 32 is bounded by bufferLength so it does not overflow.
-            uint256 arrayLength = uint256(bytes32(executionCalldata[arrayLengthOffset:arrayLengthOffset + 0x20]));
-
-            // Check that the buffer is long enough to store the array elements as "offset pointer":
-            // - each element of the array is an "offset pointer" to the data.
-            // - each "offset pointer" (to an array element) takes 32 bytes.
-            // - validity of the calldata at that location is checked when the array element is accessed, so we only
-            //   need to check that the buffer is large enough to hold the pointers.
-            //
-            // Since we know bufferLength is at least arrayLengthOffset + 32, we can subtract with no overflow risk.
-            // Solidity limits length of such arrays to 2**64-1, this guarantees `arrayLength * 32` does not overflow.
-            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 0x20 < arrayLength * 0x20)
-                revert ERC7579DecodingError();
-
-            assembly ("memory-safe") {
-                executionBatch.offset := add(add(bufferPtr, arrayLengthOffset), 0x20)
-                executionBatch.length := arrayLength
-            }
-
-            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
-        }
-    }
-
-    /**
-     * @dev Calldata sanity check
-     *
-     * Solidity performs "lazy" verification of calldata objects when they are dereferenced. These checks are
-     * against `msg.data.length` rather than the end of the `executionCalldata` buffer, and they accept relative
-     * offsets that wrap around 2**256. As a result, an ill-formed `executionCalldata` may resolve to different
-     * executions depending on what surrounds it in `msg.data` (e.g. when a user operation is validated and when
-     * it is executed). This function traverses the array and checks that every execution, including its
-     * `callData`, lies within the buffer. Like `abi.decode`, offsets are unsigned and can only point forward.
-     */
-    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bufferEnd) private pure {
-        unchecked {
-            uint256 arrayPtr;
-            uint256 arrayLength;
-            assembly ("memory-safe") {
-                arrayPtr := executionBatch.offset
-                arrayLength := executionBatch.length
-            }
-
-            // Bytes from the start of the array to the end of the buffer. Doesn't underflow because {decodeBatch}
-            // checked that the array is within the buffer.
-            uint256 arrayAvailable = bufferEnd - arrayPtr;
-
-            for (uint256 i = 0; i < arrayLength; ++i) {
-                // Offset of the item, relative to the start of the array. Reading it is safe because {decodeBatch}
-                // checked that the buffer holds `arrayLength` pointers.
-                uint256 itemOffset;
-                assembly ("memory-safe") {
-                    itemOffset := calldataload(add(arrayPtr, shl(5, i)))
-                }
-
-                // The item head (target, value and callData offset) takes 3 words.
-                if (arrayAvailable < 0x60 || itemOffset > arrayAvailable - 0x60) revert ERC7579DecodingError();
-                uint256 itemPtr = arrayPtr + itemOffset;
-                uint256 itemAvailable = arrayAvailable - itemOffset; // at least 0x60
-
-                // Offset of the callData length, relative to the start of the item.
-                uint256 callDataOffset;
-                assembly ("memory-safe") {
-                    callDataOffset := calldataload(add(itemPtr, 0x40))
-                }
-                if (callDataOffset > itemAvailable - 0x20) revert ERC7579DecodingError();
-
-                // Length of the callData, which follows its length word.
-                uint256 callDataLength;
-                assembly ("memory-safe") {
-                    callDataLength := calldataload(add(itemPtr, callDataOffset))
-                }
-                if (callDataLength > itemAvailable - callDataOffset - 0x20) revert ERC7579DecodingError();
+                // The head (3 words) and the callData (length word and bytes) must lie within the buffer.
+                valid := iszero(
+                    or(
+                        shr(64, or(itemOffset, or(callDataOffset, callDataLength))),
+                        or(
+                            gt(add(itemPtr, 0x60), bufferEnd),
+                            gt(add(add(callDataPtr, 0x20), callDataLength), bufferEnd)
+                        )
+                    )
+                )
             }
         }
+        if (!valid) revert ERC7579DecodingError();
     }
 
     /// @dev Executes a `call` to the target with the provided {ExecType}.
