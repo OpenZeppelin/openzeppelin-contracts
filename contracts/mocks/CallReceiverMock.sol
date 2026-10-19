@@ -82,6 +82,12 @@ contract CallReceiverMock {
         assert(false);
     }
 
+    function mockFunctionInvalid() public payable {
+        assembly ("memory-safe") {
+            invalid()
+        }
+    }
+
     function mockFunctionOutOfGas() public payable {
         for (uint256 i = 0; ; ++i) {
             _array.push(i);
@@ -91,6 +97,18 @@ contract CallReceiverMock {
     function mockFunctionExtra() public payable returns (address, uint256) {
         emit MockFunctionCalledExtra(msg.sender, msg.value);
         return (msg.sender, msg.value);
+    }
+
+    function mockFunctionReturnBomb(uint256 size) public payable {
+        assembly ("memory-safe") {
+            return(0, size)
+        }
+    }
+
+    function mockFunctionRevertBomb(uint256 size) public payable {
+        assembly ("memory-safe") {
+            revert(0, size)
+        }
     }
 }
 
