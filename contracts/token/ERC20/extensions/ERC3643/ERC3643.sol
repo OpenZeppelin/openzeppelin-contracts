@@ -370,16 +370,10 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * agent too.
      */
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
+        if (from == address(0)) revert ERC20InvalidSender(address(0));
+        if (to == address(0)) revert ERC20InvalidReceiver(address(0));
         if (identityRegistry().isVerified(to)) {
-            uint256 balance = balanceOf(from);
-            uint256 unfrozen;
-            unchecked {
-                // Invariant: frozenTokens <= balanceOf.
-                unfrozen = balance - getFrozenTokens(from);
-            }
-            if (value > unfrozen) {
-                _unfreezePartialTokens(from, value - unfrozen);
-            }
+            _autoUnfreezeFor(from, value);
             ERC20._update(from, to, value); // bypasses the checks in _update
             compliance().transferred(from, to, value);
             return true;

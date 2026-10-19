@@ -436,6 +436,26 @@ describe('ERC3643', function () {
         .withArgs(this.holder, 10n);
       await expect(this.token.getFrozenTokens(this.holder)).to.eventually.equal(20n);
     });
+
+    it('reverts with insufficient balance when the amount exceeds the balance', async function () {
+      await this.token.connect(this.owner).freezePartialTokens(this.holder, 30n);
+      await expect(this.token.connect(this.owner).forcedTransfer(this.holder, this.recipient, initialSupply + 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+        .withArgs(this.holder, initialSupply, initialSupply + 1n);
+    });
+
+    it('reverts when the sender is the zero address', async function () {
+      await expect(this.token.connect(this.owner).forcedTransfer(ethers.ZeroAddress, this.recipient, 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidSender')
+        .withArgs(ethers.ZeroAddress);
+    });
+
+    it('reverts when the receiver is the zero address', async function () {
+      await this.registry.setIdentity(ethers.ZeroAddress, this.recipientIdentity);
+      await expect(this.token.connect(this.owner).forcedTransfer(this.holder, ethers.ZeroAddress, 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidReceiver')
+        .withArgs(ethers.ZeroAddress);
+    });
   });
 
   describe('recovery', function () {

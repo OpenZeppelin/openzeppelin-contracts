@@ -369,9 +369,7 @@ interface IERC3643 is IERC20, IPausable {
      * Requirements:
      *
      * * Only the owner or authorized agents can call this function
-     * * The contract must not be paused
-     * * `_from` and `_to` addresses must not be frozen
-     * * `_from` must have sufficient unfrozen balance
+     * * `_from` must have sufficient balance
      * * `_to` must be verified in the identity registry
      *
      * NOTE: This function bypasses compliance rules but still requires identity verification.
@@ -387,9 +385,7 @@ interface IERC3643 is IERC20, IPausable {
      * Requirements:
      *
      * * Only the owner or authorized agents can call this function
-     * * The contract must not be paused
      * * `_to` must be verified in the identity registry
-     * * `_to` address must not be frozen
      */
     function mint(address _to, uint256 _amount) external;
 

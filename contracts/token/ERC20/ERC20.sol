@@ -39,7 +39,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * Both values are immutable: they can only be set once during construction.
+     * Both values can be updated by derived contracts through {_setName} and {_setSymbol}.
      */
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
@@ -148,6 +148,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
 
     /**
      * @dev Sets the name of the token.
+     *
+     * NOTE: The EIP-712 domain name of {ERC20Permit} is set at construction and is not affected by this function.
      */
     function _setName(string memory name_) internal virtual {
         _name = name_;
