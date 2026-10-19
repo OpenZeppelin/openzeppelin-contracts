@@ -58,6 +58,10 @@ import {IAccessManager} from "./IAccessManager.sol";
  * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
  * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
  * {AccessControl-renounceRole}.
+ *
+ * WARNING: The `setAuthority(address)` reservation described in {canCall} covers the selector {execute} is called
+ * with. A target that delegatecalls into itself (e.g. {Multicall}) can reach {AccessManaged-setAuthority} from any
+ * other allowed selector, bypassing `ADMIN_ROLE` and the target admin delay.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;

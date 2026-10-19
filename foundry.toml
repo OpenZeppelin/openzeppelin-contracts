@@ -8,6 +8,9 @@ out = 'out'
 libs = ['node_modules', 'lib']
 cache_path  = 'cache_forge'
 
+[profile.slither]
+skip = ['*.yul']
+
 [lint]
 lint_on_build = false
 exclude_lints = ["mixed-case-function", "asm-keccak256", "screaming-snake-case-immutable", "incorrect-shift", "mixed-case-variable"]

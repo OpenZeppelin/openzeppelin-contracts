@@ -241,7 +241,7 @@ export function testAsRestrictedOperation({ callerIsTheManager: { executing, not
         const executionId = ethers.keccak256(
           ethers.AbiCoder.defaultAbiCoder().encode(
             ['address', 'bytes4'],
-            [this.target.target, this.calldata.substring(0, 10)],
+            [this.target.target, ethers.dataSlice(this.calldata, 0, 4)],
           ),
         );
         await this.networkHelpers.setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
@@ -336,7 +336,7 @@ export function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) 
       this.role = this.roles.PUBLIC;
       await this.manager
         .connect(this.roles.ADMIN.members[0])
-        .$_setTargetFunctionRole(this.target, this.calldata.substring(0, 10), this.role.id);
+        .$_setTargetFunctionRole(this.target, ethers.dataSlice(this.calldata, 0, 4), this.role.id);
     });
 
     publicRoleIsRequired();
@@ -346,7 +346,7 @@ export function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) 
     beforeEach('set target function role as PUBLIC_ROLE', async function () {
       await this.manager
         .connect(this.roles.ADMIN.members[0])
-        .$_setTargetFunctionRole(this.target, this.calldata.substring(0, 10), this.role.id);
+        .$_setTargetFunctionRole(this.target, ethers.dataSlice(this.calldata, 0, 4), this.role.id);
     });
 
     testAsGetAccess(specificRoleIsRequired);
