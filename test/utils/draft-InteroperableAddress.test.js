@@ -182,7 +182,9 @@ describe('ERC7390', function () {
         for (const length of valid) {
           it(`${length} bytes address is valid`, async function () {
             const addr = random.hexBytes(length);
-            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.true;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(length))).to.eventually.be
+              .true;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.bytes(addr))).to.eventually.be.true;
             await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.true;
           });
         }
@@ -190,12 +192,26 @@ describe('ERC7390', function () {
         for (const length of invalid) {
           it(`${length} bytes address is invalid`, async function () {
             const addr = random.hexBytes(length);
-            await expect(this.mock.$isValidAddressLength(chainType, addr)).to.eventually.be.false;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(length))).to.eventually.be
+              .false;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.bytes(addr))).to.eventually.be.false;
             await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.false;
           });
         }
       });
     }
+
+    it('lengths larger than any address', async function () {
+      for (const [chainType, expected] of [
+        ['0x0000', false],
+        ['0x0002', false],
+        ['0x0042', true],
+      ]) {
+        await expect(
+          this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(ethers.MaxUint256)),
+        ).to.eventually.equal(expected);
+      }
+    });
   });
 
   describe('handles large references and addresses', function () {

@@ -217,34 +217,32 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Checks that the length of `addr` matches the address format of `chainType`, as defined by CAIP-350.
-     * EVM addresses (chain type `0x0000`) must be 20 bytes long, and Solana addresses (chain type `0x0002`) must be
-     * 32 bytes long.
+     * @dev Checks that an address of `length` bytes matches the address format of `chainType`, as defined by
+     * CAIP-350. EVM addresses (chain type `0x0000`) must be 20 bytes long, and Solana addresses (chain type `0x0002`)
+     * must be 32 bytes long.
      *
-     * For any other chain type, the exact format cannot be verified, so any non-empty `addr` is accepted.
+     * For any other chain type, the exact format cannot be verified, so any non-zero `length` is accepted.
      *
-     * NOTE: This function returns `false` for an empty `addr`, whatever the chain type, even though ERC-7930 allows
+     * NOTE: This function returns `false` for a zero `length`, whatever the chain type, even though ERC-7930 allows
      * interoperable addresses that only specify a chain.
      */
-    function isValidAddressLength(bytes2 chainType, bytes memory addr) internal pure returns (bool) {
+    function isValidAddressLength(bytes2 chainType, uint256 length) internal pure returns (bool) {
         return
             chainType == 0x0000
-                ? addr.length == 20 // EVM
+                ? length == 20 // EVM
                 : chainType == 0x0002
-                    ? addr.length == 32 // Solana
-                    : addr.length > 0; // unknown chain type, only check that the address is not empty
+                    ? length == 32 // Solana
+                    : length > 0; // unknown chain type, only check that the address is not empty
     }
 
-    /**
-     * @dev Variant of {isValidAddressLength} that handles calldata slices to reduce memory copy costs.
-     */
+    /// @dev Variant of {isValidAddressLength-bytes2-uint256-} that checks the length of `addr`.
+    function isValidAddressLength(bytes2 chainType, bytes memory addr) internal pure returns (bool) {
+        return isValidAddressLength(chainType, addr.length);
+    }
+
+    /// @dev Variant of {isValidAddressLength-bytes2-bytes-} that handles calldata slices.
     function isValidAddressLengthCalldata(bytes2 chainType, bytes calldata addr) internal pure returns (bool) {
-        return
-            chainType == 0x0000
-                ? addr.length == 20 // EVM
-                : chainType == 0x0002
-                    ? addr.length == 32 // Solana
-                    : addr.length > 0; // unknown chain type, only check that the address is not empty
+        return isValidAddressLength(chainType, addr.length);
     }
 
     function _toChainReference(uint256 chainid) private pure returns (bytes memory) {
