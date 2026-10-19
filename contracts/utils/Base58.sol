@@ -272,7 +272,7 @@ library Base58 {
                 invalidChar := shl(248, add(err, 49))
                 // Reconstruct and restore original FMP on malformed input, and return the zero slot
                 mstore(0x40, sub(scratch, add(outputLengthEstim, 0x21)))
-                output := 0x60
+                output := 0x60 // empty bytes (also the default)
             }
         }
     }
