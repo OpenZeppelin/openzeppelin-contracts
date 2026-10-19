@@ -626,7 +626,11 @@ library Math {
      * Returns 0 if given 0.
      */
     function log2(uint256 value) internal pure returns (uint256) {
-        return saturatingSub(255, clz(value));
+        unchecked {
+            // `value | 1` keeps the most significant bit of any non-zero value and maps 0 to 1, whose log2 is 0.
+            // `clz(value | 1)` is therefore at most 255 and the subtraction cannot underflow.
+            return 255 - clz(value | 1);
+        }
     }
 
     /**
