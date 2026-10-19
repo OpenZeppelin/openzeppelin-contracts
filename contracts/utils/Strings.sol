@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.24;
 
+import {Bytes} from "./Bytes.sol";
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
-import {Bytes} from "./Bytes.sol";
 
 /**
  * @dev String operations.

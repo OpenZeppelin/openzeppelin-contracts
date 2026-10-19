@@ -110,6 +110,89 @@ export function shouldBehaveLikeSet() {
     });
   });
 
+  describe('removeAt', function () {
+    it('reverts when removing from an empty set', async function () {
+      await expect(this.methods.removeAt(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('reverts when the index is out of bounds', async function () {
+      await this.methods.add(this.valueA);
+
+      await expect(this.methods.removeAt(1)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('reverts when the index would overflow', async function () {
+      await this.methods.add(this.valueA);
+
+      await expect(this.methods.removeAt(2n ** 256n - 1n)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
+    });
+
+    it('removes the only value', async function () {
+      await this.methods.add(this.valueA);
+
+      expect(await this.methods.removeAt.staticCall(0)).to.deep.equal(this.valueA);
+      await this.methods.removeAt(0);
+
+      expect(await this.methods.contains(this.valueA)).to.be.false;
+      await expectMembersMatch(this.methods, []);
+    });
+
+    it('removes the last value without reordering the rest', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+
+      expect(await this.methods.removeAt.staticCall(2)).to.deep.equal(this.valueC);
+      await this.methods.removeAt(2);
+
+      await expectMembersMatch(this.methods, [this.valueA, this.valueB]);
+      expect(await this.methods.at(0)).to.deep.equal(this.valueA);
+      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+    });
+
+    it('removes a non-last value using swap-and-pop', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+
+      expect(await this.methods.removeAt.staticCall(0)).to.deep.equal(this.valueA);
+      await this.methods.removeAt(0);
+
+      expect(await this.methods.contains(this.valueA)).to.be.false;
+      await expectMembersMatch(this.methods, [this.valueC, this.valueB]);
+      expect(await this.methods.at(0)).to.deep.equal(this.valueC);
+      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+    });
+
+    it('tracks the position of the value moved by swap-and-pop', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+
+      // removes A, moving C from index 2 to index 0
+      await this.methods.removeAt(0);
+
+      // C must still be removable by value, which only works if its tracked position was updated
+      await expect(this.methods.remove(this.valueC)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
+
+      await expectMembersMatch(this.methods, [this.valueB]);
+    });
+
+    it('can remove every remaining value by index', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(0);
+
+      await expectMembersMatch(this.methods, []);
+    });
+  });
+
   describe('clear', function () {
     it('clears a single value', async function () {
       await this.methods.add(this.valueA);

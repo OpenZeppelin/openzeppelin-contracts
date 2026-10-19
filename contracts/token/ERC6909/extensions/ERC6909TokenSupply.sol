@@ -3,15 +3,15 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC6909} from "../ERC6909.sol";
 import {IERC6909TokenSupply} from "../../../interfaces/IERC6909.sol";
 import {IERC165} from "../../../utils/introspection/IERC165.sol";
+import {ERC6909} from "../ERC6909.sol";
 
 /**
  * @dev Implementation of the Token Supply extension defined in ERC6909.
  * Tracks the total supply of each token id individually.
  */
-contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
+abstract contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
     mapping(uint256 id => uint256) private _totalSupplies;
 
     /// @inheritdoc IERC6909TokenSupply

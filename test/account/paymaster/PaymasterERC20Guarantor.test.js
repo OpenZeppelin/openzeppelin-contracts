@@ -46,13 +46,13 @@ async function fixture() {
       .then(signature => Object.assign(userOp, { signature }));
 
   // Paymaster data format:
-  // [0x00:0x14                      ] token                 (IERC20)
-  // [0x14:0x1a                      ] validAfter            (uint48)
-  // [0x1a:0x20                      ] validUntil            (uint48)
-  // [0x20:0x40                      ] tokenPrice            (uint256)
-  // [0x40:0x54                      ] oracle                (address)
-  // [0x54:0x56                      ] oracleSignatureLength (uint16)
-  // [0x56:0x56+oracleSignatureLength] oracleSignature       (bytes)
+  // [0x00:0x14                      ] token                    (IERC20)
+  // [0x14:0x1a                      ] validAfter               (uint48)
+  // [0x1a:0x20                      ] validUntil               (uint48)
+  // [0x20:0x40                      ] tokenPerNative           (uint256)
+  // [0x40:0x54                      ] oracle                   (address)
+  // [0x54:0x56                      ] oracleSignatureLength    (uint16)
+  // [0x56:0x56+oracleSignatureLength] oracleSignature          (bytes)
   // [0x00:0x14                      ] guarantor                (address) (optional: 0 if no guarantor)
   // [0x14:0x16                      ] guarantorSignatureLength (uint16)
   // [0x16:0x16+guarantorSignatureLn ] guarantorSignature       (bytes)
@@ -64,7 +64,7 @@ async function fixture() {
       {
         validAfter = 0n,
         validUntil = 0n,
-        tokenPrice = ethers.WeiPerEther,
+        tokenPerNative = ethers.WeiPerEther,
         guarantor = undefined,
         guarantorSigner = undefined,
         erc20 = token,
@@ -77,7 +77,7 @@ async function fixture() {
           erc20.target ?? erc20.address ?? erc20,
           validAfter,
           validUntil,
-          tokenPrice,
+          tokenPerNative,
           oracle.target ?? oracle.address ?? oracle,
         ],
       );
@@ -90,14 +90,14 @@ async function fixture() {
               token: 'address',
               validAfter: 'uint48',
               validUntil: 'uint48',
-              tokenPrice: 'uint256',
+              tokenPerNative: 'uint256',
             }),
           },
           {
             token: erc20.target ?? erc20.address ?? erc20,
             validAfter,
             validUntil,
-            tokenPrice,
+            tokenPerNative,
           },
         ),
         guarantor ? (guarantorSigner ?? guarantor).signTypedData(domain, { PackedUserOperation }, userOp.packed) : '0x',
@@ -198,7 +198,7 @@ describe('PaymasterERC20Guarantor', function () {
           })
           .then(op =>
             this.paymasterSignUserOp(op, {
-              tokenPrice: 2n * ethers.WeiPerEther,
+              tokenPerNative: 2n * ethers.WeiPerEther,
               guarantor: this.guarantor,
             }),
           )
@@ -266,7 +266,7 @@ describe('PaymasterERC20Guarantor', function () {
           })
           .then(op =>
             this.paymasterSignUserOp(op, {
-              tokenPrice: 2n * ethers.WeiPerEther,
+              tokenPerNative: 2n * ethers.WeiPerEther,
               guarantor: this.guarantor,
             }),
           )
@@ -333,7 +333,7 @@ describe('PaymasterERC20Guarantor', function () {
           })
           .then(op =>
             this.paymasterSignUserOp(op, {
-              tokenPrice: 2n * ethers.WeiPerEther,
+              tokenPerNative: 2n * ethers.WeiPerEther,
               guarantor: this.guarantor,
             }),
           )
@@ -502,14 +502,14 @@ describe('PaymasterERC20Guarantor', function () {
 
       // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
       // guaranteed branch and augments `actualAmount` by `_guaranteedPostOpCost() * feePerGas`
-      // (priced in tokens). With tokenPrice=1e18, denominator=1e18 (1:1), feePerGas=1, the
+      // (priced in tokens). With tokenPerNative=1e18, denominator=1e18 (1:1), feePerGas=1, the
       // augmentation adds 15_000 tokens. Passing `actualAmount = 31_000` yields a final
       // augmented amount of `31_000 + 15_000 = 46_000` charged to the guarantor; the full
       // `prefundAmount` (100_000) is then refunded to `prefunder` (other).
       await expect(
         this.paymaster.$_refund(
           this.token,
-          ethers.WeiPerEther, // tokenPrice
+          ethers.WeiPerEther, // tokenPerNative
           31_000n, // actualAmount (pre-computed by `_postOp` in the real flow)
           1n, // actualUserOpFeePerGas
           this.other.address, // prefunder
@@ -590,7 +590,7 @@ describe('PaymasterERC20Guarantor', function () {
           userOp(this.other.address),
           ethers.ZeroHash,
           this.token,
-          ethers.WeiPerEther, // tokenPrice
+          ethers.WeiPerEther, // tokenPerNative
           this.other.address,
           requested,
         ),
@@ -619,7 +619,7 @@ describe('PaymasterERC20Guarantor', function () {
       await expect(
         this.reducingPaymaster.$_refund(
           this.token,
-          ethers.WeiPerEther, // tokenPrice
+          ethers.WeiPerEther, // tokenPerNative
           inputActual, // actualAmount
           1n, // actualUserOpFeePerGas
           this.other.address, // prefunder

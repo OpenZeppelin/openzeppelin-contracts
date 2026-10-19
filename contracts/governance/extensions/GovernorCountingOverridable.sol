@@ -5,9 +5,9 @@ pragma solidity ^0.8.24;
 
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 import {VotesExtended} from "../utils/VotesExtended.sol";
 import {GovernorVotes} from "./GovernorVotes.sol";
-import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} which enables delegators to override the vote of their delegates. This module requires a

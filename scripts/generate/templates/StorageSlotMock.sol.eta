@@ -1,0 +1,38 @@
+pragma solidity ^0.8.20;
+
+import {Multicall} from "../utils/Multicall.sol";
+import {StorageSlot} from "../utils/StorageSlot.sol";
+
+contract StorageSlotMock is Multicall {
+    using StorageSlot for *;
+
+<%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    function set<%= name %>Slot(bytes32 slot, <%= type %> value) public {
+        slot.get<%= name %>Slot().value = value;
+    }
+<% } -%>
+<%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    function get<%= name %>Slot(bytes32 slot) public view returns (<%= type %>) {
+        return slot.get<%= name %>Slot().value;
+    }
+<% } -%>
+<%- for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => !size)) { %>
+    mapping(uint256 key => <%= type %>) public <%= type %>Map;
+
+    function set<%= name %>Slot(bytes32 slot, <%= type %> calldata value) public {
+        slot.get<%= name %>Slot().value = value;
+    }
+
+    function set<%= name %>Storage(uint256 key, <%= type %> calldata value) public {
+        <%= type %>Map[key].get<%= name %>Slot().value = value;
+    }
+
+    function get<%= name %>Slot(bytes32 slot) public view returns (<%= type %> memory) {
+        return slot.get<%= name %>Slot().value;
+    }
+
+    function get<%= name %>Storage(uint256 key) public view returns (<%= type %> memory) {
+        return <%= type %>Map[key].get<%= name %>Slot().value;
+    }
+<% } -%>
+}

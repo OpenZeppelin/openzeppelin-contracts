@@ -58,9 +58,12 @@ export function shouldBehaveLikeAccountCore() {
         const operation = await this.mock.createUserOp(this.userOp).then(op => this.signUserOp(op));
         const value = 42n;
 
-        // Forcing the gas limit here to work around a hardhat 3 issue with gas estimation
+        // Gas estimation is unusable here: `_payPrefund` ignores the result of the call that forwards the missing
+        // funds, so the estimation converges to an amount that is just enough for the transaction to succeed with
+        // that transfer silently failing. Force a generous gas limit instead, large enough to also cover coverage
+        // instrumentation (which can multiply the cost of `validateUserOp` by a factor of 4 or more).
         await expect(
-          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value, { gasLimit: 2_000_000n }),
+          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value, { gasLimit: 10_000_000n }),
         ).to.changeEtherBalances(this.ethers, [this.mock, this.ethers.predeploy.entrypoint.v09], [-value, value]);
       });
     });
