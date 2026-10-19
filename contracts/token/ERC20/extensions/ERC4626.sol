@@ -101,8 +101,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /**
      * @dev Attempted to {deposit} or {mint} with a native value (`msg.value`) the vault does not expect. The
-     * default {_checkPayment} reverts with this error on any non-zero `msg.value`; native-asset vaults (see
-     * ERC-7535) override {_checkPayment} and do not use it.
+     * default {_checkNativeValue} reverts with this error on any non-zero `msg.value`; native-asset vaults (see
+     * ERC-7535) override {_checkNativeValue} and do not use it.
      */
     error ERC4626UnexpectedNativeValue(uint256 value);
 
@@ -194,7 +194,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 shares = previewDeposit(assets);
-        _checkPayment(assets);
+        _checkNativeValue(assets);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
@@ -208,7 +208,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         }
 
         uint256 assets = previewMint(shares);
-        _checkPayment(assets);
+        _checkNativeValue(assets);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;
@@ -315,7 +315,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /// ERC-7535) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, expects no
     /// native value and reverts if any is sent — preserving the behavior of a non-`payable` entry point. Native
     /// asset vaults override this to require `msg.value` to cover the deposited amount.
-    function _checkPayment(uint256) internal view virtual {
+    function _checkNativeValue(uint256) internal view virtual {
         if (msg.value != 0) revert ERC4626UnexpectedNativeValue(msg.value);
     }
 

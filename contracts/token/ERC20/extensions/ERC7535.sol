@@ -24,7 +24,7 @@ import {ERC4626} from "./ERC4626.sol";
  * * {deposit} and {mint} are `payable` (as declared by `IERC4626`): the native asset is provided as `msg.value`
  * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. {deposit}
  * prices shares off `msg.value` and ignores its `assets` argument (per ERC-7535); {mint} requires `msg.value` to
- * cover the previewed cost through the inherited {ERC4626-_checkPayment} hook.
+ * cover the previewed cost through the inherited {ERC4626-_checkNativeValue} hook.
  * * {ERC4626-_transferIn} is a no-op (the value has already arrived as `msg.value`) and {ERC4626-_transferOut}
  * sends the native asset out with `Address.sendValue`.
  *
@@ -91,11 +91,11 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /**
-     * @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
+     * @dev See {ERC4626-_checkNativeValue}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
      * native value to cover the previewed cost `assets`; any excess is refunded by {_deposit}. {deposit} is
      * overridden to price shares directly off `msg.value` and does not route through this hook.
      */
-    function _checkPayment(uint256 assets) internal view virtual override {
+    function _checkNativeValue(uint256 assets) internal view virtual override {
         if (msg.value < assets) {
             revert ERC7535InsufficientNativeValue(msg.value, assets);
         }
