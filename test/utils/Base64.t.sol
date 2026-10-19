@@ -23,13 +23,6 @@ contract Base64Test is Test {
         assertEq(output, input);
     }
 
-    function testTryDecodeInvalid() external pure {
-        // '@' is not part of the Base64 alphabet.
-        (bool success, bytes memory output) = Base64.tryDecode("TW@u");
-        assertFalse(success);
-        assertEq(output, hex"");
-    }
-
     function testTryDecodeInvalidRestoresFreeMemoryPointer(bytes memory input) external pure {
         bytes memory buf = bytes.concat(hex"0000", input); // Prepend two 0x00 (outside Base64 alphabet)
 

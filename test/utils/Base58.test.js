@@ -51,6 +51,14 @@ describe('Base58', function () {
         });
     });
 
+    describe('encode decode zeros', function () {
+      for (const hex of ['0x0000000000000000', '0x00000000a400000000'])
+        it(hex, async function () {
+          const b58 = await this.mock.$encode(hex);
+          await expect(this.mock.$decode(b58)).to.eventually.equal(hex);
+        });
+    });
+
     describe('decode invalid format', function () {
       for (const chr of ['I', '-', '~', '\x00'])
         it(`Invalid base58 char ${JSON.stringify(chr)}`, async function () {
