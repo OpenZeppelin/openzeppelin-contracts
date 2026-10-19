@@ -14,7 +14,7 @@ import {ERC4626} from "./ERC4626.sol";
  * ERC-7535 is an adaptation of {ERC4626} that uses the chain's native asset (e.g. Ether) as the underlying
  * asset instead of an ERC-20 token. It is implemented as a thin extension of {ERC4626}: the share accounting,
  * rounding directions, virtual-offset inflation mitigation, preview functions, and checks-effects-interactions
- * ordering are all inherited unchanged. Only the asset-movement seams differ.
+ * ordering are all inherited unchanged.
  *
  * Relative to {ERC4626}:
  *

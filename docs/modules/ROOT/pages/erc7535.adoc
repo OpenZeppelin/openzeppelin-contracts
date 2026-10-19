@@ -2,7 +2,7 @@
 
 https://eips.ethereum.org/EIPS/eip-7535[ERC-7535] is an adaptation of xref:erc4626.adoc[ERC-4626] in which the underlying asset of the vault is the chain's native asset (e.g. Ether) instead of an ERC-20 token. It keeps the ERC-4626 share-accounting model, rounding rules, and interface, so the same mental model, security considerations, and customizations apply, with a few native-asset specific differences.
 
-`ERC7535` is implemented as a thin extension of `ERC4626`: share accounting, rounding, the virtual-shares inflation mitigation, the preview functions, and the checks-effects-interactions withdraw path are all inherited. Only the asset-movement seams change.
+`ERC7535` is implemented as a thin extension of `ERC4626`: share accounting, rounding, the virtual-shares inflation mitigation, the preview functions, and the checks-effects-interactions withdraw path are all inherited.
 
 == Differences with ERC-4626
 
