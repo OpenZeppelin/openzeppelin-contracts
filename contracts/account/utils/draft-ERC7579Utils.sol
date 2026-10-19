@@ -236,28 +236,33 @@ library ERC7579Utils {
                 //
                 // if (bufferLength < 0x60) revert ERC7579DecodingError();
 
-                uint256 lowerBound = bufferPtr;
                 uint256 upperBound = bufferPtr + bufferLength;
-                // Cannot underflow: upperBound - 0x60 >= (lowerBound + 0x60) - 0x60 >= lowerBound
+                // Cannot underflow: upperBound - 0x60 >= (bufferPtr + 0x60) - 0x60 >= bufferPtr
                 uint256 itemUpperBound = upperBound - 0x60;
-                // Cannot overflow: lowerBound + 0x20 < lowerBound + 0x60 <= upperBound
-                uint256 itemCalldataLowerBound = lowerBound + 0x20;
 
+                // Like `abi.decode`, offsets must fit in 64 bits. Since the base pointers are within calldata, adding
+                // such an offset cannot overflow, so every pointer resolves forward of its base:
+                // - itemPtr >= executionBatch.offset > bufferPtr
+                // - itemCalldataPtr >= itemPtr + 0x20 > bufferPtr + 0x20
+                // Checking the pointers against the end of the buffer is then enough to keep everything within it.
                 for (uint256 i = 0; i < arrayLength; ++i) {
+                    uint256 itemOffset;
+                    uint256 itemCalldataOffset;
                     uint256 itemPtr;
                     uint256 itemCalldataPtr;
                     uint256 itemCalldataLength;
                     assembly ("memory-safe") {
-                        itemPtr := add(executionBatch.offset, calldataload(add(executionBatch.offset, shl(5, i))))
-                        let itemCalldataLengthPtr := add(itemPtr, calldataload(add(itemPtr, 0x40)))
+                        itemOffset := calldataload(add(executionBatch.offset, shl(5, i)))
+                        itemPtr := add(executionBatch.offset, itemOffset)
+                        itemCalldataOffset := calldataload(add(itemPtr, 0x40))
+                        let itemCalldataLengthPtr := add(itemPtr, itemCalldataOffset)
                         itemCalldataPtr := add(itemCalldataLengthPtr, 0x20)
                         itemCalldataLength := calldataload(itemCalldataLengthPtr)
                     }
 
                     if (
-                        itemPtr < lowerBound ||
+                        (itemOffset | itemCalldataOffset) > type(uint64).max ||
                         itemPtr > itemUpperBound ||
-                        itemCalldataPtr < itemCalldataLowerBound ||
                         itemCalldataPtr > upperBound ||
                         itemCalldataLength > upperBound - itemCalldataPtr
                     ) revert ERC7579DecodingError();
