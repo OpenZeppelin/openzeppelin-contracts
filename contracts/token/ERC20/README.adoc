@@ -53,8 +53,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{IERC20Permit}}
 
-{{IERC3643}}
-
 {{ERC20Permit}}
 
 {{IERC3009}}

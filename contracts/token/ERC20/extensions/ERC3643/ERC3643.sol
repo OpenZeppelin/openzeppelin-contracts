@@ -26,14 +26,18 @@ import {ERC20} from "../../ERC20.sol";
  * * {_setIdentityRegistry} and {_setCompliance}: internal setters, overridable so a
  *   derived contract can add validation or a handshake before the write. `_setCompliance`
  *   takes an `emitEvent` flag so a derived contract can bind the new compliance and only
- *   emit `ComplianceAdded` once the bind has succeeded.
+ *   emit {IERC3643-ComplianceAdded} once the bind has succeeded. Binding the token to its
+ *   compliance ({ICompliance-bindToken}) is left to the derived contract.
  * * {_recoveryAddress}: the whole recovery flow is exposed as an internal virtual so a
  *   derived contract can supply preconditions or additional identity-migration steps
  *   before calling `super._recoveryAddress`.
  *
- * Deliberate divergences from the ERC-3643 reference behavior, each of which a derived
- * contract may reverse by overriding the relevant hook:
+ * Deliberate divergences from the ERC-3643 text, each of which a derived contract may
+ * reverse by overriding the relevant hook:
  *
+ * * Mint checks {ICompliance-canTransfer} in addition to the recipient's identity, as the
+ *   reference implementation does, so supply caps and distribution rules also apply to
+ *   issuance. The ERC text has mint bypass the compliance rules.
  * * Mint and burn work while the token is paused; only transfers block. Circulation and
  *   issuance/redemption are separate operational concerns.
  * * {forcedTransfer} and {recoveryAddress} bypass the pause too, in line with the spec
@@ -51,20 +55,11 @@ import {ERC20} from "../../ERC20.sol";
  * * A burn auto-unfreezes just enough of `from`'s frozen balance to cover itself, so the
  *   `frozenTokens <= balanceOf` invariant is preserved across every path.
  *
- * WARNING: Every transfer, mint, and burn ends with an external call to a bound compliance
- * module ({ICompliance-transferred}, {ICompliance-created}, {ICompliance-destroyed}). Module
- * code is external and untrusted from the token's point of view. Bound modules can reenter
- * the token from those callbacks. A deployment that cannot trust every module it binds — in
- * particular one that binds a stateful cumulative-limit module alongside modules whose code
- * or upgrade authority it does not control — should inherit
- * {ReentrancyGuardTransient} and mark {_update}, {_forcedTransfer}, and {_recoveryAddress}
- * with `nonReentrant`. Modules that keep their own accounting must also record pending
- * amounts before any external call, since the token's guard does not extend to calls a
- * module makes elsewhere.
- *
- * NOTE: This contract does not implement {IERC173}. `transferOwnership(address(0))` is not
- * accepted through {Ownable} — projects that require ERC-173 semantics for that path must
- * layer their own owner surface.
+ * NOTE: Every transfer, mint and burn ends with an external call to the compliance
+ * ({ICompliance-transferred}, {ICompliance-created} or {ICompliance-destroyed}), made after
+ * the balances are updated, and the compliance may reenter the token from it. A deployment
+ * that binds compliance code it does not control can inherit {ReentrancyGuardTransient} and
+ * mark {_update}, {_forcedTransfer} and {_recoveryAddress} with `nonReentrant`.
  */
 abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     mapping(address account => bool) private _frozen;
@@ -107,9 +102,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         _;
     }
 
-    constructor(IIdentityRegistry identityRegistry_, ICompliance compliance_, address onchainID_) {
-        require(address(identityRegistry_) != address(0), ERC3643MissingIdentityRegistry());
-        require(address(compliance_) != address(0), ERC3643MissingCompliance());
+    constructor(address identityRegistry_, address compliance_, address onchainID_) {
+        require(identityRegistry_ != address(0), ERC3643MissingIdentityRegistry());
+        require(compliance_ != address(0), ERC3643MissingCompliance());
         _setIdentityRegistry(identityRegistry_);
         _setCompliance(compliance_, true);
         _onchainID = onchainID_; // zero address allowed for no onchainID
@@ -121,9 +116,11 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         return _onchainID;
     }
 
-    /// @inheritdoc IERC3643
-    function version() public pure virtual returns (string memory) {
-        return "5.5.0";
+    /**
+     * @dev See {IERC3643-version}. Returns "1" by default; override to report the token's own versioning.
+     */
+    function version() public view virtual returns (string memory) {
+        return "1";
     }
 
     /// @inheritdoc IERC3643
@@ -187,12 +184,12 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     }
 
     /// @inheritdoc IERC3643
-    function setIdentityRegistry(IIdentityRegistry identityRegistry_) public virtual onlyAdmin {
+    function setIdentityRegistry(address identityRegistry_) public virtual onlyAdmin {
         _setIdentityRegistry(identityRegistry_);
     }
 
     /// @inheritdoc IERC3643
-    function setCompliance(ICompliance compliance_) public virtual onlyAdmin {
+    function setCompliance(address compliance_) public virtual onlyAdmin {
         _setCompliance(compliance_, true);
     }
 
@@ -345,8 +342,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         emit TokensUnfrozen(account, value);
     }
 
-    function _setIdentityRegistry(IIdentityRegistry identityRegistry_) internal virtual {
-        _identityRegistry = identityRegistry_;
+    /// @dev Internal version of {IERC3643-setIdentityRegistry}.
+    function _setIdentityRegistry(address identityRegistry_) internal virtual {
+        _identityRegistry = IIdentityRegistry(identityRegistry_);
         emit IdentityRegistryAdded(identityRegistry_);
     }
 
@@ -355,8 +353,8 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * `emitEvent` flag lets a derived contract bind the new compliance before emitting,
      * so the event only reports a binding that succeeded.
      */
-    function _setCompliance(ICompliance compliance_, bool emitEvent) internal virtual {
-        _compliance = compliance_;
+    function _setCompliance(address compliance_, bool emitEvent) internal virtual {
+        _compliance = ICompliance(compliance_);
         if (emitEvent) emit ComplianceAdded(compliance_);
     }
 
@@ -401,7 +399,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      *
      * Ordering matters: the new identity is registered *before* the balance moves so
      * `compliance.transferred` (invoked inside `forcedTransfer`) sees both endpoints
-     * resolvable — `lost` still resolves to the old identity, `updated` to the new one.
+     * resolvable: `lost` still resolves to the old identity, `updated` to the new one.
      * The old registration is deleted only after all migration steps.
      *
      * Can reenter through the identity registry, which is trusted.

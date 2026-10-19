@@ -18,6 +18,7 @@
 *** xref:erc20-supply.adoc[Creating Supply]
 ** xref:erc721.adoc[ERC-721]
 ** xref:erc1155.adoc[ERC-1155]
+** xref:erc3643.adoc[ERC-3643]
 ** xref:erc4626.adoc[ERC-4626]
 ** xref:erc6909.adoc[ERC-6909]
 

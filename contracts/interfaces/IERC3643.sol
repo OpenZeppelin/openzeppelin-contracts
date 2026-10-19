@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IPausable} from "../utils/Pausable.sol";
 import {IERC20} from "./IERC20.sol";
+import {IPausable} from "./IPausable.sol";
 
 /**
  * @title IAgentRole
@@ -131,11 +131,11 @@ interface IERC3643 is IERC20, IPausable {
      * @param _newOnchainID The new address of the onchain identity contract
      */
     event UpdatedTokenInformation(
-        string indexed _newName,
-        string indexed _newSymbol,
+        string _newName,
+        string _newSymbol,
         uint8 _newDecimals,
         string _newVersion,
-        address indexed _newOnchainID
+        address _newOnchainID
     );
 
     /**
@@ -143,14 +143,14 @@ interface IERC3643 is IERC20, IPausable {
      *
      * @param _identityRegistry The address of the new identity registry contract
      */
-    event IdentityRegistryAdded(IIdentityRegistry indexed _identityRegistry);
+    event IdentityRegistryAdded(address indexed _identityRegistry);
 
     /**
      * @dev Emitted when a new compliance contract is set for the token.
      *
      * @param _compliance The address of the new compliance contract
      */
-    event ComplianceAdded(ICompliance indexed _compliance);
+    event ComplianceAdded(address indexed _compliance);
 
     /**
      * @dev Emitted when a successful wallet recovery is performed.
@@ -159,7 +159,7 @@ interface IERC3643 is IERC20, IPausable {
      * @param _newWallet The address of the new wallet receiving the tokens
      * @param _investorOnchainID The address of the investor's onchain identity contract
      */
-    event RecoverySuccess(address indexed _lostWallet, address indexed _newWallet, address indexed _investorOnchainID);
+    event RecoverySuccess(address _lostWallet, address _newWallet, address _investorOnchainID);
 
     /**
      * @dev Emitted when an address is frozen or unfrozen.
@@ -343,7 +343,7 @@ interface IERC3643 is IERC20, IPausable {
      *
      * Emits an {IdentityRegistryAdded} event.
      */
-    function setIdentityRegistry(IIdentityRegistry _identityRegistry) external;
+    function setIdentityRegistry(address _identityRegistry) external;
 
     /**
      * @dev Sets the compliance contract for the token.
@@ -356,7 +356,7 @@ interface IERC3643 is IERC20, IPausable {
      *
      * Emits a {ComplianceAdded} event.
      */
-    function setCompliance(ICompliance _compliance) external;
+    function setCompliance(address _compliance) external;
 
     /**
      * @dev Forces a transfer between two addresses, bypassing compliance checks.
