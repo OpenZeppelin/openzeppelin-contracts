@@ -25,11 +25,18 @@ contract BeaconProxy is Proxy {
     address private immutable _beacon;
 
     /**
+     * @dev The proxy is left uninitialized.
+     */
+    error BeaconProxyUninitialized();
+
+    /**
      * @dev Initializes the proxy with `beacon`.
      *
-     * If `data` is nonempty, it's used as data in a delegate call to the implementation returned by the beacon. This
-     * will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity
-     * constructor.
+     * Provided `data` is passed in a delegate call to the implementation returned by the beacon. This will typically
+     * be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor. By
+     * default construction will fail if `data` is empty. This behavior can be overridden using a custom
+     * {_unsafeAllowUninitialized} that returns true. In that case, empty `data` is ignored and no delegate call to the
+     * implementation is performed during construction.
      *
      * Requirements:
      *
@@ -37,6 +44,9 @@ contract BeaconProxy is Proxy {
      * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address beacon, bytes memory data) payable {
+        if (!_unsafeAllowUninitialized() && data.length == 0) {
+            revert BeaconProxyUninitialized();
+        }
         ERC1967Utils.upgradeBeaconToAndCall(beacon, data);
         _beacon = beacon;
     }
@@ -53,5 +63,16 @@ contract BeaconProxy is Proxy {
      */
     function _getBeacon() internal view virtual returns (address) {
         return _beacon;
+    }
+
+    /**
+     * @dev Returns whether the proxy can be left uninitialized.
+     *
+     * NOTE: Override this function to allow the proxy to be left uninitialized.
+     * Consider uninitialized proxies might be susceptible to man-in-the-middle threats
+     * where the proxy is replaced with a malicious one.
+     */
+    function _unsafeAllowUninitialized() internal pure virtual returns (bool) {
+        return false;
     }
 }
