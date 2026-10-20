@@ -13,6 +13,9 @@ import {ERC2771Context} from "./ERC2771Context.sol";
 /**
  * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
  *
+ * IMPORTANT: Deprecated. The ERC-2771 meta-transaction stack ({ERC2771Context} and this forwarder) is removed in
+ * v6.0. Consider adopting alternatives such as ERC-4337 account abstraction.
+ *
  * This forwarder operates on forward requests that include:
  *
  * * `from`: An address to operate on behalf of. It is required to be equal to the request signer.
