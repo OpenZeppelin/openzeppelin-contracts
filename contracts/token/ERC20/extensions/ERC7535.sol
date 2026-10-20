@@ -24,7 +24,7 @@ import {ERC4626} from "./ERC4626.sol";
  * * {deposit} and {mint} are `payable` (as declared by `IERC4626`): the native asset is provided as `msg.value`
  * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. {deposit}
  * prices shares off `msg.value` and ignores its `assets` argument (per ERC-7535); {mint} requires `msg.value` to
- * cover the previewed cost through the inherited {ERC4626-_checkNativeValue} hook.
+ * cover the previewed cost. {ERC4626-_enablePayableDeposit} is overridden to accept the native value.
  * * {ERC4626-_transferIn} is a no-op (the value has already arrived as `msg.value`) and {ERC4626-_transferOut}
  * sends the native asset out with `Address.sendValue`.
  *
@@ -111,10 +111,10 @@ abstract contract ERC7535 is ERC4626 {
         return assets;
     }
 
-    /**
-     * @dev See {ERC4626-_checkNativeValue}. Message value is processed in {deposit} and {mint} overrides. Disabling the "no-value" check for {ERC4626}.
-     */
-    function _checkNativeValue(uint256 assets) internal view virtual override {}
+    /// @dev See {ERC4626-_enablePayableDeposit}. Native value is processed by the {deposit} and {mint} overrides.
+    function _enablePayableDeposit() internal pure virtual override returns (bool) {
+        return true;
+    }
 
     /// @dev No-op: the native asset has already been received as `msg.value`. See {ERC4626-_transferIn}.
     function _transferIn(address /* from */, uint256 /* assets */) internal virtual override {}

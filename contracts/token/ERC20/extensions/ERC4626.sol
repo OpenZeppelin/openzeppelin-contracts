@@ -101,8 +101,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /**
      * @dev Attempted to {deposit} or {mint} with a native value (`msg.value`) the vault does not expect. The
-     * default {_checkNativeValue} reverts with this error on any non-zero `msg.value`; native-asset vaults (see
-     * {ERC7535}) override {_checkNativeValue} and do not use it.
+     * vault reverts with this error on any non-zero `msg.value` unless {_enablePayableDeposit} is overridden to
+     * return `true`, as native-asset vaults (see {ERC7535}) do.
      */
     error ERC4626UnexpectedNativeValue(uint256 value);
 
@@ -188,13 +188,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @inheritdoc IERC4626
     function deposit(uint256 assets, address receiver) public payable virtual returns (uint256) {
+        require(_enablePayableDeposit() || msg.value == 0, ERC4626UnexpectedNativeValue(msg.value));
+
         uint256 maxAssets = maxDeposit(receiver);
         if (assets > maxAssets) {
             revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
         }
 
         uint256 shares = previewDeposit(assets);
-        _checkNativeValue(assets);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
@@ -202,13 +203,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @inheritdoc IERC4626
     function mint(uint256 shares, address receiver) public payable virtual returns (uint256) {
+        require(_enablePayableDeposit() || msg.value == 0, ERC4626UnexpectedNativeValue(msg.value));
+
         uint256 maxShares = maxMint(receiver);
         if (shares > maxShares) {
             revert ERC4626ExceededMaxMint(receiver, shares, maxShares);
         }
 
         uint256 assets = previewMint(shares);
-        _checkNativeValue(assets);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;
@@ -308,15 +310,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         SafeERC20.safeTransfer(IERC20(asset()), to, assets);
     }
 
-    /// @dev Validates the native value (`msg.value`) sent with a {deposit} or {mint} call. The `uint256` argument
-    /// is the amount being deposited (or the cost of the shares being minted), expressed in the underlying asset.
+    /// @dev Whether {deposit} and {mint} accept a native value (`msg.value`).
     ///
     /// {deposit} and {mint} are `payable` so that vaults whose underlying IS the chain's native asset (see
-    /// {ERC7535}) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, expects no
-    /// native value and reverts if any is sent, which preserves the behavior of a non-`payable` entry point. Native
-    /// asset vaults override this to require `msg.value` to cover the deposited amount.
-    function _checkNativeValue(uint256) internal view virtual {
-        if (msg.value != 0) revert ERC4626UnexpectedNativeValue(msg.value);
+    /// {ERC7535}) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, returns
+    /// `false` so that any native value sent is rejected, which preserves the behavior of a non-`payable` entry
+    /// point. Native asset vaults override this to return `true` and process `msg.value` themselves.
+    function _enablePayableDeposit() internal pure virtual returns (bool) {
+        return false;
     }
 
     function _decimalsOffset() internal view virtual returns (uint8) {
