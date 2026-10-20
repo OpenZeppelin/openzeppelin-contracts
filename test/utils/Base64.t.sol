@@ -35,6 +35,30 @@ contract Base64Test is Test {
         assertEq(Memory.Pointer.unwrap(fmpAfter), Memory.Pointer.unwrap(fmpBefore));
     }
 
+    // With an input length of 4k+1, the decoding loop never reads the last character.
+    function testTryDecodeInvalidLastCharacter(bytes memory input, bytes1 last) external pure {
+        vm.assume(!_isBase64Char(last));
+        // Padded encodings have a length multiple of 4, so appending one character gives a length of 4k+1.
+        bytes memory data = bytes.concat(bytes(Base64.encode(input)), last);
+
+        (bool success, bytes memory output) = Base64.tryDecode(string(data));
+
+        assertFalse(success);
+        assertEq(output, hex"");
+    }
+
+    function _isBase64Char(bytes1 c) internal pure returns (bool) {
+        return
+            (c >= "A" && c <= "Z") ||
+            (c >= "a" && c <= "z") ||
+            (c >= "0" && c <= "9") ||
+            c == "+" ||
+            c == "/" ||
+            c == "-" ||
+            c == "_" ||
+            c == "=";
+    }
+
     // `_tryDecode` temporarily overwrites the 32 bytes that follow `data` with fake "==" padding. Before
     // `tryDecode`, an invalid character reverted, so restoring that word was unobservable on that path.
     // `data` is exactly 32 bytes so the clobbered word is exactly `guard`'s length slot.
