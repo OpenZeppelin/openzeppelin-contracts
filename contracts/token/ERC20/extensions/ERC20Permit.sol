@@ -48,18 +48,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        if (block.timestamp > deadline) {
-            revert ERC2612ExpiredSignature(deadline);
-        }
+        require(block.timestamp <= deadline, ERC2612ExpiredSignature(deadline));
 
         bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner) {
-            revert ERC2612InvalidSigner(signer, owner);
-        }
+        require(signer == owner, ERC2612InvalidSigner(signer, owner));
 
         _approve(owner, spender, value);
     }

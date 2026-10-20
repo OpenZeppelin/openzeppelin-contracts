@@ -57,9 +57,7 @@ library Clones {
             mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(value, 0x09, 0x37)
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -104,9 +102,7 @@ library Clones {
             mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(value, 0x09, 0x37, salt)
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -177,9 +173,7 @@ library Clones {
         assembly ("memory-safe") {
             instance := create(value, add(bytecode, 0x20), mload(bytecode))
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -306,7 +300,7 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 0x5fd3) revert CloneArgumentsTooLong();
+        require(args.length <= 0x5fd3, CloneArgumentsTooLong());
         return
             abi.encodePacked(
                 hex"61",

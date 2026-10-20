@@ -180,7 +180,7 @@ library MessageHashUtils {
 
     /// @dev Builds an EIP-712 domain type hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
     function toDomainTypeHash(bytes1 fields) internal pure returns (bytes32 hash) {
-        if (fields & 0x20 == 0x20) revert ERC5267ExtensionsNotSupported();
+        require(fields & 0x20 != 0x20, ERC5267ExtensionsNotSupported());
 
         assembly ("memory-safe") {
             // align fields to the right for easy processing

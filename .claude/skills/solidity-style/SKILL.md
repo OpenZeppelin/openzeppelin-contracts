@@ -9,7 +9,11 @@ The conventions below are not enforced by solhint. For the lint-enforced rules (
 
 ## Errors
 
-Prefer `if (condition) revert CustomError(args);`. `require(condition, CustomError())` (available via IR in `^0.8.26`, stable in `^0.8.27`) is acceptable only when the file's pragma already targets that version and the rest of the file uses it. Do not bump pragma just to use it.
+Prefer `require(condition, CustomError(args));` in files whose pragma is `^0.8.27` or later (the first version supporting it in the legacy pipeline). Keep `if (!condition) revert CustomError(args);` when:
+
+- The file's pragma is lower. Do not bump pragma just to use `require`.
+- An error argument is anything other than a variable, constant, literal or cast of those. `require` evaluates its arguments even when the condition holds, so a function call, storage or member read costs gas on the success path, and checked arithmetic (e.g. `revert Exceeded(value - max)`) can panic instead of passing.
+- The check is part of an `if`/`else if` chain.
 
 Custom errors follow [ERC-6093](https://eips.ethereum.org/EIPS/eip-6093):
 
