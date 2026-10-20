@@ -300,7 +300,7 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        require(args.length <= 0x5fd3, CloneArgumentsTooLong());
+        require(args.length < 0x5fd4, CloneArgumentsTooLong());
         return
             abi.encodePacked(
                 hex"61",

@@ -115,7 +115,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     ) internal virtual override returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(support <= uint8(VoteType.Abstain), GovernorInvalidVoteType());
+        require(support <= uint8(type(VoteType).max), GovernorInvalidVoteType());
 
         require(proposalVote.voteReceipt[account].casted == 0, GovernorAlreadyCastVote(account));
 
@@ -134,7 +134,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(support <= uint8(VoteType.Abstain), GovernorInvalidVoteType());
+        require(support <= uint8(type(VoteType).max), GovernorInvalidVoteType());
 
         require(!proposalVote.voteReceipt[account].hasOverridden, GovernorAlreadyOverriddenVote(account));
 

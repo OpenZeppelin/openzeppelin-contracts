@@ -15,6 +15,8 @@ Prefer `require(condition, CustomError(args));` in files whose pragma is `^0.8.2
 - An error argument is anything other than a variable, constant, literal or cast of those. `require` evaluates its arguments even when the condition holds, so a function call, storage or member read costs gas on the success path, and checked arithmetic (e.g. `revert Exceeded(value - max)`) can panic instead of passing.
 - The check is part of an `if`/`else if` chain.
 
+When a condition compares against a literal or constant bound, prefer the strict operator: `require(x < 0x5fd4, ...)` rather than `require(x <= 0x5fd3, ...)`. The EVM has `LT`/`GT` but no `LTE`/`GTE`, so `<=` compiles to `ISZERO(GT(...))`. Don't rewrite a comparison against a variable bound this way: `x < max + 1` adds arithmetic that overflows at `type(uint256).max`.
+
 Custom errors follow [ERC-6093](https://eips.ethereum.org/EIPS/eip-6093):
 
 - **Domain prefix**: `ERC<number>` if the error violates an ERC spec; otherwise the component name (`Governor`, `ECDSA`, `Timelock`).
