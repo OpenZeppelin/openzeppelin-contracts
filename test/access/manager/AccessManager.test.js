@@ -145,7 +145,7 @@ describe('AccessManager', function () {
             const { immediate, delay } = await this.manager.canCall(
               this.other,
               this.target,
-              this.calldata.substring(0, 10),
+              ethers.dataSlice(this.calldata, 0, 4),
             );
             expect(immediate).to.be.false;
             expect(delay).to.equal(0n);
@@ -158,7 +158,7 @@ describe('AccessManager', function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
                   this.target,
-                  this.calldata.substring(0, 10),
+                  ethers.dataSlice(this.calldata, 0, 4),
                 );
                 expect(immediate).to.be.true;
                 expect(delay).to.equal(0n);
@@ -169,7 +169,7 @@ describe('AccessManager', function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
                   this.target,
-                  this.calldata.substring(0, 10),
+                  ethers.dataSlice(this.calldata, 0, 4),
                 );
                 expect(immediate).to.be.false;
                 expect(delay).to.equal(0n);
@@ -182,7 +182,7 @@ describe('AccessManager', function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
                   this.target,
-                  this.calldata.substring(0, 10),
+                  ethers.dataSlice(this.calldata, 0, 4),
                 );
                 expect(immediate).to.be.true;
                 expect(delay).to.equal(0n);
@@ -199,7 +199,7 @@ describe('AccessManager', function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
                           this.target,
-                          this.calldata.substring(0, 10),
+                          ethers.dataSlice(this.calldata, 0, 4),
                         );
                         expect(immediate).to.be.false;
                         expect(delay).to.equal(0n);
@@ -221,7 +221,7 @@ describe('AccessManager', function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
                                 this.target,
-                                this.calldata.substring(0, 10),
+                                ethers.dataSlice(this.calldata, 0, 4),
                               );
                               expect(immediate).to.be.false;
                               expect(delay).to.equal(this.executionDelay);
@@ -234,7 +234,7 @@ describe('AccessManager', function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
                                 this.target,
-                                this.calldata.substring(0, 10),
+                                ethers.dataSlice(this.calldata, 0, 4),
                               );
                               expect(immediate).to.be.false;
                               expect(delay).to.equal(this.executionDelay);
@@ -247,7 +247,7 @@ describe('AccessManager', function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
                                 this.target,
-                                this.calldata.substring(0, 10),
+                                ethers.dataSlice(this.calldata, 0, 4),
                               );
                               expect(immediate).to.be.false;
                               expect(delay).to.equal(this.executionDelay);
@@ -259,7 +259,7 @@ describe('AccessManager', function () {
                             const { immediate, delay } = await this.manager.canCall(
                               this.caller,
                               this.target,
-                              this.calldata.substring(0, 10),
+                              ethers.dataSlice(this.calldata, 0, 4),
                             );
                             expect(immediate).to.be.false;
                             expect(delay).to.equal(this.executionDelay);
@@ -276,7 +276,7 @@ describe('AccessManager', function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
                           this.target,
-                          this.calldata.substring(0, 10),
+                          ethers.dataSlice(this.calldata, 0, 4),
                         );
                         expect(immediate).to.be.false;
                         expect(delay).to.equal(0n);
@@ -289,7 +289,7 @@ describe('AccessManager', function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
                           this.target,
-                          this.calldata.substring(0, 10),
+                          ethers.dataSlice(this.calldata, 0, 4),
                         );
                         expect(immediate).to.be.true;
                         expect(delay).to.equal(0n);
@@ -303,7 +303,7 @@ describe('AccessManager', function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
                         this.target,
-                        this.calldata.substring(0, 10),
+                        ethers.dataSlice(this.calldata, 0, 4),
                       );
                       expect(immediate).to.be.false;
                       expect(delay).to.equal(this.executionDelay);
@@ -314,7 +314,7 @@ describe('AccessManager', function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
                         this.target,
-                        this.calldata.substring(0, 10),
+                        ethers.dataSlice(this.calldata, 0, 4),
                       );
                       expect(immediate).to.be.true;
                       expect(delay).to.equal(0n);
@@ -327,7 +327,7 @@ describe('AccessManager', function () {
                   const { immediate, delay } = await this.manager.canCall(
                     this.caller,
                     this.target,
-                    this.calldata.substring(0, 10),
+                    ethers.dataSlice(this.calldata, 0, 4),
                   );
                   expect(immediate).to.be.false;
                   expect(delay).to.equal(0n);
@@ -1821,7 +1821,7 @@ describe('AccessManager', function () {
             });
             await expect(schedule())
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-              .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+              .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
           });
         },
         open: {
@@ -1839,7 +1839,7 @@ describe('AccessManager', function () {
                 });
                 await expect(schedule())
                   .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                  .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                  .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
               });
             },
           },
@@ -1849,7 +1849,7 @@ describe('AccessManager', function () {
                 // prepareOperation is not used here because it alters the next block timestamp
                 await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                   .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                  .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                  .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
               });
             },
             specificRoleIsRequired: {
@@ -1861,7 +1861,7 @@ describe('AccessManager', function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                          .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                          .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                       });
                     },
                     afterGrantDelay() {
@@ -1877,7 +1877,7 @@ describe('AccessManager', function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                          .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                          .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                       });
                     },
                     afterGrantDelay() {
@@ -1885,7 +1885,7 @@ describe('AccessManager', function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                          .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                          .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                       });
                     },
                   },
@@ -1908,7 +1908,7 @@ describe('AccessManager', function () {
                       // prepareOperation is not used here because it alters the next block timestamp
                       await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                        .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                        .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                     });
                   },
                 },
@@ -1923,7 +1923,7 @@ describe('AccessManager', function () {
                   });
                   await expect(schedule())
                     .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                    .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                    .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                 });
               },
             },
@@ -2016,7 +2016,7 @@ describe('AccessManager', function () {
 
       await expect(schedule())
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-        .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+        .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
     });
 
     it('reverts if an operation is already schedule', async function () {
@@ -2097,7 +2097,7 @@ describe('AccessManager', function () {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
             await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-              .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+              .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
           });
         },
         open: {
@@ -2111,7 +2111,7 @@ describe('AccessManager', function () {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
                 await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                   .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                  .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                  .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
               });
             },
           },
@@ -2129,7 +2129,7 @@ describe('AccessManager', function () {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                          .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                          .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                       });
                     },
                     afterGrantDelay: function self() {
@@ -2147,7 +2147,7 @@ describe('AccessManager', function () {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                          .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                          .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                       });
                     },
                     afterGrantDelay: function self() {
@@ -2178,7 +2178,7 @@ describe('AccessManager', function () {
                 it('reverts as AccessManagerUnauthorizedCall', async function () {
                   await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                     .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-                    .withArgs(this.caller, this.target, this.calldata.substring(0, 10));
+                    .withArgs(this.caller, this.target, ethers.dataSlice(this.calldata, 0, 4));
                 });
               },
             },

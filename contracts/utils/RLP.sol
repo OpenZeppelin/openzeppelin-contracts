@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/RLP.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {Bytes} from "./Bytes.sol";
 import {Math} from "./math/Math.sol";
