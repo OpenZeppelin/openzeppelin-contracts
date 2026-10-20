@@ -47,6 +47,8 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
     empty: () => '0x',
     unparsable: () => '0xdeadbeef',
     padded: admin => ethers.concat([chain.toErc7930(admin), '0x00']),
+    'chain-only': () => chain.erc7930,
+    'evm with 32-byte address': admin => chain.toErc7930(ethers.zeroPadValue(admin.address, 32)),
   })) {
     it(`rejects ${name} controller at construction`, async function () {
       const invalid = controller(this.admin);
@@ -131,6 +133,8 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
     for (const [name, controller] of Object.entries({
       unparsable: () => '0xdeadbeef',
       padded: admin => ethers.concat([chain.toErc7930(admin), '0x00']),
+      'chain-only': () => chain.erc7930,
+      'evm with 32-byte address': admin => chain.toErc7930(ethers.zeroPadValue(admin.address, 32)),
     })) {
       it(`through a crosschain call with ${name} controller: revert`, async function () {
         const invalid = controller(this.admin);

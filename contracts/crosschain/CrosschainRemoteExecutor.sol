@@ -64,8 +64,12 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
         // supportsAttribute returns data, accounts without code would fail that test (nothing returned).
         IERC7786GatewaySource(gateway_).supportsAttribute(bytes4(0));
 
-        // try parsing the controller interoperable address in strict: ensures it is a valid interoperable address
-        InteroperableAddress.parseV1(controller_, true);
+        // Reject any controller that could never match a sender reported by the gateway (see _isAuthorizedGateway).
+        (bytes2 chainType, , bytes memory addr) = InteroperableAddress.parseV1(controller_, true);
+        require(
+            InteroperableAddress.isValidAddressLength(chainType, addr),
+            InteroperableAddress.InteroperableAddressParsingError(controller_)
+        );
 
         _gateway = gateway_;
         _controller = controller_;
