@@ -103,21 +103,18 @@ abstract contract ERC7535 is ERC4626 {
      */
     function mint(uint256 shares, address receiver) public payable virtual override returns (uint256) {
         uint256 assets = super.mint(shares, receiver);
-        if (msg.value > assets) {
+        if (msg.value < assets) {
+            revert ERC7535InsufficientNativeValue(msg.value, assets);
+        } else if (msg.value > assets) {
             _transferOut(_msgSender(), msg.value - assets);
         }
         return assets;
     }
 
     /**
-     * @dev See {ERC4626-_checkNativeValue}. Requires `msg.value` to cover `assets`. On {deposit}, `assets` is
-     * `msg.value`, so the check always passes.
+     * @dev See {ERC4626-_checkNativeValue}. Message value is processed in {deposit} and {mint} overrides. Disabling the "no-value" check for {ERC4626}.
      */
-    function _checkNativeValue(uint256 assets) internal view virtual override {
-        if (msg.value < assets) {
-            revert ERC7535InsufficientNativeValue(msg.value, assets);
-        }
-    }
+    function _checkNativeValue(uint256 assets) internal view virtual override {}
 
     /// @dev No-op: the native asset has already been received as `msg.value`. See {ERC4626-_transferIn}.
     function _transferIn(address /* from */, uint256 /* assets */) internal virtual override {}
