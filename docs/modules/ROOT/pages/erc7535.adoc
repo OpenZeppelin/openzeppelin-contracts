@@ -63,7 +63,7 @@ Sending the native asset out uses a low-level `call` via xref:api:utils.adoc#Add
 
 == Plain native-asset transfers
 
-Value must enter the vault through the standardized `deposit` or `mint` entry points so it is matched with newly issued shares. `ERC7535` does not implement a `receive()` or `fallback()` function, so plain `.transfer`, `.send` or `call{value: x}("")` to the vault revert instead of being silently absorbed as a donation that would skew the next deposit's exchange rate.
+Value must enter the vault through the standardized `deposit` or `mint` entry points so it is matched with newly issued shares. `ERC7535` does not implement a `receive()` or `fallback()` function, so a plain native-asset transfer to the vault fails: `.transfer` reverts, and `.send` or `call{value: x}("")` return `false`. The value is never silently absorbed as a donation that would skew the next deposit's exchange rate.
 
 An integrator whose vault must accept plain native-asset payments — for example a rewards distributor that pays the vault periodically on a chain without beacon-layer withdrawals — can add a `receive()` function, accepting that such payments raise the share price for existing holders like a donation.
 
