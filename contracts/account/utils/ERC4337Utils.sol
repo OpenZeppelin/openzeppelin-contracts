@@ -346,7 +346,7 @@ library ERC4337Utils {
         uint256 length = self.paymasterAndData.length;
         return
             length > 61 && bytes8(self.paymasterAndData[length - 8:]) == PAYMASTER_SIG_MAGIC
-                ? uint16(bytes2(self.paymasterAndData[length - 10:length - 8]))
+                ? uint16(bytes2(self.paymasterAndData[length - 10:]))
                 : 0;
     }
 }
