@@ -70,7 +70,13 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
         IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        bytes memory chain = _extractChain(counterpart);
+        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = counterpart.parseV1();
+        require(
+            InteroperableAddress.isValidAddressLength(chainType, addr),
+            InteroperableAddress.InteroperableAddressParsingError(counterpart)
+        );
+
+        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
         if (allowOverride || _links[chain].gateway == address(0)) {
             _links[chain] = Link(gateway, counterpart);
             emit LinkRegistered(gateway, counterpart);
@@ -98,16 +104,11 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         address instance,
         bytes calldata sender
     ) internal view virtual override returns (bool) {
-        (address gateway, bytes memory router) = getLink(_extractChainCalldata(sender));
+        (address gateway, bytes memory router) = getLink(_extractChain(sender));
         return instance == gateway && sender.equal(router);
     }
 
-    function _extractChain(bytes memory self) private pure returns (bytes memory) {
-        (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();
-        return InteroperableAddress.formatV1(chainType, chainReference, hex"");
-    }
-
-    function _extractChainCalldata(bytes calldata self) private pure returns (bytes memory) {
+    function _extractChain(bytes calldata self) private pure returns (bytes memory) {
         (bytes2 chainType, bytes calldata chainReference, ) = self.parseV1Calldata();
         return InteroperableAddress.formatV1(chainType, chainReference, hex"");
     }
