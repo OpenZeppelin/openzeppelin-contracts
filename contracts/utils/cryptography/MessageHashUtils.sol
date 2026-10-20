@@ -14,8 +14,7 @@ import {Strings} from "../Strings.sol";
  */
 library MessageHashUtils {
     /**
-     * @dev The `fields` bitmap sets a bit that is not supported: the ERC-5267 extensions bit (`0x20`)
-     * or one of the bits the standard leaves undefined (`0x40` and `0x80`).
+     * @dev The `fields` bitmap sets one of the bits that ERC-5267 does not define (`0x20`, `0x40` or `0x80`).
      */
     error ERC5267UnsupportedFields(bytes1 fields);
 
@@ -117,6 +116,10 @@ library MessageHashUtils {
      *
      * Arguments that correspond to fields which are not present in `fields` are ignored. For example, if `fields` is
      * `0x0f` (`0b01111`), then the `salt` parameter is ignored.
+     *
+     * Requirements:
+     *
+     * * The `fields` argument is not over `0x1f`. Reverts with {ERC5267UnsupportedFields} otherwise.
      */
     function toDomainSeparator(
         bytes1 fields,
