@@ -4,7 +4,6 @@
 
 - `BridgeFungible`, `BridgeNonFungible` and `BridgeMultiToken`: Reject crosschain transfers to a destination whose address has an invalid length for its chain type. The `CrosschainFungibleEmptyAddress`, `CrosschainNonFungibleEmptyAddress` and `CrosschainMultiTokenEmptyAddress` errors have been renamed to `CrosschainFungibleInvalidAddress`, `CrosschainNonFungibleInvalidAddress` and `CrosschainMultiTokenInvalidAddress`, and are also triggered for invalid lengths. ([#6789](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6789))
 
-
 ## 5.7.0 (2026-07-29)
 
 ### Breaking changes
