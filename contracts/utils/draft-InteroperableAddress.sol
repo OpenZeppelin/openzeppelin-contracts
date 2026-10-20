@@ -216,6 +216,35 @@ library InteroperableAddress {
                 : (false, 0, address(0));
     }
 
+    /**
+     * @dev Checks that an address of `length` bytes matches the address format of `chainType`, as defined by
+     * CAIP-350. EVM addresses (chain type `0x0000`) must be 20 bytes long, and Solana addresses (chain type `0x0002`)
+     * must be 32 bytes long.
+     *
+     * For any other chain type, the exact format cannot be verified, so any non-zero `length` is accepted.
+     *
+     * NOTE: This function returns `false` for a zero `length`, whatever the chain type, even though ERC-7930 allows
+     * interoperable addresses that only specify a chain.
+     */
+    function isValidAddressLength(bytes2 chainType, uint256 length) internal pure returns (bool) {
+        return
+            chainType == 0x0000
+                ? length == 20 // EVM
+                : chainType == 0x0002
+                    ? length == 32 // Solana
+                    : length > 0; // unknown chain type, only check that the address is not empty
+    }
+
+    /// @dev Variant of {isValidAddressLength-bytes2-uint256-} that checks the length of `addr`.
+    function isValidAddressLength(bytes2 chainType, bytes memory addr) internal pure returns (bool) {
+        return isValidAddressLength(chainType, addr.length);
+    }
+
+    /// @dev Variant of {isValidAddressLength-bytes2-bytes-} that handles calldata slices.
+    function isValidAddressLengthCalldata(bytes2 chainType, bytes calldata addr) internal pure returns (bool) {
+        return isValidAddressLength(chainType, addr.length);
+    }
+
     function _toChainReference(uint256 chainid) private pure returns (bytes memory) {
         unchecked {
             // length fits in a uint8: log256(type(uint256).max) is 31
