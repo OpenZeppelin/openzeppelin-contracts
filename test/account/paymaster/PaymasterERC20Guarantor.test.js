@@ -1,4 +1,4 @@
-import { network, globalOptions } from 'hardhat';
+import { network } from 'hardhat';
 import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
@@ -159,10 +159,8 @@ describe('PaymasterERC20Guarantor', function () {
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
       // Two signature checks (oracle + guarantor) + transferFrom pushes
-      // past the 100k default under coverage instrumentation.
-      if (globalOptions.coverage) {
-        this.userOp.paymasterVerificationGasLimit = 200_000n;
-      }
+      // past the 100k default in the upgradeable build and under coverage instrumentation.
+      this.userOp.paymasterVerificationGasLimit = 200_000n;
     });
 
     describe('succeeds paying with ERC20 tokens', function () {
