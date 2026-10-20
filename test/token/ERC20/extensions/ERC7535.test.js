@@ -112,6 +112,35 @@ describe('ERC7535', function () {
         .withArgs(balance + cost, supply + shares, extra);
     });
 
+    describe('totalAssets seen by a _deposit override on an overpaid mint', function () {
+      beforeEach(async function () {
+        this.vault = await ethers.deployContract('$ERC7535DepositHookMock', [name, symbol]);
+      });
+
+      it('is the pre-deposit balance', async function () {
+        await this.vault.connect(this.holder).deposit(0n, this.holder, { value: ethers.parseEther('1') });
+
+        const shares = ethers.parseEther('1');
+        const cost = await this.vault.previewMint(shares);
+        const extra = ethers.parseEther('0.5');
+        const pre = await this.vault.totalAssets();
+
+        await expect(this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost + extra }))
+          .to.emit(this.vault, 'TotalAssetsAfterDeposit')
+          .withArgs(pre);
+      });
+
+      it('does not underflow on an empty vault', async function () {
+        const shares = ethers.parseEther('1');
+        const cost = await this.vault.previewMint(shares);
+        const extra = ethers.parseEther('0.5');
+
+        await expect(this.vault.connect(this.holder).mint(shares, this.recipient, { value: cost + extra }))
+          .to.emit(this.vault, 'TotalAssetsAfterDeposit')
+          .withArgs(0n);
+      });
+    });
+
     it('redeem burns shares before sending value to reentrant receivers', async function () {
       const reentrant = await ethers.deployContract('ERC7535ReentrantMock');
       await this.vault.connect(this.holder).deposit(0n, this.holder, { value: ethers.parseEther('1') });
