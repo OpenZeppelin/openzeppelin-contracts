@@ -95,16 +95,6 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /**
-     * @dev See {ERC4626-_checkNativeValue}. Requires `msg.value` to cover `assets`. On {deposit}, `assets` is
-     * `msg.value`, so the check always passes.
-     */
-    function _checkNativeValue(uint256 assets) internal view virtual override {
-        if (msg.value < assets) {
-            revert ERC7535InsufficientNativeValue(msg.value, assets);
-        }
-    }
-
-    /**
      * @inheritdoc IERC4626
      *
      * @dev Refunds any `msg.value` in excess of the returned `assets` to the caller. The refund runs after
@@ -117,6 +107,16 @@ abstract contract ERC7535 is ERC4626 {
             _transferOut(_msgSender(), msg.value - assets);
         }
         return assets;
+    }
+
+    /**
+     * @dev See {ERC4626-_checkNativeValue}. Requires `msg.value` to cover `assets`. On {deposit}, `assets` is
+     * `msg.value`, so the check always passes.
+     */
+    function _checkNativeValue(uint256 assets) internal view virtual override {
+        if (msg.value < assets) {
+            revert ERC7535InsufficientNativeValue(msg.value, assets);
+        }
     }
 
     /// @dev No-op: the native asset has already been received as `msg.value`. See {ERC4626-_transferIn}.
