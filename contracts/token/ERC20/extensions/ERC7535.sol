@@ -39,9 +39,9 @@ import {ERC4626} from "./ERC4626.sol";
  * the {ERC4626} documentation for the underlying math.
  *
  * A native asset vault can additionally be force-fed value (e.g. through `SELFDESTRUCT` or block-reward
- * payments), even though plain transfers to the vault fail (the contract has no `receive` or `fallback` function). Because
- * {totalAssets} is balance-based it tracks such donations exactly as a direct ERC-20 transfer would for {ERC4626};
- * the virtual-offset math is the defense.
+ * payments), even though plain transfers to the vault fail (the contract has no `receive` or `fallback`
+ * function). Because {totalAssets} is balance-based it tracks such donations exactly as a direct ERC-20 transfer
+ * would for {ERC4626}; the virtual-offset math is the defense.
  * ====
  *
  * NOTE: `deposit(assets, receiver)` deposits the entire `msg.value` and mints `previewDeposit(msg.value)` shares,
