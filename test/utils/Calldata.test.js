@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { CALLDATA_ARRAY_TYPES } from '../../scripts/generate/data.js';
 
 const {
   ethers,
@@ -22,4 +23,10 @@ describe('Calldata utilities', function () {
   it('emptyString', async function () {
     await expect(this.mock.$emptyString()).to.eventually.equal('');
   });
+
+  for (const { name } of CALLDATA_ARRAY_TYPES) {
+    it(`empty${name}Array`, async function () {
+      await expect(this.mock[`$empty${name}Array`]()).to.eventually.deep.equal([]);
+    });
+  }
 });

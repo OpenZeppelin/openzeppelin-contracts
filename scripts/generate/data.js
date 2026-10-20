@@ -101,3 +101,7 @@ export const SAFECAST_LENGTHS = Array.from({ length: 31 }, (_, i) => 248 - i * 8
 
 // ─── Slot family (StorageSlot, TransientSlot, SlotDerivation, and their mocks/tests) ───
 export const SLOT_TYPES = Object.values(TYPES).filter(type => !type.upcastTo);
+
+// ─── Calldata (Calldata + Calldata.t) ───
+export const CALLDATA_TYPES = [TYPES.bytes, TYPES.string]; // dynamic types that have an empty calldata value
+export const CALLDATA_ARRAY_TYPES = ARRAYS_TYPES; // element types of the dynamic arrays that have an empty calldata value
