@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (metatx/ERC2771Forwarder.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Address} from "../utils/Address.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
@@ -12,6 +12,9 @@ import {ERC2771Context} from "./ERC2771Context.sol";
 
 /**
  * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
+ *
+ * IMPORTANT: Deprecated. The ERC-2771 meta-transaction stack ({ERC2771Context} and this forwarder) is removed in
+ * v6.0. Consider adopting alternatives such as ERC-4337 account abstraction.
  *
  * This forwarder operates on forward requests that include:
  *
