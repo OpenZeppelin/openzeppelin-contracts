@@ -40,7 +40,7 @@ ERC-4626's `deposit` and `mint` are declared `payable` on `IERC4626` (this does 
 
 * `_enablePayableDeposit()`: whether native value is accepted. The `ERC4626` default returns `false`, so `deposit` and `mint` revert on any `msg.value`; `ERC7535` overrides it to return `true`. A plain ERC-20 vault is therefore unchanged: it still rejects native value.
 * `_transferIn` / `_transferOut`: `ERC7535` makes `_transferIn` a no-op (the value already arrived as `msg.value`) and routes `_transferOut` through `Address.sendValue`.
-* `mint`: `ERC7535` refunds any excess `msg.value` after `_deposit` returns. See <<msg-value-requirement>>.
+* `mint`: `ERC7535` refunds any excess `msg.value` after `_deposit` returns, through a dedicated `_refund` internal function rather than `_transferOut`, so that custom payout logic (such as unstaking before sending) does not apply to value that never became vault assets. See <<msg-value-requirement>>.
 
 == Accounting and `msg.value`
 

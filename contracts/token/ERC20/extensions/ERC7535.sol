@@ -98,16 +98,16 @@ abstract contract ERC7535 is ERC4626 {
      * @inheritdoc IERC4626
      *
      * @dev Reverts with {ERC7535InsufficientNativeValue} if `msg.value` is below the returned `assets`, and refunds
-     * any excess to the caller. The refund runs after {_deposit} returns, so a {_deposit} override sees the
-     * pre-deposit {totalAssets}, and a reentrant call during the refund sees a {totalAssets} and {totalSupply} that
-     * both account for this deposit.
+     * any excess to the caller through {_refund}. The refund runs after {_deposit} returns, so a {_deposit} override
+     * sees the pre-deposit {totalAssets}, and a reentrant call during the refund sees a {totalAssets} and
+     * {totalSupply} that both account for this deposit.
      */
     function mint(uint256 shares, address receiver) public payable virtual override returns (uint256) {
         uint256 assets = super.mint(shares, receiver);
         if (msg.value < assets) {
             revert ERC7535InsufficientNativeValue(msg.value, assets);
         } else if (msg.value > assets) {
-            _transferOut(_msgSender(), msg.value - assets);
+            _refund(_msgSender(), msg.value - assets);
         }
         return assets;
     }
@@ -124,6 +124,14 @@ abstract contract ERC7535 is ERC4626 {
     /// {ERC4626-_transferOut}.
     function _transferOut(address to, uint256 assets) internal virtual override {
         Address.sendValue(payable(to), assets);
+    }
+
+    /// @dev Sends back native value that was received but never became vault assets, such as the excess
+    /// `msg.value` of a {mint}. Kept separate from {_transferOut} so that custom payout logic (e.g. unstaking
+    /// assets before sending them) does not apply to refunds. Uses `Address.sendValue`, which forwards all
+    /// remaining gas.
+    function _refund(address to, uint256 value) internal virtual {
+        Address.sendValue(payable(to), value);
     }
 
     // `msg.value` cannot be read directly in a non-payable public function such as {totalAssets}.
