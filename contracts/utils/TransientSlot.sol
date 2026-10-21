@@ -46,6 +46,12 @@ pragma solidity ^0.8.24;
  * }
  * ```
  *
+ * NOTE: A reserved slot follows the persistent storage layout. It moves if state variables are added, removed or
+ * reordered, so it fits transient values private to the contract that declares it, not values that several contracts
+ * (or several facets of a diamond) must agree on. The value is held at the bitwise complement of the reserved slot,
+ * which keeps reservations clear of native `transient` state variables: the compiler allocates those in a separate
+ * layout starting at slot 0, while the complements grow down from the top of the transient space.
+ *
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library TransientSlot {
@@ -56,9 +62,6 @@ library TransientSlot {
      * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
      * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
      * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
-     *
-     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
-     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TAddress {
         bytes32 _placeholder;
@@ -83,9 +86,6 @@ library TransientSlot {
      * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
      * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
      * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
-     *
-     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
-     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TBoolean {
         bytes32 _placeholder;
@@ -110,9 +110,6 @@ library TransientSlot {
      * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
      * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
      * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
-     *
-     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
-     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TBytes32 {
         bytes32 _placeholder;
@@ -137,9 +134,6 @@ library TransientSlot {
      * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
      * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
      * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
-     *
-     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
-     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TUint256 {
         bytes32 _placeholder;
@@ -164,9 +158,6 @@ library TransientSlot {
      * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
      * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
      * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
-     *
-     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
-     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TInt256 {
         bytes32 _placeholder;
