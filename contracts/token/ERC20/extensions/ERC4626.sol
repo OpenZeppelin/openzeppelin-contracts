@@ -322,6 +322,13 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return false;
     }
 
+    /**
+     * @dev Offset between the decimals of the underlying asset and those of the vault shares. See the contract-level
+     * documentation on inflation attacks.
+     *
+     * NOTE: The conversion math computes `10 ** _decimalsOffset()`, which overflows from an offset of 78 onwards.
+     * Overrides must return at most 77, otherwise every deposit, mint, preview and conversion reverts.
+     */
     function _decimalsOffset() internal view virtual returns (uint8) {
         return 0;
     }

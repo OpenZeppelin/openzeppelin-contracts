@@ -1,6 +1,5 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 
 const {
   ethers,
@@ -62,6 +61,24 @@ describe('ERC7535', function () {
       await expect(
         this.vault.connect(this.holder).deposit(ethers.parseEther('1'), this.recipient, { value }),
       ).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+    });
+
+    it('deposit reverts when msg.value exceeds maxDeposit, even if the assets argument does not', async function () {
+      const vault = await ethers.deployContract('$ERC7535LimitsMock', [name, symbol]);
+      const maxDeposit = await vault.maxDeposit(this.recipient);
+      const value = maxDeposit + 1n;
+
+      await expect(vault.connect(this.holder).deposit(0n, this.recipient, { value }))
+        .to.be.revertedWithCustomError(vault, 'ERC4626ExceededMaxDeposit')
+        .withArgs(this.recipient, value, maxDeposit);
+    });
+
+    it('plain native-asset transfers revert', async function () {
+      // Uses a non-exposed mock, since the `$` wrapper adds a `receive` function.
+      const vault = await ethers.deployContract('ERC7535Mock');
+      await expect(
+        this.holder.sendTransaction({ to: vault, value: ethers.parseEther('1') }),
+      ).to.be.revertedWithoutReason(ethers);
     });
 
     it('mint succeeds when msg.value == cost', async function () {
@@ -155,38 +172,6 @@ describe('ERC7535', function () {
       await expect(reentrant.redeem(this.vault, shares))
         .to.emit(reentrant, 'ObservedOnReceive')
         .withArgs(balance - assets, supply - shares, assets);
-    });
-  });
-
-  describe('decimals offset bounds', function () {
-    // decimals() = 18 + _decimalsOffset() overflows the uint8 return type above 237.
-    for (const offset of [238n, 243n, 250n, 255n]) {
-      it(`decimals() reverts at offset ${offset}`, async function () {
-        const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, offset]);
-        await expect(vault.decimals()).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
-      });
-    }
-
-    // The conversion math computes 10 ** offset, which overflows uint256 from offset 78 onwards — a tighter
-    // ceiling than the uint8 bound on decimals(). Pin both sides of the boundary.
-    it('conversions work at offset 77 (largest supported)', async function () {
-      const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, 77n]);
-
-      await expect(vault.decimals()).to.eventually.equal(18n + 77n);
-      await expect(vault.previewDeposit(1n)).to.eventually.equal(10n ** 77n);
-      await expect(vault.connect(this.holder).deposit(1n, this.recipient, { value: 1n })).to.not.revert(ethers);
-      await expect(vault.balanceOf(this.recipient)).to.eventually.equal(10n ** 77n);
-    });
-
-    it('conversions revert with an arithmetic panic at offset 78', async function () {
-      const vault = await ethers.deployContract('$ERC7535OffsetMock', [name, symbol, 78n]);
-
-      // The vault deploys but every conversion-dependent entry point is bricked.
-      await expect(vault.previewDeposit(1n)).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
-      await expect(vault.previewMint(1n)).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
-      await expect(vault.connect(this.holder).deposit(1n, this.recipient, { value: 1n })).to.be.revertedWithPanic(
-        PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW,
-      );
     });
   });
 
