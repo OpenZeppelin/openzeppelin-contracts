@@ -131,9 +131,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     constructor(address initialAdmin) {
-        if (initialAdmin == address(0)) {
-            revert AccessManagerInvalidInitialAdmin(address(0));
-        }
+        require(initialAdmin != address(0), AccessManagerInvalidInitialAdmin(address(0)));
 
         // admin is active immediately and without any execution delay.
         _grantRole(ADMIN_ROLE, initialAdmin, 0, 0);
@@ -233,9 +231,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // =============================================== ROLE MANAGEMENT ===============================================
     /// @inheritdoc IAccessManager
     function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
         emit RoleLabel(roleId, label);
     }
 
@@ -251,9 +247,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
-        if (callerConfirmation != _msgSender()) {
-            revert AccessManagerBadConfirmation();
-        }
+        require(callerConfirmation == _msgSender(), AccessManagerBadConfirmation());
         _revokeRole(roleId, callerConfirmation);
     }
 
@@ -283,9 +277,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 grantDelay,
         uint32 executionDelay
     ) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         bool newMember = _roles[roleId].members[account].since == 0;
         uint48 since;
@@ -313,9 +305,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleRevoked} event if the account had the role.
      */
     function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         if (_roles[roleId].members[account].since == 0) {
             return false;
@@ -336,9 +326,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * anyone to grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].admin = admin;
 
@@ -354,9 +342,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * anyone to cancel any scheduled operation for such role.
      */
     function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].guardian = guardian;
 
@@ -369,9 +355,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleGrantDelayChanged} event.
      */
     function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         uint48 effect;
         (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
@@ -397,11 +381,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
-        if (selector == IAccessManaged.setAuthority.selector) {
-            // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
-            // ensure the proper delay and admin restrictions are applied.
-            revert AccessManagerLockedFunction(selector);
-        }
+        // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
+        // ensure the proper delay and admin restrictions are applied.
+        require(selector != IAccessManaged.setAuthority.selector, AccessManagerLockedFunction(selector));
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
@@ -495,9 +477,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkNotScheduled(bytes32 operationId) private view {
         uint48 prevTimepoint = _schedules[operationId].timepoint;
-        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
-            revert AccessManagerAlreadyScheduled(operationId);
-        }
+        require(prevTimepoint == 0 || _isExpired(prevTimepoint), AccessManagerAlreadyScheduled(operationId));
     }
 
     /// @inheritdoc IAccessManager
@@ -559,9 +539,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
-            revert AccessManagerUnauthorizedConsume(target);
-        }
+        require(
+            IAccessManaged(target).isConsumingScheduledOp() == IAccessManaged.isConsumingScheduledOp.selector,
+            AccessManagerUnauthorizedConsume(target)
+        );
         _consumeScheduledOp(hashOperation(caller, target, data));
     }
 

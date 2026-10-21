@@ -140,9 +140,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        if (!_execute(request, true)) {
-            revert Errors.FailedCall();
-        }
+        require(_execute(request, true), Errors.FailedCall());
     }
 
     /**
@@ -184,14 +182,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         // The batch should revert if there's a mismatched msg.value provided
         // to avoid request value tampering
-        if (requestsValue != msg.value) {
-            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
-        }
+        require(requestsValue == msg.value, ERC2771ForwarderMismatchedValue(requestsValue, msg.value));
 
         // Some requests with value were invalid (possibly due to frontrunning).
         // To avoid leaving ETH in the contract, this value is refunded.
         if (refundValue != 0) {
-            if (requireValidRequests) revert ERC2771ForwarderNoRefundReceiver();
+            require(!requireValidRequests, ERC2771ForwarderNoRefundReceiver());
 
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance

@@ -50,9 +50,7 @@ abstract contract ERC20Votes is ERC20, Votes {
         if (from == address(0)) {
             uint256 supply = totalSupply();
             uint256 cap = _maxSupply();
-            if (supply > cap) {
-                revert ERC20ExceededSafeSupply(supply, cap);
-            }
+            require(supply <= cap, ERC20ExceededSafeSupply(supply, cap));
         }
         _transferVotingUnits(from, to, value);
     }

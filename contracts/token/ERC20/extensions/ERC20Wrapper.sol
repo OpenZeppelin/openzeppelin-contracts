@@ -28,9 +28,7 @@ abstract contract ERC20Wrapper is ERC20 {
     error ERC20InvalidUnderlying(address token);
 
     constructor(IERC20 underlyingToken) {
-        if (address(underlyingToken) == address(this)) {
-            revert ERC20InvalidUnderlying(address(this));
-        }
+        require(address(underlyingToken) != address(this), ERC20InvalidUnderlying(address(this)));
         _underlying = underlyingToken;
     }
 
@@ -58,12 +56,8 @@ abstract contract ERC20Wrapper is ERC20 {
      */
     function depositFor(address account, uint256 value) public virtual returns (bool) {
         address sender = _msgSender();
-        if (sender == address(this)) {
-            revert ERC20InvalidSender(address(this));
-        }
-        if (account == address(this)) {
-            revert ERC20InvalidReceiver(account);
-        }
+        require(sender != address(this), ERC20InvalidSender(address(this)));
+        require(account != address(this), ERC20InvalidReceiver(account));
         SafeERC20.safeTransferFrom(_underlying, sender, address(this), value);
         _mint(account, value);
         return true;
@@ -73,9 +67,7 @@ abstract contract ERC20Wrapper is ERC20 {
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
      */
     function withdrawTo(address account, uint256 value) public virtual returns (bool) {
-        if (account == address(this)) {
-            revert ERC20InvalidReceiver(account);
-        }
+        require(account != address(this), ERC20InvalidReceiver(account));
         _burn(_msgSender(), value);
         SafeERC20.safeTransfer(_underlying, account, value);
         return true;

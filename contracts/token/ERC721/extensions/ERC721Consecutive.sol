@@ -106,17 +106,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
-            if (address(this).code.length > 0) {
-                revert ERC721ForbiddenBatchMint();
-            }
-            if (to == address(0)) {
-                revert ERC721InvalidReceiver(address(0));
-            }
+            require(address(this).code.length == 0, ERC721ForbiddenBatchMint());
+            require(to != address(0), ERC721InvalidReceiver(address(0)));
 
             uint256 maxBatchSize = _maxBatchSize();
-            if (batchSize > maxBatchSize) {
-                revert ERC721ExceededMaxBatchMint(batchSize, maxBatchSize);
-            }
+            require(batchSize <= maxBatchSize, ERC721ExceededMaxBatchMint(batchSize, maxBatchSize));
 
             // push an ownership checkpoint & emit event
             uint96 last = next + batchSize - 1;
@@ -142,9 +136,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address previousOwner = super._update(to, tokenId, auth);
 
         // only mint after construction
-        if (previousOwner == address(0) && address(this).code.length == 0) {
-            revert ERC721ForbiddenMint();
-        }
+        require(previousOwner != address(0) || address(this).code.length > 0, ERC721ForbiddenMint());
 
         // record burn
         if (
