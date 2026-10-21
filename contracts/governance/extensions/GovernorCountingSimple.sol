@@ -76,9 +76,7 @@ abstract contract GovernorCountingSimple is Governor {
     ) internal virtual override returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        if (proposalVote.hasVoted[account]) {
-            revert GovernorAlreadyCastVote(account);
-        }
+        require(!proposalVote.hasVoted[account], GovernorAlreadyCastVote(account));
         proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {

@@ -88,9 +88,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual {
         uint256 denominator = quorumDenominator();
-        if (newQuorumNumerator > denominator) {
-            revert GovernorInvalidQuorumFraction(newQuorumNumerator, denominator);
-        }
+        require(newQuorumNumerator <= denominator, GovernorInvalidQuorumFraction(newQuorumNumerator, denominator));
 
         uint256 oldQuorumNumerator = quorumNumerator();
         _quorumNumeratorHistory.push(clock(), SafeCast.toUint208(newQuorumNumerator));

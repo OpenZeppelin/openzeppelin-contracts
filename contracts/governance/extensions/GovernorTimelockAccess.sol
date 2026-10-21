@@ -142,9 +142,7 @@ abstract contract GovernorTimelockAccess is Governor {
      */
     function _setAccessManagerIgnored(address target, bytes4 selector, bool ignored) internal virtual {
         bool isGovernor = target == address(this);
-        if (isGovernor && selector == this.setAccessManagerIgnored.selector) {
-            revert GovernorLockedIgnore();
-        }
+        require(!isGovernor || selector != this.setAccessManagerIgnored.selector, GovernorLockedIgnore());
         _ignoreToggle[target][selector] = ignored != isGovernor; // equivalent to: isGovernor ? !ignored : ignored
         emit AccessManagerIgnoredSet(target, selector, ignored);
     }
@@ -255,9 +253,7 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes32 /* descriptionHash */
     ) internal virtual override {
         uint48 etaSeconds = SafeCast.toUint48(proposalEta(proposalId));
-        if (block.timestamp < etaSeconds) {
-            revert GovernorUnmetDelay(proposalId, etaSeconds);
-        }
+        require(block.timestamp >= etaSeconds, GovernorUnmetDelay(proposalId, etaSeconds));
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
@@ -265,9 +261,10 @@ abstract contract GovernorTimelockAccess is Governor {
             (bool controlled, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
             if (controlled) {
                 uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
-                if (withDelay && executedNonce != nonce) {
-                    revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
-                }
+                require(
+                    !withDelay || executedNonce == nonce,
+                    GovernorMismatchedNonce(proposalId, nonce, executedNonce)
+                );
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
                 Address.verifyCallResult(success, returndata);

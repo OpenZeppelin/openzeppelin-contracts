@@ -40,9 +40,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
     /// @inheritdoc IERC721Enumerable
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
-        if (index >= balanceOf(owner)) {
-            revert ERC721OutOfBoundsIndex(owner, index);
-        }
+        require(index < balanceOf(owner), ERC721OutOfBoundsIndex(owner, index));
         return _ownedTokens[owner][index];
     }
 
@@ -53,9 +51,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
     /// @inheritdoc IERC721Enumerable
     function tokenByIndex(uint256 index) public view virtual returns (uint256) {
-        if (index >= totalSupply()) {
-            revert ERC721OutOfBoundsIndex(address(0), index);
-        }
+        require(index < totalSupply(), ERC721OutOfBoundsIndex(address(0), index));
         return _allTokens[index];
     }
 
@@ -157,9 +153,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * extension does not support it.
      */
     function _increaseBalance(address account, uint128 amount) internal virtual override {
-        if (amount > 0) {
-            revert ERC721EnumerableForbiddenBatchMint();
-        }
+        require(amount == 0, ERC721EnumerableForbiddenBatchMint());
         super._increaseBalance(account, amount);
     }
 }

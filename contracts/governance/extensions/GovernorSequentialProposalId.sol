@@ -28,9 +28,7 @@ abstract contract GovernorSequentialProposalId is Governor {
     ) public view virtual override returns (uint256) {
         uint256 proposalHash = hashProposal(targets, values, calldatas, descriptionHash);
         uint256 storedProposalId = _proposalIds[proposalHash];
-        if (storedProposalId == 0) {
-            revert GovernorNonexistentProposal(0);
-        }
+        require(storedProposalId != 0, GovernorNonexistentProposal(0));
         return storedProposalId;
     }
 
@@ -67,9 +65,7 @@ abstract contract GovernorSequentialProposalId is Governor {
      * May only call this function if the current value of {latestProposalId} is 0.
      */
     function _initializeLatestProposalId(uint256 newLatestProposalId) internal virtual {
-        if (_latestProposalId != 0) {
-            revert GovernorAlreadyInitializedLatestProposalId();
-        }
+        require(_latestProposalId == 0, GovernorAlreadyInitializedLatestProposalId());
         _latestProposalId = newLatestProposalId;
     }
 }

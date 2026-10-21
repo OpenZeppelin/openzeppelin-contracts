@@ -130,7 +130,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     function _addSigners(bytes[] memory newSigners) internal virtual {
         for (uint256 i = 0; i < newSigners.length; ++i) {
             bytes memory signer = newSigners[i];
-            require(signer.length >= 20, MultiSignerERC7913InvalidSigner(signer));
+            require(signer.length > 19, MultiSignerERC7913InvalidSigner(signer));
             require(_signers.add(signer), MultiSignerERC7913AlreadyExists(signer));
             emit ERC7913SignerAdded(signer);
         }

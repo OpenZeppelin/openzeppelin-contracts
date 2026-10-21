@@ -87,9 +87,7 @@ abstract contract GovernorSettings is Governor {
      * Emits a {VotingPeriodSet} event.
      */
     function _setVotingPeriod(uint32 newVotingPeriod) internal virtual {
-        if (newVotingPeriod == 0) {
-            revert GovernorInvalidVotingPeriod(0);
-        }
+        require(newVotingPeriod != 0, GovernorInvalidVotingPeriod(0));
         emit VotingPeriodSet(_votingPeriod, newVotingPeriod);
         _votingPeriod = newVotingPeriod;
     }
