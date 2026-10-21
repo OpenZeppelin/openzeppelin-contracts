@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (proxy/Clones.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Create2} from "../utils/Create2.sol";
 import {Errors} from "../utils/Errors.sol";

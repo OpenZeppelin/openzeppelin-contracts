@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (access/extensions/AccessControlDefaultAdminRules.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {IERC5313} from "../../interfaces/IERC5313.sol";
 import {IERC165} from "../../utils/introspection/IERC165.sol";

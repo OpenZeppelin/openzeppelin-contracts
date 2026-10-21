@@ -851,7 +851,7 @@ describe('GovernorTimelockAccess', function () {
           const amount = 100n;
           const target = this.token.target;
           const data = this.token.interface.encodeFunctionData('transfer', [this.voter4.address, amount]);
-          const selector = data.slice(0, 10);
+          const selector = ethers.dataSlice(data, 0, 4);
           await this.token.$_mint(this.mock, amount);
 
           const roleId = 1n;
