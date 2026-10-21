@@ -18,7 +18,7 @@ import {IGovernor, Governor} from "../Governor.sol";
  * the assets and permissions must be attached to the {ICompoundTimelock}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
- * WARNING: The Compound Timelock identifies each queued transaction by the hash of its target, value, signature,
+ * WARNING: The Compound timelock identifies each queued transaction by the hash of its target, value, signature,
  * calldata and eta. A proposal containing two actions with identical target, value and calldata will therefore
  * revert in {Governor-queue} with `GovernorAlreadyQueuedProposal` after the vote has succeeded, and can never be
  * executed. To repeat a call within a proposal, make each action unique, for example by appending distinct trailing
