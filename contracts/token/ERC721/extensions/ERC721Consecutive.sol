@@ -136,7 +136,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address previousOwner = super._update(to, tokenId, auth);
 
         // only mint after construction
-        require(previousOwner != address(0) || address(this).code.length != 0, ERC721ForbiddenMint());
+        require(previousOwner != address(0) || address(this).code.length > 0, ERC721ForbiddenMint());
 
         // record burn
         if (
