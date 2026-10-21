@@ -310,13 +310,15 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         SafeERC20.safeTransfer(IERC20(asset()), to, assets);
     }
 
-    /// @dev Whether {deposit} and {mint} accept a native value (`msg.value`).
-    ///
-    /// {deposit} and {mint} are `payable` so that vaults whose underlying IS the chain's native asset (see
-    /// {ERC7535}) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, returns
-    /// `false` so that any native value sent is rejected, which preserves the behavior of a non-`payable` entry
-    /// point. Native asset vaults override this to return `true` and process `msg.value` themselves.
-    function _enablePayableDeposit() internal pure virtual returns (bool) {
+    /**
+     * @dev Whether {deposit} and {mint} accept a native value (`msg.value`).
+     *
+     * {deposit} and {mint} are `payable` so that vaults whose underlying is the chain's native asset (see
+     * {ERC7535}) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, returns
+     * `false` so that any native value sent is rejected, which preserves the behavior of a non-`payable` entry
+     * point. Native asset vaults override this to return `true` and process `msg.value` themselves.
+     */
+    function _enablePayableDeposit() internal view virtual returns (bool) {
         return false;
     }
 

@@ -112,7 +112,7 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /// @dev See {ERC4626-_enablePayableDeposit}. Native value is processed by the {deposit} and {mint} overrides.
-    function _enablePayableDeposit() internal pure virtual override returns (bool) {
+    function _enablePayableDeposit() internal view virtual override returns (bool) {
         return true;
     }
 
