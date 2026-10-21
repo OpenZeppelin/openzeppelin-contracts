@@ -180,7 +180,7 @@ library RateLimiter {
      *
      * WARNING: Any partial refill accrued since the last whole unit was refilled is discarded. Calling this function
      * repeatedly, at an interval shorter than the time it takes to refill one unit (`window / capacity`), prevents the
-     * bucket from refilling at all. Do not expose it to parties that should not be able to stall the refill of a key.
+     * bucket from refilling at all. Access to this function should be restricted accordingly.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
         self._items[key] = RefillingBucketItem({_lastTimepoint: Time.timestamp(), _lastUsed: uint208(used(self, key))});
@@ -207,12 +207,11 @@ library RateLimiter {
         uint256 lastUsed_ = item_._lastUsed;
         uint48 lastTimepoint_ = item_._lastTimepoint;
 
+        // compute the quantity to refill based on the elapsed time since the last timepoint
         uint48 elapsed = Time.timestamp() - lastTimepoint_;
+        uint256 refill = Math.mulDiv(elapsed, capacity_, window_);
 
         unchecked {
-            // compute the quantity to refill based on the elapsed time since the last timepoint
-            uint256 refill = Math.mulDiv(elapsed, capacity_, window_);
-
             return
                 refill < lastUsed_
                     ? (

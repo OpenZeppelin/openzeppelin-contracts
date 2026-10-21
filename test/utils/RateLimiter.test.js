@@ -246,6 +246,20 @@ describe('RateLimiter', function () {
         await expect(this.mock.state()).to.eventually.deep.equal([9n, 1n]);
       });
 
+      it('partial refill is not carried over a full bucket', async function () {
+        // one unit every 360 seconds
+        await this.mock.updateSettings(WINDOW, 10n);
+        await this.mock.consume(10n);
+
+        // fully replenished, plus half a unit
+        await time.increaseBy.timestamp(WINDOW + 180n);
+        await this.mock.consume(1n);
+
+        // half a unit since the consume
+        await time.increaseBy.timestamp(180n);
+        await expect(this.mock.state()).to.eventually.deep.equal([1n, 9n]);
+      });
+
       it('setting capacity to 0 does not revert and preserves used', async function () {
         await this.mock.consume(42n);
         await this.mock.updateSettings(WINDOW, 0n);
@@ -375,6 +389,25 @@ describe('RateLimiter', function () {
         );
 
         await expect(this.mock.state()).to.eventually.deep.equal([10n, 0n]);
+      });
+
+      it('updateSettings re-accounts the preserved partial refill at the new rate', async function () {
+        // one unit every 360 seconds
+        await this.mock.updateSettings(WINDOW, 10n);
+        await this.mock.consume(10n);
+
+        // 1.5 units refilled, then 1 consumed: the timepoint stays 180 seconds behind
+        await time.increaseBy.timestamp(540n, false);
+        await batchInBlock(
+          [
+            () => this.mock.consume(1n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.updateSettings(360n, 10n, { gasLimit: 200000 }),
+          ],
+          ethers.provider,
+        );
+
+        // the 180 seconds are re-accounted at one unit every 36 seconds
+        await expect(this.mock.state()).to.eventually.deep.equal([5n, 5n]);
       });
 
       it('reset clears used', async function () {
