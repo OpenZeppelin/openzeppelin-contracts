@@ -63,7 +63,10 @@ library RateLimiter {
      *
      * `lastUsed` and `lastTimepoint` record the used quantity and the time it was recorded at the entry's last
      * update. The current state is reconstructed lazily from these two fields on read (see {state}), keeping storage
-     * cost constant at one packed slot per entry regardless of how many times the entry has been consumed.
+     * `lastUsed` is the used quantity at the entry's last update, and `lastTimepoint` the moment from which refill is
+     * accounted, which is at most the time of that update. The current state is reconstructed lazily from these two
+     * fields on read (see {state}), keeping storage cost constant at one packed slot per entry regardless of how many
+     * times the entry has been consumed.
      *
      * WARNING: Manually updating any of the parameters may result in incorrect behavior. Only interact with the
      * {RefillingBucket} through the dedicated functions.
