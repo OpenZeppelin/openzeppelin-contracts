@@ -219,6 +219,12 @@ library RateLimiter {
                         Math.saturatingSub(capacity_, lastUsed_ - refill),
                         // `capacity_ == 0` implies `refill == 0`, so using `max(capacity_, 1)` avoids a division by
                         // zero without changing the result.
+                        //
+                        // Overflow not possible: `refill < lastUsed_ < 2²⁰⁸` and `window_ < 2⁴⁸`, so `refill * window_`
+                        // fits in 256 bits. Since `refill = floor(elapsed * capacity_ / window_)`, we have
+                        // `refill * window_ <= elapsed * capacity_`, hence `ceilDiv(refill * window_, capacity_) <=
+                        // elapsed`. The uint48 cast is therefore lossless and the sum is at most
+                        // `lastTimepoint_ + elapsed = Time.timestamp() <= type(uint48).max`.
                         lastTimepoint_ + uint48(Math.ceilDiv(refill * window_, Math.max(capacity_, 1)))
                     )
                     : (0, capacity_, Time.timestamp());
