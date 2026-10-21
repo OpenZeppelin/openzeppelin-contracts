@@ -49,10 +49,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold <%= type == 'address' ? 'an' : 'a' %> <%= type %> in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct T<%= name %> {
         bytes32 _placeholder;
@@ -85,7 +88,9 @@ library TransientSlot {
      */
     function tload(T<%= name %> storage self) internal view returns (<%= type %> value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -103,7 +108,9 @@ library TransientSlot {
      */
     function tstore(T<%= name %> storage self, <%= type %> value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 <% } -%>

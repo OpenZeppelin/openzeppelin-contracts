@@ -52,10 +52,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold an address in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TAddress {
         bytes32 _placeholder;
@@ -76,10 +79,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold a bool in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TBoolean {
         bytes32 _placeholder;
@@ -100,10 +106,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold a bytes32 in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TBytes32 {
         bytes32 _placeholder;
@@ -124,10 +133,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold a uint256 in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TUint256 {
         bytes32 _placeholder;
@@ -148,10 +160,13 @@ library TransientSlot {
     /**
      * @dev Struct that reserves a slot in the (persistent) storage layout, to hold a int256 in transient storage.
      *
-     * The reserved slot is never written to: only its number is reused, in the transient storage space. This
-     * delegates the allocation of transient slots to the compiler, which is particularly useful for namespacing
-     * them: reserving the slot inside an ERC-7201 namespaced storage struct namespaces the transient slot the
-     * same way it namespaces the persistent ones.
+     * The reserved slot is never written to: the value is held in the transient slot whose number is the bitwise
+     * complement (`not`) of the reserved slot's number. This delegates the allocation of transient slots to the
+     * compiler, which is particularly useful for namespacing them: reserving the slot inside an ERC-7201 namespaced
+     * storage struct namespaces the transient slot the same way it namespaces the persistent ones.
+     *
+     * NOTE: Using the complement keeps reservations away from native `transient` state variables, which the compiler
+     * allocates contiguously from transient slot 0, independently of the persistent storage layout.
      */
     struct TInt256 {
         bytes32 _placeholder;
@@ -183,7 +198,9 @@ library TransientSlot {
      */
     function tload(TAddress storage self) internal view returns (address value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -201,7 +218,9 @@ library TransientSlot {
      */
     function tstore(TAddress storage self, address value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 
@@ -219,7 +238,9 @@ library TransientSlot {
      */
     function tload(TBoolean storage self) internal view returns (bool value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -237,7 +258,9 @@ library TransientSlot {
      */
     function tstore(TBoolean storage self, bool value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 
@@ -255,7 +278,9 @@ library TransientSlot {
      */
     function tload(TBytes32 storage self) internal view returns (bytes32 value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -273,7 +298,9 @@ library TransientSlot {
      */
     function tstore(TBytes32 storage self, bytes32 value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 
@@ -291,7 +318,9 @@ library TransientSlot {
      */
     function tload(TUint256 storage self) internal view returns (uint256 value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -309,7 +338,9 @@ library TransientSlot {
      */
     function tstore(TUint256 storage self, uint256 value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 
@@ -327,7 +358,9 @@ library TransientSlot {
      */
     function tload(TInt256 storage self) internal view returns (int256 value) {
         assembly ("memory-safe") {
-            value := tload(self.slot)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            value := tload(not(self.slot))
         }
     }
 
@@ -345,7 +378,9 @@ library TransientSlot {
      */
     function tstore(TInt256 storage self, int256 value) internal {
         assembly ("memory-safe") {
-            tstore(self.slot, value)
+            // Reservations grow down from the top of the transient space, away from the `transient`
+            // variables that the compiler allocates from slot 0.
+            tstore(not(self.slot), value)
         }
     }
 }
