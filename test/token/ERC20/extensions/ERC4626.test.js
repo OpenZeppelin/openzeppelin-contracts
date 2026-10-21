@@ -69,7 +69,7 @@ describe('ERC4626', function () {
   });
 
   describe('payable deposit/mint reject unexpected native value', function () {
-    // deposit/mint are payable (so native-asset vaults like ERC7535 can override the payment hook), but a plain
+    // deposit/mint are payable (so native-asset vaults like ERC7535 can override `_enablePayableDeposit`), but a plain
     // ERC-20 vault must keep rejecting any native value sent to it, exactly as the previously non-payable entry
     // points did.
     const value = 1000n;

@@ -44,12 +44,13 @@ describe('ERC7535', function () {
       const value = ethers.parseEther('1');
       const expectedShares = await this.vault.previewDeposit(value);
 
-      // Per ERC-7535 the `assets` argument is advisory; shares are priced off `msg.value`. Passing 0 — which under
-      // an assets-based implementation would mint 0 shares and donate the ether — still mints for the full value.
+      // Per ERC-7535 the `assets` argument is advisory; shares are priced off `msg.value`. Passing 0, which under
+      // an assets-based implementation would mint 0 shares and donate the ether, still mints for the full value.
       const tx = this.vault.connect(this.holder).deposit(0n, this.recipient, { value });
 
       await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-value, value]);
       await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+      await expect(tx).to.emit(this.vault, 'Deposit').withArgs(this.holder, this.recipient, value, expectedShares);
       await expect(this.vault.totalAssets()).to.eventually.equal(value);
     });
 
@@ -58,9 +59,10 @@ describe('ERC7535', function () {
       const expectedShares = await this.vault.previewDeposit(value);
 
       // Even with a smaller `assets` argument, the full msg.value is priced into shares (not retained as a donation).
-      await expect(
-        this.vault.connect(this.holder).deposit(ethers.parseEther('1'), this.recipient, { value }),
-      ).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+      const tx = this.vault.connect(this.holder).deposit(ethers.parseEther('1'), this.recipient, { value });
+
+      await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, expectedShares);
+      await expect(tx).to.emit(this.vault, 'Deposit').withArgs(this.holder, this.recipient, value, expectedShares);
     });
 
     it('deposit reverts when msg.value exceeds maxDeposit, even if the assets argument does not', async function () {
@@ -101,6 +103,7 @@ describe('ERC7535', function () {
 
       await expect(tx).to.changeEtherBalances(ethers, [this.holder, this.vault], [-cost, cost]);
       await expect(tx).to.changeTokenBalance(ethers, this.vault, this.recipient, shares);
+      await expect(tx).to.emit(this.vault, 'Deposit').withArgs(this.holder, this.recipient, cost, shares);
       await expect(this.vault.totalAssets()).to.eventually.equal(cost);
     });
 
@@ -182,7 +185,7 @@ describe('ERC7535', function () {
         value: ethers.parseEther('1'),
       });
 
-      // A contract whose `receive()` always reverts — exercises the `Address.sendValue` failure path.
+      // A contract whose `receive()` always reverts, to exercise the `Address.sendValue` failure path.
       this.rejector = await ethers.deployContract('$EtherReceiverMock');
       await this.rejector.setAcceptEther(false);
     });
