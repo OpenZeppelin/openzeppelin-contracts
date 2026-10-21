@@ -6,30 +6,34 @@ export * from './helpers/conversion.js';
 export * from '../helpers.js';
 
 export const args = (...parts) => parts.filter(Boolean).join(', ');
+const zeroBytes = size => '0x' + '00'.repeat(size);
 
 // ─── All solidity types ───
 export const TYPES = Object.fromEntries(
   [
-    { type: 'address', size: 160 },
-    { type: 'bool', name: 'Boolean', size: 1 },
+    { type: 'address', size: 160, zero: zeroBytes(20) },
+    { type: 'bool', name: 'Boolean', size: 1, zero: false },
     ...range(1, 33).map(size => ({
       type: `bytes${size}`,
       size: 8 * size,
+      zero: zeroBytes(size),
       upcastTo: size < 32 ? 'bytes32' : undefined,
     })),
     ...range(8, 257, 8).map(size => ({
       type: `uint${size}`,
       size,
+      zero: 0n,
       upcastTo: size < 256 ? 'uint256' : undefined,
     })),
     ...range(8, 257, 8).map(size => ({
       type: `int${size}`,
       size,
+      zero: 0n,
       upcastTo: size < 256 ? 'int256' : undefined,
       signed: true,
     })),
-    { type: 'string' },
-    { type: 'bytes' },
+    { type: 'string', zero: '' },
+    { type: 'bytes', zero: '0x' },
   ]
     .map(entry => ({
       ...entry,
@@ -101,7 +105,3 @@ export const SAFECAST_LENGTHS = Array.from({ length: 31 }, (_, i) => 248 - i * 8
 
 // ─── Slot family (StorageSlot, TransientSlot, SlotDerivation, and their mocks/tests) ───
 export const SLOT_TYPES = Object.values(TYPES).filter(type => !type.upcastTo);
-
-// ─── Calldata (Calldata + Calldata.t) ───
-export const CALLDATA_TYPES = [TYPES.bytes, TYPES.string]; // dynamic types that have an empty calldata value
-export const CALLDATA_ARRAY_TYPES = ARRAYS_TYPES; // element types of the dynamic arrays that have an empty calldata value
