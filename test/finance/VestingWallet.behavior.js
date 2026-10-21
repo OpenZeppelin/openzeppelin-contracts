@@ -11,7 +11,7 @@ export async function envSetup(connection, mock, beneficiary, token) {
         const beneficiaryMock = await connection.ethers.deployContract('EtherReceiverMock');
         await beneficiaryMock.setAcceptEther(false);
         await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
-        return { args: [], error: [mock, 'FailedCall'] };
+        return { args: [], error: [beneficiaryMock, 'EtherReceiveRejected'] };
       },
       releasedEvent: 'EtherReleased',
       args: [],

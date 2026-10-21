@@ -100,6 +100,13 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     error ERC4626ExceededMaxRedeem(address owner, uint256 shares, uint256 max);
 
     /**
+     * @dev Attempted to {deposit} or {mint} with a native value (`msg.value`) the vault does not expect. The
+     * vault reverts with this error on any non-zero `msg.value` unless {_enablePayableDeposit} is overridden to
+     * return `true`, as native-asset vaults (see {ERC7535}) do.
+     */
+    error ERC4626UnexpectedNativeValue(uint256 value);
+
+    /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
@@ -180,7 +187,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /// @inheritdoc IERC4626
-    function deposit(uint256 assets, address receiver) public virtual returns (uint256) {
+    function deposit(uint256 assets, address receiver) public payable virtual returns (uint256) {
+        require(_enablePayableDeposit() || msg.value == 0, ERC4626UnexpectedNativeValue(msg.value));
+
         uint256 maxAssets = maxDeposit(receiver);
         require(assets <= maxAssets, ERC4626ExceededMaxDeposit(receiver, assets, maxAssets));
 
@@ -191,7 +200,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /// @inheritdoc IERC4626
-    function mint(uint256 shares, address receiver) public virtual returns (uint256) {
+    function mint(uint256 shares, address receiver) public payable virtual returns (uint256) {
+        require(_enablePayableDeposit() || msg.value == 0, ERC4626UnexpectedNativeValue(msg.value));
+
         uint256 maxShares = maxMint(receiver);
         require(shares <= maxShares, ERC4626ExceededMaxMint(receiver, shares, maxShares));
 
@@ -282,6 +293,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @dev Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
     function _transferIn(address from, uint256 assets) internal virtual {
+        // slither-disable-next-line arbitrary-send-erc20
         SafeERC20.safeTransferFrom(IERC20(asset()), from, address(this), assets);
     }
 
@@ -290,6 +302,25 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         SafeERC20.safeTransfer(IERC20(asset()), to, assets);
     }
 
+    /**
+     * @dev Whether {deposit} and {mint} accept a native value (`msg.value`).
+     *
+     * {deposit} and {mint} are `payable` so that vaults whose underlying is the chain's native asset (see
+     * {ERC7535}) can receive it as `msg.value`. The default implementation, used by ERC-4626 vaults, returns
+     * `false` so that any native value sent is rejected, which preserves the behavior of a non-`payable` entry
+     * point. Native asset vaults override this to return `true` and process `msg.value` themselves.
+     */
+    function _enablePayableDeposit() internal view virtual returns (bool) {
+        return false;
+    }
+
+    /**
+     * @dev Offset between the decimals of the underlying asset and those of the vault shares. See the contract-level
+     * documentation on inflation attacks.
+     *
+     * NOTE: The conversion math computes `10 ** _decimalsOffset()`, which overflows from an offset of 78 onwards.
+     * Overrides must return at most 77, otherwise every deposit, mint, preview and conversion reverts.
+     */
     function _decimalsOffset() internal view virtual returns (uint8) {
         return 0;
     }
