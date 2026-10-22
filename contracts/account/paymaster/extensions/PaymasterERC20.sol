@@ -221,7 +221,7 @@ abstract contract PaymasterERC20 is Paymaster {
             prefundAmount,
             prefundContext
         );
-        if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
+        require(success, PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext));
 
         emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPerNative);
     }

@@ -312,7 +312,7 @@ library RLP {
      */
     function readUint256(Memory.Slice item) internal pure returns (uint256) {
         uint256 length = item.length();
-        require(length <= 33, RLPInvalidEncoding());
+        require(length < 34, RLPInvalidEncoding());
 
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());

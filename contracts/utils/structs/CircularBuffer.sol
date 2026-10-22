@@ -82,7 +82,7 @@ library CircularBuffer {
      * Consider a large buffer size may render the function unusable.
      */
     function setup(Bytes32CircularBuffer storage self, uint256 size) internal {
-        if (size == 0) revert InvalidBufferSize();
+        require(size != 0, InvalidBufferSize());
         clear(self);
         Arrays.unsafeSetLength(self._data, size);
     }

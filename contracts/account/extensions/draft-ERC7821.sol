@@ -28,9 +28,8 @@ abstract contract ERC7821 is IERC7821 {
      * Reverts and bubbles up error if any call fails.
      */
     function execute(bytes32 mode, bytes calldata executionData) public payable virtual {
-        if (!_erc7821AuthorizedExecutor(msg.sender, mode, executionData))
-            revert Account.AccountUnauthorized(msg.sender);
-        if (!supportsExecutionMode(mode)) revert UnsupportedExecutionMode();
+        require(_erc7821AuthorizedExecutor(msg.sender, mode, executionData), Account.AccountUnauthorized(msg.sender));
+        require(supportsExecutionMode(mode), UnsupportedExecutionMode());
         executionData.execBatch(ERC7579Utils.EXECTYPE_DEFAULT);
     }
 
