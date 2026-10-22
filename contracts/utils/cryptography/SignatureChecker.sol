@@ -371,7 +371,7 @@ library SignatureChecker {
         // magic (9 bytes) + fields (1 byte) + structIndex (2 bytes) + application (20 bytes) + structsArrayOffset (32 bytes) +
         // crossChainSignatureOffset (32 bytes) + structsArrayLength (32 bytes) + crossChainSignatureLength (32 bytes)
         if (signature.length < 0xa0 || bytes9(signature[0:9]) != ERC7964_MAGIC) {
-            return (0, 0, address(0), _emptyBytes32ArrayCalldata(), Calldata.emptyBytes());
+            return (0, 0, address(0), Calldata.emptyBytes32Array(), Calldata.emptyBytes());
         }
         fields = signature[9];
         structIndex = uint16(bytes2(signature[10:]));
@@ -380,24 +380,24 @@ library SignatureChecker {
         // Offsets and lengths are arbitrary values, so each bound is checked before it is used to avoid overflows
         uint256 structsArrayOffset = uint256(bytes32(signature[0x20:]));
         if (structsArrayOffset < 0x60 || structsArrayOffset > signature.length - 32) {
-            return (0, 0, address(0), _emptyBytes32ArrayCalldata(), Calldata.emptyBytes());
+            return (0, 0, address(0), Calldata.emptyBytes32Array(), Calldata.emptyBytes());
         }
         uint256 structsArrayDataOffset = structsArrayOffset + 32;
         uint256 structsArrayLength = uint256(bytes32(signature[structsArrayOffset:]));
         if (structsArrayLength > (signature.length - structsArrayDataOffset) / 32) {
-            return (0, 0, address(0), _emptyBytes32ArrayCalldata(), Calldata.emptyBytes());
+            return (0, 0, address(0), Calldata.emptyBytes32Array(), Calldata.emptyBytes());
         }
         uint256 crossChainSignatureOffset = uint256(bytes32(signature[0x40:]));
         if (
             crossChainSignatureOffset < structsArrayDataOffset + structsArrayLength * 32 ||
             crossChainSignatureOffset > signature.length - 32
         ) {
-            return (0, 0, address(0), _emptyBytes32ArrayCalldata(), Calldata.emptyBytes());
+            return (0, 0, address(0), Calldata.emptyBytes32Array(), Calldata.emptyBytes());
         }
         uint256 crossChainSignatureDataOffset = crossChainSignatureOffset + 32;
         uint256 crossChainSignatureLength = uint256(bytes32(signature[crossChainSignatureOffset:]));
         if (crossChainSignatureLength > signature.length - crossChainSignatureDataOffset) {
-            return (0, 0, address(0), _emptyBytes32ArrayCalldata(), Calldata.emptyBytes());
+            return (0, 0, address(0), Calldata.emptyBytes32Array(), Calldata.emptyBytes());
         }
 
         assembly ("memory-safe") {
@@ -461,13 +461,5 @@ library SignatureChecker {
 
         ) = IERC5267(application).eip712Domain();
         return MessageHashUtils.toDomainSeparator(fields, name, version, chainId, verifyingContract, domainSalt);
-    }
-
-    // slither-disable-next-line write-after-write
-    function _emptyBytes32ArrayCalldata() private pure returns (bytes32[] calldata result) {
-        assembly ("memory-safe") {
-            result.offset := 0
-            result.length := 0
-        }
     }
 }
