@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorCountingOverridable.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
@@ -115,13 +115,9 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     ) internal virtual override returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        if (support > uint8(VoteType.Abstain)) {
-            revert GovernorInvalidVoteType();
-        }
+        require(support <= uint8(type(VoteType).max), GovernorInvalidVoteType());
 
-        if (proposalVote.voteReceipt[account].casted != 0) {
-            revert GovernorAlreadyCastVote(account);
-        }
+        require(proposalVote.voteReceipt[account].casted == 0, GovernorAlreadyCastVote(account));
 
         totalWeight -= proposalVote.voteReceipt[account].overriddenWeight;
         proposalVote.votes[support] += totalWeight;
@@ -138,13 +134,9 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        if (support > uint8(VoteType.Abstain)) {
-            revert GovernorInvalidVoteType();
-        }
+        require(support <= uint8(type(VoteType).max), GovernorInvalidVoteType());
 
-        if (proposalVote.voteReceipt[account].hasOverridden) {
-            revert GovernorAlreadyOverriddenVote(account);
-        }
+        require(!proposalVote.voteReceipt[account].hasOverridden, GovernorAlreadyOverriddenVote(account));
 
         uint256 snapshot = proposalSnapshot(proposalId);
         uint256 overriddenWeight = VotesExtended(address(token())).getPastBalanceOf(account, snapshot);
@@ -217,9 +209,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             signature
         );
 
-        if (!valid) {
-            revert GovernorInvalidSignature(voter);
-        }
+        require(valid, GovernorInvalidSignature(voter));
 
         return _castOverride(proposalId, voter, support, reason);
     }

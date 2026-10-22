@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (token/ERC20/extensions/ERC20Votes.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Votes} from "../../../governance/utils/Votes.sol";
 import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
@@ -50,9 +50,7 @@ abstract contract ERC20Votes is ERC20, Votes {
         if (from == address(0)) {
             uint256 supply = totalSupply();
             uint256 cap = _maxSupply();
-            if (supply > cap) {
-                revert ERC20ExceededSafeSupply(supply, cap);
-            }
+            require(supply <= cap, ERC20ExceededSafeSupply(supply, cap));
         }
         _transferVotingUnits(from, to, value);
     }

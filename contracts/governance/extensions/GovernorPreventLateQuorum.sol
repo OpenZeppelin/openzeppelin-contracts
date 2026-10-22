@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Math} from "../../utils/math/Math.sol";
 import {Governor} from "../Governor.sol";
@@ -110,9 +110,10 @@ abstract contract GovernorPreventLateQuorum is Governor {
      */
     function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
         uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
-        if (newVoteExtension > maxVoteExtension) {
-            revert GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension);
-        }
+        require(
+            newVoteExtension <= maxVoteExtension,
+            GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension)
+        );
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }

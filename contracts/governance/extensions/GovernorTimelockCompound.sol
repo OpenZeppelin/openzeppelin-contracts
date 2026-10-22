@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorTimelockCompound.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Address} from "../../utils/Address.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
@@ -71,11 +71,12 @@ abstract contract GovernorTimelockCompound is Governor {
         uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (
-                _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
-            ) {
-                revert GovernorAlreadyQueuedProposal(proposalId);
-            }
+            require(
+                !_timelock.queuedTransactions(
+                    keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds))
+                ),
+                GovernorAlreadyQueuedProposal(proposalId)
+            );
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 

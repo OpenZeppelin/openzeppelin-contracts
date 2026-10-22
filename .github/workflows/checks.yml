@@ -119,6 +119,8 @@ jobs:
 
   slither:
     runs-on: ubuntu-latest
+    env:
+      FOUNDRY_PROFILE: slither
     steps:
       - uses: actions/checkout@v7
       - name: Set up environment
