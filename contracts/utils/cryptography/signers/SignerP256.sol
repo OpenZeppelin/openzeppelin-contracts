@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/SignerP256.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
-import {AbstractSigner} from "./AbstractSigner.sol";
 import {P256} from "../P256.sol";
+import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using xref:api:utils/cryptography#P256[P256] signatures.
@@ -40,7 +40,7 @@ abstract contract SignerP256 is AbstractSigner {
      * or through an initializer.
      */
     function _setSigner(bytes32 qx, bytes32 qy) internal {
-        if (!P256.isValidPublicKey(qx, qy)) revert SignerP256InvalidPublicKey(qx, qy);
+        require(P256.isValidPublicKey(qx, qy), SignerP256InvalidPublicKey(qx, qy));
         _qx = qx;
         _qy = qy;
     }

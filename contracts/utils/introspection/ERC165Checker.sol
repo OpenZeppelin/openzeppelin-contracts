@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.20;
 
@@ -121,7 +121,7 @@ library ERC165Checker {
      * function. It returns:
      *
      * * `success`: true if the call didn't revert, false if it did
-     * * `supported`: true if the call succeeded AND returned data indicating the interface is supported
+     * * `supported`: true if the returned data indicating the interface is supported
      */
     function _trySupportsInterface(
         address account,

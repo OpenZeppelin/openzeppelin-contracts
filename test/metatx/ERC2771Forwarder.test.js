@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ForwardRequest, getDomain } from '../helpers/eip712';
+import { sum } from '../helpers/math';
 
-const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { sum } = require('../helpers/math');
-const time = require('../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
@@ -149,7 +152,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       const gasLimit = 100_000n;
-      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason();
+      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason(ethers);
 
       const { gasUsed } = await ethers.provider
         .getBlock('latest')
@@ -178,7 +181,7 @@ describe('ERC2771Forwarder', function () {
 
       // The subcall out of gas should be caught by the contract and then bubbled up consuming
       // the available gas with an `invalid` opcode.
-      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason();
+      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason(ethers);
 
       const { gasUsed } = await ethers.provider
         .getBlock('latest')
@@ -226,6 +229,75 @@ describe('ERC2771Forwarder', function () {
         for (const request of this.requests) {
           expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce + 1n);
         }
+      });
+
+      it('refunds value to refund receiver when a valid request fails execution', async function () {
+        const initialRefundReceiverBalance = await ethers.provider.getBalance(this.refundReceiver);
+        const initialNonce = await this.forwarder.nonces(this.requests[idx].from);
+
+        // Replace one request with a valid-but-reverting one (signature/nonce/deadline all fine)
+        this.requests[idx] = await this.forgeRequest(
+          {
+            value: this.requests[idx].value,
+            data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          },
+          this.accounts[idx],
+        );
+
+        const events = await this.forwarder
+          .executeBatch(this.requests, this.refundReceiver, { value: this.value })
+          .then(tx => tx.wait())
+          .then(receipt =>
+            receipt.logs.filter(
+              log => log?.fragment?.type == 'event' && log?.fragment?.name == 'ExecutedForwardRequest',
+            ),
+          );
+
+        // All requests emit the event — the reverting one has success == false
+        expect(events).to.have.lengthOf(this.requests.length);
+        expect(events[idx].args.success).to.be.false;
+
+        // Unlike a tampered request, the nonce is consumed since the request was valid
+        expect(await this.forwarder.nonces(this.requests[idx].from)).to.equal(initialNonce + 1n);
+
+        // The value is refunded to refundReceiver
+        expect(await ethers.provider.getBalance(this.refundReceiver)).to.equal(
+          initialRefundReceiverBalance + this.requests[idx].value,
+        );
+      });
+
+      describe('when the refund receiver is the zero address', function () {
+        beforeEach(function () {
+          this.refundReceiver = ethers.ZeroAddress;
+        });
+
+        it('does not revert when a failing request carries no value', async function () {
+          // Zero-value revert: nothing to refund, batch can proceed
+          await this.forgeRequest(
+            { value: 0n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+            this.accounts[requestCount],
+          ).then(extraRequest => this.requests.push(extraRequest));
+          this.value = requestsValue(this.requests);
+
+          const receipt = this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value });
+
+          // The reverting request emits success == false; the others still execute normally
+          await expect(receipt)
+            .to.emit(this.forwarder, 'ExecutedForwardRequest')
+            .withArgs(this.requests.at(-1).from, this.requests.at(-1).nonce, false);
+        });
+
+        it('reverts when a failing request carries value', async function () {
+          await this.forgeRequest(
+            { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+            this.accounts[requestCount],
+          ).then(extraRequest => this.requests.push(extraRequest));
+          this.value = requestsValue(this.requests);
+
+          await expect(
+            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
+          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
+        });
       });
     });
 
@@ -339,7 +411,7 @@ describe('ERC2771Forwarder', function () {
             gasLimit,
             value: requestsValue(this.requests),
           }),
-        ).to.be.revertedWithoutReason();
+        ).to.be.revertedWithoutReason(ethers);
 
         const { gasUsed } = await ethers.provider
           .getBlock('latest')
@@ -369,7 +441,7 @@ describe('ERC2771Forwarder', function () {
             gasLimit,
             value: requestsValue(this.requests),
           }),
-        ).to.be.revertedWithoutReason();
+        ).to.be.revertedWithoutReason(ethers);
 
         const { gasUsed } = await ethers.provider
           .getBlock('latest')

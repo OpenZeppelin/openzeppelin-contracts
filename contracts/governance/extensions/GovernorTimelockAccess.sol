@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorTimelockAccess.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {IGovernor, Governor} from "../Governor.sol";
 import {AuthorityUtils} from "../../access/manager/AuthorityUtils.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
 import {Address} from "../../utils/Address.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Time} from "../../utils/types/Time.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev This module connects a {Governor} instance to an {AccessManager} instance, allowing the governor to make calls
@@ -142,9 +142,7 @@ abstract contract GovernorTimelockAccess is Governor {
      */
     function _setAccessManagerIgnored(address target, bytes4 selector, bool ignored) internal virtual {
         bool isGovernor = target == address(this);
-        if (isGovernor && selector == this.setAccessManagerIgnored.selector) {
-            revert GovernorLockedIgnore();
-        }
+        require(!isGovernor || selector != this.setAccessManagerIgnored.selector, GovernorLockedIgnore());
         _ignoreToggle[target][selector] = ignored != isGovernor; // equivalent to: isGovernor ? !ignored : ignored
         emit AccessManagerIgnoredSet(target, selector, ignored);
     }
@@ -255,9 +253,7 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes32 /* descriptionHash */
     ) internal virtual override {
         uint48 etaSeconds = SafeCast.toUint48(proposalEta(proposalId));
-        if (block.timestamp < etaSeconds) {
-            revert GovernorUnmetDelay(proposalId, etaSeconds);
-        }
+        require(block.timestamp >= etaSeconds, GovernorUnmetDelay(proposalId, etaSeconds));
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
@@ -265,9 +261,10 @@ abstract contract GovernorTimelockAccess is Governor {
             (bool controlled, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
             if (controlled) {
                 uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
-                if (withDelay && executedNonce != nonce) {
-                    revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
-                }
+                require(
+                    !withDelay || executedNonce == nonce,
+                    GovernorMismatchedNonce(proposalId, nonce, executedNonce)
+                );
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
                 Address.verifyCallResult(success, returndata);

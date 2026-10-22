@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {ERC721} from "../ERC721.sol";
 import {IERC2309} from "../../../interfaces/IERC2309.sol";
 import {BitMaps} from "../../../utils/structs/BitMaps.sol";
 import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
+import {ERC721} from "../ERC721.sol";
 
 /**
  * @dev Implementation of the ERC-2309 "Consecutive Transfer Extension" as defined in
@@ -87,7 +87,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
     /**
      * @dev Mint a batch of tokens of length `batchSize` for `to`. Returns the token id of the first token minted in the
-     * batch; if `batchSize` is 0, returns the number of consecutive ids minted so far.
+     * batch; if `batchSize` is 0, returns the next token id to be minted consecutively.
      *
      * Requirements:
      *
@@ -106,17 +106,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
-            if (address(this).code.length > 0) {
-                revert ERC721ForbiddenBatchMint();
-            }
-            if (to == address(0)) {
-                revert ERC721InvalidReceiver(address(0));
-            }
+            require(address(this).code.length == 0, ERC721ForbiddenBatchMint());
+            require(to != address(0), ERC721InvalidReceiver(address(0)));
 
             uint256 maxBatchSize = _maxBatchSize();
-            if (batchSize > maxBatchSize) {
-                revert ERC721ExceededMaxBatchMint(batchSize, maxBatchSize);
-            }
+            require(batchSize <= maxBatchSize, ERC721ExceededMaxBatchMint(batchSize, maxBatchSize));
 
             // push an ownership checkpoint & emit event
             uint96 last = next + batchSize - 1;
@@ -142,9 +136,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address previousOwner = super._update(to, tokenId, auth);
 
         // only mint after construction
-        if (previousOwner == address(0) && address(this).code.length == 0) {
-            revert ERC721ForbiddenMint();
-        }
+        require(previousOwner != address(0) || address(this).code.length > 0, ERC721ForbiddenMint());
 
         // record burn
         if (

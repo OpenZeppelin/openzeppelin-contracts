@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (metatx/ERC2771Context.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (metatx/ERC2771Context.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,6 +7,9 @@ import {Context} from "../utils/Context.sol";
 
 /**
  * @dev Context variant with ERC-2771 support. See {_msgSender} for the calldata format.
+ *
+ * IMPORTANT: Deprecated. ERC-2771 meta-transaction support is removed in v6.0, together with {Context}.
+ * Consider adopting alternatives such as ERC-4337 account abstraction.
  *
  * WARNING: Avoid using this pattern in contracts that rely on a specific calldata length as they'll
  * be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC-2771

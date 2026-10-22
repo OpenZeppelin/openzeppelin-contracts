@@ -16,10 +16,12 @@ There are a few core contracts that implement the behavior specified in the ERC-
 Additionally there are multiple custom extensions, including:
 
 * {ERC20Permit}: gasless approval of tokens (standardized as ERC-2612).
+* {ERC3009}: gasless transfer of tokens via signed authorizations (standardized as ERC-3009).
+* {ERC20TransferAuthorization}: variant of {ERC3009} using keyed sequential nonces and supporting ERC-1271 signatures.
 * {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
-* {ERC20Crosschain}: embedded {BridgeERC20Core} bridge, making the token crosschain through the use of ERC-7786 gateways.
+* {ERC20Crosschain}: embedded {BridgeFungible} bridge, making the token crosschain through the use of ERC-7786 gateways.
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
 * {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
@@ -27,6 +29,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
 * {ERC4626}: tokenized vault that manages shares (represented as ERC-20) that are backed by assets (another ERC-20).
+* {ERC7535}: tokenized vault (extending {ERC4626}) whose underlying asset is the chain's native asset (e.g. Ether) instead of an ERC-20.
 
 Finally, there are some utilities to interact with ERC-20 contracts in various ways:
 
@@ -52,6 +55,14 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC20Permit}}
 
+{{IERC3009}}
+
+{{IERC3009Cancel}}
+
+{{ERC3009}}
+
+{{ERC20TransferAuthorization}}
+
 {{ERC20Bridgeable}}
 
 {{ERC20Burnable}}
@@ -73,6 +84,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC1363}}
 
 {{ERC4626}}
+
+{{ERC7535}}
 
 == Utilities
 

@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (access/manager/AccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
-import {IAccessManager} from "./IAccessManager.sol";
-import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
-import {Multicall} from "../../utils/Multicall.sol";
-import {Math} from "../../utils/math/Math.sol";
-import {Time} from "../../utils/types/Time.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {Multicall} from "../../utils/Multicall.sol";
+import {TransientSlot} from "../../utils/TransientSlot.sol";
+import {Time} from "../../utils/types/Time.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.
@@ -58,9 +59,14 @@ import {Hashes} from "../../utils/cryptography/Hashes.sol";
  * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
  * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
  * {AccessControl-renounceRole}.
+ *
+ * WARNING: The `setAuthority(address)` reservation described in {canCall} covers the selector {execute} is called
+ * with. A target that delegatecalls into itself (e.g. {Multicall}) can reach {AccessManaged-setAuthority} from any
+ * other allowed selector, bypassing `ADMIN_ROLE` and the target admin delay.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
+    using TransientSlot for *;
 
     // Structure that stores the details for a target contract.
     struct TargetConfig {
@@ -114,8 +120,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // Used to identify operations that are currently being executed via {execute}.
-    // This should be transient storage when supported by the EVM.
-    bytes32 private _executionId;
+    /// @custom:oz-retyped-from bytes32
+    TransientSlot.TBytes32 private _executionId;
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
@@ -127,9 +133,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     constructor(address initialAdmin) {
-        if (initialAdmin == address(0)) {
-            revert AccessManagerInvalidInitialAdmin(address(0));
-        }
+        require(initialAdmin != address(0), AccessManagerInvalidInitialAdmin(address(0)));
 
         // admin is active immediately and without any execution delay.
         _grantRole(ADMIN_ROLE, initialAdmin, 0, 0);
@@ -148,6 +152,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(target, selector), 0);
+        } else if (selector == IAccessManaged.setAuthority.selector) {
+            (bool isAdmin, uint32 executionDelay) = hasRole(ADMIN_ROLE, caller);
+            uint32 adminDelay = getTargetAdminDelay(target);
+            uint32 setAuthorityDelay = uint32(Math.max(executionDelay, adminDelay));
+            return isAdmin ? (setAuthorityDelay == 0, setAuthorityDelay) : (false, 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
             (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
@@ -224,9 +233,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // =============================================== ROLE MANAGEMENT ===============================================
     /// @inheritdoc IAccessManager
     function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
         emit RoleLabel(roleId, label);
     }
 
@@ -242,9 +249,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
-        if (callerConfirmation != _msgSender()) {
-            revert AccessManagerBadConfirmation();
-        }
+        require(callerConfirmation == _msgSender(), AccessManagerBadConfirmation());
         _revokeRole(roleId, callerConfirmation);
     }
 
@@ -274,9 +279,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 grantDelay,
         uint32 executionDelay
     ) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         bool newMember = _roles[roleId].members[account].since == 0;
         uint48 since;
@@ -304,9 +307,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleRevoked} event if the account had the role.
      */
     function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         if (_roles[roleId].members[account].since == 0) {
             return false;
@@ -324,12 +325,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleAdminChanged} event.
      *
      * NOTE: Setting the admin role as the `PUBLIC_ROLE` is allowed, but it will effectively allow
-     * anyone to set grant or revoke such role.
+     * anyone to grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].admin = admin;
 
@@ -345,9 +344,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * anyone to cancel any scheduled operation for such role.
      */
     function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].guardian = guardian;
 
@@ -360,9 +357,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleGrantDelayChanged} event.
      */
     function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         uint48 effect;
         (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
@@ -388,6 +383,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
+        // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
+        // ensure the proper delay and admin restrictions are applied.
+        require(selector != IAccessManaged.setAuthority.selector, AccessManagerLockedFunction(selector));
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
@@ -481,9 +479,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkNotScheduled(bytes32 operationId) private view {
         uint48 prevTimepoint = _schedules[operationId].timepoint;
-        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
-            revert AccessManagerAlreadyScheduled(operationId);
-        }
+        require(prevTimepoint == 0 || _isExpired(prevTimepoint), AccessManagerAlreadyScheduled(operationId));
     }
 
     /// @inheritdoc IAccessManager
@@ -511,14 +507,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, _checkSelector(data));
+        bytes32 executionIdBefore = _executionId.tload();
+        _executionId.tstore(_hashExecutionId(target, _checkSelector(data)));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
 
         // Reset execute identifier
-        _executionId = executionIdBefore;
+        _executionId.tstore(executionIdBefore);
 
         return nonce;
     }
@@ -531,13 +527,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
-        } else if (caller != msgsender) {
-            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required role.
-            (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
-            (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, selector)), msgsender);
-            if (!isAdmin && !isGuardian) {
-                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
-            }
+        } else if (!_canCancel(caller, target, data)) {
+            revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
         }
 
         delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
@@ -550,9 +541,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
-            revert AccessManagerUnauthorizedConsume(target);
-        }
+        require(
+            IAccessManaged(target).isConsumingScheduledOp() == IAccessManaged.isConsumingScheduledOp.selector,
+            AccessManagerUnauthorizedConsume(target)
+        );
         _consumeScheduledOp(hashOperation(caller, target, data));
     }
 
@@ -712,10 +704,41 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
+     * @dev Returns true if a scheduled operation can be canceled by the caller.
+     */
+    function _canCancel(address caller, address target, bytes calldata data) internal view virtual returns (bool) {
+        address msgsender = _msgSender();
+
+        // caller can cancel if they are the msg.sender of the scheduled operation
+        if (caller == msgsender) {
+            return true;
+        }
+
+        // admins can cancel any operation, and guardians of the target function's role can cancel it
+        (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
+        (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msgsender);
+        if (isAdmin || isGuardian) {
+            return true;
+        }
+
+        // if the target is this AccessManager and the call matches an admin-restricted function, allow members
+        // of the admin role returned by _getAdminRestrictions to cancel. ADMIN_ROLE was already checked above.
+        if (target == address(this)) {
+            (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
+            if (adminRestricted && roleId != ADMIN_ROLE) {
+                (bool inRole, ) = hasRole(roleId, msgsender);
+                return inRole;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
     function _isExecuting(address target, bytes4 selector) private view returns (bool) {
-        return _executionId == _hashExecutionId(target, selector);
+        return _executionId.tload() == _hashExecutionId(target, selector);
     }
 
     /**

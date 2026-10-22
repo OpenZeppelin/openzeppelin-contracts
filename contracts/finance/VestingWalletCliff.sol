@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (finance/VestingWalletCliff.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (finance/VestingWalletCliff.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {VestingWallet} from "./VestingWallet.sol";
@@ -24,8 +24,9 @@ abstract contract VestingWalletCliff is VestingWallet {
      * constructor) and ends `cliffSeconds` later.
      */
     constructor(uint64 cliffSeconds) {
-        if (cliffSeconds > duration()) {
-            revert InvalidCliffDuration(cliffSeconds, duration().toUint64());
+        uint256 vestingDuration = duration();
+        if (cliffSeconds > vestingDuration) {
+            revert InvalidCliffDuration(cliffSeconds, vestingDuration.toUint64());
         }
         _cliff = start().toUint64() + cliffSeconds;
     }

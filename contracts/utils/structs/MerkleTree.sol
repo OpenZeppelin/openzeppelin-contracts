@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (utils/structs/MerkleTree.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
+import {Hashes} from "../cryptography/Hashes.sol";
 import {Panic} from "../Panic.sol";
 import {StorageSlot} from "../StorageSlot.sol";
 
@@ -219,7 +219,7 @@ library MerkleTree {
         unchecked {
             // Check index range
             uint256 length = self._nextLeafIndex;
-            if (index >= length) revert MerkleTreeUpdateInvalidIndex(index, length);
+            require(index < length, MerkleTreeUpdateInvalidIndex(index, length));
 
             // Cache read
             uint256 treeDepth = depth(self);
@@ -240,7 +240,7 @@ library MerkleTree {
 
                 if (isLeft && currentIndex == lastIndex) {
                     StorageSlot.Bytes32Slot storage side = Arrays.unsafeAccess(sides, i);
-                    if (side.value != currentLevelHashOld) revert MerkleTreeUpdateInvalidProof();
+                    require(side.value == currentLevelHashOld, MerkleTreeUpdateInvalidProof());
                     side.value = currentLevelHashNew;
                 }
 

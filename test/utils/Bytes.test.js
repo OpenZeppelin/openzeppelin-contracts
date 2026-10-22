@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } = require('../helpers/constants');
-const { generators } = require('../helpers/random');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } from '../helpers/constants';
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 // Helper functions for fixed bytes types
 const bytes32 = value => ethers.toBeHex(value, 32);
@@ -12,8 +16,7 @@ const bytes4 = value => ethers.toBeHex(value, 4);
 const bytes2 = value => ethers.toBeHex(value, 2);
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Bytes');
-  return { mock };
+  return { mock: await ethers.deployContract('$Bytes') };
 }
 
 const lorem = ethers.toUtf8Bytes(
@@ -115,39 +118,39 @@ describe('Bytes', function () {
 
   describe('concat', function () {
     it('empty list', async function () {
-      await expect(this.mock.$concat([])).to.eventually.equal(generators.bytes.zero);
+      await expect(this.mock.$concat([])).to.eventually.equal(ethers.concat([]));
     });
 
     it('single item', async function () {
-      const item = generators.bytes();
-      await expect(this.mock.$concat([item])).to.eventually.equal(item);
+      const item = random.bytes();
+      await expect(this.mock.$concat([item])).to.eventually.equal(ethers.concat([item]));
     });
 
     it('multiple (non-empty) items', async function () {
-      const items = Array.from({ length: 17 }, generators.bytes);
+      const items = Array.from({ length: 17 }, random.bytes);
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
 
     it('multiple (empty) items', async function () {
-      const items = Array.from({ length: 17 }).fill(generators.bytes.zero);
+      const items = Array.from({ length: 17 }).fill(new Uint8Array(0));
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
 
     it('multiple (variable length) items', async function () {
       const items = [
-        generators.bytes.zero,
-        generators.bytes(17),
-        generators.bytes.zero,
-        generators.bytes(42),
-        generators.bytes(1),
-        generators.bytes(256),
-        generators.bytes(1024),
-        generators.bytes.zero,
-        generators.bytes(7),
-        generators.bytes(15),
-        generators.bytes(63),
-        generators.bytes.zero,
-        generators.bytes.zero,
+        random.bytes.zero,
+        random.bytes(17),
+        random.bytes.zero,
+        random.bytes(42),
+        random.bytes(1),
+        random.bytes(256),
+        random.bytes(1024),
+        random.bytes.zero,
+        random.bytes(7),
+        random.bytes(15),
+        random.bytes(63),
+        random.bytes.zero,
+        random.bytes.zero,
       ];
 
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));

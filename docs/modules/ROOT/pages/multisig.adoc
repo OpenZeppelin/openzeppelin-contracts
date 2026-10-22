@@ -6,7 +6,7 @@ Popular implementations like https://safe.global/[Safe] (formerly Gnosis Safe) h
 
 == Beyond Standard Signature Verification
 
-As discussed in the xref:accounts.adoc#signature_validation[accounts section], the standard approach for smart contracts to verify signatures is https://eips.ethereum.org/EIPS/eip-1271[ERC-1271], which defines an `isValidSignature(hash, signature)`. However, it is limited in two important ways:
+As discussed in the xref:accounts.adoc#signature-validation[accounts section], the standard approach for smart contracts to verify signatures is https://eips.ethereum.org/EIPS/eip-1271[ERC-1271], which defines an `isValidSignature(hash, signature)`. However, it is limited in two important ways:
 
 1. It assumes the signer has an EVM address
 2. It treats the signer as a single identity

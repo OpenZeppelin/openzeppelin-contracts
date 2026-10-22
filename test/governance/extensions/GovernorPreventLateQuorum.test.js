@@ -1,13 +1,17 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ProposalState, VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
@@ -42,7 +46,7 @@ describe('GovernorPreventLateQuorum', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -53,7 +57,7 @@ describe('GovernorPreventLateQuorum', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [
@@ -179,6 +183,44 @@ describe('GovernorPreventLateQuorum', function () {
 
           expect(await this.mock.lateQuorumVoteExtension()).to.equal(0n);
         });
+      });
+
+      it('protection against large lateQuorumVoteExtension', async function () {
+        // bump the extension to votingPeriod: authorized
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-match-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await this.helper.execute();
+
+        expect(await this.mock.lateQuorumVoteExtension()).to.equal(votingPeriod);
+
+        // bump the extension to votingPeriod + 1: revert
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod + 1n]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-exceed-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorPreventLateQuorumVoteExtensionTooLarge')
+          .withArgs(votingPeriod + 1n, votingPeriod);
       });
     });
   }

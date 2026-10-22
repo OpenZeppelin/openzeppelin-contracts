@@ -1,14 +1,17 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { addressCoder, nameCoder } = require('interoperable-addresses');
-const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP350');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { addressCoder, nameCoder } from 'interoperable-addresses';
+import { CAIP350, chainTypeCoder } from 'interoperable-addresses/dist/CAIP350';
+import * as random from '../helpers/random';
 
-const { getLocalChain } = require('../helpers/chains');
+const {
+  ethers,
+  helpers: { chain },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$InteroperableAddress');
-  return { mock };
+  return { mock: await ethers.deployContract('$InteroperableAddress') };
 }
 
 describe('ERC7390', function () {
@@ -17,10 +20,9 @@ describe('ERC7390', function () {
   });
 
   it('formatEvmV1 address on the local chain', async function () {
-    const { reference: chainid, toErc7930 } = await getLocalChain();
     await expect(
-      this.mock.$formatEvmV1(ethers.Typed.uint256(chainid), ethers.Typed.address(this.mock)),
-    ).to.eventually.equal(toErc7930(this.mock));
+      this.mock.$formatEvmV1(ethers.Typed.uint256(chain.reference), ethers.Typed.address(this.mock)),
+    ).to.eventually.equal(chain.toErc7930(this.mock));
   });
 
   it('formatV1 fails if both reference and address are empty', async function () {
@@ -59,18 +61,60 @@ describe('ERC7390', function () {
     ]) {
       const { chainType, reference, address } = nameCoder.decode(name, true);
       const binary = addressCoder.encode({ chainType, reference, address });
+      const binaryExtra = ethers.concat([binary, '0x00']);
+
+      const expected = [
+        chainTypeCoder.decode(chainType),
+        CAIP350[chainType].reference.decode(reference),
+        CAIP350[chainType].address.decode(address),
+      ].map(ethers.hexlify);
 
       it(title, async function () {
-        const expected = [
-          chainTypeCoder.decode(chainType),
-          CAIP350[chainType].reference.decode(reference),
-          CAIP350[chainType].address.decode(address),
-        ].map(ethers.hexlify);
-
         await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal(expected);
         await expect(this.mock.$parseV1Calldata(binary)).to.eventually.deep.equal(expected);
         await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, ...expected]);
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([true, ...expected]);
+
+        // default behavior: ignore trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$parseV1Calldata(binaryExtra)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$tryParseV1(binaryExtra)).to.eventually.deep.equal([true, ...expected]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra)).to.eventually.deep.equal([true, ...expected]);
+
+        // explicitly ignore trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal(expected);
+        await expect(this.mock.$parseV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal(
+          expected,
+        );
+        await expect(this.mock.$tryParseV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+          true,
+          ...expected,
+        ]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+          true,
+          ...expected,
+        ]);
+
+        // reject trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra, ethers.Typed.bool(true)))
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+          .withArgs(binaryExtra);
+        await expect(this.mock.$parseV1Calldata(binaryExtra, ethers.Typed.bool(true)))
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+          .withArgs(binaryExtra);
+        await expect(this.mock.$tryParseV1(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+          false,
+          '0x0000',
+          '0x',
+          '0x',
+        ]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+          false,
+          '0x0000',
+          '0x',
+          '0x',
+        ]);
+
         await expect(this.mock.$formatV1(...expected)).to.eventually.equal(binary);
 
         if (chainType == 'eip155') {
@@ -92,6 +136,60 @@ describe('ERC7390', function () {
             reference ?? 0n,
             address ?? ethers.ZeroAddress,
           ]);
+
+          // default behavior: ignore trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1Calldata(binaryExtra)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+
+          // explicitly ignore trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(
+            this.mock.$tryParseEvmV1Calldata(binaryExtra, ethers.Typed.bool(false)),
+          ).to.eventually.deep.equal([true, reference ?? 0n, address ?? ethers.ZeroAddress]);
+
+          // reject trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra, ethers.Typed.bool(true)))
+            .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+            .withArgs(binaryExtra);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra, ethers.Typed.bool(true)))
+            .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+            .withArgs(binaryExtra);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+            false,
+            0n,
+            ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1Calldata(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal(
+            [false, 0n, ethers.ZeroAddress],
+          );
 
           if (!address) {
             await expect(this.mock.$formatEvmV1(ethers.Typed.uint256(reference))).to.eventually.equal(
@@ -116,11 +214,13 @@ describe('ERC7390', function () {
       // version 2 + some data
       'unsupported version': '0x00020000010100',
       // version + ref: missing chainReferenceLength and addressLength
-      'too short (case 1)': '0x00010000',
+      'too short (case 1)': '0x00010042',
       // version + ref + chainReference: missing addressLength
-      'too short (case 2)': '0x000100000101',
+      'too short (case 2)': '0x000100420101',
       // version + ref + chainReference + addressLength + part of the address: missing 2 bytes of the address
-      'too short (case 3)': '0x00010000010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      'too short (case 3)': '0x00010042010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      // empty chain reference and address
+      'empty chain reference and address': '0x000100420000',
     })) {
       it(title, async function () {
         await expect(this.mock.$parseV1(binary))
@@ -166,5 +266,91 @@ describe('ERC7390', function () {
         ]);
       });
     }
+  });
+
+  describe('isValidAddressLength', function () {
+    for (const { title, chainType, valid, invalid } of [
+      { title: 'eip155', chainType: '0x0000', valid: [20], invalid: [0, 19, 21, 32] },
+      { title: 'solana', chainType: '0x0002', valid: [32], invalid: [0, 20, 31, 33] },
+      { title: 'unknown chain type', chainType: '0x0042', valid: [1, 20, 32, 255], invalid: [0] },
+    ]) {
+      describe(title, function () {
+        for (const length of valid) {
+          it(`${length} bytes address is valid`, async function () {
+            const addr = random.hexBytes(length);
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(length))).to.eventually.be
+              .true;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.bytes(addr))).to.eventually.be.true;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.true;
+          });
+        }
+
+        for (const length of invalid) {
+          it(`${length} bytes address is invalid`, async function () {
+            const addr = random.hexBytes(length);
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(length))).to.eventually.be
+              .false;
+            await expect(this.mock.$isValidAddressLength(chainType, ethers.Typed.bytes(addr))).to.eventually.be.false;
+            await expect(this.mock.$isValidAddressLengthCalldata(chainType, addr)).to.eventually.be.false;
+          });
+        }
+      });
+    }
+
+    it('lengths larger than any address', async function () {
+      for (const [chainType, expected] of [
+        ['0x0000', false],
+        ['0x0002', false],
+        ['0x0042', true],
+      ]) {
+        await expect(
+          this.mock.$isValidAddressLength(chainType, ethers.Typed.uint256(ethers.MaxUint256)),
+        ).to.eventually.equal(expected);
+      }
+    });
+  });
+
+  describe('handles large references and addresses', function () {
+    it('large', async function () {
+      const chainType = '0x0000';
+      const reference = random.hexBytes(142);
+      const address = random.hexBytes(142);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
+
+    it('very large', async function () {
+      const chainType = '0x0000';
+      const reference = random.hexBytes(255);
+      const address = random.hexBytes(255);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
   });
 });
