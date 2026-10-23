@@ -36,15 +36,29 @@ describe('ERC20', function () {
       shouldBehaveLikeERC20(initialSupply, { forcedApproval });
 
       it('has a name', async function () {
-        expect(await this.token.name()).to.equal(name);
+        await expect(this.token.name()).to.eventually.equal(name);
       });
 
       it('has a symbol', async function () {
-        expect(await this.token.symbol()).to.equal(symbol);
+        await expect(this.token.symbol()).to.eventually.equal(symbol);
       });
 
       it('has 18 decimals', async function () {
-        expect(await this.token.decimals()).to.equal(18n);
+        await expect(this.token.decimals()).to.eventually.equal(18n);
+      });
+
+      describe('_setName', function () {
+        it('updates the name', async function () {
+          await this.token.$_setName('New Name');
+          await expect(this.token.name()).to.eventually.equal('New Name');
+        });
+      });
+
+      describe('_setSymbol', function () {
+        it('updates the symbol', async function () {
+          await this.token.$_setSymbol('NEW');
+          await expect(this.token.symbol()).to.eventually.equal('NEW');
+        });
       });
 
       describe('_mint', function () {
@@ -67,7 +81,7 @@ describe('ERC20', function () {
           });
 
           it('increments totalSupply', async function () {
-            await expect(await this.token.totalSupply()).to.equal(initialSupply + value);
+            await expect(this.token.totalSupply()).to.eventually.equal(initialSupply + value);
           });
 
           it('increments recipient balance', async function () {
@@ -101,7 +115,7 @@ describe('ERC20', function () {
               });
 
               it('decrements totalSupply', async function () {
-                expect(await this.token.totalSupply()).to.equal(initialSupply - value);
+                await expect(this.token.totalSupply()).to.eventually.equal(initialSupply - value);
               });
 
               it('decrements holder balance', async function () {
@@ -130,7 +144,7 @@ describe('ERC20', function () {
           const tx = await this.token.$_update(ethers.ZeroAddress, this.holder, value);
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.holder, value);
 
-          expect(await this.token.totalSupply()).to.equal(this.totalSupply + value);
+          await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply + value);
           await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, value);
         });
 
@@ -138,7 +152,7 @@ describe('ERC20', function () {
           const tx = await this.token.$_update(this.holder, ethers.ZeroAddress, value);
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder, ethers.ZeroAddress, value);
 
-          expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
+          await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply - value);
           await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, -value);
         });
 
@@ -147,7 +161,7 @@ describe('ERC20', function () {
             const tx = await this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, value);
             await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, ethers.ZeroAddress, value);
 
-            expect(await this.token.totalSupply()).to.equal(this.totalSupply);
+            await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply);
             await expect(tx).to.changeTokenBalance(ethers, this.token, ethers.ZeroAddress, 0n);
           });
 
