@@ -1,0 +1,97 @@
+pragma solidity ^0.8.20;
+
+import {Test} from "forge-std/Test.sol";
+import {BitMaps} from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
+
+contract BitMapsTest is Test {
+    using BitMaps for *;
+
+    // ========== BitMap Tests ==========
+
+    BitMaps.BitMap[2] private _bitmaps;
+
+    function testSymbolicBitMapSetAndGet(uint256 value) public {
+        assertFalse(_bitmaps[0].get(value)); // initial state
+        _bitmaps[0].set(value);
+        assertTrue(_bitmaps[0].get(value)); // after set
+    }
+
+    function testSymbolicBitMapSetToAndGet(uint256 value) public {
+        _bitmaps[0].setTo(value, true);
+        assertTrue(_bitmaps[0].get(value)); // after setTo true
+        _bitmaps[0].setTo(value, false);
+        assertFalse(_bitmaps[0].get(value)); // after setTo false
+    }
+
+    function testSymbolicBitMapIsolation(uint256 value1, uint256 value2) public {
+        vm.assume(value1 != value2);
+
+        _bitmaps[0].set(value1);
+        _bitmaps[1].set(value2);
+
+        assertTrue(_bitmaps[0].get(value1));
+        assertTrue(_bitmaps[1].get(value2));
+        assertFalse(_bitmaps[0].get(value2));
+        assertFalse(_bitmaps[1].get(value1));
+    }
+<% for (const { bits, name } of it.BITMAP_TYPES) {
+     const type = `uint${Math.max(bits, 8)}`;
+     const max = it.toBeHex((1n << BigInt(bits)) - 1n);
+     const store = `_${name.toLowerCase()}s`;
+-%>
+
+    // ========== <%= name %> Tests ==========
+
+    BitMaps.<%= name %>[2] private <%= store %>;
+
+    function testSymbolic<%= name %>SetAndGet(uint256 index, <%= type %> value) public {
+        value = <%= type %>(bound(value, 0, <%= max %>)); // <%= name %> only supports <%= bits %>-bit values (0-<%= max %>)
+
+        assertEq(<%= store %>[0].get(index), 0); // initial state
+        <%= store %>[0].set(index, value);
+        assertEq(<%= store %>[0].get(index), value); // after set
+    }
+<% if (bits < 8) { -%>
+
+    function testSymbolic<%= name %>Truncation(uint256 index, <%= type %> value) public {
+        value = <%= type %>(bound(value, <%= 1n << BigInt(bits) %>, type(<%= type %>).max)); // Test values that need truncation
+
+        <%= store %>[0].set(index, value);
+        assertEq(<%= store %>[0].get(index), value & <%= max %>); // Should be truncated to <%= bits %> bits
+    }
+<% } else { -%>
+
+    function testSymbolic<%= name %>AssemblyCorruption(uint256 index, <%= type %> value) public {
+        uint256 corrupted = _corruptValue(value);
+        <%= type %> corruptedValue;
+        assembly {
+            corruptedValue := corrupted
+        }
+
+        <%= store %>[0].set(index, corruptedValue);
+        assertEq(<%= store %>[0].get(index), <%= type %>(corrupted)); // Should match truncated value
+    }
+<% } -%>
+
+    function testSymbolic<%= name %>Isolation(uint256 index1, uint256 index2, <%= type %> value1, <%= type %> value2) public {
+        vm.assume(index1 != index2);
+        value1 = <%= type %>(bound(value1, 0, <%= max %>));
+        value2 = <%= type %>(bound(value2, 0, <%= max %>));
+
+        <%= store %>[0].set(index1, value1);
+        <%= store %>[1].set(index2, value2);
+
+        assertEq(<%= store %>[0].get(index1), value1);
+        assertEq(<%= store %>[1].get(index2), value2);
+        assertEq(<%= store %>[0].get(index2), 0);
+        assertEq(<%= store %>[1].get(index1), 0);
+    }
+<% } -%>
+
+    function _corruptValue(uint256 value) private pure returns (uint256 corrupted) {
+        // Simulate assembly corruption by adding high bits
+        assembly {
+            corrupted := or(value, shl(200, 0xffffffff))
+        }
+    }
+}
