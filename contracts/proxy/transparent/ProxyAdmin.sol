@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.2.0) (proxy/transparent/ProxyAdmin.sol)
 
-pragma solidity ^0.8.22;
+pragma solidity ^0.8.20;
 
 import {Ownable} from "../../access/Ownable.sol";
-import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
+import {ITransparentUpgradeableProxy} from "./ITransparentUpgradeableProxy.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
