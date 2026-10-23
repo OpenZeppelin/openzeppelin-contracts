@@ -25,6 +25,22 @@ contract MessageHashUtilsTest is Test {
         );
     }
 
+    function testToDomainSeparator(
+        bytes1 fields,
+        bytes32 nameHash,
+        bytes32 versionHash,
+        uint256 chainId,
+        address verifyingContract,
+        bytes32 salt
+    ) external pure {
+        fields &= 0x1f; // bit 5 (extensions) is not supported, bits 6 and 7 are not defined
+
+        assertEq(
+            MessageHashUtils.toDomainSeparator(fields, nameHash, versionHash, chainId, verifyingContract, salt),
+            MessageHashUtils.toDomainSeparator(fields, nameHash, versionHash, chainId, _dirty(verifyingContract), salt)
+        );
+    }
+
     function _dirty(address input) private pure returns (address output) {
         assembly ("memory-safe") {
             output := or(input, shl(160, not(0)))
