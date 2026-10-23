@@ -35,7 +35,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
+     * @dev Same as {Clones-clone-address}, but with a `value` parameter to send native currency
      * to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address
@@ -76,7 +76,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
+     * @dev Same as {Clones-cloneDeterministic-address-bytes32}, but with
      * a `value` parameter to send native currency to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address
@@ -151,7 +151,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-cloneWithImmutableArgs-address-bytes-}[cloneWithImmutableArgs], but with a `value`
+     * @dev Same as {Clones-cloneWithImmutableArgs-address-bytes}, but with a `value`
      * parameter to send native currency to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address
@@ -198,7 +198,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-}[cloneDeterministicWithImmutableArgs],
+     * @dev Same as {Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32},
      * but with a `value` parameter to send native currency to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address
