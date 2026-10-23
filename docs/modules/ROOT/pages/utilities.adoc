@@ -104,6 +104,7 @@ The xref:api:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`] librar
 * ECDSA signatures from externally owned accounts (EOAs)
 * ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
 * ERC-7913 signatures from keys that don't have their own Ethereum address
+* ERC-7964 crosschain signatures, where a single EIP-712 signature authorizes operations on multiple chains
 
 This allows developers to write signature verification code once and have it work across all these different signature types.
 
@@ -168,6 +169,80 @@ function _verifyMultipleSignatures(
 ----
 
 This function will reject inputs that contain duplicated signers. Sorting the signers by their `keccak256` hash is recommended to minimize the gas cost.
+
+==== Crosschain Signatures
+
+https://eips.ethereum.org/EIPS/eip-7964[ERC-7964] allows a single EIP-712 signature to authorize operations on multiple chains. The EIP-712 domain omits the `chainId`, and the signed message includes an array with one struct per chain. Each of these structs includes the target `chainId` (and usually the verifying contract), so the user reviews every chain and contract in their wallet before signing.
+
+For example, an application that sets a value on several chains could sign the following message:
+
+[source,solidity]
+----
+// The domain only includes `name` and `version`
+struct EIP712ChainDomain {
+    uint256 chainId;
+    address verifyingContract;
+}
+
+struct ChainOperation {
+    EIP712ChainDomain domain;
+    uint256 value;
+}
+
+struct SetValue {
+    ChainOperation[] operations;
+    uint256 nonce;
+}
+----
+
+On each chain, the signature is submitted along with the struct hashes of all the operations, so that the contract only needs the full data of its own operation. The xref:api:utils/cryptography.adoc#SignatureChecker-isValidCrossChainSignatureNow-address-bytes32-bytes-function--bytes32--view-returns--bytes32--[`isValidCrossChainSignatureNow`] function takes the struct hash of the operation for the current chain and a function that computes the struct hash of the full message from the hash of the operations array:
+
+[source,solidity]
+----
+using SignatureChecker for address;
+
+bytes32 private constant CHAIN_OPERATION_TYPEHASH =
+    keccak256("ChainOperation(EIP712ChainDomain domain,uint256 value)EIP712ChainDomain(uint256 chainId,address verifyingContract)");
+bytes32 private constant SET_VALUE_TYPEHASH =
+    keccak256("SetValue(ChainOperation[] operations,uint256 nonce)ChainOperation(EIP712ChainDomain domain,uint256 value)EIP712ChainDomain(uint256 chainId,address verifyingContract)");
+bytes32 private constant EIP712_CHAIN_DOMAIN_TYPEHASH =
+    keccak256("EIP712ChainDomain(uint256 chainId,address verifyingContract)");
+
+function setValue(address signer, uint256 value, bytes memory signature) public {
+    // Struct hash of the operation for this chain and this contract
+    bytes32 operationHash = keccak256(
+        abi.encode(
+            CHAIN_OPERATION_TYPEHASH,
+            keccak256(abi.encode(EIP712_CHAIN_DOMAIN_TYPEHASH, block.chainid, address(this))),
+            value
+        )
+    );
+    require(signer.isValidCrossChainSignatureNow(operationHash, signature, _setValueHash), "Invalid signature");
+    // ...
+}
+
+function _setValueHash(bytes32 operationsHash) internal view returns (bytes32) {
+    return keccak256(abi.encode(SET_VALUE_TYPEHASH, operationsHash, _nonce));
+}
+----
+
+The `signature` follows the ERC-7964 encoding, which carries the information needed to rebuild the signed EIP-712 hash:
+
+[source,solidity]
+----
+bytes32 header = bytes32(abi.encodePacked(SignatureChecker.ERC7964_MAGIC, fields, structIndex, application));
+bytes memory signature = abi.encode(header, structsArray, crossChainSignature);
+----
+
+* `fields`: The https://eips.ethereum.org/EIPS/eip-5267[ERC-5267] fields of the signed domain (e.g. `0x03` for `name` and `version`).
+* `structIndex`: The position of the current chain's operation in `structsArray`.
+* `application`: An ERC-5267 contract that returns the EIP-712 domain, typically the verifying contract itself.
+* `structsArray`: The struct hashes of the operations for every chain.
+* `crossChainSignature`: The actual signature, verified with xref:api:utils/cryptography.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`isValidSignatureNow`], so both EOAs and ERC-1271 smart contract wallets are supported.
+
+The function checks that `structsArray[structIndex]` matches the operation hash, fetches the domain from `application` and verifies `crossChainSignature` against the rebuilt EIP-712 hash. It returns `false` for signatures that aren't ERC-7964 encoded, so it can be used to detect crosschain signatures before falling back to regular verification. The encoding can also be inspected with xref:api:utils/cryptography.adoc#SignatureChecker-tryParseCrossChainSignature-bytes-[`tryParseCrossChainSignature`].
+
+IMPORTANT: Since the domain doesn't include the `chainId`, the operation hash is what binds the signature to the current chain. Make sure each operation includes `block.chainid` and the verifying contract address (unless the domain includes `verifyingContract`).
 
 This unified approach allows smart contracts to accept signatures from any supported source without needing to implement different verification logic for each type.
 
