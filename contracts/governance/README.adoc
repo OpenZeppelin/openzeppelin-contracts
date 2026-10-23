@@ -120,6 +120,17 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{VotesExtended}}
 
+[[votes-delegate-by-sig]]
+==== Delegating by signature
+
+{Votes} (and tokens that use it, such as {ERC20Votes} and {ERC721Votes}) accept off-chain delegations through {IVotes-delegateBySig}. The signer produces an EIP-712 signature over this primary type, using the voting contract's EIP-712 domain:
+
+```
+Delegation(address delegatee,uint256 nonce,uint256 expiry)
+```
+
+`nonce` is the signer's current {Nonces-nonces} value. `expiry` is a UNIX timestamp; after that time the contract reverts with {IVotes-VotesExpiredSignature}. Anyone can submit the resulting `(v, r, s)` signature.
+
 == Timelock
 
 In a governance system, the {TimelockController} contract is in charge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
