@@ -26,6 +26,7 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
     bytes32 private constant TOKEN_PRICE_TYPEHASH =
         keccak256("TokenPrice(address token,uint48 validAfter,uint48 validUntil,uint256 tokenPerNative)");
+    mapping(IERC20 token => uint256 min) private _minTokensPerNativeByToken;
 
     function _fetchDetails(
         PackedUserOperation calldata userOp,
@@ -77,8 +78,12 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
         _withdrawStake(to);
     }
 
-    function _minTokensPerNative(IERC20) internal view virtual override returns (uint256) {
-        return 1;
+    function setMinTokensPerNative(IERC20 token, uint256 min) public virtual {
+        _minTokensPerNativeByToken[token] = min;
+    }
+
+    function _minTokensPerNative(IERC20 token) internal view virtual override returns (uint256) {
+        return _minTokensPerNativeByToken[token]; // unset tokens keep the inherited default (0 = no minimum)
     }
 
     function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyRole(WITHDRAWER_ROLE) {
