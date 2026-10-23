@@ -40,7 +40,7 @@ abstract contract SignerP256 is AbstractSigner {
      * or through an initializer.
      */
     function _setSigner(bytes32 qx, bytes32 qy) internal {
-        if (!P256.isValidPublicKey(qx, qy)) revert SignerP256InvalidPublicKey(qx, qy);
+        require(P256.isValidPublicKey(qx, qy), SignerP256InvalidPublicKey(qx, qy));
         _qx = qx;
         _qy = qy;
     }

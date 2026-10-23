@@ -26,9 +26,7 @@ library ERC6372Utils {
     /// @dev Block number clock mode. Checks that the current `clock` was not modified.
     function blockNumberClockMode(uint48 clock) internal view returns (string memory) {
         // Check that the clock was not modified
-        if (clock != Time.blockNumber()) {
-            revert ERC6372InconsistentClock();
-        }
+        require(clock == Time.blockNumber(), ERC6372InconsistentClock());
         return "mode=blocknumber&from=default";
     }
 
@@ -45,9 +43,7 @@ library ERC6372Utils {
     /// @dev Timestamp clock mode. Checks that the current `clock` was not modified.
     function timestampClockMode(uint48 clock) internal view returns (string memory) {
         // Check that the clock was not modified
-        if (clock != Time.timestamp()) {
-            revert ERC6372InconsistentClock();
-        }
+        require(clock == Time.timestamp(), ERC6372InconsistentClock());
         return "mode=timestamp";
     }
 }

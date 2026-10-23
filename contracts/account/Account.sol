@@ -129,9 +129,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _checkEntryPoint() internal view virtual {
         address sender = msg.sender;
-        if (sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
-        }
+        require(sender == address(entryPoint()), AccountUnauthorized(sender));
     }
 
     /**
@@ -139,9 +137,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _checkEntryPointOrSelf() internal view virtual {
         address sender = msg.sender;
-        if (sender != address(this) && sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
-        }
+        require(sender == address(this) || sender == address(entryPoint()), AccountUnauthorized(sender));
     }
 
     /**

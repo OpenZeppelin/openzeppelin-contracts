@@ -71,11 +71,12 @@ abstract contract GovernorTimelockCompound is Governor {
         uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (
-                _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
-            ) {
-                revert GovernorAlreadyQueuedProposal(proposalId);
-            }
+            require(
+                !_timelock.queuedTransactions(
+                    keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds))
+                ),
+                GovernorAlreadyQueuedProposal(proposalId)
+            );
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 
