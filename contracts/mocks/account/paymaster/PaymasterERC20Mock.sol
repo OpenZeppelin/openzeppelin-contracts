@@ -77,7 +77,7 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
         _withdrawStake(to);
     }
 
-    function _minTokensPerNative() internal view virtual override returns (uint256) {
+    function _minTokensPerNative(IERC20) internal view virtual override returns (uint256) {
         return 1;
     }
 
@@ -186,14 +186,10 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
             );
     }
 
-    function _minTokensPerNative()
-        internal
-        view
-        virtual
-        override(PaymasterERC20, PaymasterERC20Mock)
-        returns (uint256)
-    {
-        return super._minTokensPerNative();
+    function _minTokensPerNative(
+        IERC20 token
+    ) internal view virtual override(PaymasterERC20, PaymasterERC20Mock) returns (uint256) {
+        return super._minTokensPerNative(token);
     }
 }
 
