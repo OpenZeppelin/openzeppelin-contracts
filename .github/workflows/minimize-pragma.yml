@@ -20,23 +20,20 @@ permissions:
 
 env:
   NODE_OPTIONS: --max_old_space_size=8192
+  DEFAULT_BRANCH: master
 
 jobs:
   minimize-pragma:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.repository == 'OpenZeppelin/openzeppelin-contracts'
     steps:
-      - name: Generate app token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.PRAGMA_BOT_APP_ID }}
-          private-key: ${{ secrets.PRAGMA_BOT_PRIVATE_KEY }}
-
       - uses: actions/checkout@v7
         with:
+          ref: ${{ env.DEFAULT_BRANCH }}
           submodules: recursive # foundry libs, needed by the pragma tooling
-          token: ${{ steps.app-token.outputs.token }} # push authenticated as the App -> PR triggers CI
+          # Read-only checkout: don't persist the token. The write-capable App token is minted after
+          # the build (below), so nothing usable sits in .git/config while untrusted deps run.
+          persist-credentials: false
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
@@ -49,25 +46,38 @@ jobs:
         id: diff
         run: git diff --quiet -- contracts || echo "changed=true" >> "$GITHUB_OUTPUT"
 
+      # Minted after the build and only when there's a PR to open, so build deps never see it.
+      # Scoped to the two permissions needed, not everything the (possibly shared) App installation grants.
+      - name: Generate app token
+        if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.PRAGMA_BOT_APP_ID }}
+          private-key: ${{ secrets.PRAGMA_BOT_PRIVATE_KEY }}
+          permission-contents: write # push the automation branch
+          permission-pull-requests: write # open/update the PR
+
       - name: Open or update PR
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }} # App token: opens the PR and lets its CI run
-          BRANCH: automation/minimize-pragma
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          BRANCH: automation/minimize-pragma
+          BASE: ${{ env.DEFAULT_BRANCH }}
         run: |
-          # Attribute the commit to the App's bot identity (the account that pushes it).
           uid="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${uid}+${APP_SLUG}[bot]@users.noreply.github.com"
           git switch -c "$BRANCH"
           git add contracts
           git commit -m "chore: minimize Solidity pragmas"
-          git push --force origin "$BRANCH"
-          if [ -n "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')" ]; then
-            echo "PR already open for $BRANCH; the force-push updated it."
+          # Auth via the token in the remote URL, not persisted git credentials.
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"
+          if [ -n "$(gh pr list --head "$BRANCH" --base "$BASE" --state open --json number --jq '.[0].number')" ]; then
+            echo "PR already open for $BRANCH -> $BASE; the force-push updated it."
           else
-            gh pr create --base master --head "$BRANCH" \
+            gh pr create --base "$BASE" --head "$BRANCH" \
               --label ignore-changeset \
               --title "chore: minimize Solidity pragmas" \
               --body "Automated \`npm run pragma\`: lowers pragma floors to the lowest compiler that still builds each file."
