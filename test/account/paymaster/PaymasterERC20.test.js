@@ -124,6 +124,7 @@ describe('PaymasterERC20', function () {
       await this.paymaster.deposit({ value });
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
+      this.userOp.paymasterVerificationGasLimit = 200_000n; // Give headroom for the coverage
     });
 
     it('succeeds paying with ERC-20 tokens', async function () {
