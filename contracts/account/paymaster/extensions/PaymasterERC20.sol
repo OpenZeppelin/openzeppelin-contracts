@@ -350,6 +350,9 @@ abstract contract PaymasterERC20 is Paymaster {
      * The `token` selected by {_fetchDetails} is passed in so multi-token paymasters can set the bound per
      * token. The default (0) accepts any price, for all tokens.
      *
+     * WARNING: When storing per-token bounds (e.g. in a mapping), make sure every token {_fetchDetails} can return
+     * has one. An unset entry reads as 0 and disables the check for that token. Consider returning
+     * `type(uint256).max` for unconfigured tokens so they are rejected.
      * To pick a value, decide:
      *
      * * `minCharge`: smallest token amount you want to bill per op (e.g. `0.01 USDC = 10_000` units).
