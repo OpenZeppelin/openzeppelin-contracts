@@ -29,12 +29,7 @@ const limit = pLimit(concurrency);
  *                                                     HELPERS                                                      *
  ********************************************************************************************************************/
 
-/**
- * Updates the pragma in the given file to the newPragma version.
- * @param {*} file Absolute path to the file to update.
- * @param {*} pragma New pragma version to set. (ex: '>=0.8.4')
- */
-const updatePragma = (file, pragma) =>
+const setPragma = (file, pragma) =>
   fs.writeFileSync(
     file,
     fs
@@ -42,6 +37,19 @@ const updatePragma = (file, pragma) =>
       .replace(/pragma solidity [><=^]*[0-9]+\.[0-9]+\.[0-9]+;/, `pragma solidity ${pragma};`),
     'utf8',
   );
+
+/**
+ * Updates the pragma in the given file to the newPragma version. If the file was procedurally
+ * generated, the same update is applied to its `.eta` template, so the change survives the next
+ * `npm run generate` and keeps the generated file in sync with its source.
+ * @param {*} file Path to the file to update (relative to the repo root).
+ * @param {*} pragma New pragma version to set. (ex: '>=0.8.4')
+ */
+const updatePragma = (file, pragma) => {
+  setPragma(file, pragma);
+  const template = fs.readFileSync(file, 'utf8').match(/procedurally generated from (\S+\.eta)/)?.[1];
+  if (template && fs.existsSync(template)) setPragma(template, pragma);
+};
 
 /**
  * Get the applicable pragmas for a given file by compiling it with all solc versions.
