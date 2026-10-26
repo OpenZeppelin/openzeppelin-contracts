@@ -114,7 +114,7 @@ Object.keys(metadata).forEach(file => {
 });
 
 // Weaken all pragma to allow exploration
-Object.keys(metadata).forEach(file => updatePragma(file, '>=0.0.0'));
+Object.keys(metadata).forEach(file => setPragma(file, '>=0.0.0'));
 
 // Do a topological traversal of the dependency graph, minimizing pragma for each file we encounter
 (async () => {
