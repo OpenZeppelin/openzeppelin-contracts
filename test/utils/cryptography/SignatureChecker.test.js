@@ -477,7 +477,6 @@ describe('SignatureChecker (ERC7964)', function () {
       signer.signTypedData(await getCrossChainDomain(application, fields), ERC7964_TYPES, { operations, nonce });
 
     this.encodeCrossChain = async ({
-      fields = '0x03',
       structIndex = 1,
       application = this.app,
       structsArray = this.structsArray,
@@ -485,10 +484,9 @@ describe('SignatureChecker (ERC7964)', function () {
       ...signOptions
     } = {}) =>
       encodeSignature({
-        header: encodeHeader({ fields, structIndex, application: application.target ?? application }),
+        header: encodeHeader({ structIndex, application: application.target ?? application }),
         structsArray,
-        crossChainSignature:
-          crossChainSignature ?? (await this.signCrossChain({ fields, application, ...signOptions })),
+        crossChainSignature: crossChainSignature ?? (await this.signCrossChain({ application, ...signOptions })),
       });
   });
 
@@ -501,12 +499,16 @@ describe('SignatureChecker (ERC7964)', function () {
     for (const fn of ['isValidSetValueSignature', 'isValidSetValueSignatureCalldata']) {
       describe(fn, function () {
         describe('with valid signature', function () {
-          for (const fields of ['0x01', '0x03', '0x0b', '0x13', '0x1b']) {
-            it(`with domain fields ${fields}`, async function () {
-              const signature = await this.encodeCrossChain({ fields });
-              await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.true;
-            });
-          }
+          it('with domain of the application fields without the chain fields', async function () {
+            const signature = await this.encodeCrossChain();
+            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.true;
+          });
+
+          it('with application that only exposes the main domain fields', async function () {
+            await this.otherApp.setDomainFields('0x03');
+            const signature = await this.encodeCrossChain({ application: this.otherApp });
+            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.true;
+          });
 
           it('with ERC-1271 wallet signer', async function () {
             const signature = await this.encodeCrossChain();
@@ -577,18 +579,18 @@ describe('SignatureChecker (ERC7964)', function () {
             await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
           });
 
-          it('with fields that differ from the signed domain', async function () {
-            const signature = await this.encodeCrossChain({
-              fields: '0x01',
-              crossChainSignature: await this.signCrossChain(),
-            });
-            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
+          it('with domain fields other than the application fields without the chain fields', async function () {
+            for (const fields of ['0x01', '0x0b', '0x13', '0x1b']) {
+              const signature = await this.encodeCrossChain({ fields });
+              await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
+            }
           });
 
-          it('with unsupported fields', async function () {
+          it('with application that exposes unsupported fields', async function () {
             for (const fields of ['0x20', '0x23', '0xff']) {
+              await this.otherApp.setDomainFields(fields);
               const signature = await this.encodeCrossChain({
-                fields,
+                application: this.otherApp,
                 crossChainSignature: await this.signCrossChain(),
               });
               await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
@@ -599,15 +601,6 @@ describe('SignatureChecker (ERC7964)', function () {
             const signature = await this.encodeCrossChain({
               application: this.unrelatedApp,
               crossChainSignature: await this.signCrossChain(),
-            });
-            await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
-          });
-
-          it('with application that returns a different verifying contract', async function () {
-            const signature = await this.encodeCrossChain({
-              fields: '0x0b',
-              application: this.otherApp,
-              crossChainSignature: await this.signCrossChain({ fields: '0x0b' }),
             });
             await expect(this.app[fn](this.signer, VALUE, signature)).to.eventually.be.false;
           });
@@ -636,8 +629,7 @@ describe('SignatureChecker (ERC7964)', function () {
           it('with invalid magic', async function () {
             const signature = encodeSignature({
               header: encodeHeader({
-                magic: random.hexBytes(9),
-                fields: '0x03',
+                magic: random.hexBytes(10),
                 structIndex: 1,
                 application: this.app.target,
               }),
@@ -657,7 +649,7 @@ describe('SignatureChecker (ERC7964)', function () {
   });
 
   describe('tryParseCrossChainSignature', function () {
-    const EMPTY = ['0x00', 0n, ethers.ZeroAddress, [], '0x'];
+    const EMPTY = [0n, ethers.ZeroAddress, [], '0x'];
 
     // Replaces the 32 bytes word at `offset` in `data` with `value`
     const setWord = (data, offset, value) =>
@@ -669,7 +661,7 @@ describe('SignatureChecker (ERC7964)', function () {
 
     beforeEach(async function () {
       this.crossChainSignature = await this.signCrossChain();
-      this.header = encodeHeader({ fields: '0x03', structIndex: 1, application: this.app.target });
+      this.header = encodeHeader({ structIndex: 1, application: this.app.target });
       this.signature = encodeSignature({
         header: this.header,
         structsArray: this.structsArray,
@@ -687,7 +679,6 @@ describe('SignatureChecker (ERC7964)', function () {
 
         it('with valid signature', async function () {
           await expect(parse(this.mock, this.signature)).to.eventually.deep.equal([
-            '0x03',
             1n,
             this.app.target,
             this.structsArray,
@@ -698,7 +689,7 @@ describe('SignatureChecker (ERC7964)', function () {
         it('with empty structs array and crosschain signature', async function () {
           const signature = encodeSignature({ header: this.header, structsArray: [], crossChainSignature: '0x' });
           expect(ethers.dataLength(signature)).to.equal(0xa0);
-          await expect(parse(this.mock, signature)).to.eventually.deep.equal(['0x03', 1n, this.app.target, [], '0x']);
+          await expect(parse(this.mock, signature)).to.eventually.deep.equal([1n, this.app.target, [], '0x']);
         });
 
         it('with trailing data and non-canonical gaps', async function () {
@@ -713,7 +704,6 @@ describe('SignatureChecker (ERC7964)', function () {
             '0x1234',
           ]);
           await expect(parse(this.mock, signature)).to.eventually.deep.equal([
-            '0x03',
             1n,
             this.app.target,
             this.structsArray,
@@ -727,8 +717,8 @@ describe('SignatureChecker (ERC7964)', function () {
         });
 
         it('with invalid magic', async function () {
-          for (const magic of [random.hexBytes(9), ethers.ZeroHash.slice(0, 20)]) {
-            const signature = ethers.concat([magic, ethers.dataSlice(this.signature, 9)]);
+          for (const magic of [random.hexBytes(10), ethers.ZeroHash.slice(0, 22)]) {
+            const signature = ethers.concat([magic, ethers.dataSlice(this.signature, 10)]);
             await expect(parse(this.mock, signature)).to.eventually.deep.equal(EMPTY);
           }
         });

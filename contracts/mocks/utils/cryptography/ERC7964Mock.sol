@@ -17,12 +17,14 @@ contract ERC7964Mock is EIP712 {
     bytes private constant _SET_VALUE_TYPE = "SetValue(ChainOperation[] operations,uint256 nonce)";
 
     bytes32 public constant EIP712_CHAIN_DOMAIN_TYPEHASH = keccak256(_EIP712_CHAIN_DOMAIN_TYPE);
+    bytes1 public constant CHAIN_FIELDS = 0x0c; // chainId and verifyingContract
     bytes32 public constant CHAIN_OPERATION_TYPEHASH =
         keccak256(abi.encodePacked(_CHAIN_OPERATION_TYPE, _EIP712_CHAIN_DOMAIN_TYPE));
     bytes32 public constant SET_VALUE_TYPEHASH =
         keccak256(abi.encodePacked(_SET_VALUE_TYPE, _CHAIN_OPERATION_TYPE, _EIP712_CHAIN_DOMAIN_TYPE));
 
     uint256 private _nonce;
+    bytes1 private _domainFields = 0x0f;
 
     constructor(string memory name, string memory version) EIP712(name, version) {}
 
@@ -34,12 +36,43 @@ contract ERC7964Mock is EIP712 {
         _nonce = newNonce;
     }
 
+    function setDomainFields(bytes1 newDomainFields) public {
+        _domainFields = newDomainFields;
+    }
+
+    /// @dev Returns the EIP-712 domain with the ERC-5267 `fields` set by {setDomainFields} (`0x0f` by default).
+    function eip712Domain()
+        public
+        view
+        virtual
+        override
+        returns (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        )
+    {
+        (, name, version, chainId, verifyingContract, salt, extensions) = super.eip712Domain();
+        fields = _domainFields;
+    }
+
     function isValidSetValueSignature(
         address signer,
         uint256 value,
         bytes memory signature
     ) public view returns (bool) {
-        return SignatureChecker.isValidCrossChainSignatureNow(signer, operationHash(value), signature, _setValueHash);
+        return
+            SignatureChecker.isValidCrossChainSignatureNow(
+                signer,
+                operationHash(value),
+                signature,
+                CHAIN_FIELDS,
+                _setValueHash
+            );
     }
 
     function isValidSetValueSignatureCalldata(
@@ -52,6 +85,7 @@ contract ERC7964Mock is EIP712 {
                 signer,
                 operationHash(value),
                 signature,
+                CHAIN_FIELDS,
                 _setValueHash
             );
     }

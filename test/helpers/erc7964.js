@@ -1,14 +1,14 @@
 import { ethers } from 'ethers';
 import { EIP712Domain, formatType } from './eip712-types';
 
-export const ERC7964_MAGIC = '0x796479647964796479';
+export const ERC7964_MAGIC = '0x79647964796479647964';
 
 export const SetValue = formatType({ operations: 'ChainOperation[]', nonce: 'uint256' });
 export const ChainOperation = formatType({ domain: 'EIP712ChainDomain', value: 'uint256' });
 export const EIP712ChainDomain = formatType({ chainId: 'uint256', verifyingContract: 'address' });
 
-export function encodeHeader({ magic = ERC7964_MAGIC, fields, structIndex, application }) {
-  return ethers.solidityPacked(['bytes9', 'bytes1', 'uint16', 'address'], [magic, fields, structIndex, application]);
+export function encodeHeader({ magic = ERC7964_MAGIC, structIndex, application }) {
+  return ethers.solidityPacked(['bytes10', 'uint16', 'address'], [magic, structIndex, application]);
 }
 
 export function encodeSignature({ header, structsArray, crossChainSignature }) {
