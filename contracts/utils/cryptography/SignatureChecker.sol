@@ -251,14 +251,15 @@ library SignatureChecker {
         function(bytes32) internal view returns (bytes32) structHash
     ) internal view returns (bool) {
         (
+            bool success,
             address application,
             bytes memory crossChainSignature,
             bytes32 structHash_
         ) = _tryParseCrossChainSignatureForValidation(hash, signature, structHash);
-        bytes32 typedHash = structHash_ == bytes32(0)
-            ? bytes32(0)
-            : _tryToTypedDataHash(application, chainFields, structHash_);
-        return typedHash != bytes32(0) && isValidSignatureNow(signer, typedHash, crossChainSignature);
+        if (!success) return false;
+        bytes32 typedHash;
+        (success, typedHash) = _tryToTypedDataHash(application, chainFields, structHash_);
+        return success && isValidSignatureNow(signer, typedHash, crossChainSignature);
     }
 
     /// @dev Variant of {isValidCrossChainSignatureNow} that takes a signature in calldata.
@@ -270,14 +271,15 @@ library SignatureChecker {
         function(bytes32) internal view returns (bytes32) structHash
     ) internal view returns (bool) {
         (
+            bool success,
             address application,
             bytes calldata crossChainSignature,
             bytes32 structHash_
         ) = _tryParseCrossChainSignatureForValidationCalldata(hash, signature, structHash);
-        bytes32 typedHash = structHash_ == bytes32(0)
-            ? bytes32(0)
-            : _tryToTypedDataHash(application, chainFields, structHash_);
-        return typedHash != bytes32(0) && isValidSignatureNowCalldata(signer, typedHash, crossChainSignature);
+        if (!success) return false;
+        bytes32 typedHash;
+        (success, typedHash) = _tryToTypedDataHash(application, chainFields, structHash_);
+        return success && isValidSignatureNowCalldata(signer, typedHash, crossChainSignature);
     }
 
     /**
@@ -410,13 +412,12 @@ library SignatureChecker {
         bytes32 hash,
         bytes memory signature,
         function(bytes32) internal view returns (bytes32) structHash
-    ) private view returns (address application, bytes memory crossChainSignature, bytes32 structHash_) {
-        bool success;
+    ) private view returns (bool success, address application, bytes memory crossChainSignature, bytes32 structHash_) {
         uint16 structIndex;
         bytes32[] memory structsArray;
         (success, structIndex, application, structsArray, crossChainSignature) = tryParseCrossChainSignature(signature);
         if (!success || structIndex >= structsArray.length || structsArray[structIndex] != hash)
-            return (address(0), new bytes(0), 0);
+            return (false, address(0), new bytes(0), 0);
         structHash_ = structHash(keccak256(abi.encodePacked(structsArray)));
     }
 
@@ -424,24 +425,30 @@ library SignatureChecker {
         bytes32 hash,
         bytes calldata signature,
         function(bytes32) internal view returns (bytes32) structHash
-    ) private view returns (address application, bytes calldata crossChainSignature, bytes32 structHash_) {
-        bool success;
+    )
+        private
+        view
+        returns (bool success, address application, bytes calldata crossChainSignature, bytes32 structHash_)
+    {
         uint16 structIndex;
         bytes32[] calldata structsArray;
         (success, structIndex, application, structsArray, crossChainSignature) = tryParseCrossChainSignatureCalldata(
             signature
         );
         if (!success || structIndex >= structsArray.length || structsArray[structIndex] != hash)
-            return (address(0), Calldata.emptyBytes(), 0);
+            return (false, address(0), Calldata.emptyBytes(), 0);
         structHash_ = structHash(keccak256(abi.encodePacked(structsArray)));
     }
 
-    /// @dev Returns the typed data hash of `structHash_` under the `application` domain without the `chainFields`, or 0 if the remaining fields are not supported.
+    /**
+     * @dev Returns the typed data hash of `structHash_` under the `application` domain without the `chainFields`.
+     * `success` is false if the remaining fields set any bit beyond the ones defined in ERC-5267.
+     */
     function _tryToTypedDataHash(
         address application,
         bytes1 chainFields,
         bytes32 structHash_
-    ) private view returns (bytes32) {
+    ) private view returns (bool success, bytes32 typedHash) {
         (
             bytes1 applicationFields,
             string memory name,
@@ -452,11 +459,13 @@ library SignatureChecker {
 
         ) = IERC5267(application).eip712Domain();
         bytes1 fields = applicationFields & ~chainFields;
-        if (uint8(fields) > 0x1f) return bytes32(0);
-        return
+        if (uint8(fields) > 0x1f) return (false, bytes32(0));
+        return (
+            true,
             MessageHashUtils.toTypedDataHash(
                 MessageHashUtils.toDomainSeparator(fields, name, version, chainId, verifyingContract, domainSalt),
                 structHash_
-            );
+            )
+        );
     }
 }
