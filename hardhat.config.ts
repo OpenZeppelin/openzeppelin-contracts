@@ -63,7 +63,7 @@ export default defineConfig({
   networks: {
     default: {
       type: 'edr-simulated',
-      hardfork: argv.hardfork ?? argv.evm,
+      hardfork: argv.hardfork,
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
