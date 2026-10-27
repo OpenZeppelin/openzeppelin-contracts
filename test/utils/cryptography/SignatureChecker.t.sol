@@ -19,24 +19,9 @@ contract SignatureCheckerTest is Test {
         _assertParsed(this.parseCalldata(signature), structIndex, application, structsArray, crossChainSignature);
     }
 
-    /// @dev Parsing never reverts, and a successful parse matches `abi.decode`.
+    /// @dev Parsing never reverts, and the memory and calldata variants agree.
     function testParseCrossChainSignatureArbitraryData(bytes memory data) public view {
-        ParseResult memory result = this.parse(data);
-        _assertEq(result, this.parseCalldata(data));
-
-        if (result.crossChainSignature.length == 0 && result.structsArray.length == 0) return;
-        (bytes32 header, bytes32[] memory structsArray, bytes memory crossChainSignature) = abi.decode(
-            data,
-            (bytes32, bytes32[], bytes)
-        );
-        assertEq(bytes10(header), SignatureChecker.ERC7964_MAGIC);
-        _assertParsed(
-            result,
-            uint16(bytes2(header << 80)),
-            address(bytes20(header << 96)),
-            structsArray,
-            crossChainSignature
-        );
+        _assertEq(this.parse(data), this.parseCalldata(data));
     }
 
     /// @dev Parsing never reverts with arbitrary offsets and lengths, and succeeds iff they are within bounds.
@@ -82,9 +67,20 @@ contract SignatureCheckerTest is Test {
 
         ParseResult memory result = this.parse(signature);
         _assertEq(result, this.parseCalldata(signature));
+        assertEq(result.success, expected);
         assertEq(result.application, expected ? address(this) : address(0));
         assertEq(result.structsArray.length, expected ? structsArrayLength : 0);
         assertEq(result.crossChainSignature.length, expected ? crossChainSignatureLength : 0);
+
+        // A successful parse matches `abi.decode`
+        if (expected) {
+            (, bytes32[] memory structsArray, bytes memory crossChainSignature) = abi.decode(
+                signature,
+                (bytes32, bytes32[], bytes)
+            );
+            assertEq(result.structsArray, structsArray);
+            assertEq(result.crossChainSignature, crossChainSignature);
+        }
     }
 
     function testIsValidCrossChainSignature(
@@ -142,6 +138,7 @@ contract SignatureCheckerTest is Test {
     }
 
     struct ParseResult {
+        bool success;
         uint16 structIndex;
         address application;
         bytes32[] structsArray;
@@ -149,12 +146,12 @@ contract SignatureCheckerTest is Test {
     }
 
     function parse(bytes memory signature) external pure returns (ParseResult memory r) {
-        (r.structIndex, r.application, r.structsArray, r.crossChainSignature) = SignatureChecker
+        (r.success, r.structIndex, r.application, r.structsArray, r.crossChainSignature) = SignatureChecker
             .tryParseCrossChainSignature(signature);
     }
 
     function parseCalldata(bytes calldata signature) external pure returns (ParseResult memory r) {
-        (r.structIndex, r.application, r.structsArray, r.crossChainSignature) = SignatureChecker
+        (r.success, r.structIndex, r.application, r.structsArray, r.crossChainSignature) = SignatureChecker
             .tryParseCrossChainSignatureCalldata(signature);
     }
 
@@ -196,6 +193,7 @@ contract SignatureCheckerTest is Test {
         bytes32[] memory structsArray,
         bytes memory crossChainSignature
     ) private pure {
+        assertTrue(result.success);
         assertEq(result.structIndex, structIndex);
         assertEq(result.application, application);
         assertEq(result.structsArray, structsArray);
@@ -203,6 +201,10 @@ contract SignatureCheckerTest is Test {
     }
 
     function _assertEq(ParseResult memory a, ParseResult memory b) private pure {
-        _assertParsed(a, b.structIndex, b.application, b.structsArray, b.crossChainSignature);
+        assertEq(a.success, b.success);
+        assertEq(a.structIndex, b.structIndex);
+        assertEq(a.application, b.application);
+        assertEq(a.structsArray, b.structsArray);
+        assertEq(a.crossChainSignature, b.crossChainSignature);
     }
 }

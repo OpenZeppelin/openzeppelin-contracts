@@ -649,7 +649,7 @@ describe('SignatureChecker (ERC7964)', function () {
   });
 
   describe('tryParseCrossChainSignature', function () {
-    const EMPTY = [0n, ethers.ZeroAddress, [], '0x'];
+    const EMPTY = [false, 0n, ethers.ZeroAddress, [], '0x'];
 
     // Replaces the 32 bytes word at `offset` in `data` with `value`
     const setWord = (data, offset, value) =>
@@ -679,6 +679,7 @@ describe('SignatureChecker (ERC7964)', function () {
 
         it('with valid signature', async function () {
           await expect(parse(this.mock, this.signature)).to.eventually.deep.equal([
+            true,
             1n,
             this.app.target,
             this.structsArray,
@@ -689,7 +690,7 @@ describe('SignatureChecker (ERC7964)', function () {
         it('with empty structs array and crosschain signature', async function () {
           const signature = encodeSignature({ header: this.header, structsArray: [], crossChainSignature: '0x' });
           expect(ethers.dataLength(signature)).to.equal(0xa0);
-          await expect(parse(this.mock, signature)).to.eventually.deep.equal([1n, this.app.target, [], '0x']);
+          await expect(parse(this.mock, signature)).to.eventually.deep.equal([true, 1n, this.app.target, [], '0x']);
         });
 
         it('with trailing data and non-canonical gaps', async function () {
@@ -704,6 +705,7 @@ describe('SignatureChecker (ERC7964)', function () {
             '0x1234',
           ]);
           await expect(parse(this.mock, signature)).to.eventually.deep.equal([
+            true,
             1n,
             this.app.target,
             this.structsArray,
