@@ -185,11 +185,13 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
 
     /// @inheritdoc IERC3643
     function setIdentityRegistry(address identityRegistry_) public virtual onlyAdmin {
+        require(identityRegistry_ != address(0), ERC3643MissingIdentityRegistry());
         _setIdentityRegistry(identityRegistry_);
     }
 
     /// @inheritdoc IERC3643
     function setCompliance(address compliance_) public virtual onlyAdmin {
+        require(compliance_ != address(0), ERC3643MissingCompliance());
         _setCompliance(compliance_, true);
     }
 
@@ -281,7 +283,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     }
 
     /**
-     * @dev Authorization hook. Reverts if `_msgSender()` may not call the current entry
+     * @dev Authorization hook. Must revert if `_msgSender()` may not call the current entry
      * point. The selector being authorized is `bytes4(msg.data)`; batch functions reach
      * this hook with their own batch selector, so a derived contract that maps batch
      * calls to their single-item counterpart must translate here.
@@ -311,11 +313,11 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         _setAddressFrozen(account, frozen, _msgSender());
     }
 
-    /// @dev Records `owner_` as the actor on the {AddressFrozen} event. Callable from
-    /// paths that want to attribute the action to something other than the message sender.
-    function _setAddressFrozen(address account, bool frozen, address owner_) internal virtual {
+    /// @dev Records `actor` on the {AddressFrozen} event. Callable from paths that want to
+    /// attribute the action to something other than the message sender.
+    function _setAddressFrozen(address account, bool frozen, address actor) internal virtual {
         _frozen[account] = frozen;
-        emit AddressFrozen(account, frozen, owner_);
+        emit AddressFrozen(account, frozen, actor);
     }
 
     /**
@@ -324,12 +326,13 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * override to reject over-freeze with a named error.
      */
     function _freezePartialTokens(address account, uint256 value) internal virtual {
+        uint256 frozen = getFrozenTokens(account);
         uint256 toFreeze;
         unchecked {
-            // frozenTokens is an invariant <= balanceOf, so the subtraction cannot underflow.
-            toFreeze = Math.min(value, balanceOf(account) - getFrozenTokens(account));
+            // frozen is an invariant <= balanceOf, so the subtraction cannot underflow.
+            toFreeze = Math.min(value, balanceOf(account) - frozen);
+            _frozenTokens[account] = frozen + toFreeze; // <= balanceOf, so cannot overflow
         }
-        _frozenTokens[account] += toFreeze;
         emit TokensFrozen(account, toFreeze);
     }
 
@@ -396,6 +399,15 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * resolvable: `lost` still resolves to the old identity, `updated` to the new one.
      * The old registration is deleted only after all migration steps.
      *
+     * The whole balance of `lost` moves through {_forcedTransfer}, which auto-unfreezes all
+     * of `lost`'s frozen tokens, so the frozen amount ends up entirely on `updated`. An
+     * override that moves less than the full balance must clear the residual frozen amount
+     * on `lost` itself.
+     *
+     * A zero `lost` or `updated` reverts in {_forcedTransfer} ({ERC20InvalidSender} /
+     * {ERC20InvalidReceiver}), so overrides that keep the balance migration on that path
+     * keep the zero-address guard.
+     *
      * Can reenter through the identity registry, which is trusted.
      */
     // slither-disable-next-line reentrancy-no-eth
@@ -416,17 +428,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
             ERC3643FailedForcedTransfer(lost, updated, investorTokens)
         );
 
-        // Carry the frozen state onto `updated`. `_forcedTransfer` auto-unfreezes on
-        // `lost` as needed to release the moved amount, so any residual frozen amount
-        // on `lost` is also cleared explicitly to keep the frozen state entirely on
-        // the new wallet.
         if (frozenTokens > 0) {
             _frozenTokens[updated] += frozenTokens;
             emit TokensFrozen(updated, frozenTokens);
-        }
-        uint256 lostRemaining = getFrozenTokens(lost);
-        if (lostRemaining > 0) {
-            _unfreezePartialTokens(lost, lostRemaining);
         }
         if (lostFrozen) {
             _setAddressFrozen(lost, false, address(this));
@@ -454,6 +458,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     function _update(address from, address to, uint256 value) internal virtual override {
         bool isMint = from == address(0);
         bool isBurn = to == address(0);
+        ICompliance compliance_ = compliance();
 
         if (!isMint && !isBurn) {
             _requireNotPaused();
@@ -470,12 +475,11 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
 
         if (!isBurn) {
             require(identityRegistry().isVerified(to), ERC3643UnverifiedRecipient(to));
-            require(compliance().canTransfer(from, to, value), ERC3643ComplianceViolation(from, to, value));
+            require(compliance_.canTransfer(from, to, value), ERC3643ComplianceViolation(from, to, value));
         }
 
         super._update(from, to, value);
 
-        ICompliance compliance_ = compliance();
         if (isMint) compliance_.created(to, value);
         else if (isBurn) compliance_.destroyed(from, value);
         else compliance_.transferred(from, to, value);

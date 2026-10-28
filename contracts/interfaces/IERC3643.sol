@@ -1217,8 +1217,6 @@ interface ITrustedIssuersRegistry {
      * * `_trustedIssuer` must be a valid claim issuer contract
      * * `_trustedIssuer` must not already be registered
      * * `_claimTopics` array must not be empty
-     * * `_claimTopics` array must not exceed 15 topics (gas optimization)
-     * * Registry must not exceed 50 trusted issuers (gas optimization)
      *
      * Emits a {TrustedIssuerAdded} event.
      */
@@ -1249,7 +1247,6 @@ interface ITrustedIssuersRegistry {
      * * Only the owner can call this function
      * * `_trustedIssuer` must be currently registered as a trusted issuer
      * * `_claimTopics` array must not be empty
-     * * `_claimTopics` array must not exceed 15 topics (gas optimization)
      *
      * Emits a {ClaimTopicsUpdated} event.
      */
@@ -1286,6 +1283,10 @@ interface ITrustedIssuersRegistry {
      * @dev Returns all trusted issuers that are authorized to emit a specific claim topic.
      * @param claimTopic The claim topic ID to query
      * @return Array of trusted claim issuer addresses authorized for the given topic
+     *
+     * NOTE: An identity registry typically iterates this set in {IIdentityRegistry-isVerified}, which runs on every
+     * compliant transfer, so transfer cost grows with the number of issuers trusted for the topic. Keeping the set
+     * small keeps transfers within the block gas limit.
      */
     function getTrustedIssuersForClaimTopic(uint256 claimTopic) external view returns (IClaimIssuer[] memory);
 
@@ -1320,7 +1321,6 @@ interface ITrustedIssuersRegistry {
  *
  * Architecture considerations:
  *
- * * Maximum 15 topics per token (gas optimization)
  * * Topics are defined at the token ecosystem level
  * * Claims must be issued by trusted issuers for these topics
  * * Claims are validated during identity verification processes
@@ -1360,8 +1360,6 @@ interface IClaimTopicsRegistry {
      *
      * * Only the owner can call this function
      * * `_claimTopic` must not already be registered
-     * * Registry must not exceed 15 topics (gas optimization)
-     * * `_claimTopic` must not be zero
      *
      * Emits a {ClaimTopicAdded} event.
      */
@@ -1391,6 +1389,10 @@ interface IClaimTopicsRegistry {
      * must possess to be eligible for token operations.
      *
      * @return Array of claim topic IDs currently registered
+     *
+     * NOTE: An identity registry typically iterates this set in {IIdentityRegistry-isVerified}, which runs on every
+     * compliant transfer, so transfer cost grows with the number of registered claim topics. Keeping the set small
+     * keeps transfers within the block gas limit.
      */
     function getClaimTopics() external view returns (uint256[] memory);
 }

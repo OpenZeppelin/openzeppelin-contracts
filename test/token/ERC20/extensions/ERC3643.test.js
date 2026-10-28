@@ -166,12 +166,25 @@ describe('ERC3643', function () {
       await expect(this.token.identityRegistry()).to.eventually.equal(newRegistry);
     });
 
+    it('reverts when setting the identity registry to the zero address', async function () {
+      await expect(
+        this.token.connect(this.owner).setIdentityRegistry(ethers.ZeroAddress),
+      ).to.be.revertedWithCustomError(this.token, 'ERC3643MissingIdentityRegistry');
+    });
+
     it('sets the compliance', async function () {
       const newCompliance = await ethers.deployContract('ERC3643ComplianceMock');
       await expect(this.token.connect(this.owner).setCompliance(newCompliance))
         .to.emit(this.token, 'ComplianceAdded')
         .withArgs(newCompliance);
       await expect(this.token.compliance()).to.eventually.equal(newCompliance);
+    });
+
+    it('reverts when setting the compliance to the zero address', async function () {
+      await expect(this.token.connect(this.owner).setCompliance(ethers.ZeroAddress)).to.be.revertedWithCustomError(
+        this.token,
+        'ERC3643MissingCompliance',
+      );
     });
 
     it('sets the compliance without the event through the internal setter', async function () {
