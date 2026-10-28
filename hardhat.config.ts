@@ -24,6 +24,7 @@ const argv = await yargs()
     runs: { type: 'number', default: 200 },
     ir: { type: 'boolean', default: false },
     evm: { type: 'string', default: 'osaka' },
+    hardfork: { type: 'string', default: 'amsterdam' },
   })
   .parse();
 
@@ -62,10 +63,13 @@ export default defineConfig({
   networks: {
     default: {
       type: 'edr-simulated',
-      hardfork: argv.evm,
+      hardfork: argv.hardfork,
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
+      // Since Amsterdam, state creation is priced per byte. Deploying the (exposed) account mocks costs more
+      // than the EIP-7825 transaction gas cap.
+      transactionGasCap: false,
     },
   },
   test: {

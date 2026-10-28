@@ -158,9 +158,6 @@ describe('PaymasterERC20Guarantor', function () {
       await this.paymaster.deposit({ value });
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
-      // Two signature checks (oracle + guarantor, the latter fetched twice) + transferFrom sit right at the 100k
-      // default: ~90k on the vanilla build, ~100k once transpiled to upgradeable, and more under coverage.
-      this.userOp.paymasterVerificationGasLimit = 200_000n;
     });
 
     describe('succeeds paying with ERC20 tokens', function () {

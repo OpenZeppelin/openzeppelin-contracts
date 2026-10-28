@@ -301,9 +301,9 @@ describe('RateLimiter', function () {
       it('multiple consumes in the same block accumulate', async function () {
         await batchInBlock(
           [
-            () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
-            () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
-            () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(100n, defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.consume(200n, defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.consume(50n, defaultKey, { gasLimit: 1_000_000n }),
           ],
           ethers.provider,
         );
@@ -354,8 +354,8 @@ describe('RateLimiter', function () {
         await time.increaseBy.timestamp(d1, false);
         await batchInBlock(
           [
-            () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
-            () => this.mock.updateSettings(WINDOW, CAPACITY * 2n, { gasLimit: 200000 }),
+            () => this.mock.sync(defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.updateSettings(WINDOW, CAPACITY * 2n, { gasLimit: 1_000_000n }),
           ],
           ethers.provider,
         );
@@ -382,8 +382,8 @@ describe('RateLimiter', function () {
         await time.increaseBy.timestamp(180n, false);
         await batchInBlock(
           [
-            () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
-            () => this.mock.updateSettings(360n, 10n, { gasLimit: 200000 }),
+            () => this.mock.sync(defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.updateSettings(360n, 10n, { gasLimit: 1_000_000n }),
           ],
           ethers.provider,
         );
@@ -400,8 +400,8 @@ describe('RateLimiter', function () {
         await time.increaseBy.timestamp(540n, false);
         await batchInBlock(
           [
-            () => this.mock.consume(1n, defaultKey, { gasLimit: 200000 }),
-            () => this.mock.updateSettings(360n, 10n, { gasLimit: 200000 }),
+            () => this.mock.consume(1n, defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.updateSettings(360n, 10n, { gasLimit: 1_000_000n }),
           ],
           ethers.provider,
         );
@@ -623,9 +623,9 @@ describe('RateLimiter', function () {
       it('multiple consumes in the same block overwrite the checkpoint in place', async function () {
         await batchInBlock(
           [
-            () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
-            () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
-            () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
+            () => this.mock.consume(100n, defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.consume(200n, defaultKey, { gasLimit: 1_000_000n }),
+            () => this.mock.consume(50n, defaultKey, { gasLimit: 1_000_000n }),
           ],
           ethers.provider,
         );
