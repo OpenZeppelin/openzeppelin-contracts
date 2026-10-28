@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/extensions/PaymasterERC20.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
@@ -99,8 +99,9 @@ abstract contract PaymasterERC20 is Paymaster {
         address userOpSender = userOp.sender;
         (validationData, token, tokenPerNative) = _fetchDetails(userOp, userOpHash);
 
-        if (uint160(validationData) == ERC4337Utils.SIG_VALIDATION_FAILED || tokenPerNative < _minTokensPerNative())
-            return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        if (
+            uint160(validationData) == ERC4337Utils.SIG_VALIDATION_FAILED || tokenPerNative < _minTokensPerNative(token)
+        ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
         // Worst-case unused-gas penalty that the EntryPoint may debit from the paymaster's deposit for the
         // user-controlled `paymasterPostOpGasLimit` (see {_postOpGasPenalty}). The EntryPoint computes this penalty
@@ -221,7 +222,7 @@ abstract contract PaymasterERC20 is Paymaster {
             prefundAmount,
             prefundContext
         );
-        if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
+        require(success, PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext));
 
         emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPerNative);
     }
@@ -346,28 +347,34 @@ abstract contract PaymasterERC20 is Paymaster {
      * @dev Lower bound on `tokenPerNative` (see {_fetchDetails} for units). Operations whose `tokenPerNative`
      * is strictly below this value are rejected with `SIG_VALIDATION_FAILED` before {_prefund} runs.
      *
+     * The `token` selected by {_fetchDetails} is passed in so multi-token paymasters can set the bound per
+     * token. The default (0) accepts any price, for all tokens.
+     *
+     * WARNING: When storing per-token bounds (e.g. in a mapping), make sure every token {_fetchDetails} can return
+     * has one. An unset entry reads as 0 and disables the check for that token. Consider returning
+     * `type(uint256).max` for unconfigured tokens so they are rejected.
      * To pick a value, decide:
      *
      * * `minCharge`: smallest token amount you want to bill per op (e.g. `0.01 USDC = 10_000` units).
      * * `minGasCost`: smallest `actualGasCost + _postOpCost() * actualUserOpFeePerGas` you expect, in wei
      *   (= `minGas * minFeePerGas`; `minFeePerGas` can be as low as 1 wei on some L2s).
      *
-     * Then set `_minTokensPerNative() >= minCharge * _tokenPerNativeDenominator() / minGasCost`.
+     * Then set `_minTokensPerNative(token) >= minCharge * _tokenPerNativeDenominator() / minGasCost`.
      *
      * Example: a USDC (6 decimals) paymaster on a chain with `minFeePerGas = 1 gwei`, sponsoring
      * ops of at least 100_000 gas and charging at least 0.01 USDC per op:
      *
      * ```solidity
-     * function _minTokensPerNative() internal view override returns (uint256) {
+     * function _minTokensPerNative(IERC20) internal view override returns (uint256) {
      *     return 100e6; // = 1e4 (0.01 USDC) * 1e18 / 1e14 (100_000 gas * 1 gwei) = 100 USDC/ETH
      * }
      * ```
      *
-     * WARNING: Setting `_minTokensPerNative()` below `minCharge * _tokenPerNativeDenominator() / minGasCost`
+     * WARNING: Setting `_minTokensPerNative(IERC20)` below `minCharge * _tokenPerNativeDenominator() / minGasCost`
      * lets {_erc20Cost} round to zero or to dust for the cheapest ops the paymaster accepts,
      * sponsoring them at a low (or zero) price.
      */
-    function _minTokensPerNative() internal view virtual returns (uint256) {
+    function _minTokensPerNative(IERC20 /*token*/) internal view virtual returns (uint256) {
         return 0;
     }
 

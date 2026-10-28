@@ -1,4 +1,4 @@
-import { network, globalOptions } from 'hardhat';
+import { network } from 'hardhat';
 import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
@@ -158,11 +158,9 @@ describe('PaymasterERC20Guarantor', function () {
       await this.paymaster.deposit({ value });
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
-      // Two signature checks (oracle + guarantor) + transferFrom pushes
-      // past the 100k default under coverage instrumentation.
-      if (globalOptions.coverage) {
-        this.userOp.paymasterVerificationGasLimit = 200_000n;
-      }
+      // Two signature checks (oracle + guarantor, the latter fetched twice) + transferFrom sit right at the 100k
+      // default: ~90k on the vanilla build, ~100k once transpiled to upgradeable, and more under coverage.
+      this.userOp.paymasterVerificationGasLimit = 200_000n;
     });
 
     describe('succeeds paying with ERC20 tokens', function () {
@@ -438,6 +436,36 @@ describe('PaymasterERC20Guarantor', function () {
         postOpCost + guaranteedPostOpCost,
       );
       await expect(this.paymaster.$_postOpGasBudget(plain.packed)).to.eventually.equal(postOpCost);
+    });
+
+    it('treats a sender guaranteeing itself as not guaranteed', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // The guarantor is the sender. 30k is below the guaranteed floor (45k), which only applies to guaranteed ops.
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, sender: this.guarantor, paymasterPostOpGasLimit: 30_000n })
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }));
+
+      await expect(this.paymaster.$_postOpGasBudget(signedUserOp.packed)).to.eventually.equal(
+        await this.paymaster.$_postOpCost(),
+      );
+
+      // The prefund is not inflated and no UserOperationGuaranteed event is emitted.
+      const prefundAmount = 1000n;
+      const tx = this.paymaster.$_prefund(
+        signedUserOp.packed,
+        ethers.ZeroHash,
+        this.token,
+        ethers.WeiPerEther,
+        this.guarantor,
+        prefundAmount,
+      );
+      await expect(tx)
+        .to.emit(this.paymaster, 'return$_prefund')
+        .withArgs(true, this.guarantor.address, prefundAmount, anyValue)
+        .to.not.emit(this.paymaster, 'UserOperationGuaranteed');
+      await expect(tx).to.changeTokenBalances(ethers, this.token, [this.guarantor], [-prefundAmount]);
     });
 
     it('charges no unused-gas penalty for a guaranteed op provisioned at the floor', async function () {

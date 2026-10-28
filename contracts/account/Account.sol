@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/Account.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/IERC4337.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";
@@ -129,9 +129,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _checkEntryPoint() internal view virtual {
         address sender = msg.sender;
-        if (sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
-        }
+        require(sender == address(entryPoint()), AccountUnauthorized(sender));
     }
 
     /**
@@ -139,9 +137,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _checkEntryPointOrSelf() internal view virtual {
         address sender = msg.sender;
-        if (sender != address(this) && sender != address(entryPoint())) {
-            revert AccountUnauthorized(sender);
-        }
+        require(sender == address(this) || sender == address(entryPoint()), AccountUnauthorized(sender));
     }
 
     /**
