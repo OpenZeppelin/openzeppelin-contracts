@@ -49,7 +49,7 @@ contract VestingWallet is Context, Ownable, IERC6372 {
     uint64 private immutable _duration;
 
     /**
-     * @dev Sets the beneficiary (owner), the start timestamp and the vesting duration of the vesting wallet, both in
+     * @dev Sets the beneficiary (owner), the start timepoint and the vesting duration of the vesting wallet, both in
      * the unit of {clock}.
      */
     constructor(address beneficiary, uint64 start_, uint64 duration_) payable Ownable(beneficiary) {

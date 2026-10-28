@@ -20,8 +20,8 @@ abstract contract VestingWalletCliff is VestingWallet {
     error InvalidCliffDuration(uint64 cliffDuration, uint64 vestingDuration);
 
     /**
-     * @dev Set the duration of the cliff, in the unit of {clock}. The cliff starts vesting schedule (see
-     * {VestingWallet}'s constructor) and ends `cliffDuration` later.
+     * @dev Set the duration of the cliff, in the unit of {clock}. The cliff starts at the start of the vesting schedule
+     * (see {VestingWallet}'s constructor) and ends `cliffDuration` later.
      */
     constructor(uint64 cliffDuration) {
         uint256 vestingDuration = duration();
