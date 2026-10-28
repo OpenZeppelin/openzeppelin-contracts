@@ -24,7 +24,6 @@ const argv = await yargs()
     runs: { type: 'number', default: 200 },
     ir: { type: 'boolean', default: false },
     evm: { type: 'string', default: 'osaka' },
-    hardfork: { type: 'string', default: 'amsterdam' },
   })
   .parse();
 
@@ -63,7 +62,7 @@ export default defineConfig({
   networks: {
     default: {
       type: 'edr-simulated',
-      hardfork: argv.hardfork,
+      hardfork: argv.evm,
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
