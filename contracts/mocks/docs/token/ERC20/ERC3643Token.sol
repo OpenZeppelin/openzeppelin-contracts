@@ -1,6 +1,6 @@
 // contracts/ERC3643Token.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {AccessControl} from "../../../../access/AccessControl.sol";
 import {ERC20} from "../../../../token/ERC20/ERC20.sol";
