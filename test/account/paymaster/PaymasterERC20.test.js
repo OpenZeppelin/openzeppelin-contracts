@@ -124,6 +124,7 @@ describe('PaymasterERC20', function () {
       await this.paymaster.deposit({ value });
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
+      this.userOp.paymasterVerificationGasLimit = 200_000n; // Give headroom for the coverage
     });
 
     it('succeeds paying with ERC-20 tokens', async function () {
@@ -329,18 +330,40 @@ describe('PaymasterERC20', function () {
         .withArgs(0n, 'AA34 signature error');
     });
 
-    it('rejects tokenPerNative below _minTokensPerNative', async function () {
-      await this.token.$_mint(this.account, value);
-      await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+    it('rejects tokenPerNative below _minTokensPerNative for the selected token', async function () {
+      // A second token with a minimum of 2; the default token keeps the inherited default (0 = no minimum).
+      const token2 = await ethers.deployContract('$ERC20', ['Name2', 'Symbol2']);
+      await this.paymaster.setMinTokensPerNative(token2, 2n * ethers.WeiPerEther);
 
-      const signedUserOp = await this.account
+      // Fund both tokens identically so the only difference between the two ops is the minimum,
+      // not the account's ability to pay (otherwise a failed prefund would also surface as AA34).
+      for (const erc20 of [this.token, token2]) {
+        await erc20.$_mint(this.account, value);
+        await erc20.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+      }
+
+      // Price below token2's minimum (2), but accepted by the default token (which has no minimum).
+      const tokenPerNative = 1n * ethers.WeiPerEther;
+
+      // Same price, token2 selected: rejected because 1 < token2's minimum (2).
+      const rejected = await this.account
         .createUserOp(this.userOp)
-        .then(op => this.paymasterSignUserOp(op, { tokenPerNative: 0n }))
+        .then(op => this.paymasterSignUserOp(op, { tokenPerNative, erc20: token2 }))
         .then(op => this.signUserOp(op));
 
-      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([rejected.packed], this.receiver))
         .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
+
+      // Same op, same price, but the default token: sponsored because it keeps the default minimum of 0.
+      const accepted = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op, { tokenPerNative }))
+        .then(op => this.signUserOp(op));
+
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([accepted.packed], this.receiver))
+        .to.emit(this.paymaster, 'UserOperationSponsored')
+        .withArgs(accepted.hash(), this.token, anyValue, tokenPerNative);
     });
   });
 
