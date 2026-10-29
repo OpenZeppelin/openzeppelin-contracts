@@ -43,6 +43,21 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
     await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.admin));
   });
 
+  for (const [name, controller] of Object.entries({
+    empty: () => '0x',
+    unparsable: () => '0xdeadbeef',
+    padded: admin => ethers.concat([chain.toErc7930(admin), '0x00']),
+    'chain-only': () => chain.erc7930,
+    'evm with 32-byte address': admin => chain.toErc7930(ethers.zeroPadValue(admin.address, 32)),
+  })) {
+    it(`rejects ${name} controller at construction`, async function () {
+      const invalid = controller(this.admin);
+      await expect(ethers.deployContract('$CrosschainRemoteExecutor', [this.gateway, invalid]))
+        .to.be.revertedWithCustomError(this.executor, 'InteroperableAddressParsingError')
+        .withArgs(invalid);
+    });
+  }
+
   describe('crosschain operation', function () {
     it('support single mode', async function () {
       const mode = encodeMode({ callType: CALL_TYPE_CALL });
@@ -108,7 +123,44 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
 
       await expect(this.executor.gateway()).to.eventually.equal(this.newGateway);
       await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.other));
+
+      // the previous controller is no longer authorized
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
+        .to.be.revertedWithCustomError(this.executor, 'ERC7786RecipientUnauthorizedGateway')
+        .withArgs(this.gateway, chain.toErc7930(this.admin));
     });
+
+    for (const [name, controller] of Object.entries({
+      unparsable: () => '0xdeadbeef',
+      padded: admin => ethers.concat([chain.toErc7930(admin), '0x00']),
+      'chain-only': () => chain.erc7930,
+      'evm with 32-byte address': admin => chain.toErc7930(ethers.zeroPadValue(admin.address, 32)),
+    })) {
+      it(`through a crosschain call with ${name} controller: revert`, async function () {
+        const invalid = controller(this.admin);
+        const mode = encodeMode({ callType: CALL_TYPE_CALL });
+        const data = encodeSingle(
+          this.executor,
+          0n,
+          this.executor.interface.encodeFunctionData('reconfigure', [this.gateway.target, invalid]),
+        );
+
+        await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
+          .to.be.revertedWithCustomError(this.executor, 'InteroperableAddressParsingError')
+          .withArgs(invalid);
+
+        // the controller is unchanged and still able to drive the executor
+        await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.admin));
+        await expect(
+          this.remoteExecute(
+            this.admin,
+            chain.toErc7930(this.executor),
+            mode,
+            encodeSingle(this.target, 0n, this.target.interface.encodeFunctionData('mockFunctionExtra')),
+          ),
+        ).to.emit(this.target, 'MockFunctionCalledExtra');
+      });
+    }
 
     it('through the internal setter: success', async function () {
       await expect(this.executor.$_setup(this.newGateway, chain.toErc7930(this.other)))

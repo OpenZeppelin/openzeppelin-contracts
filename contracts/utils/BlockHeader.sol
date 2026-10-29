@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/BlockHeader.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {Blockhash} from "./Blockhash.sol";
 import {SafeCast} from "./math/SafeCast.sol";
@@ -36,7 +36,8 @@ library BlockHeader {
         ExcessBlobGas, // Since Cancun
         ParentBeaconBlockRoot, // Since Cancun
         RequestsHash, // Since Prague
-        BlockAccessListHash // Since Amsterdam
+        BlockAccessListHash, // Since Amsterdam
+        SlotNumber // Since Amsterdam
     }
 
     /// @dev Thrown when the provided block header RLP does not have the expected number of fields.
@@ -291,6 +292,16 @@ library BlockHeader {
     /// @dev Extract the block access list hash from pre-parsed header fields.
     function getBlockAccessListHash(Memory.Slice[] memory fields) internal pure returns (bytes32) {
         return _getField(fields, HeaderField.BlockAccessListHash).readBytes32();
+    }
+
+    /// @dev Extract the slot number from the block header RLP. This will be introduced in Amsterdam.
+    function getSlotNumber(bytes memory headerRLP) internal pure returns (uint64) {
+        return _getField(headerRLP, HeaderField.SlotNumber).readUint256().toUint64();
+    }
+
+    /// @dev Extract the slot number from pre-parsed header fields.
+    function getSlotNumber(Memory.Slice[] memory fields) internal pure returns (uint64) {
+        return _getField(fields, HeaderField.SlotNumber).readUint256().toUint64();
     }
 
     /**

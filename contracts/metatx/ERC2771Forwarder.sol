@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (metatx/ERC2771Forwarder.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Address} from "../utils/Address.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
@@ -12,6 +12,9 @@ import {ERC2771Context} from "./ERC2771Context.sol";
 
 /**
  * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
+ *
+ * IMPORTANT: Deprecated. The ERC-2771 meta-transaction stack ({ERC2771Context} and this forwarder) is removed in
+ * v6.0. Consider adopting alternatives such as ERC-4337 account abstraction.
  *
  * This forwarder operates on forward requests that include:
  *
@@ -137,9 +140,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        if (!_execute(request, true)) {
-            revert Errors.FailedCall();
-        }
+        require(_execute(request, true), Errors.FailedCall());
     }
 
     /**
@@ -181,14 +182,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         // The batch should revert if there's a mismatched msg.value provided
         // to avoid request value tampering
-        if (requestsValue != msg.value) {
-            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
-        }
+        require(requestsValue == msg.value, ERC2771ForwarderMismatchedValue(requestsValue, msg.value));
 
         // Some requests with value were invalid (possibly due to frontrunning).
         // To avoid leaving ETH in the contract, this value is refunded.
         if (refundValue != 0) {
-            if (requireValidRequests) revert ERC2771ForwarderNoRefundReceiver();
+            require(!requireValidRequests, ERC2771ForwarderNoRefundReceiver());
 
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance

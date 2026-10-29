@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { MAX_UINT48 } from '../../helpers/constants';
 import { ERC4337Helper, packValidationData, UserOperation } from '../../helpers/erc4337';
 import { ValidationRange } from '../../helpers/enums';
+import * as random from '../../helpers/random';
 
 const connection = await network.create();
 const {
@@ -763,15 +764,27 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
 
+      it('returns full data when paymasterAndData is too short to carry a signature, even if it ends with the magic', async function () {
+        // The EntryPoint (v0.9) only looks for a signature suffix in paymasterAndData that is at least 62 bytes long.
+        // At exactly 62 bytes the declared signature length is necessarily zero, which is also "no signature".
+        const packedUserOp = this.userOp.packed;
+        const staticFields = random.bytes(52); // 52 random bytes
+        const magic = '0x22e325a297439656';
+
+        for (const data of [8, 9, 10].map(dataLength => ethers.zeroPadValue(magic, dataLength))) {
+          packedUserOp.paymasterAndData = ethers.concat([staticFields, data]); // 60, 61 and 62 bytes
+          await expect(this.utils.$paymasterData(packedUserOp)).to.eventually.equal(data);
+          await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+        }
+      });
+
       it('returns empty signature when paymasterAndData length is less than 62 + signature length', async function () {
         const packedUserOp = this.userOp.packed;
-        packedUserOp.paymasterAndData = ethers.concat([
-          '0x437d871626ffaa4f2a3d24eb54fbc9af36c4c75fbf1b69c2d109b1ce43ab3eaa50b8aba09d395e08a8687c940be78d6533536a78', // 52 random bytes
-          // Missing signature
-          '0x0001', // Non zero signature length
-          '0x22e325a297439656', // magic value
-        ]);
+        const staticFields = random.bytes(52); // 52 random bytes
+        const magic = '0x22e325a297439656';
 
+        // Non-zero signature length + Missing signature
+        packedUserOp.paymasterAndData = ethers.concat([staticFields, '0x0001', magic]);
         await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
     });

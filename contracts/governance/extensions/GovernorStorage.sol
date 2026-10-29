@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (governance/extensions/GovernorStorage.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Governor} from "../Governor.sol";
 
@@ -55,9 +55,7 @@ abstract contract GovernorStorage is Governor {
     function queue(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        if (details.descriptionHash == 0) {
-            revert GovernorNonexistentProposal(proposalId);
-        }
+        require(details.descriptionHash != 0, GovernorNonexistentProposal(proposalId));
         queue(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
@@ -67,9 +65,7 @@ abstract contract GovernorStorage is Governor {
     function execute(uint256 proposalId) public payable virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        if (details.descriptionHash == 0) {
-            revert GovernorNonexistentProposal(proposalId);
-        }
+        require(details.descriptionHash != 0, GovernorNonexistentProposal(proposalId));
         execute(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
@@ -79,9 +75,7 @@ abstract contract GovernorStorage is Governor {
     function cancel(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        if (details.descriptionHash == 0) {
-            revert GovernorNonexistentProposal(proposalId);
-        }
+        require(details.descriptionHash != 0, GovernorNonexistentProposal(proposalId));
         cancel(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
@@ -105,9 +99,7 @@ abstract contract GovernorStorage is Governor {
     {
         // here, using memory is more efficient than storage
         ProposalDetails memory details = _proposalDetails[proposalId];
-        if (details.descriptionHash == 0) {
-            revert GovernorNonexistentProposal(proposalId);
-        }
+        require(details.descriptionHash != 0, GovernorNonexistentProposal(proposalId));
         return (details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
