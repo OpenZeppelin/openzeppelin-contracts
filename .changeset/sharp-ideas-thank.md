@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-optimize RSA padding check to use 32-byte word reads instead of byte-by-byte, reducing ~202 iterations to ~7 for 2048-bit keys
+`RSA`: Check the padding in `pkcs1Sha256` 32 bytes at a time instead of byte by byte.
