@@ -108,7 +108,7 @@ describe('RSA', function () {
 
   // Signatures over hand-built encoded messages (EM), produced with raw RSA (no padding) so that the PS bytes are
   // fully controlled. Tampering with a valid signature is not enough to test the padding check: the tampered
-  // signature decrypts to random bytes, which fail on the first word before any later word is read.
+  // signature decrypts to random bytes, which fail on the first PS bytes before any later PS byte is checked.
   //
   // EM ::= 0x00 | 0x01 | PS | 0x00 | DigestInfo, and the padding check covers EM[2..paddingEnd), where paddingEnd is
   // the length of the modulus minus 0x34 (explicit NULL parameter) or 0x32 (implicit NULL parameter).
@@ -139,10 +139,9 @@ describe('RSA', function () {
     const sign = (key, em) =>
       ethers.hexlify(privateEncrypt({ key: key.privateKey, padding: constants.RSA_NO_PADDING }, em));
 
-    // 2048-bit key: paddingEnd is 0xcc (explicit NULL) or 0xce (implicit NULL), neither 32-byte aligned, so PS
-    // spans the first word, five full words (0x20..0xc0) and a partial last word.
-    // 2208-bit key: length 0x114, so paddingEnd is 0xe0 with the explicit NULL, which is 32-byte aligned and leaves
-    // no partial last word.
+    // PS runs from byte 0x02 up to paddingEnd (exclusive). With the 2048-bit key paddingEnd is 0xcc (explicit NULL)
+    // or 0xce (implicit NULL). With the 2208-bit key (length 0x114) it is 0xe0 (explicit NULL). Each rejection test
+    // corrupts the single byte at the offset in its name.
     const key2048 = makeKey(2048);
     const key2208 = makeKey(2208);
 
@@ -150,56 +149,56 @@ describe('RSA', function () {
       { descr: 'accepts a well-formed EM (explicit NULL)', key: key2048, info: digestInfo.explicitNull, result: true },
       { descr: 'accepts a well-formed EM (implicit NULL)', key: key2048, info: digestInfo.implicitNull, result: true },
       {
-        descr: 'accepts a well-formed EM (aligned paddingEnd)',
+        descr: 'accepts a well-formed EM (2208-bit key)',
         key: key2208,
         info: digestInfo.explicitNull,
         result: true,
       },
       { descr: 'rejects a bad block type byte', key: key2048, info: digestInfo.explicitNull, corrupt: [0x01] },
       {
-        descr: 'rejects bad padding at the start of the first word',
+        descr: 'rejects PS byte 0x02 corrupted',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0x02],
       },
       {
-        descr: 'rejects bad padding at the end of the first word',
+        descr: 'rejects PS byte 0x1f corrupted',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0x1f],
       },
       {
-        descr: 'rejects bad padding at the start of a full word',
+        descr: 'rejects PS byte 0x20 corrupted',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0x20],
       },
       {
-        descr: 'rejects bad padding at the end of the last full word',
+        descr: 'rejects PS byte 0xbf corrupted',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0xbf],
       },
       {
-        descr: 'rejects bad padding at the start of the partial last word',
+        descr: 'rejects PS byte 0xc0 corrupted',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0xc0],
       },
       {
-        descr: 'rejects bad padding on the last byte of PS',
+        descr: 'rejects PS byte 0xcb corrupted (last PS byte, explicit NULL)',
         key: key2048,
         info: digestInfo.explicitNull,
         corrupt: [0xcb],
       },
       {
-        descr: 'rejects bad padding on the last byte of PS (implicit NULL)',
+        descr: 'rejects PS byte 0xcd corrupted (last PS byte, implicit NULL)',
         key: key2048,
         info: digestInfo.implicitNull,
         corrupt: [0xcd],
       },
       {
-        descr: 'rejects bad padding on the last byte of PS (aligned paddingEnd)',
+        descr: 'rejects PS byte 0xdf corrupted (last PS byte, 2208-bit key)',
         key: key2208,
         info: digestInfo.explicitNull,
         corrupt: [0xdf],
