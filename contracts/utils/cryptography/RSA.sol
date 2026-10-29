@@ -132,28 +132,15 @@ library RSA {
             // This is required to ensure non-malleability. Not checking would allow an attacker to
             // use the padding to manipulate the message in order to create a valid signature out of
             // multiple valid signatures.
-            {
-                // First word: bytes [0..31]. Byte 0 is 0x00 and byte 1 is 0x01 (checked later).
-                // Bytes [2..31] must all be 0xFF. Mask out top 2 bytes.
-                bytes32 firstMask = ~bytes32(uint256(0xffff) << 240);
-                if (_unsafeReadBytes32(buffer, 0) & firstMask != firstMask) {
+            // The last read ends exactly at paddingEnd and may overlap the previous one. Since paddingEnd is at
+            // least 0xcc, every read stays within PS.
+            for (uint256 i = 2; i < paddingEnd - 0x20; i += 0x20) {
+                if (_unsafeReadBytes32(buffer, i) != ~bytes32(0)) {
                     return false;
                 }
-                // Full 32-byte words: bytes [32..paddingEnd) in 32-byte chunks
-                for (uint256 i = 0x20; i + 0x20 <= paddingEnd; i += 0x20) {
-                    if (_unsafeReadBytes32(buffer, i) != ~bytes32(0)) {
-                        return false;
-                    }
-                }
-                // Last partial word: if paddingEnd is not 32-byte aligned
-                uint256 lastWordStart = (paddingEnd / 0x20) * 0x20;
-                uint256 tail = paddingEnd - lastWordStart;
-                if (lastWordStart >= 0x20 && tail > 0) {
-                    bytes32 lastMask = ~bytes32(type(uint256).max >> (tail * 8));
-                    if (_unsafeReadBytes32(buffer, lastWordStart) & lastMask != lastMask) {
-                        return false;
-                    }
-                }
+            }
+            if (_unsafeReadBytes32(buffer, paddingEnd - 0x20) != ~bytes32(0)) {
+                return false;
             }
 
             // All the other parameters are small enough to fit in a bytes32, so we can check them directly.
