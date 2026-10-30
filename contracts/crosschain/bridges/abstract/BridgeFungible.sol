@@ -71,6 +71,7 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
 
         // split payload
         (bytes memory from, bytes memory toEvm, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
+        require(toEvm.length == 20, CrosschainFungibleInvalidAddress());
         address to = address(bytes20(toEvm));
 
         _onReceive(to, amount);
