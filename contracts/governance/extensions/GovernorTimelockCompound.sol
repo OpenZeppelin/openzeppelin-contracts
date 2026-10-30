@@ -17,6 +17,12 @@ import {IGovernor, Governor} from "../Governor.sol";
  * Using this model means the proposal will be operated by the {ICompoundTimelock} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {ICompoundTimelock}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
+ *
+ * WARNING: The Compound timelock identifies each queued transaction by the hash of its target, value, signature,
+ * calldata and eta. A proposal containing two actions with identical target, value and calldata will therefore
+ * revert in {Governor-queue} with `GovernorAlreadyQueuedProposal` after the vote has succeeded, and can never be
+ * executed. To repeat a call within a proposal, make each action unique, for example by appending distinct trailing
+ * bytes to the calldata of targets that ignore them.
  */
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
@@ -71,6 +77,9 @@ abstract contract GovernorTimelockCompound is Governor {
         uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
+            // The timelock keys transactions by hash(target, value, signature, data, eta) and all actions within a proposal
+            // share `etaSeconds`. This reverts if the proposal repeats an action (permanent, see the contract-level warning)
+            // or if an identical action from another proposal was queued at the same timestamp (retryable later).
             require(
                 !_timelock.queuedTransactions(
                     keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds))
