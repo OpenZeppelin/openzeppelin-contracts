@@ -128,14 +128,19 @@ library RSA {
             // Length is at least 0x100 and offset is at most 0x34, so this is safe. There is always some padding.
             uint256 paddingEnd = length - offset;
 
-            // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.
+            // The padding has variable (arbitrary) length, so we check it 32 bytes at a time for gas efficiency.
             // This is required to ensure non-malleability. Not checking would allow an attacker to
             // use the padding to manipulate the message in order to create a valid signature out of
             // multiple valid signatures.
-            for (uint256 i = 2; i < paddingEnd; ++i) {
-                if (bytes1(_unsafeReadBytes32(buffer, i)) != 0xFF) {
+            // The last read ends exactly at paddingEnd and may overlap the previous one. Since paddingEnd is at
+            // least 0xcc, every read stays within PS.
+            for (uint256 i = 2; i < paddingEnd - 0x20; i += 0x20) {
+                if (_unsafeReadBytes32(buffer, i) != ~bytes32(0)) {
                     return false;
                 }
+            }
+            if (_unsafeReadBytes32(buffer, paddingEnd - 0x20) != ~bytes32(0)) {
+                return false;
             }
 
             // All the other parameters are small enough to fit in a bytes32, so we can check them directly.
