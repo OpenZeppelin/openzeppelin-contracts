@@ -62,7 +62,7 @@ Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappi
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
