@@ -35,6 +35,56 @@ contract RLPTest is Test {
         assertEq(input.encode().decodeString(), input);
     }
 
+    function testRejectTrailingBytesUint256() external {
+        // 0x0102: valid uint8(1) followed by trailing byte 0x02
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this._callDecodeUint256(hex"0102");
+    }
+
+    function _callDecodeUint256(bytes memory data) external pure {
+        RLP.decodeUint256(data);
+    }
+
+    function testRejectTrailingBytesBytes() external {
+        // 0x83646f6780: valid bytes "dog" followed by trailing byte 0x80
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this._callDecodeBytes(hex"83646f6780");
+    }
+
+    function _callDecodeBytes(bytes memory data) external pure {
+        RLP.decodeBytes(data);
+    }
+
+    function testRejectTrailingBytesBool() external {
+        // 0x0102: valid bool(true) followed by trailing byte
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this._callDecodeBool(hex"0102");
+    }
+
+    function _callDecodeBool(bytes memory data) external pure {
+        RLP.decodeBool(data);
+    }
+
+    function testRejectTrailingBytesBytes32() external {
+        // 0x0102: valid bytes32(1) followed by trailing byte
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this._callDecodeBytes32(hex"0102");
+    }
+
+    function _callDecodeBytes32(bytes memory data) external pure {
+        RLP.decodeBytes32(data);
+    }
+
+    function testRejectTrailingBytesString() external {
+        // 0x83646f6780: valid string "dog" followed by trailing byte
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this._callDecodeString(hex"83646f6780");
+    }
+
+    function _callDecodeString(bytes memory data) external pure {
+        RLP.decodeString(data);
+    }
+
     /// forge-config: default.fuzz.runs = 512
     function testEncodeDecodeList(bytes[] memory input) external pure {
         // max length for list decoding by default
