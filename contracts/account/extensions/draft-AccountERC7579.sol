@@ -183,8 +183,9 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     }
 
     /**
-     * @dev Implement ERC-1271 through IERC7579Validator modules. The validator module is extracted from the first
-     * 20 bytes of the signature (see {_extractSignatureValidator}) and its return value is forwarded as-is.
+     * @dev Implement ERC-1271 through IERC7579Validator modules. The validator module and inner signature are
+     * obtained with {_extractSignatureValidator} (by default, the module is the first 20 bytes of the signature) and
+     * the module's return value is forwarded as-is.
      * Returns `0xffffffff` if the signature is too short to extract a module, if that module is not installed as
      * a validator, or if the call to it reverts.
      *
