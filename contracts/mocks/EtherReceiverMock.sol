@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.27;
 
 contract EtherReceiverMock {
     bool private _acceptEther;
+
+    error EtherReceiveRejected();
 
     function setAcceptEther(bool acceptEther) public {
         _acceptEther = acceptEther;
     }
 
     receive() external payable {
-        if (!_acceptEther) {
-            revert();
-        }
+        require(_acceptEther, EtherReceiveRejected());
     }
 }

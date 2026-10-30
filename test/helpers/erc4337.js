@@ -109,14 +109,14 @@ export class UserOperation {
     };
   }
 
-  hash(entrypoint) {
-    return entrypoint.getUserOpHash(this.packed);
+  hash(entrypoint, overrides = {}) {
+    return entrypoint.getUserOpHash({ ...this.packed, ...overrides });
   }
 }
 
 const parseInitCode = initCode => ({
-  factory: '0x' + initCode.replace(/0x/, '').slice(0, 40),
-  factoryData: '0x' + initCode.replace(/0x/, '').slice(40),
+  factory: ethers.dataSlice(initCode, 0, 20),
+  factoryData: ethers.dataSlice(initCode, 20),
 });
 
 /// Global ERC-4337 environment helper.
@@ -145,7 +145,7 @@ export class ERC4337Helper {
       const delegate = await accountFactory.deploy(...extraArgs);
       const instance = await params.eip7702signer.getAddress().then(address => accountFactory.attach(address));
       const authorization = await params.eip7702signer.authorize({ address: delegate.target });
-      return new EIP7702SmartAccount(instance, authorization, env);
+      return new EIP7702SmartAccount(instance, authorization, env, delegate);
     } else {
       const initCode = await accountFactory
         .getDeployTransaction(...extraArgs)
@@ -158,7 +158,7 @@ export class ERC4337Helper {
           to: env.senderCreator,
           data: env.senderCreator.interface.encodeFunctionData('createSender', [initCode]),
         })
-        .then(result => ethers.getAddress(ethers.hexlify(ethers.getBytes(result).slice(-20))))
+        .then(result => ethers.getAddress(ethers.dataSlice(result, -20)))
         .then(address => accountFactory.attach(address));
 
       return new SmartAccount(instance, initCode, env);
@@ -172,7 +172,7 @@ class SmartAccount extends ethers.BaseContract {
     super(instance.target, instance.interface, instance.runner, instance.deployTx);
     this.address = instance.target;
     this.initCode = initCode;
-    this._env = env;
+    this.env = env;
   }
 
   async deploy(account = this.runner) {
@@ -183,20 +183,21 @@ class SmartAccount extends ethers.BaseContract {
 
   async createUserOp(userOp = {}) {
     userOp.sender ??= this;
-    userOp.nonce ??= await this._env.entrypoint.getNonce(userOp.sender, 0);
+    userOp.nonce ??= await this.env.entrypoint.getNonce(userOp.sender, 0);
     if (ethers.isAddressable(userOp.paymaster)) {
       userOp.paymaster = await ethers.resolveAddress(userOp.paymaster);
       userOp.paymasterVerificationGasLimit ??= 100_000n;
       userOp.paymasterPostOpGasLimit ??= 100_000n;
     }
-    return new UserOperationWithContext(userOp, this._env);
+    return new UserOperationWithContext(userOp);
   }
 }
 
 class EIP7702SmartAccount extends SmartAccount {
-  constructor(instance, authorization, env) {
+  constructor(instance, authorization, env, delegate) {
     super(instance, undefined, env);
     this.authorization = authorization;
+    this.delegate = delegate;
   }
 
   deploy() {
@@ -210,10 +211,9 @@ class EIP7702SmartAccount extends SmartAccount {
 }
 
 class UserOperationWithContext extends UserOperation {
-  constructor(userOp, env) {
+  constructor(userOp) {
     super(userOp);
     this._sender = userOp.sender;
-    this._env = env;
   }
 
   addInitCode() {
@@ -228,7 +228,7 @@ class UserOperationWithContext extends UserOperation {
     } else throw new Error('No EIP-7702 authorization available for the sender of this user operation');
   }
 
-  hash() {
-    return super.hash(this._env.entrypoint);
+  hash(overrides = {}) {
+    return super.hash(this._sender.env.entrypoint, overrides);
   }
 }

@@ -119,11 +119,13 @@ jobs:
 
   slither:
     runs-on: ubuntu-latest
+    env:
+      FOUNDRY_PROFILE: slither
     steps:
       - uses: actions/checkout@v7
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.1
+      - uses: crytic/slither-action@v0.4.2
 
   codespell:
     runs-on: ubuntu-latest

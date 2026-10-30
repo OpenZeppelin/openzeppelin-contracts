@@ -208,7 +208,7 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 
     /// @dev Floor: refuse to sponsor when 1 ETH is worth less than 100 USDC.
     /// 1e8 = 100 (USDC per ETH) * 10**6 (USDC decimals); the 1e18 denom cancels 1e18 wei/ETH.
-    function _minTokensPerNative() internal view virtual override returns (uint256) {
+    function _minTokensPerNative(IERC20) internal view virtual override returns (uint256) {
         return 1e8;
     }
 
@@ -239,7 +239,7 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 
 NOTE: The `PaymasterUSDCChainlink` contract uses specific Chainlink price feeds (ETH/USD and USDC/USD) on Sepolia. For production use or other networks, you'll need to modify the contract to use the appropriate price feed addresses.
 
-NOTE: xref:api:account.adoc#PaymasterERC20-_minTokensPerNative--[`_minTokensPerNative`] defaults to `0` in `PaymasterERC20` and should be overridden. It is a lower bound on `tokenPerNative` (same units: token-units per native coin, scaled by xref:api:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--[`_tokenPerNativeDenominator`]); any operation whose `_fetchDetails` returns a `tokenPerNative` strictly below this floor is rejected with `SIG_VALIDATION_FAILED` before pre-charging the user. The example above returns `1e8`, which refuses to sponsor when 1 ETH is worth less than 100 USDC — a conservative sanity check against misconfigured oracles or extreme market conditions. Returning `0` disables the check and re-opens the "free sponsorship" footgun if `_fetchDetails` ever returns a near-zero price.
+NOTE: xref:api:account.adoc#PaymasterERC20-_minTokensPerNative-contract-IERC20-[`_minTokensPerNative`] defaults to `0` in `PaymasterERC20` and should be overridden. It receives the `token` selected by `_fetchDetails`, so a multi-token paymaster can return a different floor per token. It is a lower bound on `tokenPerNative` (same units: token-units per native coin, scaled by xref:api:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--[`_tokenPerNativeDenominator`]); any operation whose `_fetchDetails` returns a `tokenPerNative` strictly below this floor is rejected with `SIG_VALIDATION_FAILED` before pre-charging the user. The example above returns `1e8`, which refuses to sponsor when 1 ETH is worth less than 100 USDC — a conservative sanity check against misconfigured oracles or extreme market conditions. Returning `0` disables the check and re-opens the "free sponsorship" footgun if `_fetchDetails` ever returns a near-zero price.
 
 As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between ETH and a concrete ERC-20. An example with USDC would be:
 
