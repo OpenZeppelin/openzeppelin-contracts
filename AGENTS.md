@@ -1,8 +1,8 @@
-# openzeppelin-contracts — Claude project guide
+# openzeppelin-contracts — AI agent project guide
 
 This repository is a **Solidity smart contract library**: reusable `abstract contract` and `library` implementations meant to be inherited and extended by downstream projects. It is not a deployed product. Most conventions exist because code here is a base for others: functions must be overridable, argument types must not constrain inheritors, and the public API must not force a particular call context on child contracts.
 
-Read [`GUIDELINES.md`](./GUIDELINES.md) first — it is the human contributor spec and authoritative. This file is for what is specific to Claude-assisted work, plus the conventions not fully documented elsewhere.
+Read [`GUIDELINES.md`](./GUIDELINES.md) first — it is the human contributor spec and authoritative. This file is for what is specific to AI-assisted work, plus the conventions not fully documented elsewhere.
 
 Before preparing a contribution, also read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly. Non-trivial changes must be discussed in an issue before a PR is opened.
 
@@ -67,7 +67,7 @@ These apply to every change and are not lint-enforced:
 
 ## When to load which skill
 
-Claude Code surfaces these from `.claude/skills/` based on the task. You can also reference them directly:
+Claude Code surfaces these from `.claude/skills/` based on the task; other agents can read them directly:
 
 - **`library-api-design`** — when adding or modifying any contract in `contracts/` (visibility, `virtual`, `memory` vs `calldata`, `_update` pattern, internal/external split, no-ops over reverts, hooks).
 - **`solidity-style`** — when writing or editing Solidity (errors, events, NatSpec, ERC-7201, assembly, `unchecked`, casting, immutables).
