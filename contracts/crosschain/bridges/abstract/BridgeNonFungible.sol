@@ -64,6 +64,7 @@ abstract contract BridgeNonFungible is Context, CrosschainLinked {
     ) internal virtual override {
         // split payload
         (bytes memory from, bytes memory toEvm, uint256 tokenId) = abi.decode(payload, (bytes, bytes, uint256));
+        require(toEvm.length == 20, CrosschainNonFungibleInvalidAddress());
         address to = address(bytes20(toEvm));
 
         _onReceive(to, tokenId);

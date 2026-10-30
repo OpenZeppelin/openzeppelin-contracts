@@ -84,6 +84,7 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         // split payload
         (bytes memory from, bytes memory toEvm, uint256[] memory ids, uint256[] memory values, bytes memory data) = abi
             .decode(payload, (bytes, bytes, uint256[], uint256[], bytes));
+        require(toEvm.length == 20, CrosschainMultiTokenInvalidAddress());
         address to = address(bytes20(toEvm));
 
         _onReceive(to, ids, values, data);
