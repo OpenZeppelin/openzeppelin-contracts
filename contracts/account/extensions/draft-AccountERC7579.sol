@@ -189,9 +189,9 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * Returns `0xffffffff` if the signature is too short to extract a module, if that module is not installed as
      * a validator, or if the call to it reverts.
      *
-     * NOTE: Unlike {_validateUserOp}, this function does not fall back to "native" validation by the abstract
-     * signer. Signature validation is delegated to the modules only, matching {_rawSignatureValidation} being
-     * disabled in this contract.
+     * NOTE: Only installed validator modules are used. Unlike {_validateUserOp}, this function does not fall back to
+     * {_rawSignatureValidation}, so a derived contract that overrides {_rawSignatureValidation} to enable a signer
+     * must also override this function for that signer to validate ERC-1271 signatures.
      *
      * NOTE: when combined with {ERC7739}, resolution ordering may have an impact ({ERC7739} does not call super).
      * Manual resolution might be necessary.
