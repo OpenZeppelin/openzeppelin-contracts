@@ -25,6 +25,13 @@ import {IGovernor, Governor} from "../Governor.sol";
  * bytes to the calldata of targets that ignore them.
  */
 abstract contract GovernorTimelockCompound is Governor {
+    /**
+     * @dev A proposal contains a duplicate action (same target, value, and calldata). The Compound Timelock identifies
+     * each queued transaction by its `(target, value, calldata, eta)` hash, so duplicate actions within a single
+     * proposal would collide and cannot both be queued.
+     */
+    error GovernorTimelockCompoundDuplicateProposalAction(uint256 index);
+
     ICompoundTimelock private _timelock;
 
     /**
@@ -62,6 +69,38 @@ abstract contract GovernorTimelockCompound is Governor {
     /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
+    }
+
+    /**
+     * @dev Overridden version of {Governor-_propose} that rejects proposals containing duplicate actions.
+     *
+     * The Compound Timelock identifies each queued transaction by the hash of its `(target, value, calldata, eta)`
+     * parameters. Two identical actions in the same proposal would produce the same hash and collide when queuing,
+     * so such proposals are rejected at submission time.
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        if (targets.length != values.length || targets.length != calldatas.length) {
+            return super._propose(targets, values, calldatas, description, proposer);
+        }
+
+        for (uint256 i = 0; i < targets.length; ++i) {
+            for (uint256 j = i + 1; j < targets.length; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    revert GovernorTimelockCompoundDuplicateProposalAction(i);
+                }
+            }
+        }
+        return super._propose(targets, values, calldatas, description, proposer);
     }
 
     /**
