@@ -17,18 +17,18 @@ abstract contract VestingWalletCliff is VestingWallet {
     uint64 private immutable _cliff;
 
     /// @dev The specified cliff duration is larger than the vesting duration.
-    error InvalidCliffDuration(uint64 cliffSeconds, uint64 durationSeconds);
+    error InvalidCliffDuration(uint64 cliffDuration, uint64 vestingDuration);
 
     /**
-     * @dev Set the duration of the cliff, in seconds. The cliff starts vesting schedule (see {VestingWallet}'s
-     * constructor) and ends `cliffSeconds` later.
+     * @dev Set the duration of the cliff, in the unit of {clock}. The cliff starts at the start of the vesting schedule
+     * (see {VestingWallet}'s constructor) and ends `cliffDuration` later.
      */
-    constructor(uint64 cliffSeconds) {
+    constructor(uint64 cliffDuration) {
         uint256 vestingDuration = duration();
-        if (cliffSeconds > vestingDuration) {
-            revert InvalidCliffDuration(cliffSeconds, vestingDuration.toUint64());
+        if (cliffDuration > vestingDuration) {
+            revert InvalidCliffDuration(cliffDuration, vestingDuration.toUint64());
         }
-        _cliff = start().toUint64() + cliffSeconds;
+        _cliff = start().toUint64() + cliffDuration;
     }
 
     /**
