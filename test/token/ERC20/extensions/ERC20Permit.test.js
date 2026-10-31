@@ -71,6 +71,19 @@ describe('ERC20Permit', function () {
       expect(await this.token.allowance(this.owner, this.spender)).to.equal(value);
     });
 
+    it('accepts deadline equal to the block timestamp', async function () {
+      const deadline = (await time.clock.timestamp()) + 1n;
+      const { v, r, s } = await this.buildData(this.token, deadline)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
+
+      await time.increaseTo.timestamp(deadline, false);
+      await this.token.permit(this.owner, this.spender, value, deadline, v, r, s);
+
+      expect(await this.token.nonces(this.owner)).to.equal(1n);
+      expect(await this.token.allowance(this.owner, this.spender)).to.equal(value);
+    });
+
     it('rejects reused signature', async function () {
       const { v, r, s, serialized } = await this.buildData(this.token)
         .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
