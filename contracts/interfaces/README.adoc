@@ -36,6 +36,13 @@ are useful to interact with third party contracts that implement them.
 - {IERC2981}
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
+- {IERC3643}
+- {IAgentRole}
+- {IIdentityRegistry}
+- {IIdentityRegistryStorage}
+- {ICompliance}
+- {ITrustedIssuersRegistry}
+- {IClaimTopicsRegistry}
 - {IERC4626}
 - {IERC4906}
 - {IERC5267}
@@ -58,6 +65,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC7786Recipient}
 - {IERC7802}
 - {IERC7913SignatureVerifier}
+- {IPausable}
 
 == Detailed ABI
 
@@ -92,6 +100,20 @@ are useful to interact with third party contracts that implement them.
 {{IERC3156FlashLender}}
 
 {{IERC3156FlashBorrower}}
+
+{{IERC3643}}
+
+{{IAgentRole}}
+
+{{IIdentityRegistry}}
+
+{{IIdentityRegistryStorage}}
+
+{{ICompliance}}
+
+{{ITrustedIssuersRegistry}}
+
+{{IClaimTopicsRegistry}}
 
 {{IERC4626}}
 
@@ -136,3 +158,5 @@ are useful to interact with third party contracts that implement them.
 {{IERC7802}}
 
 {{IERC7913SignatureVerifier}}
+
+{{IPausable}}

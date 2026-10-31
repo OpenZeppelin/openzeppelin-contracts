@@ -1,0 +1,75 @@
+= ERC-3643
+
+https://eips.ethereum.org/EIPS/eip-3643[ERC-3643] defines permissioned tokens: ERC-20 tokens that can only be held by verified investors and only move in ways the issuer's rules allow. It is the standard behind T-REX and is typically used to represent regulated assets such as securities or fund shares.
+
+OpenZeppelin Contracts provides the token, xref:api:token/ERC20.adoc#ERC3643[`ERC3643`], its interface, xref:api:interfaces.adoc#IERC3643[`IERC3643`], and the interfaces of the other components the standard defines, such as xref:api:interfaces.adoc#IIdentityRegistry[`IIdentityRegistry`] and xref:api:interfaces.adoc#ICompliance[`ICompliance`]. The identity registry and the compliance contract are left to the issuer's stack.
+
+[[how-it-works]]
+== How it works
+
+An ERC-3643 token relies on two components, each referenced by its address:
+
+* An xref:api:interfaces.adoc#IIdentityRegistry[identity registry] that links wallets to onchain identities and answers whether a wallet is verified, that is, whether its identity holds the claims the token requires, issued by trusted claim issuers.
+* A xref:api:interfaces.adoc#ICompliance[compliance contract] that encodes the rules a movement must follow, such as a maximum number of holders or a maximum balance per investor, and that is notified of every movement so it can keep track of how the token is distributed.
+
+Every transfer goes through both of them. A transfer from `from` to `to`:
+
+. Reverts while the token is paused.
+. Reverts if `from` or `to` is frozen, or if `from` doesn't have enough unfrozen tokens.
+. Reverts if the identity registry doesn't consider `to` verified (`ERC3643UnverifiedRecipient`).
+. Reverts if the compliance contract refuses the movement (`ERC3643ComplianceViolation`).
+. Moves the tokens, then notifies the compliance contract with `transferred(from, to, value)`.
+
+Mints follow the same identity and compliance checks and notify the compliance with `created`. Burns skip both checks and notify it with `destroyed`.
+
+On top of the ERC-20 functions, the token exposes the operations an issuer's agents need to service the asset: minting and burning, freezing a whole wallet or part of its balance, forced transfers, recovering the balance of a wallet whose keys were lost, pausing transfers, and batch versions of each.
+
+[[building-a-token]]
+== Building an ERC-3643 token
+
+xref:api:token/ERC20.adoc#ERC3643[`ERC3643`] is abstract: it leaves the authorization of the issuer's operations to the inheriting contract through the `_checkAdmin` hook, which must revert when the caller is not allowed to call the current function. The following token gives those operations to accounts holding an `AGENT_ROLE`, using xref:api:access.adoc#AccessControl[`AccessControl`]:
+
+[source,solidity]
+----
+include::api:example$token/ERC20/ERC3643Token.sol[]
+----
+
+The hook is called by every function that needs authorization, so it can also discriminate between them through `msg.sig`. For instance, xref:api:access.adoc#AccessManaged[`AccessManaged`] gives each function its own role. Batch functions reach the hook with their own selector.
+
+NOTE: Setting the compliance with `setCompliance` only records its address. Binding the token to the compliance contract (`bindToken`), if the compliance in use requires it, is left to the inheriting contract or to the issuer's deployment process.
+
+[[agent-operations]]
+== Agent operations
+
+[[freezing]]
+=== Freezing
+
+`setAddressFrozen` freezes a whole wallet, which can then neither send nor receive tokens through transfers. `freezePartialTokens` freezes part of a wallet's balance, which can no longer be transferred. Freezing more than the unfrozen balance freezes only what is left, and unfreezing more than is frozen reverts.
+
+Frozen tokens never exceed the balance. Burns and forced transfers unfreeze just enough tokens to cover the amount they move.
+
+[[forced-transfers]]
+=== Forced transfers
+
+`forcedTransfer` moves tokens without the holder's consent. It ignores the pause, frozen wallets and the compliance rules, but the recipient must still be verified: if it is not, the function returns `false` and moves nothing. `batchForcedTransfer` skips such recipients.
+
+[[recovery]]
+=== Recovery
+
+`recoveryAddress` moves the whole balance of a lost wallet to a new one. The new wallet is registered with the investor's identity before the balance moves, so the compliance contract sees both wallets resolve to their identities when it is notified, and the lost wallet is removed from the identity registry afterwards. Frozen tokens and a frozen status are carried over to the new wallet.
+
+The base implementation authorizes the recovery through `_checkAdmin` only. An issuer that wants additional preconditions, such as checking that the investor's identity approves the recovery, overrides `_recoveryAddress`.
+
+[[design-choices]]
+== Design choices
+
+The implementation makes a few choices where the text of the standard leaves room or where the reference implementation diverges from it. Each of them can be reversed by overriding the relevant function.
+
+* *Pause stops circulation, not servicing.* Pausing blocks transfers only. Minting, burning, forced transfers and recoveries keep working while paused. A deployment that treats the pause as an incident halt for every operation can add `whenNotPaused` to them.
+* *Mints check compliance.* The text of the standard has mints bypass the compliance rules. Like the reference implementation, `ERC3643` asks the compliance contract on mints too, so supply caps and distribution rules also apply to issuance.
+* *The compliance contract is notified of supply changes.* Mints call `created` and burns call `destroyed`, in addition to `transferred` on transfers.
+
+[[reentrancy]]
+== A note on the compliance contract
+
+Every transfer, mint and burn ends with an external call to the compliance contract, made once the balances are updated, and the compliance contract can call back into the token. Compliance contracts are usually written or vetted by the issuer. A deployment that binds compliance code it does not control can inherit xref:api:utils.adoc#ReentrancyGuardTransient[`ReentrancyGuardTransient`] and protect `_update`, `_forcedTransfer` and `_recoveryAddress` with `nonReentrant`.
