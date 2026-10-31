@@ -1,4 +1,3 @@
-import { globalOptions } from 'hardhat';
 import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
@@ -22,7 +21,6 @@ export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
 
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
-      if (globalOptions.coverage) this.userOp.paymasterVerificationGasLimit ??= 200_000n;
     });
 
     describe('validation (signature/token ownership/allowance)', function () {
