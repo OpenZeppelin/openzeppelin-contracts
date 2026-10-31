@@ -61,7 +61,7 @@
     "@changesets/cli": "^3.0.0",
     "@changesets/pre": "^3.0.0",
     "@changesets/read": "^1.0.0",
-    "@eslint/compat": "^1.2.1",
+    "@eslint/compat": "^2.0.0",
     "@ethereumjs/mpt": "^10.1.0",
     "@noble/curves": "^2.0.1",
     "@nomicfoundation/hardhat-ethers": "^4.0.14",
