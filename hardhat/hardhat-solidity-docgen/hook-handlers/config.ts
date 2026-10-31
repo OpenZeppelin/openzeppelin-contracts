@@ -8,12 +8,14 @@ export type * from '../type-extensions.ts';
 export default async (): Promise<Partial<ConfigHooks>> => ({
   resolveUserConfig: (userConfig, resolveConfigurationVariable, next) =>
     next(userConfig, resolveConfigurationVariable).then(config => {
-      config.docgen ??= userConfig.docgen ?? defaults;
-      config.docgen.root = config.paths.root;
-      config.docgen.sourcesDir = path
-        .relative(config.paths.root, config.paths.sources.solidity[0]) // TODO: support multiple source directories
-        .split(path.sep)
-        .join(path.posix.sep);
+      config.docgen = {
+        ...(userConfig.docgen ?? defaults),
+        root: config.paths.root,
+        sourcesDir: path
+          .relative(config.paths.root, config.paths.sources.solidity[0]) // TODO: support multiple source directories
+          .split(path.sep)
+          .join(path.posix.sep),
+      };
       return config;
     }),
 });
