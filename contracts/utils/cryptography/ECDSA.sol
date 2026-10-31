@@ -80,7 +80,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Variant of {tryRecover} that takes a signature in calldata
+     * @dev Variant of {ECDSA-tryRecover-bytes32-bytes} that takes a signature in calldata
      */
     function tryRecoverCalldata(
         bytes32 hash,
@@ -128,7 +128,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Variant of {recover} that takes a signature in calldata
+     * @dev Variant of {ECDSA-recover-bytes32-bytes} that takes a signature in calldata
      */
     function recoverCalldata(bytes32 hash, bytes calldata signature) internal pure returns (address) {
         (address recovered, RecoverError err, bytes32 errorArg) = tryRecoverCalldata(hash, signature);
