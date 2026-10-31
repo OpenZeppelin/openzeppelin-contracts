@@ -83,6 +83,8 @@ contract CheckpointsTrace<%= size %>Test is Test {
         uint<%= keySize %> lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = _boundUint<%= keySize %>(lookup, 0, lastKey + _KEY_MAX_GAP);
 
+        bool upperExists = false;
+        uint<%= keySize %> upperKey = 0;
         uint<%= size %> upper = 0;
         uint<%= size %> lower = 0;
         uint<%= keySize %> lowerKey = type(uint<%= keySize %>).max;
@@ -95,6 +97,8 @@ contract CheckpointsTrace<%= size %>Test is Test {
 
             // track expected result of lookups
             if (key <= lookup) {
+                upperExists = true;
+                upperKey = key;
                 upper = value;
             }
             // find the first key that is not smaller than the lookup key
@@ -110,6 +114,16 @@ contract CheckpointsTrace<%= size %>Test is Test {
         assertEq(_ckpts.lowerLookup(lookup), lower);
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
+
+        (bool exists, uint<%= keySize %> ckptKey, uint<%= size %> ckptValue) = _ckpts.upperLookupCheckpoint(lookup);
+        assertEq(exists, upperExists);
+        assertEq(ckptKey, upperKey);
+        assertEq(ckptValue, upper);
+
+        (exists, ckptKey, ckptValue) = _ckpts.upperLookupRecentCheckpoint(lookup);
+        assertEq(exists, upperExists);
+        assertEq(ckptKey, upperKey);
+        assertEq(ckptValue, upper);
     }
 }
 <% } -%>
