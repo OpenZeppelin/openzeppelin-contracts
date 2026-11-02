@@ -270,8 +270,9 @@ abstract contract ERC7540EpochDeposit is ERC7540 {
      * NOTE: Out-of-order fulfillment is permitted, but each controller's claims and queue
      * cleanup stay gated on their oldest Pending epoch (see {_consumeClaimableDeposit}). Funds
      * are not lost, but a controller at {_depositRequestQueueLimit} cannot submit new requests
-     * until admin resolves the front, so admins should stay close to FIFO order. Derived
-     * contracts wanting strict FIFO settlement should enforce it here.
+     * until admin resolves the front, so admins should stay close to FIFO order. Until then,
+     * {claimableDepositRequest} reports the newer epoch as Claimable while {maxDeposit} and {maxMint} do not
+     * include it yet. Derived contracts wanting strict FIFO settlement should enforce it here.
      *
      * Requirements:
      *
