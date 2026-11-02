@@ -140,20 +140,20 @@ abstract contract ERC7540AdminRedeem is ERC7540 {
         return assets;
     }
 
-    /// @dev All the Requests of a controller are aggregated under `requestId = 0`. Returns 0 for any other `requestId`.
+    /// @inheritdoc ERC7540
     function _pendingRedeemRequest(
-        uint256 requestId,
+        uint256 /*requestId*/,
         address controller
     ) internal view virtual override returns (uint256) {
-        return requestId == 0 ? _redeems[controller].pendingShares : 0;
+        return _redeems[controller].pendingShares;
     }
 
-    /// @dev All the Requests of a controller are aggregated under `requestId = 0`. Returns 0 for any other `requestId`.
+    /// @inheritdoc ERC7540
     function _claimableRedeemRequest(
-        uint256 requestId,
+        uint256 /*requestId*/,
         address controller
     ) internal view virtual override returns (uint256) {
-        return requestId == 0 ? _redeems[controller].claimableShares : 0;
+        return _redeems[controller].claimableShares;
     }
 
     /// @inheritdoc ERC7540

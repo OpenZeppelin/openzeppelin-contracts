@@ -501,40 +501,4 @@ describe('ERC7540Admin', function () {
         .withArgs(1n);
     });
   });
-
-  describe('request ids', function () {
-    async function requestIdFixture() {
-      const [user] = await ethers.getSigners();
-      const token = await ethers.deployContract('$ERC20', [tokenName, tokenSymbol]);
-      const mock = await ethers.deployContract('$ERC7540AdminMock', [name, symbol, token, ethers.ZeroAddress]);
-      await token.$_mint(user, 100n);
-      await token.connect(user).approve(mock, ethers.MaxUint256);
-      await mock.$_mint(user, 100n);
-      return { user, mock };
-    }
-
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(requestIdFixture));
-    });
-
-    it('deposit views only report requestId 0', async function () {
-      await this.mock.connect(this.user).requestDeposit(100n, this.user, this.user);
-      await expect(this.mock.pendingDepositRequest(0n, this.user)).to.eventually.equal(100n);
-      await expect(this.mock.pendingDepositRequest(1n, this.user)).to.eventually.equal(0n);
-
-      await this.mock.$_fulfillDeposit(100n, 100n, this.user);
-      await expect(this.mock.claimableDepositRequest(0n, this.user)).to.eventually.equal(100n);
-      await expect(this.mock.claimableDepositRequest(1n, this.user)).to.eventually.equal(0n);
-    });
-
-    it('redeem views only report requestId 0', async function () {
-      await this.mock.connect(this.user).requestRedeem(50n, this.user, this.user);
-      await expect(this.mock.pendingRedeemRequest(0n, this.user)).to.eventually.equal(50n);
-      await expect(this.mock.pendingRedeemRequest(1n, this.user)).to.eventually.equal(0n);
-
-      await this.mock.$_fulfillRedeem(50n, 0n, this.user);
-      await expect(this.mock.claimableRedeemRequest(0n, this.user)).to.eventually.equal(50n);
-      await expect(this.mock.claimableRedeemRequest(1n, this.user)).to.eventually.equal(0n);
-    });
-  });
 });
