@@ -54,7 +54,13 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         require(_depositShareOrigin() == address(0), ERC7540DelayInvalidDepositShareOrigin());
     }
 
-    /// @inheritdoc IERC6372
+    /**
+     * @dev See {IERC6372-clock}. Defaults to `block.timestamp`.
+     *
+     * NOTE: Request ids are maturity timepoints (`clock() + depositDelay(controller)`) and ERC-7540 reserves
+     * `requestId = 0` for strategies that aggregate the Requests of a controller. Overrides of {clock} and
+     * {depositDelay} must not produce a zero maturity timepoint.
+     */
     function clock() public view virtual returns (uint48) {
         return Time.timestamp();
     }

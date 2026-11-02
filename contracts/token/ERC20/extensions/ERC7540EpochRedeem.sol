@@ -87,6 +87,9 @@ abstract contract ERC7540EpochRedeem is ERC7540 {
      * the request enqueues a duplicate entry pointing at the same epoch's shared accounting, which
      * double-counts in {_asyncMaxWithdraw} / {_asyncMaxRedeem} and can settle caller-specified output
      * that was not backed by consumed state.
+     *
+     * NOTE: Epoch ids are used as `requestId`, and ERC-7540 reserves `requestId = 0` for strategies that
+     * aggregate the Requests of a controller. Overrides must not return 0. The default never does.
      */
     function currentRedeemEpoch() public view virtual returns (uint256) {
         return (block.timestamp + 3 days) / 1 weeks;

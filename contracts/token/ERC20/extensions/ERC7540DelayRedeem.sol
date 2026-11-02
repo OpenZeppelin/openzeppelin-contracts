@@ -48,7 +48,13 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
         require(_redeemShareDestination() == address(0), ERC7540DelayInvalidRedeemShareDestination());
     }
 
-    /// @inheritdoc IERC6372
+    /**
+     * @dev See {IERC6372-clock}. Defaults to `block.timestamp`.
+     *
+     * NOTE: Request ids are maturity timepoints (`clock() + redeemDelay(controller)`) and ERC-7540 reserves
+     * `requestId = 0` for strategies that aggregate the Requests of a controller. Overrides of {clock} and
+     * {redeemDelay} must not produce a zero maturity timepoint.
+     */
     function clock() public view virtual returns (uint48) {
         return Time.timestamp();
     }
