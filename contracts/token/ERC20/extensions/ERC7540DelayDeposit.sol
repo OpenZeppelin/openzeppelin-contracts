@@ -13,9 +13,9 @@ import {ERC7540} from "./ERC7540.sol";
 /**
  * @dev Time-delay fulfillment strategy for asynchronous deposits.
  *
- * Extends {ERC7540} with a deposit flow where requests become **permissionlessly claimable** after a
- * configurable waiting period. No privileged fulfiller is needed — once the delay elapses, the
- * controller (or any keeper) can claim. The exchange rate is computed at claim time using the vault's
+ * Extends {ERC7540} with a deposit flow where requests become claimable automatically after a
+ * configurable waiting period. No privileged fulfiller is needed: once the delay elapses, the
+ * controller or one of its operators can claim. The exchange rate is computed at claim time using the vault's
  * live {convertToShares}.
  *
  * Production equivalents (redeem side):
@@ -29,6 +29,12 @@ import {ERC7540} from "./ERC7540.sol";
  *
  * Override {depositDelay} to customize the waiting period (default: 1 hour) and {clock} to
  * change the time source (default: `block.timestamp`).
+ *
+ * WARNING: Since claims are priced at the live rate, a donation to the vault before a request is claimed
+ * lowers the shares it receives, down to zero for small requests. Pending requests are visible for the whole
+ * delay and cannot be cancelled, which makes this donation (inflation) attack easier to set up than against a
+ * plain {ERC4626}. Consider a non-zero {_decimalsOffset} to make it unprofitable. See the
+ * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
  *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
  * tries to enforce that property, but the check may be insufficient if {_depositShareOrigin} reads from
@@ -48,7 +54,13 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         require(_depositShareOrigin() == address(0), ERC7540DelayInvalidDepositShareOrigin());
     }
 
-    /// @inheritdoc IERC6372
+    /**
+     * @dev See {IERC6372-clock}. Defaults to `block.timestamp`.
+     *
+     * NOTE: Overriding this function to use a different time source also requires overriding {CLOCK_MODE}
+     * (e.g. with {ERC6372Utils-blockNumberClockMode} for a block number clock). The default {CLOCK_MODE}
+     * reverts when {clock} does not return `block.timestamp`.
+     */
     function clock() public view virtual returns (uint48) {
         return Time.timestamp();
     }
@@ -100,22 +112,21 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         return clock() + depositDelay(controller);
     }
 
-    /**
-     * @dev Consumes `assets` from claimable deposits, returns proportional shares (rounded down).
-     *
-     * Requirements:
-     *
-     * * {maxMint} must not be 0 for `controller`. Panics with division by zero otherwise.
-     */
+    /// @dev Consumes `assets` from claimable deposits, returns their value in shares at the current rate (rounded down).
     function _consumeClaimableDeposit(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 shares = Math.mulDiv(assets, maxMint(controller), maxDeposit(controller), Math.Rounding.Floor);
+        uint256 shares = _convertToShares(assets, Math.Rounding.Floor);
         _claimedDeposits[controller] += assets;
         return shares;
     }
 
-    /// @dev Consumes `shares` from claimable deposits, returns proportional assets (rounded up).
+    /**
+     * @dev Consumes the assets worth `shares` at the current rate (rounded up) from claimable deposits and returns them.
+     * Minting the full {maxMint} consumes all of the claimable assets.
+     */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = Math.mulDiv(shares, maxDeposit(controller), maxMint(controller), Math.Rounding.Ceil);
+        uint256 assets = shares == maxMint(controller)
+            ? maxDeposit(controller)
+            : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;
     }

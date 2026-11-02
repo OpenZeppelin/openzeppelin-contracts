@@ -89,7 +89,7 @@ Each strategy comes in a deposit and redeem variant. You combine exactly one dep
 
 | `ERC7540DelayDeposit`
 | `ERC7540DelayRedeem`
-| Fully permissionless time-locked vault
+| Time-locked vault with no privileged fulfiller
 
 | `ERC7540AdminDeposit`
 | `ERC7540DelayRedeem`
@@ -154,18 +154,17 @@ Here is a complete example combining admin-controlled deposits and redemptions. 
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540AdminDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminDeposit.sol";
 import {ERC7540AdminRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminRedeem.sol";
 
 contract RWAVault is ERC7540AdminDeposit, ERC7540AdminRedeem, Ownable {
-    constructor(
-        IERC20 asset_
-    ) ERC7540(asset_) Ownable(msg.sender) {}
+    constructor(IERC20 asset_) ERC20("RWA Vault", "rwaVLT") ERC7540(asset_) Ownable(msg.sender) {}
 
     /// @dev Admin fulfills a deposit request with the determined exchange rate.
     function fulfillDeposit(uint256 assets, uint256 shares, address controller) external onlyOwner {
@@ -197,7 +196,7 @@ NOTE: The admin strategy uses `requestId = 0` for all requests since accounting 
 [[delay-strategy]]
 == Delay strategy
 
-The delay strategy makes requests claimable automatically after a configurable time period. No privileged caller is needed — anyone can claim once the delay elapses. The exchange rate is computed at claim time using the vault's live `convertToShares` / `convertToAssets`.
+The delay strategy makes requests claimable automatically after a configurable time period. No privileged fulfiller is needed: once the delay elapses, the controller or one of its operators can claim. As with every strategy, the controller must be able to claim or approve an operator, otherwise the request cannot be claimed. The exchange rate is computed at claim time using the vault's live `convertToShares` / `convertToAssets`.
 
 This suits use cases with protocol-dictated waiting periods: staking unbonding, time-locked deposits, or cooldown mechanisms.
 
@@ -239,15 +238,16 @@ claimable = checkpoint.upperLookup(T) - claimedAmount
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540DelayDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayDeposit.sol";
 import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
 
 contract TimeLockVault is ERC7540DelayDeposit, ERC7540DelayRedeem {
-    constructor(IERC20 asset_) ERC7540(asset_) {}
+    constructor(IERC20 asset_) ERC20("TimeLock Vault", "tlVLT") ERC7540(asset_) {}
 
     /// @dev Custom deposit delay: 1 day.
     function depositDelay(address /*controller*/) public view override returns (uint48) {
@@ -359,16 +359,17 @@ Unlike the standard ERC-4626 inflation-attack surface, per-epoch `totalAssets` a
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540EpochDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochDeposit.sol";
 import {ERC7540EpochRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochRedeem.sol";
 
 contract NAVVault is ERC7540EpochDeposit, ERC7540EpochRedeem, Ownable {
-    constructor(IERC20 asset_) ERC7540(asset_) Ownable(msg.sender) {}
+    constructor(IERC20 asset_) ERC20("NAV Vault", "navVLT") ERC7540(asset_) Ownable(msg.sender) {}
 
     /// @dev Admin closes a past deposit epoch with the determined total shares.
     function fulfillDeposit(uint256 epochId, uint256 totalShares) external onlyOwner {
@@ -406,15 +407,16 @@ A common pattern is to keep one side synchronous while making the other async. F
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540SyncDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540SyncDeposit.sol";
 import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
 
 contract LiquidStakingVault is ERC7540SyncDeposit, ERC7540DelayRedeem {
-    constructor(IERC20 asset_) ERC7540(asset_) {}
+    constructor(IERC20 asset_) ERC20("Liquid Staking Vault", "lsVLT") ERC7540(asset_) {}
 
     function redeemDelay(address /*controller*/) public view override returns (uint48) {
         return 7 days;
@@ -591,5 +593,7 @@ An operator approved via `setOperator` has broad permissions: they can request d
 In the *admin strategy*, the admin has full control over the exchange rate at fulfillment time. The admin must ensure `totalAssets()` accurately reflects the vault's holdings after deploying assets, to avoid diluting existing shareholders.
 
 In the *delay strategy*, the exchange rate is computed at claim time using the live vault conversion. This means the rate can change between request and claim. If the vault's underlying yield fluctuates significantly, claimers may receive more or fewer shares/assets than expected at request time.
+
+The same live pricing exposes delay deposits to the xref:erc4626.adoc#inflation-attack[donation (inflation) attack]. An attacker holding shares can donate assets to the vault before pending requests are claimed, so that each claim mints fewer shares (down to zero for small requests), and later redeem their own shares for a portion of the claimed assets. Pending requests are visible for the whole delay and cannot be cancelled, which makes the attack easier to set up than against a plain ERC-4626 vault, where deposits are atomic. Use a non-zero `_decimalsOffset()` to make the attack unprofitable, as for ERC-4626.
 
 In the *epoch strategy*, the admin picks a single rate per epoch that applies to every controller in the batch. Choosing a rate that does not reflect the real `totalAssets()` after deploying the epoch's capital dilutes existing shareholders just as in the admin strategy, but the impact is amplified because every request in the epoch is settled at that same rate. The per-controller queue limit (`_depositRequestQueueLimit` / `_redeemRequestQueueLimit`, default 32) further bounds the per-account state — a user who fills their queue with small requests can only block themselves from submitting new ones, not other users, and fulfillment is O(1) per epoch.
