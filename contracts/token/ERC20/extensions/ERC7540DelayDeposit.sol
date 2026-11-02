@@ -30,6 +30,12 @@ import {ERC7540} from "./ERC7540.sol";
  * Override {depositDelay} to customize the waiting period (default: 1 hour) and {clock} to
  * change the time source (default: `block.timestamp`).
  *
+ * WARNING: Since claims are priced at the live rate, a donation to the vault before a request is claimed
+ * lowers the shares it receives, down to zero for small requests. Pending requests are visible for the whole
+ * delay and cannot be cancelled, which makes this donation (inflation) attack easier to set up than against a
+ * plain {ERC4626}. Consider a non-zero {_decimalsOffset} to make it unprofitable. See the
+ * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
+ *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
  * tries to enforce that property, but the check may be insufficient if {_depositShareOrigin} reads from
  * storage that is not yet initialized when the parent's constructor runs
