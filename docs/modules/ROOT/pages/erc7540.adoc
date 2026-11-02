@@ -154,18 +154,17 @@ Here is a complete example combining admin-controlled deposits and redemptions. 
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540AdminDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminDeposit.sol";
 import {ERC7540AdminRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminRedeem.sol";
 
 contract RWAVault is ERC7540AdminDeposit, ERC7540AdminRedeem, Ownable {
-    constructor(
-        IERC20 asset_
-    ) ERC7540(asset_) Ownable(msg.sender) {}
+    constructor(IERC20 asset_) ERC20("RWA Vault", "rwaVLT") ERC7540(asset_) Ownable(msg.sender) {}
 
     /// @dev Admin fulfills a deposit request with the determined exchange rate.
     function fulfillDeposit(uint256 assets, uint256 shares, address controller) external onlyOwner {
@@ -239,15 +238,16 @@ claimable = checkpoint.upperLookup(T) - claimedAmount
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540DelayDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayDeposit.sol";
 import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
 
 contract TimeLockVault is ERC7540DelayDeposit, ERC7540DelayRedeem {
-    constructor(IERC20 asset_) ERC7540(asset_) {}
+    constructor(IERC20 asset_) ERC20("TimeLock Vault", "tlVLT") ERC7540(asset_) {}
 
     /// @dev Custom deposit delay: 1 day.
     function depositDelay(address /*controller*/) public view override returns (uint48) {
@@ -359,16 +359,17 @@ Unlike the standard ERC-4626 inflation-attack surface, per-epoch `totalAssets` a
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540EpochDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochDeposit.sol";
 import {ERC7540EpochRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochRedeem.sol";
 
 contract NAVVault is ERC7540EpochDeposit, ERC7540EpochRedeem, Ownable {
-    constructor(IERC20 asset_) ERC7540(asset_) Ownable(msg.sender) {}
+    constructor(IERC20 asset_) ERC20("NAV Vault", "navVLT") ERC7540(asset_) Ownable(msg.sender) {}
 
     /// @dev Admin closes a past deposit epoch with the determined total shares.
     function fulfillDeposit(uint256 epochId, uint256 totalShares) external onlyOwner {
@@ -406,15 +407,16 @@ A common pattern is to keep one side synchronous while making the other async. F
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
 import {ERC7540SyncDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540SyncDeposit.sol";
 import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
 
 contract LiquidStakingVault is ERC7540SyncDeposit, ERC7540DelayRedeem {
-    constructor(IERC20 asset_) ERC7540(asset_) {}
+    constructor(IERC20 asset_) ERC20("Liquid Staking Vault", "lsVLT") ERC7540(asset_) {}
 
     function redeemDelay(address /*controller*/) public view override returns (uint48) {
         return 7 days;
