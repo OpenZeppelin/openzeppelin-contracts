@@ -23,6 +23,11 @@ import {ERC7540} from "./ERC7540.sol";
  * https://github.com/centrifuge/protocol/blob/main/src/vaults/AsyncVault.sol[Centrifuge].
  *
  * All requests share `requestId = 0` (per-controller accounting only).
+ *
+ * NOTE: Claims through {withdraw} and {redeem} are priced with the ratio between {maxWithdraw} and {maxRedeem}, which default to the
+ * controller's claimable assets and shares, and claiming either limit in full consumes the whole claimable
+ * redeem. Overrides of {maxWithdraw} or {maxRedeem} must keep both limits at the same ratio, otherwise a claim can be priced
+ * at a different rate than the one locked at fulfillment.
  */
 abstract contract ERC7540AdminRedeem is ERC7540 {
     /**
