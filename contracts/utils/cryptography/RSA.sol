@@ -18,7 +18,7 @@ import {Math} from "../math/Math.sol";
  */
 library RSA {
     /**
-     * @dev Same as {pkcs1Sha256} but using SHA256 to calculate the digest of `data`.
+     * @dev Same as {RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes} but using SHA256 to calculate the digest of `data`.
      */
     function pkcs1Sha256(
         bytes memory data,
