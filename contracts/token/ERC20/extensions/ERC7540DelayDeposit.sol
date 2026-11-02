@@ -57,10 +57,6 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
     /**
      * @dev See {IERC6372-clock}. Defaults to `block.timestamp`.
      *
-     * NOTE: Request ids are maturity timepoints (`clock() + depositDelay(controller)`) and ERC-7540 reserves
-     * `requestId = 0` for strategies that aggregate the Requests of a controller. Overrides of {clock} and
-     * {depositDelay} must not produce a zero maturity timepoint.
-     *
      * NOTE: Overriding this function to use a different time source also requires overriding {CLOCK_MODE}
      * (e.g. with {ERC6372Utils-blockNumberClockMode} for a block number clock). The default {CLOCK_MODE}
      * reverts when {clock} does not return `block.timestamp`.
