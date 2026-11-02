@@ -17,7 +17,7 @@ This becomes problematic when implementing multisig accounts where:
 * Each signer needs to be individually verified rather than treated as a collective identity
 * You need a threshold system to determine when enough valid signatures are present
 
-The https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/SignatureChecker.sol[SignatureChecker] library is useful for verifying EOA and ERC-1271 signatures, but it's not designed for more complex arrangements like threshold-based multisigs.
+The xref:api:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`] library is useful for verifying EOA and ERC-1271 signatures, but it's not designed for more complex arrangements like threshold-based multisigs.
 
 == ERC-7913 Signers
 
