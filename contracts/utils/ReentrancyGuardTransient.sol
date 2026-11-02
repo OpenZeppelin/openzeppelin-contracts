@@ -10,6 +10,10 @@ import {TransientSlot} from "./TransientSlot.sol";
  *
  * NOTE: This variant only works on networks where EIP-1153 is available.
  *
+ * NOTE: {ReentrancyGuardTransient} and {ReentrancyGuard} are not interoperable. Since
+ * each tracks reentrancy state independently, a `nonReentrant` function from one will not
+ * prevent reentrant calls to a `nonReentrant` function from the other.
+ *
  * _Available since v5.1._
  *
  * @custom:stateless
