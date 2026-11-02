@@ -29,7 +29,7 @@ Any non-trivial code contribution must be first discussed with the maintainers i
 
 Make sure to read and follow the [engineering guidelines](./GUIDELINES.md). Run linter and tests to make sure your pull request is good before submitting it.
 
-AI coding assistants are welcome (see [`CLAUDE.md`](./CLAUDE.md) for project tooling), but we encourage to review thoroughly any submitted line of code. We may close low-effort AI output without further explanations.
+AI coding assistants are welcome (see [`AGENTS.md`](./AGENTS.md) for project tooling), but we encourage to review thoroughly any submitted line of code. We may close low-effort AI output without further explanations.
 
 Changelog entries should be added to each pull request by using [Changesets](https://github.com/changesets/changesets/).
 
