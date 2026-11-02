@@ -1,0 +1,595 @@
+= ERC-7540: Asynchronous Tokenized Vaults
+
+https://eips.ethereum.org/EIPS/eip-7540[ERC-7540] extends https://eips.ethereum.org/EIPS/eip-4626[ERC-4626] with asynchronous deposit and redeem flows. Where a standard ERC-4626 vault settles deposits and redemptions atomically in a single transaction, ERC-7540 introduces a *request lifecycle* that allows settlement to happen over time — whether gated by an admin, a time delay, or any other custom mechanism.
+
+This is useful for vaults that cannot settle instantly: real-world asset (RWA) funds, cross-chain yield strategies, staking protocols with unbonding periods, or any system where assets need time to be deployed or unwound.
+
+The OpenZeppelin implementation provides a modular base (`ERC7540`) plus composable *strategy extensions* that control how requests move through their lifecycle. Developers pick one deposit strategy and one redeem strategy, and the base contract handles the rest.
+
+== How it relates to ERC-4626
+
+The key insight of ERC-7540 is that it *reuses* ERC-4626's existing functions for claiming:
+
+[%header,cols="1,2,2"]
+|===
+| Function | ERC-4626 (synchronous) | ERC-7540 (asynchronous)
+
+| `deposit(assets, receiver)`
+| Transfers assets in, mints shares immediately
+| *Claims* a previously fulfilled deposit request
+
+| `mint(shares, receiver)`
+| Same as deposit, but specifying shares
+| *Claims* by specifying shares
+
+| `withdraw(assets, receiver, owner)`
+| Burns shares, transfers assets out immediately
+| *Claims* a previously fulfilled redeem request
+
+| `redeem(shares, receiver, owner)`
+| Same as withdraw, but specifying shares
+| *Claims* by specifying shares
+|===
+
+ERC-7540 adds two new entry points — `requestDeposit` and `requestRedeem` — and four view functions to observe a request's lifecycle: `pendingDepositRequest`, `claimableDepositRequest`, `pendingRedeemRequest`, and `claimableRedeemRequest`. Everything else builds on top of the existing ERC-4626 interface.
+
+NOTE: An ERC-7540 vault must have at least one async side (deposit or redeem). If both are synchronous, use a standard `ERC4626` vault instead.
+
+== The request lifecycle
+
+Every async request transitions through three states:
+
+```mermaid
+flowchart LR
+    None(["(none)"]) -->|"requestDeposit() / requestRedeem()"| Pending["Pending<br/><i>Assets/shares locked in vault</i>"]
+    Pending -->|Fulfillment| Claimable["Claimable<br/><i>Ready to claim</i>"]
+    Claimable -->|"deposit() / mint() / withdraw() / redeem()"| Claimed["Claimed<br/><i>Shares/assets delivered to receiver</i>"]
+```
+
+* **Pending**: Assets (for deposits) or shares (for redeems) are locked in the vault. The request is not yet ready to be claimed.
+* **Claimable**: The request has been fulfilled and the controller can claim at any time. The exchange rate is strategy-dependent: it may be fixed at fulfillment time (e.g. admin strategy) or determined at claim time from the live vault conversion (e.g. delay strategy).
+* **Claimed**: The controller has called `deposit`/`mint` or `withdraw`/`redeem` to collect their shares or assets.
+
+CAUTION: Requests must NOT skip the Claimable state, even if fulfillment happens in the same block as the request. The ERC-7540 spec requires integrators to be able to observe the Pending and Claimable states separately.
+
+== Architecture overview
+
+The implementation is split into a base contract and strategy extensions:
+
+```mermaid
+flowchart TD
+    Base["<b>ERC7540 (base)</b><br/>Routing logic (sync vs async)<br/>Operator management<br/>ERC-4626 interface<br/>totalAssets / _totalOutstandingShares adjustments<br/>20 virtual hooks for strategies to implement"]
+    Base --> Admin["<b>Admin strategy</b><br/>Privileged caller fulfills<br/>per request with explicit rate"]
+    Base --> Delay["<b>Delay strategy</b><br/>Time-based, no<br/>privileged caller needed"]
+    Base --> Epoch["<b>Epoch strategy</b><br/>Privileged caller batches<br/>requests per time window"]
+    Base --> Sync["<b>Sync strategy</b><br/>Standard ERC-4626<br/>(no async lifecycle)"]
+```
+
+Each strategy comes in a deposit and redeem variant. You combine exactly one deposit strategy with one redeem strategy:
+
+[%header,cols="1,1,2"]
+|===
+| Deposit Strategy | Redeem Strategy | Use Case
+
+| `ERC7540AdminDeposit`
+| `ERC7540AdminRedeem`
+| RWA vault with manual settlement on both sides
+
+| `ERC7540AdminDeposit`
+| `ERC7540SyncRedeem`
+| Gated deposits, instant redemptions
+
+| `ERC7540SyncDeposit`
+| `ERC7540AdminRedeem`
+| Instant deposits, admin-controlled withdrawals
+
+| `ERC7540SyncDeposit`
+| `ERC7540DelayRedeem`
+| Liquid staking (instant stake, delayed unstake)
+
+| `ERC7540DelayDeposit`
+| `ERC7540DelayRedeem`
+| Fully permissionless time-locked vault
+
+| `ERC7540AdminDeposit`
+| `ERC7540DelayRedeem`
+| Admin deposit review, time-locked unstaking
+
+| `ERC7540EpochDeposit`
+| `ERC7540EpochRedeem`
+| NAV-based fund with batched periodic settlement (RWA basket, weekly rebalance)
+
+| `ERC7540EpochDeposit`
+| `ERC7540SyncRedeem`
+| Batched deposit gating with instant redemptions
+
+| `ERC7540SyncDeposit`
+| `ERC7540EpochRedeem`
+| Instant deposits with periodic batched withdrawals
+|===
+
+WARNING: Combining `ERC7540SyncDeposit` + `ERC7540SyncRedeem` will revert at construction with `ERC7540MissingAsync`. At least one side must be async.
+
+[[admin-strategy]]
+== Admin strategy
+
+The admin strategy is the most flexible model. A privileged caller (admin, keeper, oracle relayer) explicitly transitions requests from Pending to Claimable by calling `_fulfillDeposit` or `_fulfillRedeem`, providing both the amount and the exchange rate.
+
+This suits use cases where settlement depends on external actions: deploying assets to a yield source, unwinding positions, bridging across chains, or completing off-chain compliance checks.
+
+=== Admin deposit flow
+
+[source,solidity]
+----
+// 1. User requests a deposit
+vault.requestDeposit(1000e6, controller, owner); // locks 1000 USDC
+
+// 2. Admin fulfills (off-chain: assets deployed to yield source)
+vault._fulfillDeposit(1000e6, 950e18, controller); // 950 shares at the determined rate
+
+// 3. User claims their shares
+vault.deposit(1000e6, receiver, controller); // receiver gets 950 shares
+----
+
+The exchange rate is locked at fulfillment time in the `claimableAssets` / `claimableShares` pair. This means the user knows exactly how many shares they will receive before claiming.
+
+=== Admin redeem flow
+
+[source,solidity]
+----
+// 1. User requests a redeem
+vault.requestRedeem(950e18, controller, owner); // locks 950 shares
+
+// 2. Admin fulfills (off-chain: positions unwound, assets bridged back)
+vault._fulfillRedeem(950e18, 1010e6, controller); // 1010 USDC at the determined rate
+
+// 3. User claims their assets
+vault.redeem(950e18, receiver, controller); // receiver gets 1010 USDC
+----
+
+=== Building an admin vault
+
+Here is a complete example combining admin-controlled deposits and redemptions. The contract exposes `fulfillDeposit` and `fulfillRedeem` behind access control:
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540AdminDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminDeposit.sol";
+import {ERC7540AdminRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminRedeem.sol";
+
+contract RWAVault is ERC7540AdminDeposit, ERC7540AdminRedeem, Ownable {
+    constructor(
+        IERC20 asset_
+    ) ERC7540(asset_) Ownable(msg.sender) {}
+
+    /// @dev Admin fulfills a deposit request with the determined exchange rate.
+    function fulfillDeposit(uint256 assets, uint256 shares, address controller) external onlyOwner {
+        _fulfillDeposit(assets, shares, controller);
+    }
+
+    /// @dev Admin fulfills a redeem request with the determined exchange rate.
+    function fulfillRedeem(uint256 shares, uint256 assets, address controller) external onlyOwner {
+        _fulfillRedeem(shares, assets, controller);
+    }
+
+    // Resolve multiple inheritance for _requestDeposit and _requestRedeem
+    function _requestDeposit(
+        uint256 assets, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540AdminDeposit) {
+        super._requestDeposit(assets, controller, owner, requestId);
+    }
+
+    function _requestRedeem(
+        uint256 shares, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540AdminRedeem) {
+        super._requestRedeem(shares, controller, owner, requestId);
+    }
+}
+----
+
+NOTE: The admin strategy uses `requestId = 0` for all requests since accounting is per-controller only. The `pendingDepositRequest(0, controller)` and `claimableDepositRequest(0, controller)` functions reflect the controller's current state.
+
+[[delay-strategy]]
+== Delay strategy
+
+The delay strategy makes requests claimable automatically after a configurable time period. No privileged caller is needed — anyone can claim once the delay elapses. The exchange rate is computed at claim time using the vault's live `convertToShares` / `convertToAssets`.
+
+This suits use cases with protocol-dictated waiting periods: staking unbonding, time-locked deposits, or cooldown mechanisms.
+
+=== Delay deposit flow
+
+[source,solidity]
+----
+// 1. User requests a deposit (delay = 1 hour by default)
+uint256 requestId = vault.requestDeposit(1000e6, controller, owner);
+// requestId = block.timestamp + 1 hours (the maturity timestamp)
+
+// 2. Time passes... no transaction needed
+
+// 3. After the delay, user claims (exchange rate computed now)
+vault.deposit(1000e6, receiver, controller);
+----
+
+The `requestId` returned by the delay strategy is the absolute timestamp at which the request becomes claimable. This makes it self-describing — you can tell when a request will mature just from its ID.
+
+=== How checkpoints work
+
+The delay strategy uses `Checkpoints.Trace208` to track cumulative deposit/redeem amounts keyed by their maturity timepoint. Multiple requests accumulate and mature independently:
+
+```mermaid
+flowchart LR
+    T100["<b>t=100</b><br/>request 500<br/>maturity=160"] --> T120["<b>t=120</b><br/>request 300<br/>maturity=180"] --> T160["<b>t=160</b><br/>500 claimable<br/>300 still pending"] --> T180["<b>t=180</b><br/>800 claimable<br/>(all matured)"]
+    CP["<b>Checkpoints (cumulative)</b><br/>key=160 → value=500<br/>key=180 → value=800"]
+    T120 -.-> CP
+```
+
+The total claimable amount at any time `T` is:
+
+....
+claimable = checkpoint.upperLookup(T) - claimedAmount
+....
+
+=== Building a delay vault
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540DelayDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayDeposit.sol";
+import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
+
+contract TimeLockVault is ERC7540DelayDeposit, ERC7540DelayRedeem {
+    constructor(IERC20 asset_) ERC7540(asset_) {}
+
+    /// @dev Custom deposit delay: 1 day.
+    function depositDelay(address /*controller*/) public view override returns (uint48) {
+        return 1 days;
+    }
+
+    /// @dev Custom redeem delay: 7 days (e.g. unbonding period).
+    function redeemDelay(address /*controller*/) public view override returns (uint48) {
+        return 7 days;
+    }
+
+    // Resolve multiple inheritance
+    function clock() public view override(ERC7540DelayDeposit, ERC7540DelayRedeem) returns (uint48) {
+        return super.clock();
+    }
+
+    function CLOCK_MODE() public view override(ERC7540DelayDeposit, ERC7540DelayRedeem) returns (string memory) {
+        return super.CLOCK_MODE();
+    }
+
+    function _requestDeposit(
+        uint256 assets, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540DelayDeposit) {
+        super._requestDeposit(assets, controller, owner, requestId);
+    }
+
+    function _requestRedeem(
+        uint256 shares, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540DelayRedeem) {
+        super._requestRedeem(shares, controller, owner, requestId);
+    }
+}
+----
+
+TIP: The delay can be customized per controller by overriding `depositDelay(address)` or `redeemDelay(address)`. This enables tiered access — e.g. whitelisted addresses with shorter delays.
+
+[[epoch-strategy]]
+== Epoch strategy
+
+The epoch strategy batches all requests submitted in the same time window — an _epoch_ — and settles them together at a single locked exchange rate when the admin closes the epoch. Every controller in a fulfilled epoch receives the same pro-rata conversion.
+
+This suits use cases where settlement is naturally periodic: weekly rebalances, NAV-driven funds, basket tokens, or vaults that aggregate inflows and outflows and process them in batches. Production equivalents include https://github.com/Storm-Labs-Inc/cove-contracts-core/blob/master/src/BasketToken.sol[Cove], https://github.com/AmphorProtocol/asynchronous-vault[Amphor], and https://github.com/hopperlabsxyz/lagoon-v0/blob/main/src/v0.5.0/ERC7540.sol[Lagoon].
+
+Unlike the admin strategy (per-request fulfillment), every controller in the same epoch shares a single locked rate, and a single `_fulfillDeposit(epochId, totalShares)` / `_fulfillRedeem(epochId, totalAssets)` call settles all of them at once:
+
+```mermaid
+flowchart TD
+    A["Alice<br/>requestDeposit(100, ...)"] --> E["<b>Epoch N (Pending)</b><br/>totalAssets = 300"]
+    B["Bob<br/>requestDeposit(200, ...)"] --> E
+    E -->|"_fulfillDeposit(epochId, 150)"| EF["<b>Epoch N (Claimable)</b><br/>totalAssets = 300<br/>totalShares = 150"]
+    EF -->|"deposit() / mint()"| AS["Alice claims<br/>50 shares (pro-rata)"]
+    EF -->|"deposit() / mint()"| BS["Bob claims<br/>100 shares (pro-rata)"]
+```
+
+=== Epoch identification
+
+By default `currentDepositEpoch()` and `currentRedeemEpoch()` return `(block.timestamp + 3 days) / 1 weeks`, so epochs transition at Monday 00:00 UTC (weeks start Monday). `block.timestamp` on any live chain is already many weeks past the Unix genesis, so this value is always > 0 — the epoch strategy is never mistaken for ERC-7540's controller-only (`requestId == 0`) accounting mode. Both functions are `virtual` and intended to be overridden in production deployments — common patterns are a manually-bumped counter incremented inside the admin fulfillment, a different cadence (daily, hourly), or a cyclic scheme tied to an external rebalance trigger.
+
+NOTE: The contract requires `epochId < currentXEpoch()` to fulfill — only past epochs can be settled. New requests are always recorded against the current epoch, so the admin only ever sees totals for already-closed epochs at fulfillment time.
+
+=== Epoch deposit flow
+
+[source,solidity]
+----
+// 1. User requests a deposit in the current epoch
+uint256 epochId = vault.requestDeposit(1000e6, controller, owner);
+
+// 2. Time passes (next week starts, or admin bumps the counter)
+
+// 3. Admin fulfills the entire epoch with totalShares for the epoch's totalAssets
+vault.fulfillDeposit(epochId, 950e18); // 1000 USDC pending -> 950 shares allocated
+
+// 4. User claims their pro-rata share
+vault.deposit(1000e6, receiver, controller); // receiver gets 950 shares
+----
+
+If multiple controllers submitted requests in the same epoch, each claims their pro-rata portion of the allocated shares. The admin sees only the per-epoch totals via `totalDepositAssets(epochId)` / `totalDepositShares(epochId)` and doesn't need per-controller bookkeeping at fulfillment.
+
+=== Epoch redeem flow
+
+Symmetric: shares are queued during the epoch, the admin fulfills with the asset total that will be distributed pro-rata, and controllers claim.
+
+[source,solidity]
+----
+uint256 epochId = vault.requestRedeem(950e18, controller, owner);
+
+// next epoch
+vault.fulfillRedeem(epochId, 1010e6); // 950 shares -> 1010 USDC allocated
+
+vault.redeem(950e18, receiver, controller); // receiver gets 1010 USDC
+----
+
+=== Per-controller queue
+
+Each controller tracks the epochs they participate in via a `DoubleEndedQueue` capped at 32 entries by default (override `_depositRequestQueueLimit()` / `_redeemRequestQueueLimit()` to change). Claims walk the queue front-to-back, popping fully-consumed epochs. The cap is per-controller — an attacker cannot fill another user's queue, and epoch fulfillment is O(1) (a single write per epoch) so cross-controller DoS is not possible.
+
+NOTE: To enforce the per-controller isolation, the epoch strategy is a strict subset of ERC-7540 request auth: on top of the base's owner-side check, `requestDeposit` and `requestRedeem` also require `msg.sender` to be `controller` or an approved operator of `controller`. Third-party attribution (`msg.sender != controller`) — e.g. gifting a deposit to another account, or a router relaying a redeem via ERC-20 allowance — needs the controller's prior `setOperator` approval.
+
+Users that hit the queue limit must claim fulfilled epochs to free up slots before submitting new requests. Because claims walk from the front, an unresolved oldest epoch blocks all later-fulfilled ones behind it and prevents queue cleanup — admins should resolve epochs close to FIFO order.
+
+=== Rounding and dust handling
+
+Within a single epoch, claims pay each controller's pro-rata share floor-rounded against the remaining `totalAssets` / `totalShares`. In rare cases involving very small fulfillment values relative to the number of claimants, rounding can leave up to 1 wei of unclaimable per-controller residue. At realistic ERC-20 decimals this dust is sub-unit and economically immaterial.
+
+Unlike the standard ERC-4626 inflation-attack surface, per-epoch `totalAssets` and `totalShares` cannot be inflated by donation — they only change via `requestDeposit` / `requestRedeem` and `_fulfillDeposit` / `_fulfillRedeem`. Deployers wanting finer per-claim granularity can set `_decimalsOffset()` to scale share precision relative to assets.
+
+=== Building an epoch vault
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540EpochDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochDeposit.sol";
+import {ERC7540EpochRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochRedeem.sol";
+
+contract NAVVault is ERC7540EpochDeposit, ERC7540EpochRedeem, Ownable {
+    constructor(IERC20 asset_) ERC7540(asset_) Ownable(msg.sender) {}
+
+    /// @dev Admin closes a past deposit epoch with the determined total shares.
+    function fulfillDeposit(uint256 epochId, uint256 totalShares) external onlyOwner {
+        _fulfillDeposit(epochId, totalShares);
+    }
+
+    /// @dev Admin closes a past redeem epoch with the determined total assets.
+    function fulfillRedeem(uint256 epochId, uint256 totalAssets) external onlyOwner {
+        _fulfillRedeem(epochId, totalAssets);
+    }
+
+    // Resolve multiple inheritance
+    function _requestDeposit(
+        uint256 assets, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540EpochDeposit) {
+        super._requestDeposit(assets, controller, owner, requestId);
+    }
+
+    function _requestRedeem(
+        uint256 shares, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540EpochRedeem) {
+        super._requestRedeem(shares, controller, owner, requestId);
+    }
+
+}
+----
+
+TIP: For production use, override `currentDepositEpoch()` and `currentRedeemEpoch()` to read a manually-bumped counter (e.g. incremented inside `fulfillDeposit` / `fulfillRedeem`). The timestamp-bucketed default is convenient for testing but rarely matches real settlement cadences.
+
+[[mixed-strategy]]
+== Mixing strategies
+
+A common pattern is to keep one side synchronous while making the other async. For example, a liquid staking vault might allow instant deposits but require a 7-day unbonding period for redemptions:
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540SyncDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540SyncDeposit.sol";
+import {ERC7540DelayRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540DelayRedeem.sol";
+
+contract LiquidStakingVault is ERC7540SyncDeposit, ERC7540DelayRedeem {
+    constructor(IERC20 asset_) ERC7540(asset_) {}
+
+    function redeemDelay(address /*controller*/) public view override returns (uint48) {
+        return 7 days;
+    }
+
+    function _requestRedeem(
+        uint256 shares, address controller, address owner, uint256 requestId
+    ) internal override(ERC7540, ERC7540DelayRedeem) {
+        super._requestRedeem(shares, controller, owner, requestId);
+    }
+}
+----
+
+In this vault:
+
+* `deposit(assets, receiver)` works synchronously, just like ERC-4626
+* `requestDeposit(...)` reverts with `ERC7540SyncDeposit`
+* `requestRedeem(shares, controller, owner)` starts the async flow
+* After the delay, `redeem(shares, receiver, controller)` claims the assets
+
+[[authorization]]
+== Authorization model
+
+ERC-7540 extends ERC-4626's two-party model (`caller` + `owner`) with a *controller/operator* system:
+
+* **Owner**: The account whose assets or shares are being used
+* **Controller**: The account that controls the request lifecycle and can claim
+* **Operator**: An account approved by a controller to act on their behalf
+
+[source,solidity]
+----
+// Grant operator permissions
+vault.setOperator(operatorAddress, true);
+
+// Now the operator can manage requests for msg.sender
+vault.requestDeposit(1000e6, controller, owner);  // operator acting for owner
+vault.deposit(1000e6, receiver, controller);       // operator claiming for controller
+----
+
+The authorization rules differ by function:
+
+[%header,cols="2,3"]
+|===
+| Function | Who can call
+
+| `requestDeposit(assets, controller, owner)`
+| `msg.sender == owner` OR `isOperator(owner, msg.sender)`
+
+| `requestRedeem(shares, controller, owner)`
+| `msg.sender == owner` OR `isOperator(owner, msg.sender)` OR ERC-20 allowance over shares
+
+| `deposit(assets, receiver, controller)` (async claim)
+| `msg.sender == controller` OR `isOperator(controller, msg.sender)`
+
+| `redeem(shares, receiver, controller)` (async claim)
+| `msg.sender == controller` OR `isOperator(controller, msg.sender)`
+|===
+
+NOTE: For `requestRedeem`, authorization can come from *either* the operator system or standard ERC-20 approval. This dual authorization is consistent with https://eips.ethereum.org/EIPS/eip-6909[ERC-6909]. Operators are not subject to allowance restrictions, while non-infinite ERC-20 approvals are consumed.
+
+[[share-custody]]
+== Share custody models
+
+During the async lifecycle, shares and assets must be held somewhere between request and claim. The base contract provides two configurable hooks that control this behavior:
+
+=== Deposit side: `_depositShareOrigin()`
+
+[%header,cols="1,3"]
+|===
+| Return value | Behavior
+
+| `address(0)` (default)
+| **Mint on claim.** Shares are minted to the receiver when they call `deposit`/`mint` to claim. The pending assets are tracked via `_totalPendingDepositAssets` to keep the exchange rate accurate.
+
+| Non-zero address
+| **Pre-mint on fulfill.** Shares are minted to the specified address (e.g. `address(0xdead)`) when the admin calls `_fulfillDeposit`. On claim, shares are transferred from that address to the receiver.
+|===
+
+=== Redeem side: `_redeemShareDestination()`
+
+[%header,cols="1,3"]
+|===
+| Return value | Behavior
+
+| `address(0)` (default)
+| **Burn on request.** Shares are burned immediately when the user calls `requestRedeem`. The burned shares are tracked via `_totalPendingRedeemShares` to keep the exchange rate accurate.
+
+| Non-zero address
+| **Escrow on request.** Shares are transferred to the specified address when the user calls `requestRedeem`. They are burned later when the admin fulfills the request.
+|===
+
+=== Why `totalAssets` and `_totalOutstandingShares` are adjusted
+
+The base `ERC7540` contract prices shares using an adjusted `totalAssets()` and a dedicated internal `_totalOutstandingShares()` count, to keep the share price accurate during the async lifecycle:
+
+```mermaid
+flowchart TD
+    TA["<b>totalAssets()</b> = asset.balanceOf(vault) − (_totalPendingDepositAssets − _totalClaimableDepositAssets()) − _totalClaimableRedeemAssets()"]
+    TA --> TA1["<b>asset.balanceOf(vault)</b><br/>All assets in the vault,<br/>including pending ones"]
+    TA --> TA2["<b>_totalPendingDepositAssets − _totalClaimableDepositAssets()</b><br/>Assets received but not yet<br/>settled at a locked rate.<br/>Must not inflate the perceived yield."]
+    TA --> TA3["<b>_totalClaimableRedeemAssets()</b><br/>Assets owed to fulfilled redeems,<br/>still held until claimed"]
+
+    TS["<b>_totalOutstandingShares()</b> = totalSupply() + _totalClaimableDepositShares() + (_totalPendingRedeemShares − _totalClaimableRedeemShares())"]
+    TS --> TS1["<b>totalSupply()</b><br/>The on-chain ERC-20 supply"]
+    TS --> TS2["<b>_totalClaimableDepositShares()</b><br/>Shares owed to fulfilled deposits,<br/>minted at claim time"]
+    TS --> TS3["<b>_totalPendingRedeemShares − _totalClaimableRedeemShares()</b><br/>Shares already burned/escrowed<br/>but logically still outstanding<br/>(request not yet fulfilled)"]
+```
+
+This ensures `convertToShares` / `convertToAssets` reflect the real exchange rate at all times, even while requests are in flight.
+
+`totalSupply()` itself is not adjusted: it always equals the sum of all ERC-20 balances and only changes with `Transfer` events, so reward distributors, governance, supply caps and indexers keep working. While requests are in flight it can differ from `_totalOutstandingShares()`, so integrators pricing shares should use `convertToAssets` rather than `totalAssets() / totalSupply()`.
+
+A request fulfilled at a locked rate (admin and epoch strategies) is settled from the vault's point of view, even before its controller claims it: the assets and shares it locked are accounted as if the claim had happened. Without this, a vault combining such a strategy with a synchronous side (e.g. `ERC7540EpochDeposit` with `ERC7540SyncRedeem`) would price sync operations at a rate that ignores fulfilled deposits or mis-values fulfilled redeems, moving value between holders depending on when claims are made. Strategies report these amounts through the `_totalClaimable*` hooks; strategies that compute the rate at claim time (delay) and synchronous sides report 0.
+
+[[custom-strategy]]
+== Building a custom strategy
+
+If none of the bundled strategies (admin, delay, epoch) fit your use case, you can build a custom fulfillment strategy by extending `ERC7540` directly and implementing the 20 virtual hooks.
+
+Each async side (deposit or redeem) requires 10 hooks:
+
+[%header,cols="1,3"]
+|===
+| Hook | Purpose
+
+| `_isDepositAsync()` / `_isRedeemAsync()`
+| Return `true` to enable the async path for that side
+
+| `_getDepositRequestId()` / `_getRedeemRequestId()`
+| Return the `requestId` assigned to a new request for `controller` (0 to aggregate all the requests of a controller, as the admin strategy does; the epoch strategy returns the current epoch, the delay strategy the maturity timepoint)
+
+| `_pendingDepositRequest()` / `_pendingRedeemRequest()`
+| Return the amount in Pending state for a given `requestId` and `controller`
+
+| `_claimableDepositRequest()` / `_claimableRedeemRequest()`
+| Return the amount in Claimable state for a given `requestId` and `controller`
+
+| `_consumeClaimableDeposit()` / `_consumeClaimableWithdraw()`
+| Consume claimable state when claiming via `deposit()` / `withdraw()` (asset-denominated)
+
+| `_consumeClaimableMint()` / `_consumeClaimableRedeem()`
+| Consume claimable state when claiming via `mint()` / `redeem()` (share-denominated)
+
+| `_asyncMaxDeposit()` / `_asyncMaxWithdraw()`
+| Return the maximum claimable amount (in assets) for `deposit()` / `withdraw()`
+
+| `_asyncMaxMint()` / `_asyncMaxRedeem()`
+| Return the maximum claimable amount (in shares) for `mint()` / `redeem()`
+
+| `_totalClaimableDepositAssets()` / `_totalClaimableRedeemAssets()`
+| Return the assets locked in fulfilled but unclaimed requests (0 if the rate is computed at claim time)
+
+| `_totalClaimableDepositShares()` / `_totalClaimableRedeemShares()`
+| Return the shares locked in fulfilled but unclaimed requests (0 if the rate is computed at claim time)
+|===
+
+For example, an oracle-driven strategy could mark requests claimable when an external price feed crosses a threshold; or a per-request strategy could give each request its own settlement timeline driven by off-chain compliance checks.
+
+[[security]]
+== Security considerations
+
+=== Preview functions revert for async flows
+
+Per the ERC-7540 spec, `previewDeposit`, `previewMint`, `previewWithdraw`, and `previewRedeem` *revert* when the corresponding side is async. This is because the exchange rate is unknown until fulfillment, so no reliable preview can be given.
+
+Integrators should check `supportsInterface` for `IERC7540Deposit` / `IERC7540Redeem` to determine whether the vault is async, and avoid calling preview functions for async sides.
+
+=== Operator trust
+
+An operator approved via `setOperator` has broad permissions: they can request deposits using the controller's assets, request redemptions using the controller's shares, and claim on behalf of the controller. Users should only approve operators they fully trust.
+
+=== Exchange rate manipulation
+
+In the *admin strategy*, the admin has full control over the exchange rate at fulfillment time. The admin must ensure `totalAssets()` accurately reflects the vault's holdings after deploying assets, to avoid diluting existing shareholders.
+
+In the *delay strategy*, the exchange rate is computed at claim time using the live vault conversion. This means the rate can change between request and claim. If the vault's underlying yield fluctuates significantly, claimers may receive more or fewer shares/assets than expected at request time.
+
+In the *epoch strategy*, the admin picks a single rate per epoch that applies to every controller in the batch. Choosing a rate that does not reflect the real `totalAssets()` after deploying the epoch's capital dilutes existing shareholders just as in the admin strategy, but the impact is amplified because every request in the epoch is settled at that same rate. The per-controller queue limit (`_depositRequestQueueLimit` / `_redeemRequestQueueLimit`, default 32) further bounds the per-account state — a user who fills their queue with small requests can only block themselves from submitting new ones, not other users, and fulfillment is O(1) per epoch.
