@@ -98,16 +98,21 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
         return clock() + redeemDelay(controller);
     }
 
-    /// @dev Consumes `assets` from claimable redeems, returns proportional shares (rounded up).
+    /**
+     * @dev Consumes the shares worth `assets` at the current rate (rounded up) from claimable redeems and returns them.
+     * Withdrawing the full {maxWithdraw} consumes all of the claimable shares.
+     */
     function _consumeClaimableWithdraw(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 shares = Math.mulDiv(assets, maxRedeem(controller), maxWithdraw(controller), Math.Rounding.Ceil);
+        uint256 shares = assets == maxWithdraw(controller)
+            ? maxRedeem(controller)
+            : _convertToShares(assets, Math.Rounding.Ceil);
         _claimedRedeems[controller] += shares;
         return shares;
     }
 
-    /// @dev Consumes `shares` from claimable redeems, returns proportional assets (rounded down).
+    /// @dev Consumes `shares` from claimable redeems, returns their value in assets at the current rate (rounded down).
     function _consumeClaimableRedeem(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = Math.mulDiv(shares, maxWithdraw(controller), maxRedeem(controller), Math.Rounding.Floor);
+        uint256 assets = _convertToAssets(shares, Math.Rounding.Floor);
         _claimedRedeems[controller] += shares;
         return assets;
     }

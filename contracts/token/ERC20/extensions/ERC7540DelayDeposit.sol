@@ -100,22 +100,21 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         return clock() + depositDelay(controller);
     }
 
-    /**
-     * @dev Consumes `assets` from claimable deposits, returns proportional shares (rounded down).
-     *
-     * Requirements:
-     *
-     * * {maxMint} must not be 0 for `controller`. Panics with division by zero otherwise.
-     */
+    /// @dev Consumes `assets` from claimable deposits, returns their value in shares at the current rate (rounded down).
     function _consumeClaimableDeposit(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 shares = Math.mulDiv(assets, maxMint(controller), maxDeposit(controller), Math.Rounding.Floor);
+        uint256 shares = _convertToShares(assets, Math.Rounding.Floor);
         _claimedDeposits[controller] += assets;
         return shares;
     }
 
-    /// @dev Consumes `shares` from claimable deposits, returns proportional assets (rounded up).
+    /**
+     * @dev Consumes the assets worth `shares` at the current rate (rounded up) from claimable deposits and returns them.
+     * Minting the full {maxMint} consumes all of the claimable assets.
+     */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = Math.mulDiv(shares, maxDeposit(controller), maxMint(controller), Math.Rounding.Ceil);
+        uint256 assets = shares == maxMint(controller)
+            ? maxDeposit(controller)
+            : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;
     }
