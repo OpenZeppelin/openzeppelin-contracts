@@ -145,20 +145,20 @@ abstract contract ERC7540AdminDeposit is ERC7540 {
         return assets;
     }
 
-    /// @inheritdoc ERC7540
+    /// @dev All the Requests of a controller are aggregated under `requestId = 0`. Returns 0 for any other `requestId`.
     function _pendingDepositRequest(
-        uint256 /*requestId*/,
+        uint256 requestId,
         address controller
     ) internal view virtual override returns (uint256) {
-        return _deposits[controller].pendingAssets;
+        return requestId == 0 ? _deposits[controller].pendingAssets : 0;
     }
 
-    /// @inheritdoc ERC7540
+    /// @dev All the Requests of a controller are aggregated under `requestId = 0`. Returns 0 for any other `requestId`.
     function _claimableDepositRequest(
-        uint256 /*requestId*/,
+        uint256 requestId,
         address controller
     ) internal view virtual override returns (uint256) {
-        return _deposits[controller].claimableAssets;
+        return requestId == 0 ? _deposits[controller].claimableAssets : 0;
     }
 
     /// @inheritdoc ERC7540
