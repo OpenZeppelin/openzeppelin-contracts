@@ -13,9 +13,9 @@ import {ERC7540} from "./ERC7540.sol";
 /**
  * @dev Time-delay fulfillment strategy for asynchronous redemptions.
  *
- * Extends {ERC7540} with a redeem flow where requests become **permissionlessly claimable** after a
- * configurable waiting period. No privileged fulfiller is needed — once the delay elapses, the
- * controller (or any keeper) can claim. The exchange rate is computed at claim time using the vault's
+ * Extends {ERC7540} with a redeem flow where requests become claimable automatically after a
+ * configurable waiting period. No privileged fulfiller is needed: once the delay elapses, the
+ * controller or one of its operators can claim. The exchange rate is computed at claim time using the vault's
  * live {convertToAssets}.
  *
  * Production equivalents:

@@ -89,7 +89,7 @@ Each strategy comes in a deposit and redeem variant. You combine exactly one dep
 
 | `ERC7540DelayDeposit`
 | `ERC7540DelayRedeem`
-| Fully permissionless time-locked vault
+| Time-locked vault with no privileged fulfiller
 
 | `ERC7540AdminDeposit`
 | `ERC7540DelayRedeem`
@@ -197,7 +197,7 @@ NOTE: The admin strategy uses `requestId = 0` for all requests since accounting 
 [[delay-strategy]]
 == Delay strategy
 
-The delay strategy makes requests claimable automatically after a configurable time period. No privileged caller is needed — anyone can claim once the delay elapses. The exchange rate is computed at claim time using the vault's live `convertToShares` / `convertToAssets`.
+The delay strategy makes requests claimable automatically after a configurable time period. No privileged fulfiller is needed: once the delay elapses, the controller or one of its operators can claim. As with every strategy, the controller must be able to claim or approve an operator, otherwise the request cannot be claimed. The exchange rate is computed at claim time using the vault's live `convertToShares` / `convertToAssets`.
 
 This suits use cases with protocol-dictated waiting periods: staking unbonding, time-locked deposits, or cooldown mechanisms.
 
