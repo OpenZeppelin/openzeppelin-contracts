@@ -138,7 +138,7 @@ library WebAuthn {
                 // clientDataJson.length >= typeIndex + 21
                 gt(mload(clientDataJSON), add(typeIndex, 20)),
                 eq(
-                    // get 32 bytes starting at index typexIndex in clientDataJSON, and keep the leftmost 21 bytes
+                    // get 32 bytes starting at index typeIndex in clientDataJSON, and keep the leftmost 21 bytes
                     and(mload(add(add(clientDataJSON, 0x20), typeIndex)), shl(88, not(0))),
                     // solhint-disable-next-line quotes
                     '"type":"webauthn.get"'
