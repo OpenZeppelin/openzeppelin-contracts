@@ -303,7 +303,7 @@ rule getAccessChangeTime(uint64 roleId, address account) {
     mathint getAccess4Before = getAccess_effect(e1, roleId, account);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     mathint getAccess1After  = getAccess_since(e2, roleId, account);
@@ -321,8 +321,8 @@ rule getAccessChangeTime(uint64 roleId, address account) {
         getAccess4Before != getAccess4After
     ) => (
         getAccess4Before != 0 &&
-        getAccess4Before >  clock(e1) &&
-        getAccess4Before <= clock(e2) &&
+        getAccess4Before >  now(e1) &&
+        getAccess4Before <= now(e2) &&
         getAccess2After  == getAccess3Before &&
         getAccess3After  == 0 &&
         getAccess4After  == 0
@@ -386,7 +386,7 @@ rule isTargetClosedChangeTime(address target) {
     bool isClosedBefore = isTargetClosed(e1, target);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     bool isClosedAfter = isTargetClosed(e2, target);
@@ -426,7 +426,7 @@ rule getTargetFunctionRoleChangeTime(address target, bytes4 selector) {
     mathint roleIdBefore = getTargetFunctionRole(e1, target, selector);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     mathint roleIdAfter = getTargetFunctionRole(e2, target, selector);
@@ -468,7 +468,7 @@ rule getTargetAdminDelayChangeTime(address target) {
     mathint delayEffectBefore  = getTargetAdminDelay_effect(e1, target);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     mathint delayAfter        = getTargetAdminDelay(e2, target);
@@ -480,8 +480,8 @@ rule getTargetAdminDelayChangeTime(address target) {
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        delayEffectBefore >  clock(e1)          &&
-        delayEffectBefore <= clock(e2)          &&
+        delayEffectBefore >  now(e1)          &&
+        delayEffectBefore <= now(e2)          &&
         delayAfter        == delayPendingBefore &&
         delayPendingAfter == 0                  &&
         delayEffectAfter  == 0
@@ -524,7 +524,7 @@ rule getTargetAdminDelayChangeCall(address target) {
         ) && (
             // ... if the value did not change and there is a minSetback, there must be something scheduled in the future
             delayAfter == delayBefore && minSetback() > 0 => (
-                delayEffectAfter >= clock(e) + minSetback()
+                delayEffectAfter >= now(e) + minSetback()
             )
             // note: if there is no minSetback, and if the caller "confirms" the current value,
             // then this as immediate effect and nothing is scheduled
@@ -553,7 +553,7 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
     mathint delayEffectBefore  = getRoleGrantDelay_effect(e1, roleId);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     mathint delayAfter        = getRoleGrantDelay(e2, roleId);
@@ -565,8 +565,8 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        delayEffectBefore >  clock(e1)          &&
-        delayEffectBefore <= clock(e2)          &&
+        delayEffectBefore >  now(e1)          &&
+        delayEffectBefore <= now(e2)          &&
         delayAfter        == delayPendingBefore &&
         delayPendingAfter == 0                  &&
         delayEffectAfter  == 0
@@ -609,7 +609,7 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
         ) && (
             // ... if the value did not change and there is a minSetback, there must be something scheduled in the future
             delayAfter == delayBefore && minSetback() > 0 => (
-                delayEffectAfter >= clock(e) + minSetback()
+                delayEffectAfter >= now(e) + minSetback()
             )
             // note: if there is no minSetback, and if the caller "confirms" the current value,
             // then this as immediate effect and nothing is scheduled
@@ -696,15 +696,15 @@ rule getScheduleChangeTime(bytes32 operationId) {
     mathint scheduleBefore = getSchedule(e1, operationId);
 
     // time pass: e1 → e2
-    require clock(e1) <= clock(e2);
+    require now(e1) <= now(e2);
 
     // values after
     mathint scheduleAfter = getSchedule(e2, operationId);
 
     // transition
     assert scheduleBefore != scheduleAfter => (
-        scheduleBefore + expiration() >  clock(e1) &&
-        scheduleBefore + expiration() <= clock(e2) &&
+        scheduleBefore + expiration() >  now(e1) &&
+        scheduleBefore + expiration() <= now(e2) &&
         scheduleAfter == 0
     );
 }
@@ -723,7 +723,7 @@ rule getScheduleChangeCall(bytes32 operationId) {
 
     // transitions
     assert scheduleBefore != scheduleAfter => (
-        (f.selector == sig:schedule(address,bytes,uint48).selector    && scheduleAfter >= clock(e)) ||
+        (f.selector == sig:schedule(address,bytes,uint48).selector    && scheduleAfter >= now(e)) ||
         (f.selector == sig:execute(address,bytes).selector            && scheduleAfter == 0       ) ||
         (f.selector == sig:cancel(address,address,bytes).selector     && scheduleAfter == 0       ) ||
         (f.selector == sig:consumeScheduledOp(address,bytes).selector && scheduleAfter == 0       ) ||
@@ -813,7 +813,7 @@ rule callDelayEnforce_scheduleInTheFuture(env e) {
     mathint timepoint = getSchedule(e, hashOperation(e.msg.sender, target, data));
 
     // Schedule is far enough in the future
-    assert timepoint == max(clock(e) + delay, when);
+    assert timepoint == max(now(e) + delay, when);
 }
 
 rule callDelayEnforce_executeAfterDelay(env e) {
@@ -837,7 +837,7 @@ rule callDelayEnforce_executeAfterDelay(env e) {
     assert success => (
         delay > 0 => (
             scheduleBefore != 0 &&
-            scheduleBefore <= clock(e)
+            scheduleBefore <= now(e)
         ) &&
         scheduleAfter == 0
     );
