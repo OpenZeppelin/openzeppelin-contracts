@@ -464,11 +464,13 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
             _requireNotPaused();
             require(!isFrozen(to), ERC3643FrozenWallet(to));
             require(!isFrozen(from), ERC3643FrozenWallet(from));
+            uint256 balance = balanceOf(from);
             uint256 unfrozen;
             unchecked {
-                unfrozen = balanceOf(from) - getFrozenTokens(from);
+                unfrozen = balance - getFrozenTokens(from);
             }
-            require(unfrozen >= value, ERC3643InsufficientUnfrozenBalance(from, value, unfrozen));
+            // Only check the frozen portion here. A plain `value > balance` is left to `super._update` balance check.
+            require(value <= unfrozen || balance < value, ERC3643InsufficientUnfrozenBalance(from, value, unfrozen));
         } else if (isBurn) {
             _autoUnfreezeFor(from, value);
         }

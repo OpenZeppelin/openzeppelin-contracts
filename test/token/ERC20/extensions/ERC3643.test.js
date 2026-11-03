@@ -1,6 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 
 const {
   ethers,
@@ -592,5 +593,18 @@ describe('ERC3643', function () {
         );
       });
     }
+  });
+
+  describe('behaves like an ERC20', function () {
+    beforeEach(async function () {
+      const otherIdentity = ethers.Wallet.createRandom().address;
+      await this.registry.setIdentity(this.other, otherIdentity);
+      await this.registry.setVerified(otherIdentity, true);
+
+      this.accounts = [this.holder, this.recipient, this.other];
+      this.ethers = ethers;
+    });
+
+    shouldBehaveLikeERC20(initialSupply);
   });
 });
