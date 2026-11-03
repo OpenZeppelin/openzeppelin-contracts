@@ -15,7 +15,7 @@ contract ERC7913P256Verifier is IERC7913SignatureVerifier {
     /// @inheritdoc IERC7913SignatureVerifier
     function verify(bytes calldata key, bytes32 hash, bytes calldata signature) public view virtual returns (bytes4) {
         // Signature length may be 0x40 or 0x41.
-        if (key.length == 0x40 && signature.length >= 0x40) {
+        if (key.length == 0x40 && (signature.length == 0x40 || signature.length == 0x41)) {
             bytes32 qx = bytes32(key[0x00:0x20]);
             bytes32 qy = bytes32(key[0x20:0x40]);
             bytes32 r = bytes32(signature[0x00:0x20]);
