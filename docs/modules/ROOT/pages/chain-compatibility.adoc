@@ -1,0 +1,116 @@
+= Chain Compatibility Guide
+:page-aliases: non-ethereum-chains.adoc, l2-compatibility.adoc
+
+OpenZeppelin Contracts is engineered and verified targeting Ethereum Mainnet and EVM-equivalent execution environments (the Cancun hardfork specification baseline).
+
+Teams frequently deploy contracts to alternative environments, including Layer 2 rollups (Arbitrum, Optimism, Base), sidechains (Polygon PoS, BNB Smart Chain), zero-knowledge rollups (zkSync Era, Scroll, Linea), and non-EVM runtimes using bytecode emulation. While many standard ERC implementations operate seamlessly, target chain deviations from Ethereum's reference execution environment can induce runtime reverts, silent misbehaviors, or security vulnerabilities.
+
+This guide outlines the critical verification checklist for deploying OpenZeppelin Contracts on non-Ethereum chains.
+
+== 1. Opcode Dependencies
+
+OpenZeppelin Contracts leverages modern EVM opcodes enabled by compiler versions (Solidity `^0.8.20` and `^0.8.24`). Verify that your target network's virtual machine supports the following opcodes:
+
+[cols="1,1,2,2", options="header"]
+|===
+| Opcode | Hardfork / EIP | Contracts & Libraries | Compatibility Impact
+
+| `PUSH0`
+| Shanghai (EIP-3855)
+| All contracts compiled with `solc` >= 0.8.20
+| Emitted by default in Solidity 0.8.20+. Networks lacking Shanghai support will reject contract deployment with an invalid opcode or deployment failure.
+
+| `TSTORE` / `TLOAD`
+| Cancun (EIP-1153)
+| `TransientSlot`, reentrancy protection variants
+| Transient storage opcodes are cleared at the transaction boundary. On pre-Cancun chains or rollups without transient storage support, calling contracts that rely on `TransientSlot` will immediately revert.
+
+| `MCOPY`
+| Cancun (EIP-5656)
+| Compiler memory operations in `solc` >= 0.8.24
+| Direct memory-to-memory copying. If your compiler target is set to `cancun` on a network without EIP-5656 support, internal memory operations will cause execution failure.
+
+| `BLOBHASH` / `BLOBBASEFEE`
+| Cancun (EIP-4844)
+| Data availability helpers, blob verification
+| Blob execution opcodes are present on Ethereum L1. Many L2 execution environments intentionally stub or omit blob opcodes. Contracts must not assume blob opcodes are callable on L2 execution layers.
+|===
+
+[TIP]
+====
+If your target network does not support Shanghai or Cancun opcodes, configure the `evmVersion` in your compiler settings (e.g., `paris` for pre-PUSH0 networks) in your `hardhat.config.js` or `foundry.toml`.
+====
+
+== 2. Precompile Support & Cryptography
+
+The EVM standard defines native precompiles at fixed addresses (`0x01` through `0x09`) along with rollup improvement proposals such as RIP-7212. Verify availability and gas semantics before deployment:
+
+=== Standard Precompiles (`0x01` - `0x09`)
+
+* `ecrecover` (`0x01`): Extensively used by `ECDSA`, `EIP712`, and `ERC20Permit`. Certain ZK-rollups simulate `ecrecover` via out-of-circuit precompiles or custom system contracts with different gas profiles. Ensure malleability protections and return value handling align with standard semantics.
+* `modexp` (`0x05`): Used for arbitrary-precision modular exponentiation (such as RSA verification and math utilities in `Math.sol`). Gas schedules for `modexp` can vary between L2 networks depending on whether EIP-2565 pricing is applied.
+* `ecAdd` (`0x06`), `ecMul` (`0x07`), and `ecPairing` (`0x08`): BN254 / alt_bn128 curve operations used in zero-knowledge verifiers. Some networks do not support pairing or charge non-standard gas tariffs.
+* `identity` (`0x04`): Copies input data to output. Used in various proxy and forwarding patterns.
++
+[CAUTION]
+====
+When implementing signature validation patterns (such as ERC-6492 or ERC-1271 delegators), ensure the precompile address range (`0x01` - `0x09`) cannot be spoofed or used as an arbitrary target in external calls.
+====
+
+=== Rollup Precompiles (RIP-7212)
+
+* `P256` / `secp256r1` (`0x0100`): RIP-7212 introduces native secp256r1 curve operations for WebAuthn passkey verification, implemented natively on chains such as Base, Optimism, and Arbitrum. OpenZeppelin's `P256` library falls back to an optimized Solidity verification algorithm when RIP-7212 is unavailable, consuming ~250,000 gas instead of ~3,400 gas. Ensure gas limits accommodate software fallback on chains without RIP-7212.
+
+== 3. Target Chain Deviations
+
+Chains often diverge from Ethereum execution semantics in ways that impact contract invariants:
+
+=== Native Asset as an ERC-20 Token
+On select networks, the native gas asset is simultaneously exposed as an ERC-20 contract (e.g., Celo, Polygon CELO/POL).
+* *Impact on `ERC7535`*: Plain transfers into an ERC-7535 vault fail because the contract has no `receive` function. However, an ERC-20 transfer of the underlying token succeeds and acts as an external donation, increasing `totalAssets()` without minting shares.
+* *Decimals*: Verify whether the ERC-20 token interface and native currency share the same decimal precision (some chains expose 18 decimals natively but a different scale through token wrappers).
+
+=== Gas Stipends and Native Transfers
+* *`Address.sendValue`*: The `Address.sendValue` utility forwards a fixed stipend of 2,300 gas via `call{value: amount}("")`.
+* *Account Abstraction & Proxies*: On chains where accounts are predominantly smart contracts (e.g., native account abstraction on zkSync or ERC-4337 smart accounts), 2,300 gas is insufficient to receive funds if the recipient performs storage reads or logs events. Use explicit balance transfers or pull-over-push payment patterns (`PullPayment`).
+
+=== Block Numbers, Timestamps, and Granularity
+* *Sub-second Block Times*: Layer 2 networks frequently produce blocks at sub-second intervals (e.g., 250ms on Arbitrum). Contracts that measure vesting schedules (`VestingWallet`), voting checkpoints (`ERC20Votes`, `Votes`), or governance delays (`Governor`) using `block.number` will elapse significantly faster than intended.
++
+[IMPORTANT]
+====
+Always use timestamp-based configurations (`block.timestamp` and `ClockMode.mode = "mode=timestamp"`) when deploying governance and vesting modules on Layer 2 rollups.
+====
+* *Block Hashes (`BLOCKHASH`)*: Many L2 networks only retain a limited history of recent block hashes, or return zero / sequencer-derived pseudorandomness. Never rely on `blockhash` or `block.prevrandao` for non-deterministic seed generation on L2s.
+
+=== Transfer Blacklists and Native Interceptions
+Certain enterprise or compliance-oriented chains implement native transfer blacklists at the consensus or EVM hook level. If a contract relies on the invariant that `msg.sender` balance transfers always succeed given sufficient balance, an external node blacklist can cause denial-of-service in batch payouts or withdrawal queues.
+
+== 4. Testing Against Your Target Chain
+
+Relying solely on local unit tests with the standard Ethereum EVM target does not guarantee compatibility on alternative networks.
+
+=== Running Fork Tests with Foundry
+Configure Foundry to run the test suite against a live node of your target network:
+
+[source,bash]
+----
+# Run tests against a target chain fork
+forge test --fork-url https://target-rpc.example.com -vvv
+----
+
+You can also specify the target EVM version in `foundry.toml`:
+
+[source,toml]
+----
+[profile.default]
+evm_version = "cancun" # or "shanghai", "paris" depending on target
+----
+
+=== Limits of Evidence
+Passing a test suite against a chain fork provides valuable confirmation of opcode execution and basic RPC fidelity, but does not provide exhaustive proof of long-term compatibility:
+1. *Fork Depth*: Fork testing simulates current network state; it does not simulate upcoming network hardforks or fee-market changes (e.g., L1 data availability fee spikes on rollups).
+2. *Sequencer Reordering*: Local forks execute transactions sequentially and synchronously. They do not simulate MEV reordering, sequencer downtime, or delayed transaction batches.
+3. *Gas Estimation & L1 Data Costs*: On rollups, transaction cost consists of both L2 execution gas and L1 data posting fees (calldata or blob gas). Ensure your contracts account for calldata compression and avoid large dynamic calldata structures.
+
+Always execute deployment dry-runs on the target network's public testnet prior to mainnet production releases.
