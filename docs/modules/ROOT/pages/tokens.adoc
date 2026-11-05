@@ -29,3 +29,5 @@ You've probably heard of the ERC-20 or ERC-721 token standards, and that's why y
  * xref:erc20.adoc[ERC-20]: the most widespread token standard for fungible assets, albeit somewhat limited by its simplicity.
  * xref:erc721.adoc[ERC-721]: the de-facto solution for non-fungible tokens, often used for collectibles and games.
  * xref:erc1155.adoc[ERC-1155]: a novel standard for multi-tokens, allowing for a single contract to represent multiple fungible and non-fungible tokens, along with batched operations for increased gas efficiency.
+* xref:erc6909.adoc[ERC-6909]: minimal multi-token standard with account-based balances.
+* xref:erc4626.adoc[ERC-4626]: tokenized vault standard for yield-bearing assets.
