@@ -128,6 +128,71 @@ describe('GovernorTimelockCompound', function () {
           .to.emit(this.receiver, 'MockFunctionCalled');
       });
 
+      describe('with duplicate actions', function () {
+        beforeEach(function () {
+          // two identical actions (same target, value and calldata) that the Compound timelock would otherwise
+          // hash to a single queued transaction
+          const action = {
+            target: this.receiver.target,
+            data: this.receiver.interface.encodeFunctionData('mockFunction'),
+          };
+          this.proposal = this.helper.setProposal([action, action], '<proposal description>');
+        });
+
+        it('queues, executes, and runs each repeated action', async function () {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+
+          expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Queued);
+
+          await this.helper.waitForEta();
+          const txExecute = await this.helper.execute();
+
+          expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Executed);
+
+          // both identical actions actually ran (offset etas prevented the timelock hash collision)
+          const receipt = await txExecute.wait();
+          const topic = this.receiver.interface.getEvent('MockFunctionCalled').topicHash;
+          const calls = receipt.logs.filter(
+            log => log.address.toLowerCase() === this.receiver.target.toLowerCase() && log.topics[0] === topic,
+          );
+          expect(calls.length).to.equal(2);
+        });
+
+        it('is not executable before the last offset eta', async function () {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+
+          // proposalEta is the LAST action's eta. Mine a block at eta-2 so the `execute` tx lands at eta-1
+          // (`increaseTo` mines at its target, the next tx one second later): the last action is not yet surpassed.
+          const eta = await this.mock.proposalEta(this.proposal.id);
+          await time.increaseTo.timestamp(eta - 2n);
+          await expect(this.helper.execute()).to.be.rejectedWith(
+            "Timelock::executeTransaction: Transaction hasn't surpassed time lock",
+          );
+        });
+
+        it('can be cancelled after queuing', async function () {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+
+          await expect(this.helper.cancel('internal'))
+            .to.emit(this.mock, 'ProposalCanceled')
+            .withArgs(this.proposal.id);
+
+          expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
+        });
+      });
+
       describe('should revert', function () {
         describe('on queue', function () {
           it('if already queued', async function () {
@@ -143,25 +208,6 @@ describe('GovernorTimelockCompound', function () {
                 ProposalState.Queued,
                 GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
-          });
-
-          it('if proposal contains duplicate calls', async function () {
-            const action = {
-              target: this.token.target,
-              data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
-            };
-            const { id } = this.helper.setProposal([action, action], '<proposal description>');
-
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
-              .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
           });
         });
 
