@@ -142,7 +142,7 @@ contract WebAuthnTest is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testVerifyIndexOutOfBounds(bytes memory challenge, uint256 seed) public view {
+    function testVerifyIndexOutOfBoundChallengeIndex(bytes memory challenge, uint256 seed) public view {
         bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
         string memory clientDataJSON = _encodeClientDataJSON(challenge);
 
@@ -166,6 +166,33 @@ contract WebAuthnTest is Test {
                 1,
                 authenticatorData,
                 clientDataJSON,
+                false
+            )
+        );
+    }
+
+    /// forge-config: default.fuzz.runs = 512
+    function testVerifyInvalidOutOfBoundTypeIndex(bytes memory challenge, uint256 seed) public view {
+        assertFalse(
+            _runVerify(
+                seed,
+                challenge,
+                23,
+                100000000, // try reading type at an out-of-bound index, should return false instead of reverting OOG
+                _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
+                _encodeClientDataJSON(challenge),
+                false
+            )
+        );
+
+        assertFalse(
+            _runVerify(
+                seed,
+                challenge,
+                23,
+                type(uint256).max,
+                _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
+                _encodeClientDataJSON(challenge),
                 false
             )
         );
