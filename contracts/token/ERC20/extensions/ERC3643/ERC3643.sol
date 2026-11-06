@@ -91,6 +91,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     /// @dev A call to {_forcedTransfer} returned false during a recovery.
     error ERC3643FailedForcedTransfer(address from, address to, uint256 value);
 
+    /// @dev The investor identity of a recovery is not the identity `lost` is registered with.
+    error ERC3643InvalidRecoveryIdentity(address lost, address investorOnchainID);
+
     /// @dev A batch entry point received arrays of different lengths.
     error ERC3643InvalidArrayLength();
 
@@ -371,6 +374,11 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * incident halt should override {forcedTransfer} (and {recoveryAddress}, which reaches
      * this path) with {Pausable-whenNotPaused} so the halt contains the forced-transfer
      * agent too.
+     *
+     * Balances move through {ERC20-_update} directly, so neither the checks in {_update} nor
+     * any other `_update` override in the inheritance chain (e.g. {ERC20Votes}) run on this
+     * path. A derived contract that tracks balances in `_update` keeps that tracking in sync
+     * by overriding this function (and {_recoveryAddress}, which reaches it).
      */
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
         if (from == address(0)) revert ERC20InvalidSender(address(0));
@@ -387,6 +395,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     /**
      * @dev Recovers `lost`'s balance and frozen state onto `updated`, points the identity
      * registry at `investorOnchainID`, and clears the old identity binding.
+     *
+     * `investorOnchainID` must be the identity `lost` is registered with, so a recovery
+     * only moves an investor's position between their own wallets.
      *
      * Left as a hook: derived contracts may add preconditions (e.g. verify a MANAGEMENT
      * key on the ONCHAINID, forbid same-wallet recovery), guard the migration semantics
@@ -417,6 +428,10 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         address investorOnchainID
     ) internal virtual returns (bool) {
         IIdentityRegistry idRegistry = identityRegistry();
+        require(
+            address(idRegistry.identity(lost)) == investorOnchainID,
+            ERC3643InvalidRecoveryIdentity(lost, investorOnchainID)
+        );
         uint256 investorTokens = balanceOf(lost);
         uint256 frozenTokens = getFrozenTokens(lost);
         bool lostFrozen = isFrozen(lost);

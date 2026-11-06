@@ -17,6 +17,7 @@ contract ERC3643Mock is ERC3643, Ownable {
         address owner_
     ) ERC20(name_, symbol_) ERC3643(identityRegistry_, compliance_, onchainID_) Ownable(owner_) {}
 
+    // Agents are not modeled: only the owner passes the admin check.
     function _checkAdmin() internal view override {
         _checkOwner();
     }

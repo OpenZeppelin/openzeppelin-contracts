@@ -514,10 +514,18 @@ describe('ERC3643', function () {
     });
 
     it('reverts when the new wallet is not verified', async function () {
-      const unverifiedIdentity = ethers.Wallet.createRandom().address;
-      await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, unverifiedIdentity))
+      await this.registry.setVerified(this.holderIdentity, false);
+      await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, this.holderIdentity))
         .to.be.revertedWithCustomError(this.token, 'ERC3643FailedForcedTransfer')
         .withArgs(this.holder, this.other, initialSupply);
+    });
+
+    it('reverts when the identity is not the one the lost wallet is registered with', async function () {
+      const otherIdentity = ethers.Wallet.createRandom().address;
+      await this.registry.setVerified(otherIdentity, true);
+      await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, otherIdentity))
+        .to.be.revertedWithCustomError(this.token, 'ERC3643InvalidRecoveryIdentity')
+        .withArgs(this.holder, otherIdentity);
     });
   });
 
