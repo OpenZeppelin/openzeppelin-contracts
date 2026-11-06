@@ -5,7 +5,7 @@ import { Enum } from '../helpers/enums';
 const {
   ethers,
   networkHelpers: { loadFixture, mine },
-} = await network.create();
+} = await network.create({ override: { hardfork: 'amsterdam' } });
 
 const HeaderField = Enum(
   'ParentHash', // Since Frontier
@@ -30,6 +30,7 @@ const HeaderField = Enum(
   'ParentBeaconBlockRoot', // Since Cancun
   'RequestsHash', // Since Prague
   'BlockAccessListHash', // Since Amsterdam
+  'SlotNumber', // Since Amsterdam
 );
 
 const sanitize = hex => (hex === undefined ? undefined : hex === '0x0' ? '0x' : ethers.toBeHex(hex));
@@ -57,6 +58,8 @@ const rlpEncodeBlock = block =>
       sanitize(block.excessBlobGas),
       block.parentBeaconBlockRoot,
       block.requestsHash,
+      block.blockAccessListHash,
+      sanitize(block.slotNumber),
     ].filter(x => x !== undefined),
   ); // filter out fields not present in older blocks
 
@@ -107,6 +110,8 @@ describe('BlockHeader', function () {
       block.parentBeaconBlockRoot,
     );
     await expect(this.mock['$getRequestsHash(bytes)'](headerRLP)).to.eventually.equal(block.requestsHash);
+    await expect(this.mock['$getBlockAccessListHash(bytes)'](headerRLP)).to.eventually.equal(block.blockAccessListHash);
+    await expect(this.mock['$getSlotNumber(bytes)'](headerRLP)).to.eventually.equal(block.slotNumber);
   });
 
   it('verify rejects tampered header', async function () {
@@ -151,6 +156,8 @@ describe('BlockHeader', function () {
     expect(result.excessBlobGas).to.equal(block.excessBlobGas);
     expect(result.parentBeaconBlockRoot).to.equal(block.parentBeaconBlockRoot);
     expect(result.requestsHash).to.equal(block.requestsHash);
+    expect(result.blockAccessListHash).to.equal(block.blockAccessListHash);
+    expect(result.slotNumber).to.equal(block.slotNumber);
     expect(result.verified).to.be.true;
   });
 
@@ -265,6 +272,35 @@ describe('BlockHeader', function () {
         parentBeaconBlockRoot: '0x66573e435a75fed7dfab9b037bb87bfa2ca01e7a4914c7178145e8a9d1eba444',
         requestsHash: '0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       },
+      {
+        // TODO: Add amsterdam block from mainnet when available
+        // Sepolia block #12000000
+        hash: '0x71fb284b7df5f012bf6a9092457694c344a0f150098f122b4180fa452107bfcf',
+        parentHash: '0x6db69710be60668ed6e11154b6bc34db48184e26dcb45e1bc911cf0a30a342c8',
+        sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+        miner: '0x8f614cdb61e37b6f18d9705942c93fa86b04d711',
+        stateRoot: '0xbade7e5c36bb1a8f0eae62b95813b4edb1f59ed58dccac224b635cc76563097f',
+        transactionsRoot: '0xd70981d251ab6c4fe8f69d43dad0dc8451b093fbd6e6f3c515f233bb9fe4b8e1',
+        receiptsRoot: '0xd12eac8d151bb71ae4f7844a1424488e465af1973b02270cdd1b65ea050fa909',
+        logsBloom:
+          '0xcd318d4d509553501fcd2508a9f792134df12b44d572eb42538f23567702854a3bcdfc480ca6aa03b1621d0363216179023e842546b9040714a13b99af25e56eb294d3d10a86b289261142cec79c1e310c9fd7f1aae4b969fc2f890e84b1e84227060d13bf987440ab00856b1d2a48147a045205302de041d88056d3000718350ac80e93033c5820e1d32d5ba28314b60fb4aa6328c7a07f5c66a042548e8ec00a2002b71f3778c2d64369da7489c44e0a4e39a1815700a808568b9020eade0bdd2c818b45ae1508d40bca3e4be2d4b960b05a34af9a60bde809b1776a2ce36fabd02d0247b378cc8c091028fa0ae28031a296c4b8bc044860ea990702496a0c',
+        difficulty: '0x0',
+        number: '0xb71b00',
+        gasLimit: '0xbebbf06',
+        gasUsed: '0x429a6ae',
+        timestamp: '0x6adfa5e8',
+        extraData: '0x6275696c6465722e6e666c6169672e65746820326662663139303136343633',
+        mixHash: '0x986f7e4dc0261560981eb49a9e638ff43d00544b42662f9dafbfc360ca153275',
+        nonce: '0x0000000000000000',
+        baseFeePerGas: '0x10',
+        withdrawalsRoot: '0x60f86b18eb85f3d8f958b3ae06b9f38ff30b58b858dcec134a733a9bf79e59a5',
+        blobGasUsed: '0x100000',
+        excessBlobGas: '0x1da0000',
+        parentBeaconBlockRoot: '0xaeeefedaf52e8d2f55399bf1bf1180ea64e4441c67f462c16fbc771c290414b6',
+        requestsHash: '0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        blockAccessListHash: '0xefded5f46fb817ab4505b67e42b9598f46a9084fb64dca15cdb9db6457a85205',
+        slotNumber: '0xae98b6',
+      },
     ]) {
       it(`should parse block #${Number(block.number)} correctly`, async function () {
         // Check helper (for old evm versions)
@@ -317,6 +353,7 @@ describe('BlockHeader', function () {
           block.blockAccessListHash,
           HeaderField.BlockAccessListHash,
         );
+        await check(this.mock['$getSlotNumber(bytes)'](headerRLP), block.slotNumber, HeaderField.SlotNumber);
       });
     }
   });
