@@ -63,6 +63,13 @@ import {ERC20} from "../../ERC20.sol";
  * mark {_update}, {forcedTransfer}, {batchForcedTransfer} and {_recoveryAddress} with
  * `nonReentrant`. {_forcedTransfer} stays unguarded because {_recoveryAddress} calls it,
  * and a nested guard would make every recovery revert.
+ *
+ * NOTE: This contract assumes it is the only extension that customizes balance movements.
+ * Forced transfers and recoveries skip the {_update} chain, and the compliance is notified
+ * from inside {_update}. Extensions that keep balance-derived accounting in {_update}, such
+ * as {ERC20Votes}, are not supported. The compliance is notified of every movement
+ * (including mints, burns, forced transfers and recoveries), so such state belongs in a
+ * compliance module.
  */
 abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     mapping(address account => bool) private _frozen;
@@ -380,8 +387,8 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      *
      * Balances move through {ERC20-_update} directly, so neither the checks in {_update} nor
      * any other `_update` override in the inheritance chain (e.g. {ERC20Votes}) run on this
-     * path. A derived contract that tracks balances in `_update` keeps that tracking in sync
-     * by overriding this function (and {_recoveryAddress}, which reaches it).
+     * path. The compliance is still notified through {ICompliance-transferred}, so state
+     * derived from balances stays in sync when it lives in a compliance module.
      */
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
         if (from == address(0)) revert ERC20InvalidSender(address(0));
