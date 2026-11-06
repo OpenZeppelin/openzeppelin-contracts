@@ -502,6 +502,20 @@ describe('ERC3643', function () {
       await expect(this.token.isFrozen(this.holder)).to.eventually.be.false;
     });
 
+    it('freezes the recovered tokens before notifying the compliance', async function () {
+      const compliance = await ethers.deployContract('ERC3643ReentrantComplianceMock');
+      await this.token.connect(this.owner).setCompliance(compliance);
+      await this.token.connect(this.owner).freezePartialTokens(this.holder, 30n);
+
+      // The compliance tries to spend more than the unfrozen part of the recovered balance.
+      await this.token.connect(this.other).approve(compliance, 90n);
+      await compliance.setReentry(this.recipient, 90n);
+
+      await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, this.holderIdentity))
+        .to.be.revertedWithCustomError(this.token, 'ERC3643InsufficientUnfrozenBalance')
+        .withArgs(this.other, 90n, 70n);
+    });
+
     it('keeps the frozen status of a new wallet that is already frozen', async function () {
       await this.token.connect(this.owner).setAddressFrozen(this.holder, true);
       await this.token.connect(this.owner).setAddressFrozen(this.other, true);

@@ -3,6 +3,7 @@
 pragma solidity ^0.8.31;
 
 import {Ownable} from "../../access/Ownable.sol";
+import {IERC20} from "../../interfaces/IERC20.sol";
 import {IIdentity} from "../../interfaces/IERC3643.sol";
 import {ERC20} from "../../token/ERC20/ERC20.sol";
 import {ERC3643} from "../../token/ERC20/extensions/ERC3643/ERC3643.sol";
@@ -83,7 +84,7 @@ contract ERC3643ComplianceMock {
         return _canTransfer;
     }
 
-    function transferred(address from, address to, uint256 amount) public {
+    function transferred(address from, address to, uint256 amount) public virtual {
         emit Transferred(from, to, amount);
     }
 
@@ -93,5 +94,25 @@ contract ERC3643ComplianceMock {
 
     function destroyed(address from, uint256 amount) public {
         emit Destroyed(from, amount);
+    }
+}
+
+/// @dev Compliance that, once armed, spends `to`'s tokens from its `transferred` notification.
+contract ERC3643ReentrantComplianceMock is ERC3643ComplianceMock {
+    address private _receiver;
+    uint256 private _amount;
+
+    function setReentry(address receiver, uint256 amount) public {
+        _receiver = receiver;
+        _amount = amount;
+    }
+
+    function transferred(address from, address to, uint256 amount) public override {
+        super.transferred(from, to, amount);
+        uint256 reentryAmount = _amount;
+        if (reentryAmount > 0) {
+            _amount = 0; // reenter once
+            IERC20(msg.sender).transferFrom(to, _receiver, reentryAmount);
+        }
     }
 }

@@ -413,10 +413,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      * resolvable: `lost` still resolves to the old identity, `updated` to the new one.
      * The old registration is deleted only after all migration steps.
      *
-     * The whole balance of `lost` moves through {_forcedTransfer}, which auto-unfreezes all
-     * of `lost`'s frozen tokens, so the frozen amount ends up entirely on `updated`. An
-     * override that moves less than the full balance must clear the residual frozen amount
-     * on `lost` itself.
+     * The frozen amount and frozen status move from `lost` to `updated` before the balance,
+     * so the compliance notification inside {_forcedTransfer} already sees the recovered
+     * tokens frozen on `updated`.
      *
      * A zero `lost` or `updated` reverts in {_forcedTransfer} ({ERC20InvalidSender} /
      * {ERC20InvalidReceiver}), so overrides that keep the balance migration on that path
@@ -441,12 +440,8 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
 
         idRegistry.registerIdentity(updated, IIdentity(investorOnchainID), idRegistry.investorCountry(lost));
 
-        require(
-            _forcedTransfer(lost, updated, investorTokens),
-            ERC3643FailedForcedTransfer(lost, updated, investorTokens)
-        );
-
         if (frozenTokens > 0) {
+            _unfreezePartialTokens(lost, frozenTokens);
             _frozenTokens[updated] += frozenTokens;
             emit TokensFrozen(updated, frozenTokens);
         }
@@ -456,6 +451,11 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
                 _setAddressFrozen(updated, true, address(this));
             }
         }
+
+        require(
+            _forcedTransfer(lost, updated, investorTokens),
+            ERC3643FailedForcedTransfer(lost, updated, investorTokens)
+        );
 
         idRegistry.deleteIdentity(lost);
         emit RecoverySuccess(lost, updated, investorOnchainID);
