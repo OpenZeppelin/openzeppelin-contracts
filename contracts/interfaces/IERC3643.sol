@@ -415,9 +415,6 @@ interface IERC3643 is IERC20, IPausable {
      * Requirements:
      *
      * * Only the owner or authorized agents can call this function
-     * * `_lostWallet` must be registered in the identity registry
-     * * `_newWallet` must be verified in the identity registry
-     * * `_investorOnchainID` must match the identity associated with both wallets
      *
      * Emits a {RecoverySuccess} event.
      */

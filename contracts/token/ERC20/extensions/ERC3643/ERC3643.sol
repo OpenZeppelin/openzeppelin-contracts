@@ -315,7 +315,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     }
 
     /// @dev Overload that records `_msgSender()` as the actor on the {AddressFrozen} event.
-    function _setAddressFrozen(address account, bool frozen) internal virtual {
+    function _setAddressFrozen(address account, bool frozen) internal {
         _setAddressFrozen(account, frozen, _msgSender());
     }
 
