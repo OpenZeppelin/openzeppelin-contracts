@@ -1414,15 +1414,11 @@ interface IClaimTopicsRegistry {
  * NOTE: Not formally defined in ERC-3643. Provided for convenience.
  */
 interface IIdentity {
-    enum KeyPurpose {
-        Management,
-        Execution
-    }
-
     /**
-     * @dev Checks if a key has a specific purpose.
+     * @dev Returns true if `key` is present and has the given `purpose`, as defined by ERC-734
+     * (1 = management, 2 = action, 3 = claim, 4 = encryption).
      */
-    function keyHasPurpose(bytes32 key, KeyPurpose purpose) external view returns (bool);
+    function keyHasPurpose(bytes32 key, uint256 purpose) external view returns (bool);
 }
 
 /**

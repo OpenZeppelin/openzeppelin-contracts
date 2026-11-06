@@ -43,8 +43,9 @@ import {ERC20} from "../../ERC20.sol";
  * * {forcedTransfer} and {recoveryAddress} bypass the pause too, in line with the spec
  *   phrasing that a forced transfer "only requires the receiver to be whitelisted and
  *   verified." A derived contract that treats pause as an incident halt and wants to
- *   contain the forced-transfer agent during it may override both entry points with
- *   {Pausable-whenNotPaused}.
+ *   contain the forced-transfer agent during it may override {_forcedTransfer} with
+ *   {Pausable-whenNotPaused}, which covers {forcedTransfer}, {batchForcedTransfer} and
+ *   {recoveryAddress}.
  * * {ICompliance-created} fires on mint and {ICompliance-destroyed} on burn, in addition
  *   to {ICompliance-transferred} on transfers, so modules that track distribution stay
  *   in sync with supply changes.
@@ -59,7 +60,9 @@ import {ERC20} from "../../ERC20.sol";
  * ({ICompliance-transferred}, {ICompliance-created} or {ICompliance-destroyed}), made after
  * the balances are updated, and the compliance may reenter the token from it. A deployment
  * that binds compliance code it does not control can inherit {ReentrancyGuardTransient} and
- * mark {_update}, {_forcedTransfer} and {_recoveryAddress} with `nonReentrant`.
+ * mark {_update}, {forcedTransfer}, {batchForcedTransfer} and {_recoveryAddress} with
+ * `nonReentrant`. {_forcedTransfer} stays unguarded because {_recoveryAddress} calls it,
+ * and a nested guard would make every recovery revert.
  */
 abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     mapping(address account => bool) private _frozen;
@@ -371,9 +374,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
      *
      * The pause bypass follows the spec phrasing that a forced transfer "only requires the
      * receiver to be whitelisted and verified." A derived contract that treats pause as an
-     * incident halt should override {forcedTransfer} (and {recoveryAddress}, which reaches
-     * this path) with {Pausable-whenNotPaused} so the halt contains the forced-transfer
-     * agent too.
+     * incident halt should override this function with {Pausable-whenNotPaused}, which
+     * covers {forcedTransfer}, {batchForcedTransfer} and {recoveryAddress}, so the halt
+     * contains the forced-transfer agent too.
      *
      * Balances move through {ERC20-_update} directly, so neither the checks in {_update} nor
      * any other `_update` override in the inheritance chain (e.g. {ERC20Votes}) run on this

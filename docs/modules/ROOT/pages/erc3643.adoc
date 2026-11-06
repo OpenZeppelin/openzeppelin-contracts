@@ -65,11 +65,11 @@ The base implementation authorizes the recovery through `_checkAdmin` and requir
 
 The implementation makes a few choices where the text of the standard leaves room or where the reference implementation diverges from it. Each of them can be reversed by overriding the relevant function.
 
-* *Pause stops circulation, not servicing.* Pausing blocks transfers only. Minting, burning, forced transfers and recoveries keep working while paused. A deployment that treats the pause as an incident halt for every operation can add `whenNotPaused` to them.
+* *Pause stops circulation, not servicing.* Pausing blocks transfers only. Minting, burning, forced transfers and recoveries keep working while paused. A deployment that treats the pause as an incident halt for every operation can add `whenNotPaused` to them. For forced transfers and recoveries, adding it to `_forcedTransfer` covers `forcedTransfer`, `batchForcedTransfer` and `recoveryAddress`.
 * *Mints check compliance.* The text of the standard has mints bypass the compliance rules. Like the reference implementation, `ERC3643` asks the compliance contract on mints too, so supply caps and distribution rules also apply to issuance.
 * *The compliance contract is notified of supply changes.* Mints call `created` and burns call `destroyed`, in addition to `transferred` on transfers.
 
 [[reentrancy]]
 == A note on the compliance contract
 
-Every transfer, mint and burn ends with an external call to the compliance contract, made once the balances are updated, and the compliance contract can call back into the token. Compliance contracts are usually written or vetted by the issuer. A deployment that binds compliance code it does not control can inherit xref:api:utils.adoc#ReentrancyGuardTransient[`ReentrancyGuardTransient`] and protect `_update`, `_forcedTransfer` and `_recoveryAddress` with `nonReentrant`.
+Every transfer, mint and burn ends with an external call to the compliance contract, made once the balances are updated, and the compliance contract can call back into the token. Compliance contracts are usually written or vetted by the issuer. A deployment that binds compliance code it does not control can inherit xref:api:utils.adoc#ReentrancyGuardTransient[`ReentrancyGuardTransient`] and protect `_update`, `forcedTransfer`, `batchForcedTransfer` and `_recoveryAddress` with `nonReentrant`. Leave `_forcedTransfer` unguarded: `_recoveryAddress` calls it, and a nested guard would make every recovery revert.
