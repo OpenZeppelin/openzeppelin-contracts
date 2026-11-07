@@ -183,8 +183,15 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     }
 
     /**
-     * @dev Implement ERC-1271 through IERC7579Validator modules. If module based validation fails, fallback to
-     * "native" validation by the abstract signer.
+     * @dev Implement ERC-1271 through IERC7579Validator modules. The validator module and inner signature are
+     * obtained with {_extractSignatureValidator} (by default, the module is the first 20 bytes of the signature) and
+     * the module's return value is forwarded as-is.
+     * Returns `0xffffffff` if the signature is too short to extract a module, if that module is not installed as
+     * a validator, or if the call to it reverts.
+     *
+     * NOTE: Only installed validator modules are used. Unlike {_validateUserOp}, this function does not fall back to
+     * {_rawSignatureValidation}, so a derived contract that overrides {_rawSignatureValidation} to enable a signer
+     * must also override this function for that signer to validate ERC-1271 signatures.
      *
      * NOTE: when combined with {ERC7739}, resolution ordering may have an impact ({ERC7739} does not call super).
      * Manual resolution might be necessary.

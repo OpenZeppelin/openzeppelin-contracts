@@ -80,7 +80,7 @@
     "eslint-plugin-mocha": "^11.3.0",
     "eta": "^4.6.0",
     "ethers": "^6.16.0",
-    "glob": "^13.0.0",
+    "glob": "^14.0.0",
     "globals": "^17.0.0",
     "graphlib": "^2.1.8",
     "handlebars": "^4.7.9",
