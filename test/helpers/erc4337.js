@@ -1,3 +1,4 @@
+import { globalOptions } from 'hardhat';
 import { ethers } from 'ethers';
 import { ValidationRange } from './enums';
 import * as random from './random';
@@ -74,7 +75,8 @@ export class UserOperation {
     this.factory = params.factory ?? undefined;
     this.factoryData = params.factoryData ?? '0x';
     this.callData = params.callData ?? '0x';
-    this.verificationGas = params.verificationGas ?? 30_000_000n;
+    // Account deployment through initCode is much more expensive with coverage instrumentation
+    this.verificationGas = params.verificationGas ?? (globalOptions.coverage ? 100_000_000n : 30_000_000n);
     this.callGas = params.callGas ?? 1_000_000n;
     this.preVerificationGas = params.preVerificationGas ?? 100_000n;
     this.maxPriorityFee = params.maxPriorityFee ?? 100_000n;
