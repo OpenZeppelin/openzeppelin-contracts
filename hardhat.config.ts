@@ -67,9 +67,6 @@ export default defineConfig({
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
-      // Since Amsterdam, state creation is priced per byte. Deploying the (exposed) account mocks costs more
-      // than the EIP-7825 transaction gas cap.
-      transactionGasCap: false,
     },
   },
   test: {
