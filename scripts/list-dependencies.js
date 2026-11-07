@@ -49,11 +49,30 @@ const PARSERS = new Map(
       [...content.matchAll(/^\s*import\s+"(?<target>[^"]+)"\s*;/gm)].map(m =>
         path.join(path.dirname(src), m.groups.target),
       ),
-    // First quoted string of a solidity import; `[^;]` stops at the statement end.
-    '.sol': (content, src) =>
-      [...content.matchAll(/^[ \t]*import\b[^;]*?"(?<target>[^"]+)"/gm)].map(m =>
-        path.join(path.dirname(src), m.groups.target),
-      ),
+    '.sol': (content, src) => {
+      // Read comments and quoted strings as whole tokens so their contents cannot start an import.
+      const tokens =
+        /\/\/[^\r\n]*|\/\*.*?\*\/|(?<literal>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(?<![\w$])import(?![\w$])|[{};]/gs;
+      const targets = [];
+      let depth = 0;
+      let importing = false;
+      for (const match of content.matchAll(tokens)) {
+        const token = match[0];
+        if (token === '{') {
+          depth++;
+        } else if (token === '}') {
+          depth--;
+        } else if (token === 'import' && depth === 0) {
+          importing = true;
+        } else if (token === ';') {
+          importing = false;
+        } else if (importing && match.groups.literal) {
+          targets.push(path.join(path.dirname(src), token.slice(1, -1)));
+          importing = false;
+        }
+      }
+      return targets;
+    },
     default: (content, file) => {
       console.warn(`[WARNING] No parser defined for ${file}, skipping.`);
       return [];
