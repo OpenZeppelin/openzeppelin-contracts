@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { globalOptions, network } from 'hardhat';
 import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
@@ -304,70 +304,90 @@ describe('PaymasterERC20Guarantor', function () {
         );
       });
 
-      it('works with cold storage guarantor', async function () {
-        // fund guarantor and account beforehand - all balances and allowances are cold
-        await this.token.$_mint(this.account, value);
-        await this.token.$_mint(this.guarantor, value);
-        await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
-        await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+      // Coverage instrumentation changes gas costs, so only production bytecode is tested at the floor.
+      for (const { title, allowance, atFloor } of [
+        { title: 'default gas limit', allowance: ethers.MaxUint256, atFloor: false },
+        ...(!globalOptions.coverage
+          ? [
+              { title: 'gas floor, unlimited allowance', allowance: ethers.MaxUint256, atFloor: true },
+              { title: 'gas floor, finite allowance', allowance: value, atFloor: true },
+            ]
+          : []),
+      ]) {
+        it(`refunds a cold-storage guarantor (${title})`, async function () {
+          // Fund and approve in earlier transactions. Execution below does not touch the token,
+          // so the user balance and allowance remain cold until postOp.
+          // Prefunding already dirties the paymaster and guarantor balances before postOp.
+          await this.token.$_mint(this.account, value);
+          await this.token.$_mint(this.guarantor, value);
+          await this.token.$_approve(this.account, this.paymaster, allowance);
+          await this.token.$_approve(this.guarantor, this.paymaster, allowance);
 
-        this.extraCalls = [];
-        this.tokenMovements = [
-          { account: this.account, factor: -1n },
-          { account: this.guarantor, factor: 0n },
-          { account: this.paymaster, factor: 1n },
-        ];
+          const paymasterPostOpGasLimit = atFloor
+            ? (await this.paymaster.$_postOpCost()) + (await this.paymaster.$_guaranteedPostOpCost())
+            : undefined;
+          this.extraCalls = [];
+          this.tokenMovements = [
+            { account: this.account, factor: -1n },
+            { account: this.guarantor, factor: 0n },
+            { account: this.paymaster, factor: 1n },
+          ];
 
-        const signedUserOp = await this.account
-          .createUserOp({
-            ...this.userOp,
-            callData: this.account.interface.encodeFunctionData('execute', [
-              encodeMode({ callType: CALL_TYPE_BATCH }),
-              encodeBatch(...this.extraCalls, {
-                target: this.target,
-                data: this.target.interface.encodeFunctionData('mockFunctionExtra'),
+          const signedUserOp = await this.account
+            .createUserOp({
+              ...this.userOp,
+              paymasterPostOpGasLimit,
+              callData: this.account.interface.encodeFunctionData('execute', [
+                encodeMode({ callType: CALL_TYPE_BATCH }),
+                encodeBatch(...this.extraCalls, {
+                  target: this.target,
+                  data: this.target.interface.encodeFunctionData('mockFunctionExtra'),
+                }),
+              ]),
+            })
+            .then(op =>
+              this.paymasterSignUserOp(op, {
+                tokenPerNative: 2n * ethers.WeiPerEther,
+                guarantor: this.guarantor,
               }),
-            ]),
-          })
-          .then(op =>
-            this.paymasterSignUserOp(op, {
-              tokenPerNative: 2n * ethers.WeiPerEther,
-              guarantor: this.guarantor,
-            }),
-          )
-          .then(op => this.signUserOp(op));
+            )
+            .then(op => this.signUserOp(op));
 
-        // send it to the entrypoint
-        const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+          // send it to the entrypoint
+          const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
 
-        // check events and balances
-        await expect(txPromise)
-          .to.emit(this.paymaster, 'UserOperationGuaranteed')
-          .to.emit(this.paymaster, 'UserOperationSponsored')
-          .to.emit(this.target, 'MockFunctionCalledExtra');
+          // check events and balances
+          await expect(txPromise)
+            .to.emit(this.paymaster, 'UserOperationGuaranteed')
+            .to.emit(this.paymaster, 'UserOperationSponsored')
+            .to.emit(this.target, 'MockFunctionCalledExtra')
+            .to.emit(ethers.predeploy.entrypoint.v09, 'UserOperationEvent')
+            .withArgs(signedUserOp.hash(), this.account, this.paymaster, signedUserOp.nonce, true, anyValue, anyValue);
 
-        // parse logs
-        const { logs } = await txPromise.then(tx => tx.wait());
-        const paymasterERC20 = await ethers.getContractFactory('$PaymasterERC20Mock');
-        const { tokenAmount } = logs.map(ev => paymasterERC20.interface.parseLog(ev)).find(Boolean).args;
+          // parse logs
+          const { logs } = await txPromise.then(tx => tx.wait());
+          const paymasterERC20 = await ethers.getContractFactory('$PaymasterERC20Mock');
+          const { tokenAmount } = logs.map(ev => paymasterERC20.interface.parseLog(ev)).find(Boolean).args;
 
-        // check token balances
-        await expect(txPromise).to.changeTokenBalances(
-          ethers,
-          this.token,
-          this.tokenMovements.map(({ account }) => account),
-          this.tokenMovements.map(({ factor = 0n, offset = 0n }) => offset + tokenAmount * factor),
-        );
-      });
+          // check token balances
+          await expect(txPromise).to.changeTokenBalances(
+            ethers,
+            this.token,
+            this.tokenMovements.map(({ account }) => account),
+            this.tokenMovements.map(({ factor = 0n, offset = 0n }) => offset + tokenAmount * factor),
+          );
+        });
+      }
     });
 
     it('rejects a guaranteed op whose paymasterPostOpGasLimit cannot cover the refund', async function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (15k) = 45k; 30k is below it.
+      // Reject even one gas below the configured floor.
+      const floor = (await this.paymaster.$_postOpCost()) + (await this.paymaster.$_guaranteedPostOpCost());
       const signedUserOp = await this.account
-        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 30_000n })
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: floor - 1n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
         .then(op => this.signUserOp(op));
 
@@ -397,9 +417,10 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // 45k = the floor (_postOpCost 30k + _guaranteedPostOpCost 15k), so _prefund accepts and pulls the prefund.
+      // The configured floor is accepted and the guarantor prefunds the operation.
+      const floor = (await this.paymaster.$_postOpCost()) + (await this.paymaster.$_guaranteedPostOpCost());
       const signedUserOp = await this.account
-        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 45_000n })
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: floor })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
         .then(op => this.signUserOp(op));
 
@@ -442,7 +463,7 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // The guarantor is the sender. 30k is below the guaranteed floor (45k), which only applies to guaranteed ops.
+      // The guarantor is the sender. 30k is below the guaranteed floor, which only applies to guaranteed ops.
       const signedUserOp = await this.account
         .createUserOp({ ...this.userOp, sender: this.guarantor, paymasterPostOpGasLimit: 30_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }));
