@@ -52,7 +52,7 @@ if (!matchingDocsBranches) {
   }
   const publishedVersion = JSON.parse(read(`git show ${publishedRef}:package.json`)).version;
   const publishedMinor = publishedVersion.match(/\d+\.(?<minor>\d+)\.\d+/).groups.minor;
-  if (current.minor < publishedMinor) {
+  if (Number(current.minor) < Number(publishedMinor)) {
     console.error('Refusing to update docs: newer version is published');
     process.exit(0);
   }
