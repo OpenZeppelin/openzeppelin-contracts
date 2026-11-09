@@ -9,6 +9,12 @@ This directory contains contracts for sending and receiving cross chain messages
 * {CrosschainRemoteExecutor}: executor contract that relays transaction from a controller on a remote chain.
 * {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway.
 
+WARNING: When using {CrosschainRemoteExecutor}, `EXECTYPE_TRY` emits an error event and continues on failed sub-calls.
+The gateway may therefore treat a message as delivered despite failed actions, preventing a retry. A relayer may
+control delivery gas and deliberately starve sub-calls. Use `EXECTYPE_TRY` only when the destination gateway enforces
+a sufficient delivery gas limit. Otherwise use `EXECTYPE_DEFAULT`, so failed calls revert and delivery can be retried
+if the gateway supports retries.
+
 Additionally there are multiple bridge constructions:
 
 * {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
