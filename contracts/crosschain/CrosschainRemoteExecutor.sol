@@ -16,12 +16,13 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  * A {CrosschainRemoteExecutor} address can be seen as the local identity of a remote executor on another chain. It
  * holds assets and permissions for the sake of its controller.
  *
- * WARNING: Remote execution with `EXECTYPE_TRY` does not revert if a sub-call fails. It emits
- * `ERC7579TryExecuteFail` and continues, potentially allowing the gateway to mark the message as delivered even
- * though some actions failed, so they cannot be retried. A relayer that controls the delivery gas limit may cause
- * such failures by starving sub-calls of gas. Only use `EXECTYPE_TRY` if the destination gateway guarantees enough
- * gas for the intended execution. Otherwise, use `EXECTYPE_DEFAULT` so failed calls revert the message delivery,
- * which may then be retried according to the gateway's retry semantics.
+ * WARNING: With `EXECTYPE_TRY`, a failed sub-call emits `ERC7579TryExecuteFail` instead of reverting.
+ * The gateway may then mark the message as delivered even though some actions failed, preventing retries. A relayer
+ * controlling delivery gas could deliberately starve sub-calls. Use `EXECTYPE_TRY` only if the destination gateway
+ * enforces enough gas actually forwarded for the intended execution, accounting for EIP-150's 63/64 forwarding rule
+ * and gateway/nested-call overhead, and reverts delivery when it cannot enforce this minimum. Merely setting a
+ * nominal gas limit is insufficient. Otherwise use `EXECTYPE_DEFAULT` so failed calls revert delivery, allowing
+ * retries when supported by the gateway.
  */
 contract CrosschainRemoteExecutor is ERC7786Recipient {
     using Bytes for bytes;
