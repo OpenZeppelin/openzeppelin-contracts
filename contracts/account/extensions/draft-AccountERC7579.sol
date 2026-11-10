@@ -31,7 +31,8 @@ import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Util
  *
  * This contract does not implement validation logic for user operations since this functionality
  * is often delegated to self-contained validation modules. Developers must install a validator module
- * upon initialization (or any other mechanism to enable execution from the account):
+ * to enable execution from the account. For factory-deployed clones, this can be done atomically during
+ * initialization:
  *
  * ```solidity
  * contract MyAccountERC7579 is AccountERC7579, Initializable {
@@ -40,6 +41,12 @@ import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Util
  *   }
  * }
  * ```
+ *
+ * For an EIP-7702 delegate, do not use a public initializer for this setup. After delegating to this contract, the EOA
+ * can install its validator by sending a type-4 transaction to itself that calls
+ * `installModule(MODULE_TYPE_VALIDATOR, validator, validatorData)`. {installModule} is restricted by
+ * {onlyEntryPointOrSelf}, so this self-call is authorized. The `validatorData` is forwarded to the validator's
+ * {IERC7579Module-onInstall} function. This setup does not require an initializer.
  *
  * [NOTE]
  * ====
@@ -414,11 +421,11 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     /**
      * @dev Extract the function selector from initData/deInitData for MODULE_TYPE_FALLBACK
      *
-     * NOTE: If we had calldata here, we could use calldata slice which are cheaper to manipulate and don't require
-     * actual copy. However, this would require `_installModule` to get a calldata bytes object instead of a memory
+     * NOTE: If we had calldata here, we could use calldata slices, which are cheaper to manipulate and don't require
+     * an actual copy. However, this would require `_installModule` to get a calldata bytes object instead of a memory
      * bytes object. This would prevent calling `_installModule` from a contract constructor and would force the use
-     * of external initializers. That may change in the future, as most accounts will probably be deployed as
-     * clones/proxy/EIP-7702 delegates and therefore rely on initializers anyway.
+     * of external initializers. That may be suitable for clones and proxies, but EIP-7702 delegates must not rely on
+     * publicly callable initializers: their setup must be authorized by the account itself.
      */
     function _decodeFallbackData(
         bytes memory data

@@ -41,7 +41,10 @@ import {AbstractSigner} from "./AbstractSigner.sol";
  *
  * IMPORTANT: Failing to properly initialize the signers and threshold either during construction
  * (if used standalone) or during initialization (if used as a clone) may leave the contract
- * either front-runnable or unusable.
+ * either front-runnable or unusable. The initializer example is intended for factory-deployed clones, where
+ * deployment and initialization are atomic; it is not a safe setup pattern for EIP-7702 delegates. Setup on a
+ * delegate must be authorized by the account itself, for example through a self-call or an EIP-712 signature from
+ * `address(this)`.
  */
 abstract contract MultiSignerERC7913 is AbstractSigner {
     using EnumerableSet for EnumerableSet.BytesSet;

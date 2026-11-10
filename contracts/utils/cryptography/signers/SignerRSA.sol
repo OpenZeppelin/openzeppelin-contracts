@@ -23,7 +23,10 @@ import {AbstractSigner} from "./AbstractSigner.sol";
  * ```
  *
  * IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
- * or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+ * or during initialization (if used as a clone) may leave the signer either front-runnable or unusable. The
+ * initializer example is intended for factory-deployed clones, where deployment and initialization are atomic; it
+ * is not a safe setup pattern for EIP-7702 delegates. Setup on a delegate must be authorized by the account itself,
+ * for example through a self-call or an EIP-712 signature from `address(this)`.
  */
 abstract contract SignerRSA is AbstractSigner {
     bytes private _e;

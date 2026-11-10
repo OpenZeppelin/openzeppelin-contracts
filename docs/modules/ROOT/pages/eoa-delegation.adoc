@@ -12,6 +12,8 @@ This section walks you through the process of delegating an EOA to a contract fo
 
 EIP-7702 enables EOAs to delegate their execution capabilities to smart contracts, effectively bridging the gap between traditional and xref:accounts.adoc[Smart Accounts]. The xref:api:utils/cryptography.adoc#[`SignerEIP7702`] utility facilitates this delegation by verifying signatures against the EOA's address (`address(this)`), making it easier to implement EIP-7702 in smart contract accounts.
 
+WARNING: Do not rely on an unauthenticated public initializer to set up an EIP-7702 delegate. An attacker can front-run the intended setup call, and if that call reverts, the delegation authorization may still be applied, leaving the account delegated but uninitialized. Any setup function on a delegate must authorize the account itself, either by requiring `msg.sender == address(this)` or by verifying an EIP-712 signature from `address(this)`. For signature validation that needs no setup, use {SignerEIP7702}.
+
 [source,solidity]
 ----
 include::api:example$account/MyAccountEIP7702.sol[]

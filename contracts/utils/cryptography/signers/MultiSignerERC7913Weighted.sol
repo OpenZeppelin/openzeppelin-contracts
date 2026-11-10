@@ -44,6 +44,10 @@ import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
  * IMPORTANT: When setting a threshold value, ensure it matches the scale used for signer weights.
  * For example, if signers have weights like 1, 2, or 3, then a threshold of 4 would require at
  * least two signers (e.g., one with weight 1 and one with weight 3). See {signerWeight}.
+ *
+ * IMPORTANT: The initializer example is intended for factory-deployed clones, where deployment and initialization
+ * are atomic. It is not a safe setup pattern for EIP-7702 delegates; setup on a delegate must be authorized by the
+ * account itself, for example through a self-call or an EIP-712 signature from `address(this)`.
  */
 abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     using SafeCast for *;
