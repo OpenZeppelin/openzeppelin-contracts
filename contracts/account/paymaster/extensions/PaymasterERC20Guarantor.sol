@@ -187,8 +187,9 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * guaranteed userOps.
      *
      * The guaranteed path pulls the cost from `userOp.sender`, whose balance (and allowance, if finite) was not
-     * written during validation. These are cold, first writes in the transaction, which EIP-8038 (Glamsterdam)
-     * prices at `STORAGE_WRITE` (10_000) instead of 2_800. The default accounts for that.
+     * written during validation. The userOp execution may have accessed or modified these slots, but that cannot be
+     * relied on: in the worst case, they are cold and written for the first time in the transaction, which EIP-8038
+     * (Glamsterdam) prices at `STORAGE_WRITE` (10_000) instead of 2_800. The default is sized for that worst case.
      *
      * NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
      */
