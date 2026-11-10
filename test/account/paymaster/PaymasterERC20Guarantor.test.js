@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { network, globalOptions } from 'hardhat';
 import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
@@ -215,8 +215,9 @@ describe('PaymasterERC20Guarantor', function () {
         // - get tokenAmount repaid for the paymaster event
         // - get the actual gas cost from the entrypoint event
         const { logs } = await txPromise.then(tx => tx.wait());
-        const paymasterERC20 = await ethers.getContractFactory('$PaymasterERC20Mock');
-        const { tokenAmount } = logs.map(ev => paymasterERC20.interface.parseLog(ev)).find(Boolean).args;
+        const { tokenAmount } = logs
+          .map(ev => this.paymaster.interface.parseLog(ev))
+          .find(ev => ev?.name === 'UserOperationSponsored').args;
         const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
 
         // check token balances moved as expected
@@ -281,8 +282,9 @@ describe('PaymasterERC20Guarantor', function () {
 
         // parse logs
         const { logs } = await txPromise.then(tx => tx.wait());
-        const paymasterERC20 = await ethers.getContractFactory('$PaymasterERC20Mock');
-        const { tokenAmount } = logs.map(ev => paymasterERC20.interface.parseLog(ev)).find(Boolean).args;
+        const { tokenAmount } = logs
+          .map(ev => this.paymaster.interface.parseLog(ev))
+          .find(ev => ev?.name === 'UserOperationSponsored').args;
         const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
 
         // check token balances
@@ -345,8 +347,9 @@ describe('PaymasterERC20Guarantor', function () {
 
         // parse logs
         const { logs } = await txPromise.then(tx => tx.wait());
-        const paymasterERC20 = await ethers.getContractFactory('$PaymasterERC20Mock');
-        const { tokenAmount } = logs.map(ev => paymasterERC20.interface.parseLog(ev)).find(Boolean).args;
+        const { tokenAmount } = logs
+          .map(ev => this.paymaster.interface.parseLog(ev))
+          .find(ev => ev?.name === 'UserOperationSponsored').args;
 
         // check token balances
         await expect(txPromise).to.changeTokenBalances(
@@ -354,6 +357,45 @@ describe('PaymasterERC20Guarantor', function () {
           this.token,
           this.tokenMovements.map(({ account }) => account),
           this.tokenMovements.map(({ factor = 0n, offset = 0n }) => offset + tokenAmount * factor),
+        );
+      });
+
+      it('completes postOp at the paymasterPostOpGasLimit floor', async function () {
+        // exact-gas check, distorted by coverage instrumentation
+        if (globalOptions.coverage) this.skip();
+
+        // Worst case: the user's balance and finite allowance are set in earlier transactions, so postOp writes
+        // them cold, for the first time in the transaction.
+        await this.token.$_mint(this.account, value);
+        await this.token.$_mint(this.guarantor, value);
+        await this.token.$_approve(this.account, this.paymaster, value);
+        await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+        // Floor = _postOpCost (30k) + _guaranteedPostOpCost (30k) = 60k.
+        const floor = (await this.paymaster.$_postOpCost()) + (await this.paymaster.$_guaranteedPostOpCost());
+
+        const signedUserOp = await this.account
+          .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: floor })
+          .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+          .then(op => this.signUserOp(op));
+
+        const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+
+        // UserOperationSponsored is emitted at the end of postOp, so postOp did not run out of gas.
+        await expect(txPromise)
+          .to.emit(this.paymaster, 'UserOperationGuaranteed')
+          .to.emit(this.paymaster, 'UserOperationSponsored');
+
+        // The user repaid the operation and the guarantor got its prefund back in full.
+        const { logs } = await txPromise.then(tx => tx.wait());
+        const { tokenAmount } = logs
+          .map(ev => this.paymaster.interface.parseLog(ev))
+          .find(ev => ev?.name === 'UserOperationSponsored').args;
+        await expect(txPromise).to.changeTokenBalances(
+          ethers,
+          this.token,
+          [this.account, this.guarantor, this.paymaster],
+          [-tokenAmount, 0n, tokenAmount],
         );
       });
     });
