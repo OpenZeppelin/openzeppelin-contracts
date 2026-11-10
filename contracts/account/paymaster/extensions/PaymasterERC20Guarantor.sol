@@ -186,10 +186,14 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * @dev Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for
      * guaranteed userOps.
      *
+     * The guaranteed path pulls the cost from `userOp.sender`, whose balance (and allowance, if finite) was not
+     * written during validation. These are cold, first writes in the transaction, which EIP-8038 (Glamsterdam)
+     * prices at `STORAGE_WRITE` (10_000) instead of 2_800. The default accounts for that.
+     *
      * NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
      */
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
-        return 15_000;
+        return 30_000;
     }
 
     /// @dev Returns the guarantor given by {_fetchGuarantor}, or `address(0)` if the sender is its own guarantor.
