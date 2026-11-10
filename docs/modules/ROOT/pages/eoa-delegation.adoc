@@ -16,7 +16,7 @@ WARNING: Do not rely on an unauthenticated public initializer to set up an EIP-7
 front-run the intended setup call, and if that call reverts, the delegation authorization may still be applied, leaving
 the account delegated but uninitialized. Any setup function on a delegate must authorize the account itself, either by
 requiring `msg.sender == address(this)` or by verifying an EIP-712 signature from `address(this)`. For signature
-validation that needs no setup, use xref:api:utils/cryptography.adoc#SignerEIP7702[`SignerEIP7702`].
+validation that needs no setup, use xref:api:utils/cryptography.adoc#[`SignerEIP7702`].
 
 [source,solidity]
 ----
