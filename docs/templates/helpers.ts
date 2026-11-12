@@ -36,7 +36,13 @@ function getAllLinks(items) {
 
 export const withPrelude = opts => {
   const links = getAllLinks(opts.data.site.items);
-  const contents = opts.fn();
+  // Index entries are rendered as `{xref-<anchor>}[<text>]`, which requires the attribute to be
+  // defined in the prelude below. Only items documented in this component have one: members
+  // inherited from another component (@openzeppelin/contracts) have no page here, and asciidoctor
+  // would drop the reference. Strip the xref from those and keep the plain link text.
+  const contents = opts
+    .fn()
+    .replace(/^(\* )\{(xref-[^}]+)\}\[(.*)\]$/gm, (entry, bullet, key, text) => (key in links ? entry : bullet + text));
   const neededLinks = contents
     .match(/\{[-._a-z0-9]+\}/gi)
     .map(m => m.replace(/^\{(.+)\}$/, '$1'))
