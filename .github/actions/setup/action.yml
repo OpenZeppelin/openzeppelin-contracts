@@ -28,7 +28,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: "Determine versions to install"
+    - name: 'Determine versions to install'
       id: versions
       shell: bash
       run: |
@@ -44,9 +44,9 @@ runs:
             || echo "python=${{ inputs.python }}"
         ) > $GITHUB_OUTPUT
       env:
-        NODE_DEFAULT_VERSION: "24.x"
-        FOUNDRY_DEFAULT_VERSION: "stable"
-        PYTHON_DEFAULT_VERSION: "3.13"
+        NODE_DEFAULT_VERSION: '24.x'
+        FOUNDRY_DEFAULT_VERSION: 'stable'
+        PYTHON_DEFAULT_VERSION: '3.13'
     # Node & npm setup
     - name: Install Node (${{ steps.versions.outputs.node }})
       if: inputs.node != 'off'
