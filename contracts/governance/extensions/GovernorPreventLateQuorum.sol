@@ -111,7 +111,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
     function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
         uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
         require(
-            newVoteExtension <= maxVoteExtension,
+            maxVoteExtension == 0 || newVoteExtension <= maxVoteExtension,
             GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension)
         );
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
