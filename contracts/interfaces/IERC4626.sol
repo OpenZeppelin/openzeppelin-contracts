@@ -7,8 +7,13 @@ import {IERC20Metadata} from "../token/ERC20/extensions/IERC20Metadata.sol";
 import {IERC20} from "../token/ERC20/IERC20.sol";
 
 /**
- * @dev Interface of the ERC-4626 "Tokenized Vault Standard", as defined in
- * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].
+ * @dev Vault-only part of the ERC-4626 "Tokenized Vault Standard", as defined in
+ * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626]: the deposit/withdraw events, accounting, limits, previews and
+ * entry points, without the ERC-20 methods of the share token.
+ *
+ * This is the interface extended by {IERC7575}, whose vaults may hold shares in a separate ERC-20 token (returned by
+ * {IERC7575-share}) and are therefore not required to expose ERC-20 methods themselves. Integrations that only
+ * interact with the vault logic should depend on this interface rather than {IERC4626}.
  */
 interface IERC4626Core {
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
@@ -237,4 +242,15 @@ interface IERC4626Core {
     function redeem(uint256 shares, address receiver, address owner) external returns (uint256 assets);
 }
 
+/**
+ * @dev Interface of the ERC-4626 "Tokenized Vault Standard", as defined in
+ * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].
+ *
+ * Combines the vault logic of {IERC4626Core} with the {IERC20} and {IERC20Metadata} methods of the share token, which
+ * an ERC-4626 vault implements itself.
+ *
+ * NOTE: The vault functions are inherited from {IERC4626Core} rather than declared here. As a consequence,
+ * `type(IERC4626).interfaceId` is `0x00000000` (use `type(IERC4626Core).interfaceId` instead), and NatSpec
+ * documentation of these functions should inherit from {IERC4626Core}.
+ */
 interface IERC4626 is IERC20, IERC20Metadata, IERC4626Core {}

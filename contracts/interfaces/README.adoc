@@ -36,6 +36,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC2981}
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
+- {IERC4626Core}
 - {IERC4626}
 - {IERC4906}
 - {IERC5267}
@@ -94,6 +95,8 @@ are useful to interact with third party contracts that implement them.
 {{IERC3156FlashLender}}
 
 {{IERC3156FlashBorrower}}
+
+{{IERC4626Core}}
 
 {{IERC4626}}
 
