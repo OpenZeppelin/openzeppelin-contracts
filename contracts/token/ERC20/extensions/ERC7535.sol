@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.31;
 
-import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {IERC4626, IERC4626Core} from "../../../interfaces/IERC4626.sol";
 import {Address} from "../../../utils/Address.sol";
 import {IERC20} from "../IERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
@@ -68,7 +68,7 @@ abstract contract ERC7535 is ERC4626 {
     constructor() ERC4626(IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {}
 
     /**
-     * @inheritdoc IERC4626
+     * @inheritdoc IERC4626Core
      *
      * @dev Excludes the `msg.value` of the current call, so that {deposit} and {mint} price shares against the
      * pre-deposit balance (and a standalone {previewDeposit} matches the subsequent {deposit}). Outside a `payable`
@@ -84,7 +84,7 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /**
-     * @inheritdoc IERC4626
+     * @inheritdoc IERC4626Core
      *
      * @dev Per ERC-7535, the deposited amount is the entire `msg.value`: shares are priced off `msg.value` and the
      * `assets` argument is ignored, so the full native value sent is always converted to shares (none is silently
@@ -95,7 +95,7 @@ abstract contract ERC7535 is ERC4626 {
     }
 
     /**
-     * @inheritdoc IERC4626
+     * @inheritdoc IERC4626Core
      *
      * @dev Reverts with {ERC7535InsufficientNativeValue} if `msg.value` is below the returned `assets`, and refunds
      * any excess to the caller through {_refund}. The refund runs after {_deposit} returns, so a {_deposit} override

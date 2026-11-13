@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.31;
 
-import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {IERC4626, IERC4626Core} from "../../../interfaces/IERC4626.sol";
 import {IERC7540, IERC7540Operator, IERC7540Deposit, IERC7540Redeem} from "../../../interfaces/IERC7540.sol";
 import {IERC7575, IERC7575Share} from "../../../interfaces/IERC7575.sol";
 import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol";
@@ -136,7 +136,7 @@ abstract contract ERC7540 is ERC20, IERC4626, ERC165, IERC7540, IERC7575Share {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return
-            interfaceId == (type(IERC4626).interfaceId ^ type(IERC7575).interfaceId) || // ERC7575
+            interfaceId == (type(IERC4626Core).interfaceId ^ type(IERC7575).interfaceId) || // ERC7575 (0x2f0a18c5)
             interfaceId == type(IERC7540Operator).interfaceId ||
             (interfaceId == type(IERC7540Deposit).interfaceId && _isDepositAsync()) ||
             (interfaceId == type(IERC7540Redeem).interfaceId && _isRedeemAsync()) ||
@@ -205,7 +205,7 @@ abstract contract ERC7540 is ERC20, IERC4626, ERC165, IERC7540, IERC7575Share {
         return _underlyingDecimals + _decimalsOffset();
     }
 
-    /// @inheritdoc IERC4626
+    /// @inheritdoc IERC4626Core
     function asset() public view virtual returns (address) {
         return address(_asset);
     }
@@ -335,12 +335,12 @@ abstract contract ERC7540 is ERC20, IERC4626, ERC165, IERC7540, IERC7575Share {
         return _totalPendingRedeemShares;
     }
 
-    /// @inheritdoc IERC4626
+    /// @inheritdoc IERC4626Core
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Floor);
     }
 
-    /// @inheritdoc IERC4626
+    /// @inheritdoc IERC4626Core
     function convertToAssets(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Floor);
     }

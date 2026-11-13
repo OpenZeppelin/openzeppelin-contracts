@@ -3,10 +3,10 @@
 pragma solidity >=0.8.4;
 
 import {IERC165} from "./IERC165.sol";
-import {IERC4626} from "./IERC4626.sol";
+import {IERC4626Core} from "./IERC4626.sol";
 
 /// @dev Multi-Asset ERC-4626 Vaults, as defined in https://eips.ethereum.org/EIPS/eip-7575
-interface IERC7575 is IERC4626, IERC165 {
+interface IERC7575 is IERC4626Core, IERC165 {
     /// @dev The address of the underlying share received on deposit into the vault.
     function share() external view returns (address shareTokenAddress);
 }

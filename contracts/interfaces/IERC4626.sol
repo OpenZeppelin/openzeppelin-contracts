@@ -10,7 +10,7 @@ import {IERC20} from "../token/ERC20/IERC20.sol";
  * @dev Interface of the ERC-4626 "Tokenized Vault Standard", as defined in
  * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].
  */
-interface IERC4626 is IERC20, IERC20Metadata {
+interface IERC4626Core {
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
 
     event Withdraw(
@@ -236,3 +236,5 @@ interface IERC4626 is IERC20, IERC20Metadata {
      */
     function redeem(uint256 shares, address receiver, address owner) external returns (uint256 assets);
 }
+
+interface IERC4626 is IERC20, IERC20Metadata, IERC4626Core {}
