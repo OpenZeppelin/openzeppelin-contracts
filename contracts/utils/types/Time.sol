@@ -16,6 +16,11 @@ import {SafeCast} from "../math/SafeCast.sol";
  * While the library doesn't provide specific types for timepoints and duration, it does provide:
  * - a `Delay` type to represent duration that can be programmed to change value automatically at a given point
  * - additional helper functions
+ *
+ * NOTE: These sizes assume `block.timestamp` is expressed in seconds, where a `uint32` duration can represent about
+ * 136 years. On chains where `block.timestamp` uses a smaller unit, the limits shrink accordingly: with milliseconds,
+ * the longest `uint32` duration is about 49.7 days. Contracts that store durations with this library (such as
+ * {AccessManager} delays) should account for this when deployed on such chains.
  */
 library Time {
     using Time for *;
