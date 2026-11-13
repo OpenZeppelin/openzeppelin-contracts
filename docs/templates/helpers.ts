@@ -1,4 +1,6 @@
-import { version } from '../../package.json';
+import fs from 'fs';
+
+const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
 export const ozVersion = () => version;
 
