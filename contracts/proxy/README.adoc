@@ -67,6 +67,8 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 == Transparent Proxy
 
+{{ITransparentUpgradeableProxy}}
+
 {{TransparentUpgradeableProxy}}
 
 {{ProxyAdmin}}
