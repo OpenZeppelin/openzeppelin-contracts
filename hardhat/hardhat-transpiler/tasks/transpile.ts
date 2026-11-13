@@ -6,7 +6,9 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import { transpile } from '@openzeppelin/upgrade-safe-transpiler/dist/index.js';
 import { findAlreadyInitializable } from '@openzeppelin/upgrade-safe-transpiler/dist/find-already-initializable.js';
 
-interface TranspileOptions {
+import { prepareDependencies } from './with-dependencies.ts';
+
+export interface TranspileOptions {
   initializablePath?: string;
   deleteOriginals?: boolean;
   skipWithInit?: boolean;
@@ -15,6 +17,8 @@ interface TranspileOptions {
   namespaced?: boolean;
   namespaceExclude?: string[];
   peerProject?: string;
+  // Transpile a project that builds on contracts it does not own. See `./with-dependencies.ts`.
+  upgradeablePackages?: Record<string, string>;
 }
 
 // Transform each key of `obj` with `fn`, keeping values intact.
@@ -30,6 +34,10 @@ function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => 
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
   assert(settings, 'Transpile settings file must be provided');
   const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
+  assert(
+    options.upgradeablePackages === undefined || options.peerProject !== undefined,
+    'Transpiling dependencies requires a peer project',
+  );
 
   const { contractRootPaths } = await hre.tasks.getTask('build').run({ noTests: true, noExpose: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
@@ -56,31 +64,34 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
 
     const mainSources = hre.config.paths.sources.solidity.at(0)!;
     const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
+    const withDependencies = options.upgradeablePackages !== undefined;
 
-    // Adjust paths to match transpiler expectations
+    // Adjust paths to match transpiler expectations. Dependency sources are kept when transpiling with dependencies.
     input.sources = filterRecord(
       transformKeys(input.sources, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
+      k => withDependencies || k.startsWith(mainSourcesRel + '/'),
     );
     output.sources = filterRecord(
       transformKeys(output.sources, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
+      k => withDependencies || k.startsWith(mainSourcesRel + '/'),
     );
     output.contracts = filterRecord(
       transformKeys(output.contracts, k => k.replace(/^project\//, '')),
-      k => k.startsWith(mainSourcesRel + '/'),
+      k => withDependencies || k.startsWith(mainSourcesRel + '/'),
     );
     Object.values(output.sources).forEach((s: any) => {
       s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
     });
+
+    const deps = withDependencies ? prepareDependencies(input, output, options, mainSourcesRel) : undefined;
 
     // Run transpilation on the first source folder
     const transpiled = await transpile(
       input,
       output,
       { root: hre.config.paths.root, sources: mainSources },
-      { ...options, solcVersion },
-    );
+      { ...options, ...deps?.optionsOverride, solcVersion },
+    ).then(files => deps?.postProcess(files) ?? files);
 
     // Write transpiled files to disk
     await Promise.all(
@@ -93,7 +104,8 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
 
     // Delete originals files
     if (options.deleteOriginals) {
-      const alreadyInitializable = findAlreadyInitializable(output, options.initializablePath);
+      const alreadyInitializable =
+        deps?.alreadyInitializable ?? findAlreadyInitializable(output, options.initializablePath);
 
       // keep all newly transpiled files, plus any already-initializable files (even if not transpiled, to avoid deleting them)
       ([] as string[])
@@ -110,6 +122,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       }
 
       Object.keys(output.sources)
+        .filter(k => k.startsWith(mainSourcesRel + '/'))
         .map(s => path.join(hre.config.paths.root, s.replace(/^project\//, '')))
         .forEach(p => seen.add(p));
 
