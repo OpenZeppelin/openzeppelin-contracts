@@ -37,8 +37,9 @@ import {ERC7540} from "./ERC7540.sol";
  * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
  *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
- * tries to enforce that property, but the check may be insufficient if {_depositShareOrigin} reads from
- * storage that is not yet initialized when the parent's constructor runs
+ * tries to enforce that property, but the check runs once at construction and only sees the value
+ * {_depositShareOrigin} returns then, so it cannot catch an override that reads storage written later. Such an
+ * override MUST also keep that value constant for the vault's lifetime.
  */
 abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
     using SafeCast for uint256;
