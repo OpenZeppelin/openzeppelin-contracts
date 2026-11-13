@@ -56,7 +56,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Parses the validation data into its components and the validity range. See {packValidationData}.
+     * @dev Parses the validation data into its components and the validity range. See {ERC4337Utils-packValidationData-address-uint48-uint48}.
      *
      * This mirrors, step for step, how the EntryPoint reads a validation data word:
      *
@@ -69,7 +69,7 @@ library ERC4337Utils {
      * the corresponding bound is out of reach of `block.timestamp` (never valid, resp. never expiring). This is
      * deliberate: the EntryPoint compares `block.timestamp` against the raw fields, so stripping the flag here
      * would silently turn such a bound into a plausible timestamp and make {getValidationData} disagree with the
-     * EntryPoint. Encoders should not produce such a mismatch in the first place; {packValidationData} never does.
+     * EntryPoint. Encoders should not produce such a mismatch in the first place; {ERC4337Utils-packValidationData-address-uint48-uint48} never does.
      */
     function parseValidationData(
         uint256 validationData
@@ -107,7 +107,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Variant of {packValidationData} that forces which validity range to use. This overwrites the presence of
+     * @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that forces which validity range to use. This overwrites the presence of
      * flags in `validAfter` and `validUntil`).
      */
     function packValidationData(
@@ -126,7 +126,7 @@ library ERC4337Utils {
         return _packRaw(aggregator, validAfter, validUntil);
     }
 
-    /// @dev Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address.
+    /// @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address.
     function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
         return
             packValidationData(
@@ -137,7 +137,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address and that
+     * @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address and that
      * forces which validity range to use. This overwrites the presence of flags in `validAfter` and `validUntil`).
      */
     function packValidationData(
