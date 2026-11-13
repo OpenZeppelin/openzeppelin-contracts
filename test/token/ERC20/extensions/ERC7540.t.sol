@@ -71,6 +71,8 @@ interface IERC7540InvariantVault {
     function totalPendingDepositAssets() external view returns (uint256);
     function totalPendingRedeemShares() external view returns (uint256);
     function totalAssets() external view returns (uint256);
+    function convertToShares(uint256 assets) external view returns (uint256);
+    function convertToAssets(uint256 shares) external view returns (uint256);
     function totalSupply() external view returns (uint256);
     function balanceOf(address) external view returns (uint256);
     function fulfillDeposit(uint256 assets, uint256 shares, address controller) external;
@@ -220,11 +222,13 @@ contract ERC7540InvariantHandler is Test {
         uint256 maxShares = vault.maxMint(controller);
         if (max == 0) return;
         amount = bound(amount, 1, max);
+        uint256 live = vault.convertToShares(amount);
         vm.prank(controller);
         try vault.deposit(amount, controller, controller) returns (uint256 shares) {
-            // shares received must not exceed the claimable rate, unless the whole claim is drained
-            if (!isEpoch && amount != max && shares * max > amount * maxShares)
+            // shares received must not exceed the claimable rate (admin) or the live rate (delay)
+            if (isAdmin && amount != max && shares * max > amount * maxShares)
                 _fail("deposit claim rounded in favor of user");
+            if (!isAdmin && !isEpoch && shares > live) _fail("deposit claim rounded in favor of user");
             depClaimedAssets += amount;
             depClaimedShares += shares;
             depPerController[controller] -= amount;
@@ -239,11 +243,13 @@ contract ERC7540InvariantHandler is Test {
         uint256 maxAssets = vault.maxDeposit(controller);
         if (max == 0) return;
         shares = bound(shares, 1, max);
+        uint256 live = vault.convertToAssets(shares);
         vm.prank(controller);
         try vault.mint(shares, controller, controller) returns (uint256 assets) {
-            // assets consumed must not fall below the claimable rate, unless the whole claim is drained
-            if (!isEpoch && shares != max && assets * max < shares * maxAssets)
+            // assets consumed must not fall below the claimable rate (admin) or the live rate (delay)
+            if (isAdmin && shares != max && assets * max < shares * maxAssets)
                 _fail("mint claim rounded in favor of user");
+            if (!isAdmin && !isEpoch && assets < live) _fail("mint claim rounded in favor of user");
             depClaimedAssets += assets;
             depClaimedShares += shares;
             depPerController[controller] -= assets;
@@ -295,11 +301,13 @@ contract ERC7540InvariantHandler is Test {
         uint256 maxShares = vault.maxRedeem(controller);
         if (max == 0) return;
         assets = bound(assets, 1, max);
+        uint256 live = vault.convertToShares(assets);
         vm.prank(controller);
         try vault.withdraw(assets, controller, controller) returns (uint256 shares) {
-            // shares consumed must not fall below the claimable rate, unless the whole claim is drained
-            if (!isEpoch && assets != max && shares * max < assets * maxShares)
+            // shares consumed must not fall below the claimable rate (admin) or the live rate (delay)
+            if (isAdmin && assets != max && shares * max < assets * maxShares)
                 _fail("withdraw claim rounded in favor of user");
+            if (!isAdmin && !isEpoch && shares < live) _fail("withdraw claim rounded in favor of user");
             redClaimedAssets += assets;
             redClaimedShares += shares;
             assetsOut += assets;
@@ -315,11 +323,13 @@ contract ERC7540InvariantHandler is Test {
         uint256 maxAssets = vault.maxWithdraw(controller);
         if (max == 0) return;
         shares = bound(shares, 1, max);
+        uint256 live = vault.convertToAssets(shares);
         vm.prank(controller);
         try vault.redeem(shares, controller, controller) returns (uint256 assets) {
-            // assets received must not exceed the claimable rate, unless the whole claim is drained
-            if (!isEpoch && shares != max && assets * max > shares * maxAssets)
+            // assets received must not exceed the claimable rate (admin) or the live rate (delay)
+            if (isAdmin && shares != max && assets * max > shares * maxAssets)
                 _fail("redeem claim rounded in favor of user");
+            if (!isAdmin && !isEpoch && assets > live) _fail("redeem claim rounded in favor of user");
             redClaimedAssets += assets;
             redClaimedShares += shares;
             assetsOut += assets;

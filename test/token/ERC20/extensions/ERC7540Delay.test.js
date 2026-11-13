@@ -240,4 +240,38 @@ describe('ERC7540Delay', function () {
       await expect(this.mock.maxRedeem(user)).to.eventually.equal(150n);
     });
   });
+
+  describe('partial claims at the live rate', function () {
+    beforeEach(async function () {
+      [this.user, this.other] = await ethers.getSigners();
+
+      // 4 active assets backing 2 shares
+      await this.token.$_mint(this.mock, 4n);
+      await this.mock.$_mint(this.other, 2n);
+
+      await this.token.$_mint(this.user, 3n);
+      await this.token.connect(this.user).approve(this.mock, ethers.MaxUint256);
+      await this.mock.connect(this.user).requestDeposit(3n, this.user, this.user);
+      await time.increaseBy.timestamp(delay);
+    });
+
+    it('deposit converts the claimed assets directly', async function () {
+      // maxMint is floor(3 * 3 / 5) = 1 and convertToShares(2) is floor(2 * 3 / 5) = 1
+      await expect(this.mock.maxMint(this.user)).to.eventually.equal(1n);
+      await expect(this.mock.convertToShares(2n)).to.eventually.equal(1n);
+
+      await expect(
+        this.mock.connect(this.user).getFunction('deposit(uint256,address,address)')(2n, this.user, this.user),
+      ).to.changeTokenBalance(ethers, this.mock, this.user, 1n);
+    });
+
+    it('splitting a deposit claim mints as many shares as a single claim', async function () {
+      const claim = this.mock.connect(this.user).getFunction('deposit(uint256,address,address)');
+      await claim(2n, this.user, this.user);
+      await claim(1n, this.user, this.user);
+
+      await expect(this.mock.balanceOf(this.user)).to.eventually.equal(1n);
+      await expect(this.mock.maxDeposit(this.user)).to.eventually.equal(0n);
+    });
+  });
 });

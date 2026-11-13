@@ -13,9 +13,9 @@ import {ERC7540} from "./ERC7540.sol";
 /**
  * @dev Time-delay fulfillment strategy for asynchronous redemptions.
  *
- * Extends {ERC7540} with a redeem flow where requests become **permissionlessly claimable** after a
- * configurable waiting period. No privileged fulfiller is needed — once the delay elapses, the
- * controller (or any keeper) can claim. The exchange rate is computed at claim time using the vault's
+ * Extends {ERC7540} with a redeem flow where requests become claimable automatically after a
+ * configurable waiting period. No privileged fulfiller is needed: once the delay elapses, the
+ * controller or one of its operators can claim. The exchange rate is computed at claim time using the vault's
  * live {convertToAssets}.
  *
  * Production equivalents:
@@ -48,7 +48,13 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
         require(_redeemShareDestination() == address(0), ERC7540DelayInvalidRedeemShareDestination());
     }
 
-    /// @inheritdoc IERC6372
+    /**
+     * @dev See {IERC6372-clock}. Defaults to `block.timestamp`.
+     *
+     * NOTE: Overriding this function to use a different time source also requires overriding {CLOCK_MODE}
+     * (e.g. with {ERC6372Utils-blockNumberClockMode} for a block number clock). The default {CLOCK_MODE}
+     * reverts when {clock} does not return `block.timestamp`.
+     */
     function clock() public view virtual returns (uint48) {
         return Time.timestamp();
     }
@@ -98,16 +104,21 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
         return clock() + redeemDelay(controller);
     }
 
-    /// @dev Consumes `assets` from claimable redeems, returns proportional shares (rounded up).
+    /**
+     * @dev Consumes the shares worth `assets` at the current rate (rounded up) from claimable redeems and returns them.
+     * Withdrawing the full {maxWithdraw} consumes all of the claimable shares.
+     */
     function _consumeClaimableWithdraw(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 shares = Math.mulDiv(assets, maxRedeem(controller), maxWithdraw(controller), Math.Rounding.Ceil);
+        uint256 shares = assets == maxWithdraw(controller)
+            ? maxRedeem(controller)
+            : _convertToShares(assets, Math.Rounding.Ceil);
         _claimedRedeems[controller] += shares;
         return shares;
     }
 
-    /// @dev Consumes `shares` from claimable redeems, returns proportional assets (rounded down).
+    /// @dev Consumes `shares` from claimable redeems, returns their value in assets at the current rate (rounded down).
     function _consumeClaimableRedeem(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = Math.mulDiv(shares, maxWithdraw(controller), maxRedeem(controller), Math.Rounding.Floor);
+        uint256 assets = _convertToAssets(shares, Math.Rounding.Floor);
         _claimedRedeems[controller] += shares;
         return assets;
     }
