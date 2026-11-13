@@ -91,12 +91,11 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       output,
       { root: hre.config.paths.root, sources: mainSources },
       { ...options, ...deps?.optionsOverride, solcVersion },
-    );
-    const results = deps?.postProcess(transpiled) ?? transpiled;
+    ).then(files => deps?.postProcess(files) ?? files);
 
     // Write transpiled files to disk
     await Promise.all(
-      results.map(async t => {
+      transpiled.map(async t => {
         const outputPath = path.join(hre.config.paths.root, t.path.replace(/^project\//, ''));
         await fs.mkdir(path.dirname(outputPath), { recursive: true });
         await fs.writeFile(outputPath, t.source);
@@ -111,7 +110,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       // keep all newly transpiled files, plus any already-initializable files (even if not transpiled, to avoid deleting them)
       ([] as string[])
         .concat(
-          results.map(t => t.path),
+          transpiled.map(t => t.path),
           alreadyInitializable,
         )
         .map(p => path.join(hre.config.paths.root, p.replace(/^project\//, '')))
