@@ -8,12 +8,19 @@ export type * from '../type-extensions.ts';
 export default async (): Promise<Partial<ConfigHooks>> => ({
   resolveUserConfig: (userConfig, resolveConfigurationVariable, next) =>
     next(userConfig, resolveConfigurationVariable).then(config => {
-      config.docgen ??= userConfig.docgen ?? defaults;
-      config.docgen.root = config.paths.root;
-      config.docgen.sourcesDir = path
-        .relative(config.paths.root, config.paths.sources.solidity[0]) // TODO: support multiple source directories
-        .split(path.sep)
-        .join(path.posix.sep);
-      return config;
+      const { root } = config.paths;
+      return {
+        ...config,
+        docgen: {
+          // Build a new object instead of mutating the shared `defaults` singleton or the
+          // user-provided `docgen` object. Precedence, from lowest to highest: plugin defaults,
+          // user configuration, anything already resolved by another config hook.
+          ...defaults,
+          ...userConfig.docgen,
+          ...config.docgen,
+          root,
+          sourcesDir: path.relative(root, config.paths.sources.solidity[0]).split(path.sep).join(path.posix.sep),
+        },
+      };
     }),
 });
