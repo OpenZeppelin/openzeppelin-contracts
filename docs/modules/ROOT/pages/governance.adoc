@@ -139,6 +139,41 @@ Votes are cast by interacting with the Governor contract through the `castVote` 
 
 image::tally-vote.png[Voting in Tally]
 
+=== Delegate by signature
+
+Voting power only counts after it is delegated (including self-delegation). Holders who do not want to send a transaction can sign an EIP-712 message and have anyone submit it with `delegateBySig`.
+
+The signed payload uses this primary type, together with the token's EIP-712 domain (`name`, `version`, `chainId`, `verifyingContract`):
+
+```
+Delegation(address delegatee,uint256 nonce,uint256 expiry)
+```
+
+`nonce` is the signer's current value from `nonces(signer)`. `expiry` is a UNIX timestamp after which the signature is rejected.
+
+```javascript
+const domain = await getDomain(token); // { name, version, chainId, verifyingContract }
+const types = {
+  Delegation: [
+    { name: "delegatee", type: "address" },
+    { name: "nonce", type: "uint256" },
+    { name: "expiry", type: "uint256" },
+  ],
+};
+const expiry = ethers.MaxUint256;
+const nonce = await token.nonces(holder.address);
+const signature = await holder.signTypedData(domain, types, {
+  delegatee: delegatee.address,
+  nonce,
+  expiry,
+});
+const { v, r, s } = ethers.Signature.from(signature);
+
+await token.delegateBySig(delegatee.address, nonce, expiry, v, r, s);
+```
+
+NOTE: `getDomain` can be replaced by reading `eip712Domain()` on the token (ERC-5267) or by assembling the four fields above from the token's constructor arguments and deployment address.
+
 === Execute the Proposal
 
 Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. Once a proposal passes, it can be queued and executed from the same place you voted.
