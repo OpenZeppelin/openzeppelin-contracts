@@ -1,0 +1,85 @@
+# Keeps Solidity pragma floors minimal (`npm run pragma`), opening a PR when any can be lowered.
+#
+# SETUP (one-time, org admin): a short-lived GitHub App token is minted so the opened PR triggers CI
+# (the default GITHUB_TOKEN can't — events it creates don't start workflow runs). Create a GitHub App
+# with Contents + Pull requests set to Read-and-write, install it on this repo, and add two secrets:
+# PRAGMA_BOT_APP_ID and PRAGMA_BOT_PRIVATE_KEY. Reuse an existing org CI-bot App if one exists.
+name: minimize-pragma
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: minimize-pragma
+  cancel-in-progress: false
+
+permissions:
+  contents: read # checkout only; the App token pushes the branch and opens the PR
+
+env:
+  NODE_OPTIONS: --max_old_space_size=8192
+  DEFAULT_BRANCH: master
+
+jobs:
+  minimize-pragma:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'OpenZeppelin/openzeppelin-contracts'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEFAULT_BRANCH }}
+          submodules: recursive # foundry libs, needed by the pragma tooling
+          # Read-only checkout: don't persist the token. The write-capable App token is minted after
+          # the build (below), so nothing usable sits in .git/config while untrusted deps run.
+          persist-credentials: false
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          foundry: 'on' # needed by the pragma scripts (see checks.yml)
+
+      - name: Minimize pragmas
+        run: npm run pragma
+
+      - name: Detect changes
+        id: diff
+        continue-on-error: true # exits 1 when pragmas changed
+        run: git diff --quiet -- contracts
+
+      # Minted after the build and only when there's a PR to open, so build deps never see it.
+      # Scoped to the two permissions needed, not everything the (possibly shared) App installation grants.
+      - name: Generate app token
+        if: steps.diff.outcome == 'failure'
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.PRAGMA_BOT_APP_ID }}
+          private-key: ${{ secrets.PRAGMA_BOT_PRIVATE_KEY }}
+          permission-contents: write # push the automation branch
+          permission-pull-requests: write # open/update the PR
+
+      - name: Open or update PR
+        if: steps.diff.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }} # App token: opens the PR and lets its CI run
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          BRANCH: automation/minimize-pragma
+          BASE: ${{ env.DEFAULT_BRANCH }}
+        run: |
+          uid="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${uid}+${APP_SLUG}[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add contracts
+          git commit -m "chore: minimize Solidity pragmas"
+          # Auth via the token in the remote URL, not persisted git credentials.
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"
+          if [ -n "$(gh pr list --head "$BRANCH" --base "$BASE" --state open --json number --jq '.[0].number')" ]; then
+            echo "PR already open for $BRANCH -> $BASE; the force-push updated it."
+          else
+            gh pr create --base "$BASE" --head "$BRANCH" \
+              --label ignore-changeset \
+              --title "chore: minimize Solidity pragmas" \
+              --body "Automated \`npm run pragma\`: lowers pragma floors to the lowest compiler that still builds each file."
+          fi
