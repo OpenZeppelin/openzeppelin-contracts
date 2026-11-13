@@ -73,3 +73,14 @@ You may notice that contracts use a struct with the `@custom:storage-location er
 Without namespaced storage, it isn't safe to simply add a state variable because it "shifts down" all of the state variables below in the inheritance chain. This makes the storage layouts incompatible, as explained in xref:upgrades-plugins::writing-upgradeable.adoc#modifying-your-contracts[Writing Upgradeable Contracts].
 
 The namespaced storage pattern used in the Upgradeable package allows us to freely add new state variables in the future without compromising the storage compatibility with existing deployments. It also allows changing the inheritance order with no impact on the resulting storage layout, as long as all inherited contracts use namespaced storage.
+
+=== Adding Extensions in an Upgrade
+
+A compatible storage layout does not guarantee that an extension can be safely added to a contract that is already deployed. Many extensions keep state that is updated as tokens are minted, transferred, or burned (for example, by overriding `_update`). When such an extension is added in an upgrade, that state only reflects operations performed after the upgrade. Balances, supply, and ownership that existed before the upgrade are not accounted for.
+
+For example, adding xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] or xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] to a token with existing holders results in:
+
+* Total supply checkpoints that exclude the preexisting supply. xref:api:governance.adoc#Votes-getPastTotalSupply-uint256-[`getPastTotalSupply`] underreports, which lowers the quorum computed by xref:api:governance.adoc#GovernorVotesQuorumFraction[`GovernorVotesQuorumFraction`], and burning preexisting tokens may revert due to an arithmetic underflow.
+* When using xref:api:governance.adoc#VotesExtended[`VotesExtended`], xref:api:governance.adoc#VotesExtended-getPastBalanceOf-address-uint256-[`getPastBalanceOf`] returns zero for accounts whose balance has not changed since the upgrade.
+
+Before adding an extension in an upgrade, review whether it depends on observing every operation since deployment. If it does, include it from the initial deployment instead.
