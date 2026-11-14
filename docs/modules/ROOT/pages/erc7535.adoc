@@ -65,6 +65,8 @@ Sending the native asset out uses a low-level `call` via xref:api:utils.adoc#Add
 
 Value must enter the vault through the standardized `deposit` or `mint` entry points so it is matched with newly issued shares. `ERC7535` does not implement a `receive()` or `fallback()` function, so a plain native-asset transfer to the vault fails: `.transfer` reverts, and `.send` or `call{value: x}("")` return `false`. The value is never silently absorbed as a donation that would skew the next deposit's exchange rate.
 
+NOTE: On chains where the native asset is also an ERC-20 token, a transfer through the token's ERC-20 interface does not call the vault and succeeds. The value raises the share price for existing holders like a donation. The vault keeps 18 decimals, which can differ from the decimals of the token's ERC-20 interface.
+
 An integrator whose vault must accept plain native-asset payments (for example a rewards distributor that pays the vault periodically on a chain without beacon-layer withdrawals) can add a `receive()` function, accepting that such payments raise the share price for existing holders like a donation.
 
 Note that protocol-level force-feeds cannot be prevented: native asset routed through `SELFDESTRUCT` or paid out as block-reward / `coinbase` tips does not execute any code on the vault and lands on `address(this).balance`. Because `totalAssets()` is balance-based, such donations are tracked exactly as a direct ERC-20 transfer would be for an ERC-4626 vault; the defense is the same virtual-offset math described in <<inflation-attack, Security concern: Inflation attack>>.
