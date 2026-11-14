@@ -4,6 +4,7 @@
 * xref:upgradeable.adoc[Using with Upgrades]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
+* xref:chain-compatibility.adoc[Chain Compatibility]
 
 * xref:access-control.adoc[Access Control]
 
