@@ -138,6 +138,10 @@ library TrieProof {
                     } else {
                         bytes1 branchKey = keyExpanded[keyIndex];
                         Memory.Slice childNode = decoded[uint8(branchKey)];
+                        // An empty child slot means the key is not in the trie: there is nothing to prove inclusion of
+                        if (_isEmptyItem(childNode)) {
+                            return (_emptyBytesMemory(), ProofError.INVALID_PROOF);
+                        }
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
 
@@ -242,6 +246,11 @@ library TrieProof {
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
         uint256 nodeLength = node.length();
         return nodeLength < 33 ? (node.load(0), nodeLength) : (node.readBytes32(), 32);
+    }
+
+    /// @dev Returns true if `item` is the RLP encoding of the empty string (a single `0x80` byte).
+    function _isEmptyItem(Memory.Slice item) private pure returns (bool) {
+        return item.length() == 1 && bytes1(item.load(0)) == bytes1(RLP.SHORT_OFFSET);
     }
 
     function _emptyBytesMemory() private pure returns (bytes memory result) {
