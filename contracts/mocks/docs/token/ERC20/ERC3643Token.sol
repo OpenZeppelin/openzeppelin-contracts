@@ -18,6 +18,12 @@ contract ERC3643Token is ERC3643, AccessControl {
     }
 
     function _checkAdmin() internal view override {
-        _checkRole(AGENT_ROLE);
+        bytes4 selector = msg.sig;
+        bool ownerOnly = selector == this.setName.selector ||
+            selector == this.setSymbol.selector ||
+            selector == this.setOnchainID.selector ||
+            selector == this.setIdentityRegistry.selector ||
+            selector == this.setCompliance.selector;
+        _checkRole(ownerOnly ? DEFAULT_ADMIN_ROLE : AGENT_ROLE);
     }
 }

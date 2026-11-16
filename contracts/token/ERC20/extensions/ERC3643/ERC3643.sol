@@ -30,14 +30,18 @@ import {ERC20} from "../../ERC20.sol";
  *   compliance ({ICompliance-bindToken}) is left to the derived contract.
  * * {_recoveryAddress}: the whole recovery flow is exposed as an internal virtual so a
  *   derived contract can supply preconditions or additional identity-migration steps
- *   before calling `super._recoveryAddress`.
+ *   before calling `super._recoveryAddress`. The identity check lives in {recoveryAddress},
+ *   so a derived contract with a different recovery policy overrides that function instead.
  *
- * Deliberate divergences from the ERC-3643 text, each of which a derived contract may
- * reverse by overriding the relevant hook:
+ * Deliberate divergence from the ERC-3643 text, which a derived contract may reverse by
+ * overriding {_update}:
  *
  * * Mint checks {ICompliance-canTransfer} in addition to the recipient's identity, as the
  *   reference implementation does, so supply caps and distribution rules also apply to
  *   issuance. The ERC text has mint bypass the compliance rules.
+ *
+ * The token also behaves as follows:
+ *
  * * Mint and burn work while the token is paused; only transfers block. Circulation and
  *   issuance/redemption are separate operational concerns.
  * * {forcedTransfer} and {recoveryAddress} bypass the pause too, in line with the spec
@@ -70,6 +74,12 @@ import {ERC20} from "../../ERC20.sol";
  * as {ERC20Votes}, are not supported. The compliance is notified of every movement
  * (including mints, burns, forced transfers and recoveries), so such state belongs in a
  * compliance module.
+ *
+ * IMPORTANT: ERC-3643 requires an ERC-173 owner and an agent role compatible with {IAgentRole}.
+ * The owner sets the name, symbol, onchain ID, identity registry and compliance; agents run the
+ * other administrative functions. This contract defines neither role, so a derived contract adds
+ * both and enforces them in {_checkAdmin}. The token must also be an agent of its identity
+ * registry, since {recoveryAddress} registers and deletes identities there.
  */
 abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     mapping(address account => bool) private _frozen;
@@ -97,9 +107,6 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
 
     /// @dev A call to {ICompliance-canTransfer} returned false during a transfer.
     error ERC3643ComplianceViolation(address from, address to, uint256 value);
-
-    /// @dev A call to {_forcedTransfer} returned false during a recovery.
-    error ERC3643FailedForcedTransfer(address from, address to, uint256 value);
 
     /// @dev The investor identity of a recovery is not the identity `lost` is registered with.
     error ERC3643InvalidRecoveryIdentity(address lost, address investorOnchainID);
@@ -223,12 +230,23 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         _burn(from, value);
     }
 
-    /// @inheritdoc IERC3643
+    /**
+     * @dev See {IERC3643-recoveryAddress}. Requires `investorOnchainID` to be the identity `lost` is
+     * registered with, so a recovery only moves an investor's position between their own wallets.
+     *
+     * A derived contract with a different recovery policy (e.g. accepting an unregistered `lost`
+     * when `updated` already belongs to `investorOnchainID`, or checking keys on the identity)
+     * can override this function and call {_recoveryAddress} after its own checks.
+     */
     function recoveryAddress(
         address lost,
         address updated,
         address investorOnchainID
     ) public virtual onlyAdmin returns (bool) {
+        require(
+            address(identityRegistry().identity(lost)) == investorOnchainID,
+            ERC3643InvalidRecoveryIdentity(lost, investorOnchainID)
+        );
         return _recoveryAddress(lost, updated, investorOnchainID);
     }
 
@@ -377,7 +395,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     /**
      * @dev Moves `value` from `from` to `to` bypassing pause and freeze checks, auto-unfreezing
      * just enough of `from`'s frozen balance to cover the amount. Recipient identity is
-     * still verified. Returns false when the recipient is not verified.
+     * still verified. Reverts with {ERC3643UnverifiedRecipient} when the recipient is not verified.
      *
      * The pause bypass follows the spec phrasing that a forced transfer "only requires the
      * receiver to be whitelisted and verified." A derived contract that treats pause as an
@@ -393,21 +411,17 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
         if (from == address(0)) revert ERC20InvalidSender(address(0));
         if (to == address(0)) revert ERC20InvalidReceiver(address(0));
-        if (identityRegistry().isVerified(to)) {
-            _autoUnfreezeFor(from, value);
-            ERC20._update(from, to, value); // bypasses the checks in _update
-            compliance().transferred(from, to, value);
-            return true;
-        }
-        return false;
+        require(identityRegistry().isVerified(to), ERC3643UnverifiedRecipient(to));
+        _autoUnfreezeFor(from, value);
+        ERC20._update(from, to, value); // bypasses the checks in _update
+        compliance().transferred(from, to, value);
+        return true;
     }
 
     /**
      * @dev Recovers `lost`'s balance and frozen state onto `updated`, points the identity
-     * registry at `investorOnchainID`, and clears the old identity binding.
-     *
-     * `investorOnchainID` must be the identity `lost` is registered with, so a recovery
-     * only moves an investor's position between their own wallets.
+     * registry at `investorOnchainID`, and clears the old identity binding. Does not check
+     * that `investorOnchainID` belongs to `lost`; {recoveryAddress} does.
      *
      * Left as a hook: derived contracts may add preconditions (e.g. verify a MANAGEMENT
      * key on the ONCHAINID, forbid same-wallet recovery), guard the migration semantics
@@ -437,10 +451,6 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         address investorOnchainID
     ) internal virtual returns (bool) {
         IIdentityRegistry idRegistry = identityRegistry();
-        require(
-            address(idRegistry.identity(lost)) == investorOnchainID,
-            ERC3643InvalidRecoveryIdentity(lost, investorOnchainID)
-        );
         uint256 investorTokens = balanceOf(lost);
         uint256 frozenTokens = getFrozenTokens(lost);
         bool lostFrozen = isFrozen(lost);
@@ -459,10 +469,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
             }
         }
 
-        require(
-            _forcedTransfer(lost, updated, investorTokens),
-            ERC3643FailedForcedTransfer(lost, updated, investorTokens)
-        );
+        _forcedTransfer(lost, updated, investorTokens);
 
         idRegistry.deleteIdentity(lost);
         emit RecoverySuccess(lost, updated, investorOnchainID);

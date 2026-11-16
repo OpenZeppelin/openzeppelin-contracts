@@ -423,15 +423,10 @@ describe('ERC3643', function () {
       await expect(tx).to.emit(this.compliance, 'Transferred').withArgs(this.holder, this.recipient, 40n);
     });
 
-    it('returns false and moves nothing when the recipient is not verified', async function () {
-      await expect(this.token.connect(this.owner).forcedTransfer.staticCall(this.holder, this.other, 40n)).to.eventually
-        .be.false;
-      await expect(this.token.connect(this.owner).forcedTransfer(this.holder, this.other, 40n)).to.changeTokenBalances(
-        ethers,
-        this.token,
-        [this.holder, this.other],
-        [0n, 0n],
-      );
+    it('reverts when the recipient is not verified', async function () {
+      await expect(this.token.connect(this.owner).forcedTransfer(this.holder, this.other, 40n))
+        .to.be.revertedWithCustomError(this.token, 'ERC3643UnverifiedRecipient')
+        .withArgs(this.other);
     });
 
     it('ignores frozen wallets and the compliance rules', async function () {
@@ -530,8 +525,8 @@ describe('ERC3643', function () {
     it('reverts when the new wallet is not verified', async function () {
       await this.registry.setVerified(this.holderIdentity, false);
       await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, this.holderIdentity))
-        .to.be.revertedWithCustomError(this.token, 'ERC3643FailedForcedTransfer')
-        .withArgs(this.holder, this.other, initialSupply);
+        .to.be.revertedWithCustomError(this.token, 'ERC3643UnverifiedRecipient')
+        .withArgs(this.other);
     });
 
     it('reverts when the identity is not the one the lost wallet is registered with', async function () {
@@ -540,6 +535,14 @@ describe('ERC3643', function () {
       await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, otherIdentity))
         .to.be.revertedWithCustomError(this.token, 'ERC3643InvalidRecoveryIdentity')
         .withArgs(this.holder, otherIdentity);
+    });
+
+    it('leaves the identity check to the public function', async function () {
+      const otherIdentity = ethers.Wallet.createRandom().address;
+      await this.registry.setVerified(otherIdentity, true);
+      await expect(this.token.$_recoveryAddress(this.holder, this.other, otherIdentity))
+        .to.emit(this.token, 'RecoverySuccess')
+        .withArgs(this.holder, this.other, otherIdentity);
     });
   });
 
@@ -560,12 +563,14 @@ describe('ERC3643', function () {
       ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [10n, -10n]);
     });
 
-    it('batchForcedTransfer skips recipients that are not verified', async function () {
+    it('batchForcedTransfer reverts when a recipient is not verified', async function () {
       await expect(
         this.token
           .connect(this.owner)
           .batchForcedTransfer([this.holder, this.holder], [this.recipient, this.other], [10n, 20n]),
-      ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient, this.other], [-10n, 10n, 0n]);
+      )
+        .to.be.revertedWithCustomError(this.token, 'ERC3643UnverifiedRecipient')
+        .withArgs(this.other);
     });
 
     it('batchMint mints to every recipient', async function () {
