@@ -6,7 +6,8 @@ import type { InteroperableAddress } from 'interoperable-addresses';
 // Does not support async getters that are part of ethers.AddressLike (Addressable and Promise<string>)
 function extractAddress(entity: any): string {
   if (typeof entity === 'string') {
-    return ethers.getAddress(entity);
+    // Only normalize (and checksum-validate) 20-byte hex strings; pass other formats through (non-EVM chains, invalid lengths)
+    return ethers.isHexString(entity, 20) ? ethers.getAddress(entity) : entity;
   } else if ('address' in entity) {
     return extractAddress(entity.address);
   } else if ('target' in entity) {

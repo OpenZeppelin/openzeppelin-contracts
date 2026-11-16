@@ -2,12 +2,12 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/Arrays.sol)
 // This file was procedurally generated from scripts/generate/templates/Arrays.sol.eta.
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Comparators} from "./Comparators.sol";
+import {Math} from "./math/Math.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
-import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.

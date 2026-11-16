@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (access/extensions/AccessControlDefaultAdminRules.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
-import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules.sol";
-import {AccessControl, IAccessControl} from "../AccessControl.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
-import {Math} from "../../utils/math/Math.sol";
 import {IERC5313} from "../../interfaces/IERC5313.sol";
 import {IERC165} from "../../utils/introspection/IERC165.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {AccessControl, IAccessControl} from "../AccessControl.sol";
+import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
@@ -54,9 +54,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
      */
     constructor(uint48 initialDelay, address initialDefaultAdmin) {
-        if (initialDefaultAdmin == address(0)) {
-            revert AccessControlInvalidDefaultAdmin(address(0));
-        }
+        require(initialDefaultAdmin != address(0), AccessControlInvalidDefaultAdmin(address(0)));
         _currentDelay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
@@ -79,9 +77,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlEnforcedDefaultAdminRules();
-        }
+        require(role != DEFAULT_ADMIN_ROLE, AccessControlEnforcedDefaultAdminRules());
         super.grantRole(role, account);
     }
 
@@ -89,9 +85,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlEnforcedDefaultAdminRules();
-        }
+        require(role != DEFAULT_ADMIN_ROLE, AccessControlEnforcedDefaultAdminRules());
         super.revokeRole(role, account);
     }
 
@@ -111,9 +105,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
-            if (newDefaultAdmin != address(0) || !_isScheduleSet(schedule) || !_hasSchedulePassed(schedule)) {
-                revert AccessControlEnforcedDefaultAdminDelay(schedule);
-            }
+            require(
+                newDefaultAdmin == address(0) && _isScheduleSet(schedule) && _hasSchedulePassed(schedule),
+                AccessControlEnforcedDefaultAdminDelay(schedule)
+            );
             delete _pendingDefaultAdminSchedule;
         }
         super.renounceRole(role, account);
@@ -130,9 +125,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE) {
-            if (defaultAdmin() != address(0)) {
-                revert AccessControlEnforcedDefaultAdminRules();
-            }
+            require(defaultAdmin() == address(0), AccessControlEnforcedDefaultAdminRules());
             _currentDefaultAdmin = account;
         }
         return super._grantRole(role, account);
@@ -150,9 +143,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
-        if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlEnforcedDefaultAdminRules();
-        }
+        require(role != DEFAULT_ADMIN_ROLE, AccessControlEnforcedDefaultAdminRules());
         super._setRoleAdmin(role, adminRole);
     }
 
@@ -238,9 +229,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _acceptDefaultAdminTransfer() internal virtual {
         (address newAdmin, uint48 schedule) = pendingDefaultAdmin();
-        if (!_isScheduleSet(schedule) || !_hasSchedulePassed(schedule)) {
-            revert AccessControlEnforcedDefaultAdminDelay(schedule);
-        }
+        require(
+            _isScheduleSet(schedule) && _hasSchedulePassed(schedule),
+            AccessControlEnforcedDefaultAdminDelay(schedule)
+        );
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         delete _pendingDefaultAdmin;

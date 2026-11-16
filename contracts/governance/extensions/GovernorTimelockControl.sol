@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a

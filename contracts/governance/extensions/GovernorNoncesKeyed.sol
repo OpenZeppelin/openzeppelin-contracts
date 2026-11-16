@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorNoncesKeyed.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {Governor} from "../Governor.sol";
+import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {Nonces} from "../../utils/Nonces.sol";
 import {NoncesKeyed} from "../../utils/NoncesKeyed.sol";
-import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev An extension of {Governor} that extends existing nonce management to use {NoncesKeyed}, where the key is the low-order 192 bits of the `proposalId`.

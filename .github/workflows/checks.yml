@@ -13,6 +13,11 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read # actions/checkout
+  actions: read # gas-compare: gh run list / gh run download
+  pull-requests: read # gas-compare: gh pr diff
+
 env:
   NODE_OPTIONS: --max_old_space_size=8192
 
@@ -114,11 +119,13 @@ jobs:
 
   slither:
     runs-on: ubuntu-latest
+    env:
+      FOUNDRY_PROFILE: slither
     steps:
       - uses: actions/checkout@v7
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.1
+      - uses: crytic/slither-action@v0.4.2
 
   codespell:
     runs-on: ubuntu-latest

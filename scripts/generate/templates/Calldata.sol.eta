@@ -1,0 +1,27 @@
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Helper library for manipulating objects in calldata.
+ */
+library Calldata {
+<%- for (const { type, name } of Object.values(it.TYPES).filter(type => !type.size)) { %>
+    /// @dev Returns an empty `<%= type %> calldata`.
+    // slither-disable-next-line write-after-write
+    function empty<%= name %>() internal pure returns (<%= type %> calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
+    }
+<% } -%>
+<%- for (const { type, name } of Object.values(it.TYPES).filter(type => !type.upcastTo)) { %>
+    /// @dev Returns an empty `<%= type %>[] calldata`.
+    // slither-disable-next-line write-after-write
+    function empty<%= name %>Array() internal pure returns (<%= type %>[] calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
+    }
+<% } -%>
+}

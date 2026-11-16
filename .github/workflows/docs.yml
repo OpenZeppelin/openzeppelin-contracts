@@ -16,4 +16,4 @@ jobs:
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
       - run: node scripts/update-docs-branch.js
-      - run: git push --all origin 
+      - run: git push --all origin

@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/extensions/draft-AccountERC7579.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
-import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
-import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {
     IERC7579Module,
     IERC7579Validator,
@@ -15,13 +13,15 @@ import {
     MODULE_TYPE_EXECUTOR,
     MODULE_TYPE_FALLBACK
 } from "../../interfaces/draft-IERC7579.sol";
-import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
-import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
-import {LowLevelCall} from "../../utils/LowLevelCall.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Bytes} from "../../utils/Bytes.sol";
-import {Packing} from "../../utils/Packing.sol";
 import {Calldata} from "../../utils/Calldata.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
+import {Packing} from "../../utils/Packing.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {Account} from "../Account.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/draft-ERC7579Utils.sol";
 
 /**
  * @dev Extension of {Account} that implements support for ERC-7579 modules.
@@ -183,8 +183,15 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     }
 
     /**
-     * @dev Implement ERC-1271 through IERC7579Validator modules. If module based validation fails, fallback to
-     * "native" validation by the abstract signer.
+     * @dev Implement ERC-1271 through IERC7579Validator modules. The validator module and inner signature are
+     * obtained with {_extractSignatureValidator} (by default, the module is the first 20 bytes of the signature) and
+     * the module's return value is forwarded as-is.
+     * Returns `0xffffffff` if the signature is too short to extract a module, if that module is not installed as
+     * a validator, or if the call to it reverts.
+     *
+     * NOTE: Only installed validator modules are used. Unlike {_validateUserOp}, this function does not fall back to
+     * {_rawSignatureValidation}, so a derived contract that overrides {_rawSignatureValidation} to enable a signer
+     * must also override this function for that signer to validate ERC-1271 signatures.
      *
      * NOTE: when combined with {ERC7739}, resolution ordering may have an impact ({ERC7739} does not call super).
      * Manual resolution might be necessary.

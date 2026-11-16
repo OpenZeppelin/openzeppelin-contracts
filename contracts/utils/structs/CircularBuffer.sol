@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (utils/structs/CircularBuffer.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {Math} from "../math/Math.sol";
 import {Arrays} from "../Arrays.sol";
+import {Math} from "../math/Math.sol";
 import {Panic} from "../Panic.sol";
 
 /**
@@ -82,7 +82,7 @@ library CircularBuffer {
      * Consider a large buffer size may render the function unusable.
      */
     function setup(Bytes32CircularBuffer storage self, uint256 size) internal {
-        if (size == 0) revert InvalidBufferSize();
+        require(size != 0, InvalidBufferSize());
         clear(self);
         Arrays.unsafeSetLength(self._data, size);
     }

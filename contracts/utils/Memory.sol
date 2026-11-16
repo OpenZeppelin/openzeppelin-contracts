@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/Memory.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {Panic} from "./Panic.sol";
 import {Math} from "./math/Math.sol";
+import {Panic} from "./Panic.sol";
 
 /**
  * @dev Utilities to manipulate memory.

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/signers/MultiSignerERC7913.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
-import {AbstractSigner} from "./AbstractSigner.sol";
-import {SignatureChecker} from "../SignatureChecker.sol";
+import {Calldata} from "../../Calldata.sol";
 import {EnumerableSet} from "../../structs/EnumerableSet.sol";
+import {SignatureChecker} from "../SignatureChecker.sol";
+import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using multiple ERC-7913 signers with a threshold-based
@@ -119,13 +120,18 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * must ensure signers are properly validated before adding them. Problematic signers can compromise
      * the multisig's security or functionality. Examples include uncontrolled addresses (e.g., `address(0)`),
      * the account's own address (which may cause recursive validation loops), or contracts that may unintentionally
-     * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which would return the
-     * ERC-1271 magic value for any `isValidSignature` call).
+     * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which echoes staticcall
+     * input and, on the ERC-7913 `verify` dispatch, returns bytes matching the expected selector for any hash
+     * and signature).
+     *
+     * NOTE: Signer identity is the `verifier || key` blob compared byte-for-byte. Two byte-distinct blobs backed
+     * by the same underlying key (e.g. non-canonical ABI encodings, or the same passkey enrolled under two
+     * verifiers) count as two distinct signers.
      */
     function _addSigners(bytes[] memory newSigners) internal virtual {
         for (uint256 i = 0; i < newSigners.length; ++i) {
             bytes memory signer = newSigners[i];
-            require(signer.length >= 20, MultiSignerERC7913InvalidSigner(signer));
+            require(signer.length > 19, MultiSignerERC7913InvalidSigner(signer));
             require(_signers.add(signer), MultiSignerERC7913AlreadyExists(signer));
             emit ERC7913SignerAdded(signer);
         }
@@ -272,7 +278,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
             // Check #1: Theoretical minimum length of a valid multisignature encoding is 0x40 bytes.
             // 64 bytes of zero is a valid encoding for two empty arrays.
-            if (bufferLength < 0x40) return (false, _emptyBytesArray(), _emptyBytesArray());
+            if (bufferLength < 0x40) return (false, Calldata.emptyBytesArray(), Calldata.emptyBytesArray());
 
             // Read the offset pointers to the signers and signatures arrays
             // Read is done in assembly to avoid the cost of creating calldata slices.
@@ -285,7 +291,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
             // Check #2: The length fields that the offset pointers point to must be within the bounds of the buffer.
             if (signersOffset > bufferLength - 0x20 || signaturesOffset > bufferLength - 0x20)
-                return (false, _emptyBytesArray(), _emptyBytesArray());
+                return (false, Calldata.emptyBytesArray(), Calldata.emptyBytesArray());
 
             // Read the length fields
             // Read is done in assembly to avoid the cost of creating calldata slices.
@@ -308,7 +314,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
                 signaturesLength > type(uint64).max ||
                 0x20 * signersLength > bufferLength - signersDataOffset ||
                 0x20 * signaturesLength > bufferLength - signaturesDataOffset
-            ) return (false, _emptyBytesArray(), _emptyBytesArray());
+            ) return (false, Calldata.emptyBytesArray(), Calldata.emptyBytesArray());
 
             // Assembly cast
             assembly ("memory-safe") {
@@ -318,14 +324,6 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
                 signatures.offset := add(signature.offset, signaturesDataOffset)
                 signatures.length := signaturesLength
             }
-        }
-    }
-
-    /// @dev Returns an empty `bytes[]` calldata slice, used as a placeholder on decode failure.
-    function _emptyBytesArray() private pure returns (bytes[] calldata result) {
-        assembly ("memory-safe") {
-            result.offset := 0
-            result.length := 0
         }
     }
 }

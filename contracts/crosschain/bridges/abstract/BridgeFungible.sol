@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/abstract/BridgeFungible.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
-import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {Context} from "../../../utils/Context.sol";
-import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
 
 /**
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
@@ -26,8 +26,8 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
     /// @dev Emitted when a crosschain ERC-20 transfer is received.
     event CrosschainFungibleTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
-    /// @dev Revert reason when the address part of the interoperable address is empty.
-    error CrosschainFungibleEmptyAddress();
+    /// @dev Revert reason when the address part of the interoperable address is empty or has an invalid length.
+    error CrosschainFungibleInvalidAddress();
 
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
@@ -47,7 +47,7 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
         _onSend(from, amount);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
-        require(addr.length > 0, CrosschainFungibleEmptyAddress());
+        require(InteroperableAddress.isValidAddressLength(chainType, addr), CrosschainFungibleInvalidAddress());
 
         bytes32 sendId = _sendMessageToCounterpart(
             InteroperableAddress.formatV1(chainType, chainReference, hex""),

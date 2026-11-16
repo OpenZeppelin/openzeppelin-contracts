@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/extensions/draft-ERC20TemporaryApproval.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {IERC20, ERC20} from "../ERC20.sol";
 import {IERC7674} from "../../../interfaces/draft-IERC7674.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {SlotDerivation} from "../../../utils/SlotDerivation.sol";
 import {TransientSlot} from "../../../utils/TransientSlot.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
 
 /**
  * @dev Extension of {ERC20} that adds support for temporary allowances following ERC-7674.
@@ -73,12 +73,8 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      * Does NOT emit an {Approval} event.
      */
     function _temporaryApprove(address owner, address spender, uint256 value) internal virtual {
-        if (owner == address(0)) {
-            revert ERC20InvalidApprover(address(0));
-        }
-        if (spender == address(0)) {
-            revert ERC20InvalidSpender(address(0));
-        }
+        require(owner != address(0), ERC20InvalidApprover(address(0)));
+        require(spender != address(0), ERC20InvalidSpender(address(0)));
         _temporaryAllowanceSlot(owner, spender).tstore(value);
     }
 
