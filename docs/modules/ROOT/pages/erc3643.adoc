@@ -68,6 +68,11 @@ The implementation makes a few choices where the text of the standard leaves roo
 * *Pause stops circulation, not servicing.* Pausing blocks transfers only. Minting, burning, forced transfers and recoveries keep working while paused. A deployment that treats the pause as an incident halt for every operation can add `whenNotPaused` to them. For forced transfers and recoveries, adding it to `_forcedTransfer` covers `forcedTransfer`, `batchForcedTransfer` and `recoveryAddress`.
 * *Mints check compliance.* The text of the standard has mints bypass the compliance rules. Like the reference implementation, `ERC3643` asks the compliance contract on mints too, so supply caps and distribution rules also apply to issuance.
 * *The compliance contract is notified of supply changes.* Mints call `created` and burns call `destroyed`, in addition to `transferred` on transfers.
+* *Binding the compliance is left to the token.* The interfaces in the ERC assets have `setCompliance` call `bindToken` on the new compliance contract. `ERC3643` only records the address, so a token that needs the binding overrides `_setCompliance`.
+* *Partial freezes are capped.* `freezePartialTokens` freezes at most the free balance instead of the requested amount, and `TokensFrozen` reports the amount actually frozen.
+* *Failed recoveries revert.* The ERC assets mention a `RecoveryFails` event, which no ERC-3643 interface declares. `ERC3643` reverts instead. During a recovery, `AddressFrozen` records the token as the actor rather than the agent.
+* *Batch burns skip identity checks.* The ERC assets require `batchBurn` wallets to be verified, but the text of the standard has burns bypass all eligibility checks and `burn` does not require it. `ERC3643` follows the text for both.
+* *Owner and agents are left to the token.* The standard requires an ERC-173 owner and the xref:api:interfaces.adoc#IAgentRole[`IAgentRole`] functions. `ERC3643` defines neither, as shown in <<building-a-token>>.
 
 [[reentrancy]]
 == A note on the compliance contract

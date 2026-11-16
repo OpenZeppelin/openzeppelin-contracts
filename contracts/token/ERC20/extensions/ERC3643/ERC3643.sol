@@ -33,15 +33,28 @@ import {ERC20} from "../../ERC20.sol";
  *   before calling `super._recoveryAddress`. The identity check lives in {recoveryAddress},
  *   so a derived contract with a different recovery policy overrides that function instead.
  *
- * Deliberate divergence from the ERC-3643 text, which a derived contract may reverse by
- * overriding {_update}:
+ * Deliberate deviations from ERC-3643 (`erc-3643.md` and the interfaces in its assets), each of
+ * which a derived contract may reverse by overriding the function in parentheses:
  *
  * * Mint checks {ICompliance-canTransfer} in addition to the recipient's identity, as the
  *   reference implementation does, so supply caps and distribution rules also apply to
- *   issuance. The ERC text has mint bypass the compliance rules.
+ *   issuance. The ERC text has mint bypass the compliance rules ({_update}).
+ * * {setCompliance} and the constructor do not call {ICompliance-bindToken}; the assets have
+ *   `setCompliance` bind the token ({_setCompliance}).
+ * * {freezePartialTokens} freezes at most the free balance instead of the specified amount,
+ *   and {IERC3643-TokensFrozen} reports the amount actually frozen ({_freezePartialTokens}).
+ * * A failed recovery reverts instead of emitting the `RecoveryFails` event the assets
+ *   mention, which no ERC-3643 interface declares ({_recoveryAddress}).
+ * * During a recovery, {IERC3643-AddressFrozen} records the token as the actor rather than
+ *   the calling agent ({_recoveryAddress}).
+ * * {batchBurn} does not require the wallets to be verified, unlike the assets. The ERC text
+ *   has burn bypass all eligibility checks, and {burn} does not require it either ({_update}).
+ * * Neither the ERC-173 owner nor the {IAgentRole} functions are defined (see below).
  *
  * The token also behaves as follows:
  *
+ * * {recoveryAddress} requires `investorOnchainID` to be the identity the lost wallet is
+ *   registered with.
  * * Mint and burn work while the token is paused; only transfers block. Circulation and
  *   issuance/redemption are separate operational concerns.
  * * {forcedTransfer} and {recoveryAddress} bypass the pause too, in line with the spec
@@ -54,7 +67,6 @@ import {ERC20} from "../../ERC20.sol";
  *   to {ICompliance-transferred} on transfers, so modules that track distribution stay
  *   in sync with supply changes.
  * * Burn skips the recipient identity check (the recipient is the zero address).
- * * {_freezePartialTokens} silently clamps to the free balance instead of reverting.
  * * {_unfreezePartialTokens} reverts with a Solidity panic on under-freeze; a derived
  *   contract may override to use a named error.
  * * A burn auto-unfreezes just enough of `from`'s frozen balance to cover itself, so the
@@ -209,7 +221,10 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         _setIdentityRegistry(identityRegistry_);
     }
 
-    /// @inheritdoc IERC3643
+    /**
+     * @dev See {IERC3643-setCompliance}. Only records the address and emits {IERC3643-ComplianceAdded}.
+     * Binding the token to the new compliance ({ICompliance-bindToken}) is left to the derived contract.
+     */
     function setCompliance(address compliance_) public virtual onlyAdmin {
         require(compliance_ != address(0), ERC3643MissingCompliance());
         _setCompliance(compliance_, true);

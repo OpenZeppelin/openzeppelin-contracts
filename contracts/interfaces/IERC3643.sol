@@ -126,6 +126,10 @@ interface IAgentRole {
  * The token relies on ERC-173 for ownership, with the owner appointing agents, and must be
  * compatible with {IAgentRole}.
  *
+ * NOTE: Events follow the indexing of `erc-3643.md`. The interfaces in the ERC assets also index
+ * the name, symbol and onchain ID of {UpdatedTokenInformation} and every parameter of
+ * {RecoverySuccess}. The pause events come from {IPausable}, which matches the ERC signatures.
+ *
  * See https://eips.ethereum.org/EIPS/eip-3643
  */
 interface IERC3643 is IERC20, IPausable {
