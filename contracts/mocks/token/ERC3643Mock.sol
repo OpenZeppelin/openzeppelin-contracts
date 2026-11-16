@@ -4,7 +4,7 @@ pragma solidity ^0.8.31;
 
 import {Ownable} from "../../access/Ownable.sol";
 import {IERC20} from "../../interfaces/IERC20.sol";
-import {IIdentity} from "../../interfaces/IERC3643.sol";
+import {IERC3643Identity} from "../../interfaces/IERC3643.sol";
 import {ERC20} from "../../token/ERC20/ERC20.sol";
 import {ERC3643} from "../../token/ERC20/extensions/ERC3643/ERC3643.sol";
 
@@ -26,35 +26,35 @@ contract ERC3643Mock is ERC3643, Ownable {
 
 /// @dev Identity registry where a wallet is verified when the identity it is registered with is verified.
 contract ERC3643IdentityRegistryMock {
-    mapping(address user => IIdentity) private _identities;
+    mapping(address user => IERC3643Identity) private _identities;
     mapping(address user => uint16) private _countries;
-    mapping(IIdentity identity => bool) private _verified;
+    mapping(IERC3643Identity identity => bool) private _verified;
 
-    event IdentityRegistered(address indexed investorAddress, IIdentity indexed identity);
-    event IdentityRemoved(address indexed investorAddress, IIdentity indexed identity);
+    event IdentityRegistered(address indexed investorAddress, IERC3643Identity indexed identity);
+    event IdentityRemoved(address indexed investorAddress, IERC3643Identity indexed identity);
 
-    function setIdentity(address user, IIdentity identity_) public {
+    function setIdentity(address user, IERC3643Identity identity_) public {
         _identities[user] = identity_;
     }
 
-    function setVerified(IIdentity identity_, bool verified) public {
+    function setVerified(IERC3643Identity identity_, bool verified) public {
         _verified[identity_] = verified;
     }
 
-    function registerIdentity(address user, IIdentity identity_, uint16 country) public {
+    function registerIdentity(address user, IERC3643Identity identity_, uint16 country) public {
         _identities[user] = identity_;
         _countries[user] = country;
         emit IdentityRegistered(user, identity_);
     }
 
     function deleteIdentity(address user) public {
-        IIdentity identity_ = _identities[user];
+        IERC3643Identity identity_ = _identities[user];
         delete _identities[user];
         delete _countries[user];
         emit IdentityRemoved(user, identity_);
     }
 
-    function identity(address user) public view returns (IIdentity) {
+    function identity(address user) public view returns (IERC3643Identity) {
         return _identities[user];
     }
 
@@ -63,7 +63,7 @@ contract ERC3643IdentityRegistryMock {
     }
 
     function isVerified(address user) public view returns (bool) {
-        IIdentity identity_ = _identities[user];
+        IERC3643Identity identity_ = _identities[user];
         return address(identity_) != address(0) && _verified[identity_];
     }
 }

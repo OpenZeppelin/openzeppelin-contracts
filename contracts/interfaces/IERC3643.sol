@@ -6,7 +6,7 @@ import {IPausable} from "../utils/IPausable.sol";
 import {IERC20} from "./IERC20.sol";
 
 /**
- * @title IAgentRole
+ * @title IERC3643AgentRole
  * @dev Interface for managing agent roles in the ERC-3643 ecosystem.
  *
  * The Agent Role interface provides a standardized access control mechanism for
@@ -39,7 +39,7 @@ import {IERC20} from "./IERC20.sol";
  * Any contract in the ERC-3643 ecosystem that requires agent-based access control
  * must implement this interface to ensure consistent authorization patterns.
  */
-interface IAgentRole {
+interface IERC3643AgentRole {
     /**
      * @dev Emitted when a new agent is added to the contract.
      *
@@ -118,13 +118,13 @@ interface IAgentRole {
  * A transfer (including {IERC20-transfer} and {IERC20-transferFrom}) only succeeds if:
  *
  * * The sender holds enough free balance (total balance minus frozen tokens)
- * * The receiver is verified in the identity registry ({IIdentityRegistry-isVerified})
+ * * The receiver is verified in the identity registry ({IERC3643IdentityRegistry-isVerified})
  * * Neither the sender nor the receiver wallet is frozen
  * * The token is not paused
- * * The compliance accepts the transfer ({ICompliance-canTransfer} returns true)
+ * * The compliance accepts the transfer ({IERC3643Compliance-canTransfer} returns true)
  *
  * The token relies on ERC-173 for ownership, with the owner appointing agents, and must be
- * compatible with {IAgentRole}.
+ * compatible with {IERC3643AgentRole}.
  *
  * NOTE: Events follow the indexing of `erc-3643.md`. The interfaces in the ERC assets also index
  * the name, symbol and onchain ID of {UpdatedTokenInformation} and every parameter of
@@ -217,14 +217,14 @@ interface IERC3643 is IERC20, IPausable {
      *
      * @return The identity registry contract interface
      */
-    function identityRegistry() external view returns (IIdentityRegistry);
+    function identityRegistry() external view returns (IERC3643IdentityRegistry);
 
     /**
      * @dev Returns the compliance contract associated with this token.
      *
      * @return The compliance contract interface
      */
-    function compliance() external view returns (ICompliance);
+    function compliance() external view returns (IERC3643Compliance);
 
     /**
      * @dev Returns whether a specific address is frozen.
@@ -367,7 +367,7 @@ interface IERC3643 is IERC20, IPausable {
      *
      * * Only the owner can call this function
      *
-     * Binds the token to the new compliance contract ({ICompliance-bindToken}).
+     * Binds the token to the new compliance contract ({IERC3643Compliance-bindToken}).
      *
      * Emits a {ComplianceAdded} event.
      */
@@ -542,7 +542,7 @@ interface IERC3643 is IERC20, IPausable {
 }
 
 /**
- * @title IIdentityRegistry
+ * @title IERC3643IdentityRegistry
  * @dev Interface for the Identity Registry contract in the ERC-3643 ecosystem.
  *
  * The Identity Registry is a crucial component that maintains a dynamic whitelist of verified
@@ -564,10 +564,10 @@ interface IERC3643 is IERC20, IPausable {
  * * Claim Topics Registry: For defining required claim topics
  * * Individual Identity contracts: For storing investor claims and credentials
  *
- * The registry relies on ERC-173 for ownership and must be compatible with {IAgentRole}. The owner
+ * The registry relies on ERC-173 for ownership and must be compatible with {IERC3643AgentRole}. The owner
  * appoints agents, and only agents can add or remove identities. Each token has its own registry.
  */
-interface IIdentityRegistry {
+interface IERC3643IdentityRegistry {
     /**
      * @dev Emitted when the Claim Topics Registry is set for the Identity Registry.
      *
@@ -595,7 +595,7 @@ interface IIdentityRegistry {
      * @param investorAddress The wallet address of the investor
      * @param identity The address of the investor's Identity contract
      */
-    event IdentityRegistered(address indexed investorAddress, IIdentity indexed identity);
+    event IdentityRegistered(address indexed investorAddress, IERC3643Identity indexed identity);
 
     /**
      * @dev Emitted when an investor identity is removed from the registry.
@@ -603,7 +603,7 @@ interface IIdentityRegistry {
      * @param investorAddress The wallet address of the investor
      * @param identity The address of the investor's Identity contract that was removed
      */
-    event IdentityRemoved(address indexed investorAddress, IIdentity indexed identity);
+    event IdentityRemoved(address indexed investorAddress, IERC3643Identity indexed identity);
 
     /**
      * @dev Emitted when an investor's identity contract is updated.
@@ -611,7 +611,7 @@ interface IIdentityRegistry {
      * @param oldIdentity The address of the previous Identity contract
      * @param newIdentity The address of the new Identity contract
      */
-    event IdentityUpdated(IIdentity indexed oldIdentity, IIdentity indexed newIdentity);
+    event IdentityUpdated(IERC3643Identity indexed oldIdentity, IERC3643Identity indexed newIdentity);
 
     /**
      * @dev Emitted when an investor's country code is updated.
@@ -626,21 +626,21 @@ interface IIdentityRegistry {
      *
      * @return The Identity Registry Storage contract interface
      */
-    function identityStorage() external view returns (IIdentityRegistryStorage);
+    function identityStorage() external view returns (IERC3643IdentityRegistryStorage);
 
     /**
      * @dev Returns the Trusted Issuers Registry contract.
      *
      * @return The Trusted Issuers Registry contract interface
      */
-    function issuersRegistry() external view returns (ITrustedIssuersRegistry);
+    function issuersRegistry() external view returns (IERC3643TrustedIssuersRegistry);
 
     /**
      * @dev Returns the Claim Topics Registry contract.
      *
      * @return The Claim Topics Registry contract interface
      */
-    function topicsRegistry() external view returns (IClaimTopicsRegistry);
+    function topicsRegistry() external view returns (IERC3643ClaimTopicsRegistry);
 
     /**
      * @dev Sets the Identity Registry Storage contract address.
@@ -695,7 +695,7 @@ interface IIdentityRegistry {
      *
      * Emits an {IdentityRegistered} event.
      */
-    function registerIdentity(address _userAddress, IIdentity _identity, uint16 _country) external;
+    function registerIdentity(address _userAddress, IERC3643Identity _identity, uint16 _country) external;
 
     /**
      * @dev Removes an investor identity from the registry.
@@ -739,7 +739,7 @@ interface IIdentityRegistry {
      *
      * Emits an {IdentityUpdated} event.
      */
-    function updateIdentity(address _userAddress, IIdentity _identity) external;
+    function updateIdentity(address _userAddress, IERC3643Identity _identity) external;
 
     /**
      * @dev Registers multiple investor identities in a single transaction.
@@ -757,7 +757,7 @@ interface IIdentityRegistry {
      */
     function batchRegisterIdentity(
         address[] calldata _userAddresses,
-        IIdentity[] calldata _identities,
+        IERC3643Identity[] calldata _identities,
         uint16[] calldata _countries
     ) external;
 
@@ -790,7 +790,7 @@ interface IIdentityRegistry {
      * @param _userAddress The wallet address to query
      * @return The Identity contract interface, or zero address if not registered
      */
-    function identity(address _userAddress) external view returns (IIdentity);
+    function identity(address _userAddress) external view returns (IERC3643Identity);
 
     /**
      * @dev Returns the country code for a registered investor.
@@ -802,7 +802,7 @@ interface IIdentityRegistry {
 }
 
 /**
- * @title IIdentityRegistryStorage
+ * @title IERC3643IdentityRegistryStorage
  * @dev Interface for the Identity Registry Storage contract in the ERC-3643 ecosystem.
  *
  * The Identity Registry Storage is a specialized storage contract that maintains the identity
@@ -826,17 +826,17 @@ interface IIdentityRegistry {
  * * Upgradability: Registry contracts can be updated while preserving data
  * * Access Control: Only agents, usually the bound registries, can modify stored data
  *
- * The storage relies on ERC-173 for ownership and must be compatible with {IAgentRole}. The owner
+ * The storage relies on ERC-173 for ownership and must be compatible with {IERC3643AgentRole}. The owner
  * appoints agents, usually by binding Identity Registries with {bindIdentityRegistry}.
  */
-interface IIdentityRegistryStorage {
+interface IERC3643IdentityRegistryStorage {
     /**
      * @dev Emitted when an investor identity is stored in the storage contract.
      *
      * @param investorAddress The wallet address of the investor
      * @param identity The address of the investor's Identity contract
      */
-    event IdentityStored(address indexed investorAddress, IIdentity indexed identity);
+    event IdentityStored(address indexed investorAddress, IERC3643Identity indexed identity);
 
     /**
      * @dev Emitted when an investor identity is removed from the storage contract.
@@ -844,7 +844,7 @@ interface IIdentityRegistryStorage {
      * @param investorAddress The wallet address of the investor
      * @param identity The address of the investor's Identity contract that was removed
      */
-    event IdentityUnstored(address indexed investorAddress, IIdentity indexed identity);
+    event IdentityUnstored(address indexed investorAddress, IERC3643Identity indexed identity);
 
     /**
      * @dev Emitted when an investor's identity contract is modified in storage.
@@ -852,7 +852,7 @@ interface IIdentityRegistryStorage {
      * @param oldIdentity The address of the previous Identity contract
      * @param newIdentity The address of the new Identity contract
      */
-    event IdentityModified(IIdentity indexed oldIdentity, IIdentity indexed newIdentity);
+    event IdentityModified(IERC3643Identity indexed oldIdentity, IERC3643Identity indexed newIdentity);
 
     /**
      * @dev Emitted when an investor's country code is modified in storage.
@@ -882,7 +882,7 @@ interface IIdentityRegistryStorage {
      * @param _userAddress The wallet address to query
      * @return The Identity contract interface, or zero address if not stored
      */
-    function storedIdentity(address _userAddress) external view returns (IIdentity);
+    function storedIdentity(address _userAddress) external view returns (IERC3643Identity);
 
     /**
      * @dev Returns the country code stored for a given investor.
@@ -906,7 +906,7 @@ interface IIdentityRegistryStorage {
      *
      * Emits an {IdentityStored} event.
      */
-    function addIdentityToStorage(address _userAddress, IIdentity _identity, uint16 _country) external;
+    function addIdentityToStorage(address _userAddress, IERC3643Identity _identity, uint16 _country) external;
 
     /**
      * @dev Removes an investor identity from storage.
@@ -950,7 +950,7 @@ interface IIdentityRegistryStorage {
      *
      * Emits an {IdentityModified} event.
      */
-    function modifyStoredIdentity(address _userAddress, IIdentity _identity) external;
+    function modifyStoredIdentity(address _userAddress, IERC3643Identity _identity) external;
 
     /**
      * @dev Binds an Identity Registry contract to this storage, granting it write access.
@@ -990,7 +990,7 @@ interface IIdentityRegistryStorage {
 }
 
 /**
- * @title ICompliance
+ * @title IERC3643Compliance
  * @dev Interface for the Compliance contract in the ERC-3643 ecosystem.
  *
  * The Compliance contract is responsible for enforcing the rules and regulations
@@ -1021,7 +1021,7 @@ interface IIdentityRegistryStorage {
  * * Trusted Issuers Registry: For claim validation
  * * Compliance modules: For modular rule composition (when using modular design)
  */
-interface ICompliance {
+interface IERC3643Compliance {
     /**
      * @dev Emitted when a token contract is bound to this compliance contract.
      *
@@ -1085,7 +1085,7 @@ interface ICompliance {
      *
      * It checks the global compliance rules of the token, such as a maximum number of token holders or a
      * maximum amount of tokens per investor, and not the eligibility of the investors, which
-     * {IIdentityRegistry-isVerified} checks.
+     * {IERC3643IdentityRegistry-isVerified} checks.
      *
      * @param _from The address sending the tokens (use zero address for minting)
      * @param _to The address receiving the tokens
@@ -1150,7 +1150,7 @@ interface ICompliance {
 }
 
 /**
- * @title ITrustedIssuersRegistry
+ * @title IERC3643TrustedIssuersRegistry
  * @dev Interface for the Trusted Issuers Registry contract in the ERC-3643 ecosystem.
  *
  * The Trusted Issuers Registry manages a whitelist of authorized claim issuers that are
@@ -1175,21 +1175,21 @@ interface ICompliance {
  * * Compliance contracts: For regulatory requirement enforcement
  * * Claim Topics Registry: For defining required claim types
  */
-interface ITrustedIssuersRegistry {
+interface IERC3643TrustedIssuersRegistry {
     /**
      * @dev Emitted when a trusted issuer is added to the registry.
      *
      * @param trustedIssuer The address of the claim issuer contract that was added
      * @param claimTopics Array of claim topic IDs that the issuer is authorized to emit
      */
-    event TrustedIssuerAdded(IClaimIssuer indexed trustedIssuer, uint256[] claimTopics);
+    event TrustedIssuerAdded(IERC3643ClaimIssuer indexed trustedIssuer, uint256[] claimTopics);
 
     /**
      * @dev Emitted when a trusted issuer is removed from the registry.
      *
      * @param trustedIssuer The address of the claim issuer contract that was removed
      */
-    event TrustedIssuerRemoved(IClaimIssuer indexed trustedIssuer);
+    event TrustedIssuerRemoved(IERC3643ClaimIssuer indexed trustedIssuer);
 
     /**
      * @dev Emitted when the authorized claim topics for a trusted issuer are updated.
@@ -1197,7 +1197,7 @@ interface ITrustedIssuersRegistry {
      * @param trustedIssuer The address of the claim issuer contract that was updated
      * @param claimTopics Array of new claim topic IDs that the issuer is authorized to emit
      */
-    event ClaimTopicsUpdated(IClaimIssuer indexed trustedIssuer, uint256[] claimTopics);
+    event ClaimTopicsUpdated(IERC3643ClaimIssuer indexed trustedIssuer, uint256[] claimTopics);
 
     /**
      * @dev Adds a claim issuer to the trusted registry with authorized claim topics.
@@ -1214,10 +1214,10 @@ interface ITrustedIssuersRegistry {
      * Emits a {TrustedIssuerAdded} event.
      *
      * NOTE: ERC-3643 suggests at most 15 claim topics per issuer and 50 trusted issuers per registry,
-     * since {IIdentityRegistry-isVerified} usually iterates both. This interface does not require
+     * since {IERC3643IdentityRegistry-isVerified} usually iterates both. This interface does not require
      * these limits.
      */
-    function addTrustedIssuer(IClaimIssuer _trustedIssuer, uint256[] calldata _claimTopics) external;
+    function addTrustedIssuer(IERC3643ClaimIssuer _trustedIssuer, uint256[] calldata _claimTopics) external;
 
     /**
      * @dev Removes a claim issuer from the trusted registry.
@@ -1231,7 +1231,7 @@ interface ITrustedIssuersRegistry {
      *
      * Emits a {TrustedIssuerRemoved} event.
      */
-    function removeTrustedIssuer(IClaimIssuer _trustedIssuer) external;
+    function removeTrustedIssuer(IERC3643ClaimIssuer _trustedIssuer) external;
 
     /**
      * @dev Updates the authorized claim topics for an existing trusted issuer.
@@ -1247,17 +1247,17 @@ interface ITrustedIssuersRegistry {
      *
      * Emits a {ClaimTopicsUpdated} event.
      *
-     * NOTE: ERC-3643 suggests at most 15 claim topics per issuer, since {IIdentityRegistry-isVerified}
+     * NOTE: ERC-3643 suggests at most 15 claim topics per issuer, since {IERC3643IdentityRegistry-isVerified}
      * usually iterates them. This interface does not require that limit.
      */
-    function updateIssuerClaimTopics(IClaimIssuer _trustedIssuer, uint256[] calldata _claimTopics) external;
+    function updateIssuerClaimTopics(IERC3643ClaimIssuer _trustedIssuer, uint256[] calldata _claimTopics) external;
 
     /**
      * @dev Returns an array of all registered trusted claim issuers.
      *
      * @return Array of trusted claim issuer contract addresses
      */
-    function getTrustedIssuers() external view returns (IClaimIssuer[] memory);
+    function getTrustedIssuers() external view returns (IERC3643ClaimIssuer[] memory);
 
     /**
      * @dev Checks if a given address is registered as a trusted claim issuer.
@@ -1277,18 +1277,18 @@ interface ITrustedIssuersRegistry {
      *
      * * `_trustedIssuer` must be registered as a trusted issuer
      */
-    function getTrustedIssuerClaimTopics(IClaimIssuer _trustedIssuer) external view returns (uint256[] memory);
+    function getTrustedIssuerClaimTopics(IERC3643ClaimIssuer _trustedIssuer) external view returns (uint256[] memory);
 
     /**
      * @dev Returns all trusted issuers that are authorized to emit a specific claim topic.
      * @param claimTopic The claim topic ID to query
      * @return Array of trusted claim issuer addresses authorized for the given topic
      *
-     * NOTE: An identity registry typically iterates this set in {IIdentityRegistry-isVerified}, which runs on every
+     * NOTE: An identity registry typically iterates this set in {IERC3643IdentityRegistry-isVerified}, which runs on every
      * compliant transfer, so transfer cost grows with the number of issuers trusted for the topic. Keeping the set
      * small keeps transfers within the block gas limit.
      */
-    function getTrustedIssuersForClaimTopic(uint256 claimTopic) external view returns (IClaimIssuer[] memory);
+    function getTrustedIssuersForClaimTopic(uint256 claimTopic) external view returns (IERC3643ClaimIssuer[] memory);
 
     /**
      * @dev Checks if a trusted issuer is authorized to emit a specific claim topic.
@@ -1301,7 +1301,7 @@ interface ITrustedIssuersRegistry {
 }
 
 /**
- * @title IClaimTopicsRegistry
+ * @title IERC3643ClaimTopicsRegistry
  * @dev Interface for the Claim Topics Registry contract in the ERC-3643 ecosystem.
  *
  * The Claim Topics Registry defines the types of claims that are required for identity
@@ -1332,7 +1332,7 @@ interface ITrustedIssuersRegistry {
  * * Identity contracts: For storing and retrieving claims
  * * Compliance contracts: For enforcing claim requirements
  */
-interface IClaimTopicsRegistry {
+interface IERC3643ClaimTopicsRegistry {
     /**
      * @dev Emitted when a claim topic is added to the registry.
      *
@@ -1362,7 +1362,7 @@ interface IClaimTopicsRegistry {
      *
      * Emits a {ClaimTopicAdded} event.
      *
-     * NOTE: ERC-3643 suggests at most 15 claim topics per token, since {IIdentityRegistry-isVerified}
+     * NOTE: ERC-3643 suggests at most 15 claim topics per token, since {IERC3643IdentityRegistry-isVerified}
      * usually iterates them. This interface does not require that limit.
      */
     function addClaimTopic(uint256 _claimTopic) external;
@@ -1391,7 +1391,7 @@ interface IClaimTopicsRegistry {
      *
      * @return Array of claim topic IDs currently registered
      *
-     * NOTE: An identity registry typically iterates this set in {IIdentityRegistry-isVerified}, which runs on every
+     * NOTE: An identity registry typically iterates this set in {IERC3643IdentityRegistry-isVerified}, which runs on every
      * compliant transfer, so transfer cost grows with the number of registered claim topics. Keeping the set small
      * keeps transfers within the block gas limit.
      */
@@ -1399,11 +1399,11 @@ interface IClaimTopicsRegistry {
 }
 
 /**
- * @title IIdentity
+ * @title IERC3643Identity
  * @dev Subset of the ONCHAINID identity interface referenced by ERC-3643 (ERC-734 key holder and
  * ERC-735 claim holder). Only the functions used by this library are declared.
  */
-interface IIdentity {
+interface IERC3643Identity {
     /**
      * @dev Returns true if `key` is present and has the given `purpose`, as defined by ERC-734
      * (1 = management, 2 = action, 3 = claim, 4 = encryption).
@@ -1412,11 +1412,11 @@ interface IIdentity {
 }
 
 /**
- * @title IClaimIssuer
+ * @title IERC3643ClaimIssuer
  * @dev Minimal interface representing a claim issuer contract address.
  *
  * This interface serves as a type-safe wrapper for claim issuer contract addresses.
  * Claim issuers are trusted entities that can issue verifiable claims about identities.
  */
 // Empty interface serves as a type marker for claim issuer contracts since it's not defined by ERC-3643
-interface IClaimIssuer {}
+interface IERC3643ClaimIssuer {}

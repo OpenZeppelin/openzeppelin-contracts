@@ -2,15 +2,15 @@
 
 https://eips.ethereum.org/EIPS/eip-3643[ERC-3643] defines permissioned tokens: ERC-20 tokens that can only be held by verified investors and only move in ways the issuer's rules allow. It is the standard behind T-REX and is typically used to represent regulated assets such as securities or fund shares.
 
-OpenZeppelin Contracts provides the token, xref:api:token/ERC20.adoc#ERC3643[`ERC3643`], its interface, xref:api:interfaces.adoc#IERC3643[`IERC3643`], and the interfaces of the other components the standard defines, such as xref:api:interfaces.adoc#IIdentityRegistry[`IIdentityRegistry`] and xref:api:interfaces.adoc#ICompliance[`ICompliance`]. The identity registry and the compliance contract are left to the issuer's stack.
+OpenZeppelin Contracts provides the token, xref:api:token/ERC20.adoc#ERC3643[`ERC3643`], its interface, xref:api:interfaces.adoc#IERC3643[`IERC3643`], and the interfaces of the other components the standard defines, such as xref:api:interfaces.adoc#IERC3643IdentityRegistry[`IERC3643IdentityRegistry`] and xref:api:interfaces.adoc#IERC3643Compliance[`IERC3643Compliance`]. The identity registry and the compliance contract are left to the issuer's stack.
 
 [[how-it-works]]
 == How it works
 
 An ERC-3643 token relies on two components, each referenced by its address:
 
-* An xref:api:interfaces.adoc#IIdentityRegistry[identity registry] that links wallets to onchain identities and answers whether a wallet is verified, that is, whether its identity holds the claims the token requires, issued by trusted claim issuers.
-* A xref:api:interfaces.adoc#ICompliance[compliance contract] that encodes the rules a movement must follow, such as a maximum number of holders or a maximum balance per investor, and that is notified of every movement so it can keep track of how the token is distributed.
+* An xref:api:interfaces.adoc#IERC3643IdentityRegistry[identity registry] that links wallets to onchain identities and answers whether a wallet is verified, that is, whether its identity holds the claims the token requires, issued by trusted claim issuers.
+* A xref:api:interfaces.adoc#IERC3643Compliance[compliance contract] that encodes the rules a movement must follow, such as a maximum number of holders or a maximum balance per investor, and that is notified of every movement so it can keep track of how the token is distributed.
 
 Every transfer goes through both of them. A transfer from `from` to `to`:
 
@@ -34,7 +34,7 @@ xref:api:token/ERC20.adoc#ERC3643[`ERC3643`] is abstract: it leaves the authoriz
 include::api:example$token/ERC20/ERC3643Token.sol[]
 ----
 
-The hook is called by every function that needs authorization, so it discriminates between them through `msg.sig`. A token that must expose the ERC-173 `owner` and the xref:api:interfaces.adoc#IAgentRole[`IAgentRole`] functions adds them on top. As another example, xref:api:access.adoc#AccessManaged[`AccessManaged`] gives each function its own role. Batch functions reach the hook with their own selector.
+The hook is called by every function that needs authorization, so it discriminates between them through `msg.sig`. A token that must expose the ERC-173 `owner` and the xref:api:interfaces.adoc#IERC3643AgentRole[`IERC3643AgentRole`] functions adds them on top. As another example, xref:api:access.adoc#AccessManaged[`AccessManaged`] gives each function its own role. Batch functions reach the hook with their own selector.
 
 NOTE: Setting the compliance with `setCompliance` only records its address. Binding the token to the compliance contract (`bindToken`), if the compliance in use requires it, is left to the inheriting contract or to the issuer's deployment process.
 
@@ -72,7 +72,7 @@ The implementation makes a few choices where the text of the standard leaves roo
 * *Partial freezes are capped.* `freezePartialTokens` freezes at most the free balance instead of the requested amount, and `TokensFrozen` reports the amount actually frozen.
 * *Failed recoveries revert.* The ERC assets mention a `RecoveryFails` event, which no ERC-3643 interface declares. `ERC3643` reverts instead. During a recovery, `AddressFrozen` records the token as the actor rather than the agent.
 * *Batch burns skip identity checks.* The ERC assets require `batchBurn` wallets to be verified, but the text of the standard has burns bypass all eligibility checks and `burn` does not require it. `ERC3643` follows the text for both.
-* *Owner and agents are left to the token.* The standard requires an ERC-173 owner and the xref:api:interfaces.adoc#IAgentRole[`IAgentRole`] functions. `ERC3643` defines neither, as shown in <<building-a-token>>.
+* *Owner and agents are left to the token.* The standard requires an ERC-173 owner and the xref:api:interfaces.adoc#IERC3643AgentRole[`IERC3643AgentRole`] functions. `ERC3643` defines neither, as shown in <<building-a-token>>.
 
 [[reentrancy]]
 == A note on the compliance contract

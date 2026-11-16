@@ -37,12 +37,12 @@ are useful to interact with third party contracts that implement them.
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
 - {IERC3643}
-- {IAgentRole}
-- {IIdentityRegistry}
-- {IIdentityRegistryStorage}
-- {ICompliance}
-- {ITrustedIssuersRegistry}
-- {IClaimTopicsRegistry}
+- {IERC3643AgentRole}
+- {IERC3643IdentityRegistry}
+- {IERC3643IdentityRegistryStorage}
+- {IERC3643Compliance}
+- {IERC3643TrustedIssuersRegistry}
+- {IERC3643ClaimTopicsRegistry}
 - {IERC4626}
 - {IERC4906}
 - {IERC5267}
@@ -102,17 +102,17 @@ are useful to interact with third party contracts that implement them.
 
 {{IERC3643}}
 
-{{IAgentRole}}
+{{IERC3643AgentRole}}
 
-{{IIdentityRegistry}}
+{{IERC3643IdentityRegistry}}
 
-{{IIdentityRegistryStorage}}
+{{IERC3643IdentityRegistryStorage}}
 
-{{ICompliance}}
+{{IERC3643Compliance}}
 
-{{ITrustedIssuersRegistry}}
+{{IERC3643TrustedIssuersRegistry}}
 
-{{IClaimTopicsRegistry}}
+{{IERC3643ClaimTopicsRegistry}}
 
 {{IERC4626}}
 
