@@ -1,6 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import * as random from '../../../helpers/random';
 import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 
 const {
@@ -17,13 +18,13 @@ async function fixture() {
 
   const registry = await ethers.deployContract('ERC3643IdentityRegistryMock');
   const compliance = await ethers.deployContract('ERC3643ComplianceMock');
-  const onchainID = ethers.Wallet.createRandom().address;
+  const onchainID = random.address();
 
   const token = await ethers.deployContract('$ERC3643Mock', [name, symbol, registry, compliance, onchainID, owner]);
 
   // Each verified wallet is registered with an identity that holds valid claims.
-  const holderIdentity = ethers.Wallet.createRandom().address;
-  const recipientIdentity = ethers.Wallet.createRandom().address;
+  const holderIdentity = random.address();
+  const recipientIdentity = random.address();
   await registry.setIdentity(holder, holderIdentity);
   await registry.setIdentity(recipient, recipientIdentity);
   await registry.setVerified(holderIdentity, true);
@@ -51,6 +52,19 @@ describe('ERC3643', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  describe('behaves like an ERC20', function () {
+    beforeEach(async function () {
+      const otherIdentity = random.address();
+      await this.registry.setIdentity(this.other, otherIdentity);
+      await this.registry.setVerified(otherIdentity, true);
+
+      this.accounts = [this.holder, this.recipient, this.other];
+      this.ethers = ethers;
+    });
+
+    shouldBehaveLikeERC20(initialSupply);
+  });
+
   describe('construction', function () {
     it('sets the identity registry, compliance and onchain identity', async function () {
       await expect(this.token.identityRegistry()).to.eventually.equal(this.registry);
@@ -61,19 +75,11 @@ describe('ERC3643', function () {
     });
 
     it('emits the registry, compliance and token information events', async function () {
-      const token = await ethers.deployContract('$ERC3643Mock', [
-        name,
-        symbol,
-        this.registry,
-        this.compliance,
-        ethers.ZeroAddress,
-        this.owner,
-      ]);
-      const tx = token.deploymentTransaction();
+      const tx = this.token.deploymentTransaction();
 
-      await expect(tx).to.emit(token, 'IdentityRegistryAdded').withArgs(this.registry);
-      await expect(tx).to.emit(token, 'ComplianceAdded').withArgs(this.compliance);
-      await expect(tx).to.emit(token, 'UpdatedTokenInformation').withArgs(name, symbol, 18n, '1', ethers.ZeroAddress);
+      await expect(tx).to.emit(this.token, 'IdentityRegistryAdded').withArgs(this.registry);
+      await expect(tx).to.emit(this.token, 'ComplianceAdded').withArgs(this.compliance);
+      await expect(tx).to.emit(this.token, 'UpdatedTokenInformation').withArgs(name, symbol, 18n, '1', this.onchainID);
     });
 
     it('reverts with a zero identity registry', async function () {
@@ -106,30 +112,39 @@ describe('ERC3643', function () {
   });
 
   describe('admin functions', function () {
-    for (const [fn, args] of Object.entries({
-      setName: ['New'],
-      setSymbol: ['NEW'],
-      setOnchainID: [ethers.ZeroAddress],
-      pause: [],
-      unpause: [],
-      setAddressFrozen: [ethers.ZeroAddress, true],
-      freezePartialTokens: [ethers.ZeroAddress, 1n],
-      unfreezePartialTokens: [ethers.ZeroAddress, 1n],
-      setIdentityRegistry: [ethers.ZeroAddress],
-      setCompliance: [ethers.ZeroAddress],
-      forcedTransfer: [ethers.ZeroAddress, ethers.ZeroAddress, 1n],
-      mint: [ethers.ZeroAddress, 1n],
-      burn: [ethers.ZeroAddress, 1n],
-      recoveryAddress: [ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress],
-      batchForcedTransfer: [[], [], []],
-      batchMint: [[], []],
-      batchBurn: [[], []],
-      batchSetAddressFrozen: [[], []],
-      batchFreezePartialTokens: [[], []],
-      batchUnfreezePartialTokens: [[], []],
+    for (const [fn, { args, setup }] of Object.entries({
+      setName: { args: () => ['New'] },
+      setSymbol: { args: () => ['NEW'] },
+      setOnchainID: { args: () => [ethers.ZeroAddress] },
+      pause: { args: () => [] },
+      unpause: { args: () => [], setup: t => t.token.connect(t.owner).pause() },
+      setAddressFrozen: { args: t => [t.holder, true] },
+      freezePartialTokens: { args: t => [t.holder, 1n] },
+      unfreezePartialTokens: {
+        args: t => [t.holder, 1n],
+        setup: t => t.token.connect(t.owner).freezePartialTokens(t.holder, 1n),
+      },
+      setIdentityRegistry: { args: t => [t.registry] },
+      setCompliance: { args: t => [t.compliance] },
+      forcedTransfer: { args: t => [t.holder, t.recipient, 1n] },
+      mint: { args: t => [t.recipient, 1n] },
+      burn: { args: t => [t.holder, 1n] },
+      recoveryAddress: { args: t => [t.holder, t.other, t.holderIdentity] },
+      batchForcedTransfer: { args: () => [[], [], []] },
+      batchMint: { args: () => [[], []] },
+      batchBurn: { args: () => [[], []] },
+      batchSetAddressFrozen: { args: () => [[], []] },
+      batchFreezePartialTokens: { args: () => [[], []] },
+      batchUnfreezePartialTokens: { args: () => [[], []] },
     })) {
+      it(`${fn} passes when the caller is authorized`, async function () {
+        await setup?.(this);
+        await expect(this.token.connect(this.owner)[fn](...args(this))).to.not.revert(ethers);
+      });
+
       it(`${fn} reverts when the caller is not authorized`, async function () {
-        await expect(this.token.connect(this.other)[fn](...args))
+        await setup?.(this);
+        await expect(this.token.connect(this.other)[fn](...args(this)))
           .to.be.revertedWithCustomError(this.token, 'OwnableUnauthorizedAccount')
           .withArgs(this.other);
       });
@@ -152,7 +167,7 @@ describe('ERC3643', function () {
     });
 
     it('sets the onchain identity', async function () {
-      const newOnchainID = ethers.Wallet.createRandom().address;
+      const newOnchainID = random.address();
       await expect(this.token.connect(this.owner).setOnchainID(newOnchainID))
         .to.emit(this.token, 'UpdatedTokenInformation')
         .withArgs(name, symbol, 18n, '1', newOnchainID);
@@ -198,10 +213,11 @@ describe('ERC3643', function () {
   describe('transfers', function () {
     for (const [title, transfer] of Object.entries({
       transfer: (token, from, to, value) => token.connect(from).transfer(to, value),
-      transferFrom: async (token, from, to, value, spender) => {
-        await token.connect(from).approve(spender, value);
-        return token.connect(spender).transferFrom(from, to, value);
-      },
+      transferFrom: (token, from, to, value, spender) =>
+        token
+          .connect(from)
+          .approve(spender, value)
+          .then(() => token.connect(spender).transferFrom(from, to, value)),
     })) {
       describe(title, function () {
         it('moves tokens and notifies the compliance', async function () {
@@ -261,28 +277,6 @@ describe('ERC3643', function () {
       await expect(this.token.connect(this.owner).unpause()).to.emit(this.token, 'Unpaused').withArgs(this.owner);
       await expect(this.token.paused()).to.eventually.be.false;
     });
-
-    it('allows mint, burn, forced transfer and recovery while paused', async function () {
-      await this.token.connect(this.owner).pause();
-      await expect(this.token.connect(this.owner).mint(this.holder, 10n)).to.changeTokenBalance(
-        ethers,
-        this.token,
-        this.holder,
-        10n,
-      );
-      await expect(this.token.connect(this.owner).burn(this.holder, 10n)).to.changeTokenBalance(
-        ethers,
-        this.token,
-        this.holder,
-        -10n,
-      );
-      await expect(
-        this.token.connect(this.owner).forcedTransfer(this.holder, this.recipient, 10n),
-      ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [-10n, 10n]);
-      await expect(
-        this.token.connect(this.owner).recoveryAddress(this.holder, this.other, this.holderIdentity),
-      ).to.emit(this.token, 'RecoverySuccess');
-    });
   });
 
   describe('mint', function () {
@@ -312,6 +306,16 @@ describe('ERC3643', function () {
         this.token,
         this.recipient,
         50n,
+      );
+    });
+
+    it('can mint during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(this.token.connect(this.owner).mint(this.holder, 10n)).to.changeTokenBalance(
+        ethers,
+        this.token,
+        this.holder,
+        10n,
       );
     });
   });
@@ -364,6 +368,16 @@ describe('ERC3643', function () {
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
         .withArgs(this.holder, initialSupply, initialSupply + 1n);
     });
+
+    it('can burn during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(this.token.connect(this.owner).burn(this.holder, 10n)).to.changeTokenBalance(
+        ethers,
+        this.token,
+        this.holder,
+        -10n,
+      );
+    });
   });
 
   describe('freezing', function () {
@@ -413,6 +427,26 @@ describe('ERC3643', function () {
       await expect(this.token['$_setAddressFrozen(address,bool,address)'](this.holder, true, this.other))
         .to.emit(this.token, 'AddressFrozen')
         .withArgs(this.holder, true, this.other);
+    });
+
+    it('can freeze and unfreeze a wallet during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(this.token.connect(this.owner).setAddressFrozen(this.holder, true))
+        .to.emit(this.token, 'AddressFrozen')
+        .withArgs(this.holder, true, this.owner);
+      await expect(this.token.connect(this.owner).setAddressFrozen(this.holder, false))
+        .to.emit(this.token, 'AddressFrozen')
+        .withArgs(this.holder, false, this.owner);
+    });
+
+    it('can freeze and unfreeze tokens during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(this.token.connect(this.owner).freezePartialTokens(this.holder, 30n))
+        .to.emit(this.token, 'TokensFrozen')
+        .withArgs(this.holder, 30n);
+      await expect(this.token.connect(this.owner).unfreezePartialTokens(this.holder, 10n))
+        .to.emit(this.token, 'TokensUnfrozen')
+        .withArgs(this.holder, 10n);
     });
   });
 
@@ -464,6 +498,13 @@ describe('ERC3643', function () {
       await expect(this.token.connect(this.owner).forcedTransfer(this.holder, ethers.ZeroAddress, 1n))
         .to.be.revertedWithCustomError(this.token, 'ERC20InvalidReceiver')
         .withArgs(ethers.ZeroAddress);
+    });
+
+    it('can force transfer during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(
+        this.token.connect(this.owner).forcedTransfer(this.holder, this.recipient, 10n),
+      ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [-10n, 10n]);
     });
   });
 
@@ -530,7 +571,7 @@ describe('ERC3643', function () {
     });
 
     it('reverts when the identity is not the one the lost wallet is registered with', async function () {
-      const otherIdentity = ethers.Wallet.createRandom().address;
+      const otherIdentity = random.address();
       await this.registry.setVerified(otherIdentity, true);
       await expect(this.token.connect(this.owner).recoveryAddress(this.holder, this.other, otherIdentity))
         .to.be.revertedWithCustomError(this.token, 'ERC3643InvalidRecoveryIdentity')
@@ -538,11 +579,18 @@ describe('ERC3643', function () {
     });
 
     it('leaves the identity check to the public function', async function () {
-      const otherIdentity = ethers.Wallet.createRandom().address;
+      const otherIdentity = random.address();
       await this.registry.setVerified(otherIdentity, true);
       await expect(this.token.$_recoveryAddress(this.holder, this.other, otherIdentity))
         .to.emit(this.token, 'RecoverySuccess')
         .withArgs(this.holder, this.other, otherIdentity);
+    });
+
+    it('can recover during pause', async function () {
+      await this.token.connect(this.owner).pause();
+      await expect(
+        this.token.connect(this.owner).recoveryAddress(this.holder, this.other, this.holderIdentity),
+      ).to.emit(this.token, 'RecoverySuccess');
     });
   });
 
@@ -620,18 +668,5 @@ describe('ERC3643', function () {
         );
       });
     }
-  });
-
-  describe('behaves like an ERC20', function () {
-    beforeEach(async function () {
-      const otherIdentity = ethers.Wallet.createRandom().address;
-      await this.registry.setIdentity(this.other, otherIdentity);
-      await this.registry.setVerified(otherIdentity, true);
-
-      this.accounts = [this.holder, this.recipient, this.other];
-      this.ethers = ethers;
-    });
-
-    shouldBehaveLikeERC20(initialSupply);
   });
 });
