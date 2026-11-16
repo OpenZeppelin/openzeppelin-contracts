@@ -65,7 +65,6 @@ are useful to interact with third party contracts that implement them.
 - {IERC7786Recipient}
 - {IERC7802}
 - {IERC7913SignatureVerifier}
-- {IPausable}
 
 == Detailed ABI
 
@@ -158,5 +157,3 @@ are useful to interact with third party contracts that implement them.
 {{IERC7802}}
 
 {{IERC7913SignatureVerifier}}
-
-{{IPausable}}

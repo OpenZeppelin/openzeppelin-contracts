@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IPausable} from "../interfaces/IPausable.sol";
 import {Context} from "./Context.sol";
+import {IPausable} from "./IPausable.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
