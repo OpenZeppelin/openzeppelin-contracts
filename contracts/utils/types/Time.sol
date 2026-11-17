@@ -18,9 +18,10 @@ import {SafeCast} from "../math/SafeCast.sol";
  * - additional helper functions
  *
  * NOTE: These sizes assume `block.timestamp` is expressed in seconds, where a `uint32` duration can represent about
- * 136 years. On chains where `block.timestamp` uses a smaller unit, the limits shrink accordingly: with milliseconds,
- * the longest `uint32` duration is about 49.7 days. Contracts that store durations with this library (such as
- * {AccessManager} delays) should account for this when deployed on such chains.
+ * 136 years. On chains where `block.timestamp` uses a smaller unit, the `uint32` duration limits shrink accordingly:
+ * with milliseconds, the longest `uint32` duration is about 49.7 days. Contracts that store durations with this library
+ * (such as {AccessManager} delays) should account for this when deployed on such chains. Microsecond timestamps also
+ * exceed `uint48.max`, so {timestamp} reverts on such chains.
  */
 library Time {
     using Time for *;
