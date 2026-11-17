@@ -2,6 +2,7 @@ import { createSpinner } from '@nomicfoundation/hardhat-utils/spinner';
 
 import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import type { CompilationJob, SolidityBuildInfo } from 'hardhat/types/solidity';
+import { ResolvedFileType } from 'hardhat/types/solidity';
 import type { Result } from 'hardhat/types/utils';
 import assert from 'node:assert';
 import path from 'node:path';
@@ -59,9 +60,10 @@ export default async function generateExposedContracts(
   // Roots of the compilation job, restricted to the ones being exposed. All of them are regenerated together.
   const rootPathsToExposeSet = new Set(rootPathsToExpose);
   const getExposedRoots = (compilationJob: CompilationJob) =>
-    Array.from(compilationJob.dependencyGraph.getRoots().values(), f => f.fsPath).filter(p =>
-      rootPathsToExposeSet.has(p),
-    );
+    // Root paths are formatted as in `getRootFilePaths`: `npm:<module>` for npm roots (see `npmFilesToBuild`).
+    Array.from(compilationJob.dependencyGraph.getRoots(), ([userSourceName, f]) =>
+      f.type === ResolvedFileType.NPM_PACKAGE_FILE ? `npm:${userSourceName}` : f.fsPath,
+    ).filter(p => rootPathsToExposeSet.has(p));
 
   const astOnlyBuildInfos = new Map<SolidityBuildInfo, string[]>();
   const compilationJobIds = new Set<string>();
@@ -109,10 +111,17 @@ export default async function generateExposedContracts(
         exposedPaths.add(exposedPath);
       }
 
-      // The exposed file of a root mirrors its path. Other exposed files (see the `imports` option) are attributed to
-      // all the roots of the job, as any of them may be the one importing it.
+      // The exposed file of a root mirrors its path (its module path for an npm root, see `npmFilesToBuild`). Other
+      // exposed files (see the `imports` option) are attributed to all the roots of the job, as any of them may be the
+      // one importing it.
       const exposedPathToRoot = new Map(
-        roots.map(root => [path.join(hre.config.exposed.outDir, path.relative(hre.config.paths.root, root)), root]),
+        roots.map(root => [
+          path.join(
+            hre.config.exposed.outDir,
+            root.startsWith('npm:') ? root.slice('npm:'.length) : path.relative(hre.config.paths.root, root),
+          ),
+          root,
+        ]),
       );
       manifest.setGenerated(
         roots,

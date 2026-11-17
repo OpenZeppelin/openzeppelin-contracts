@@ -44,9 +44,14 @@ describe('hardhat-exposed: incremental generation', function () {
     };
     this.manifest = () => path.join(this.outDir, 'manifest.json');
     // A new environment per build mimics separate CLI invocations
-    this.build = async exposed => {
+    this.build = async (exposed, npmFilesToBuild = []) => {
       const hre = await createHardhatRuntimeEnvironment(
-        { plugins: [hardhatExposed], solidity: '0.8.35', paths: { sources: 'contracts' }, exposed },
+        {
+          plugins: [hardhatExposed],
+          solidity: { version: '0.8.35', npmFilesToBuild },
+          paths: { sources: 'contracts' },
+          exposed,
+        },
         {},
         this.root,
       );
@@ -202,6 +207,37 @@ describe('hardhat-exposed: incremental generation', function () {
       fs.writeFileSync(this.manifest(), JSON.stringify(manifest));
       await this.build();
       expect(fs.readFileSync(outside, 'utf8')).to.equal('keep me');
+    });
+  });
+
+  describe('npm files', function () {
+    beforeEach(function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(dependency, { recursive: true });
+      fs.writeFileSync(path.join(dependency, 'package.json'), '{"name":"dep","version":"1.0.0"}');
+      fs.writeFileSync(path.join(dependency, 'Dep.sol'), contract('Dep'));
+      this.write('A');
+    });
+
+    it('generates a wrapper for an npm file to build that is included', async function () {
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('does not generate a wrapper for an npm file to build that is not included', async function () {
+      await this.build({ include: ['contracts/**/*.sol'] }, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('does not generate a wrapper for an npm file to build that is excluded', async function () {
+      await this.build({ exclude: ['npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('removes the wrapper of an npm file that is no longer built', async function () {
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] });
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
     });
   });
 
