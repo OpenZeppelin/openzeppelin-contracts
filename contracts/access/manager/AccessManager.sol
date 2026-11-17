@@ -727,7 +727,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
             if (adminRestricted && roleId != ADMIN_ROLE) {
                 (bool inRole, ) = hasRole(roleId, msgsender);
-                return inRole;
+                (bool isRoleGuardian, ) = hasRole(getRoleGuardian(roleId), msgsender);
+                return inRole || isRoleGuardian;
             }
         }
 
