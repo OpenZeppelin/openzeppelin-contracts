@@ -30,9 +30,9 @@ import {ERC7540} from "./ERC7540.sol";
  * Override {redeemDelay} to customize the waiting period (default: 1 hour) and {clock} to
  * change the time source (default: `block.timestamp`).
  *
- * NOTE: Redeem claims can be capped per call by overriding {_asyncMaxRedeem}, which both {maxRedeem} and
- * {maxWithdraw} follow, or by overriding the {maxRedeem} or {maxWithdraw} views individually (capping only one of
- * them leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more
+ * NOTE: Redeem claims can be capped per call by overriding {_asyncMaxRedeem} (or {maxRedeem}) to limit {redeem},
+ * and {_asyncMaxWithdraw} (or {maxWithdraw}) to limit {withdraw}. The two limits are independent: capping only one
+ * of them leaves the other claim function uncapped. Such overrides MUST only restrict the limit, never return more
  * than the parent implementation: a larger limit lets a controller claim assets for shares it never requested to
  * redeem. Redeeming the shares returned by {_asyncMaxRedeem}, or withdrawing their asset-equivalent, consumes
  * exactly that amount of shares.
@@ -166,9 +166,9 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
         }
     }
 
-    /// @dev Returns the asset-equivalent of {_asyncMaxRedeem} (rounded down).
+    /// @dev Returns the asset-equivalent of the total claimable shares for `owner` (rounded down).
     function _asyncMaxWithdraw(address owner) internal view virtual override returns (uint256) {
-        return _convertToAssets(_asyncMaxRedeem(owner), Math.Rounding.Floor);
+        return _convertToAssets(_readyRedeemAt(owner, clock()), Math.Rounding.Floor);
     }
 
     /// @dev Returns the total claimable shares across all matured timepoints for `owner`.

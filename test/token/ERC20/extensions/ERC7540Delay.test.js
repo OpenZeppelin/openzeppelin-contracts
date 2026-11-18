@@ -307,10 +307,10 @@ describe('ERC7540Delay', function () {
       await time.increaseBy.timestamp(delay);
     }
 
-    // `capDerivedLimits`: whether the cap also applies to maxMint and maxWithdraw (derived from the capped hooks)
-    for (const { title, contract, capDerivedLimits } of [
-      { title: 'through the async hooks', contract: '$ERC7540DelayCappedHooksMock', capDerivedLimits: true },
-      { title: 'through the public views', contract: '$ERC7540DelayCappedViewsMock', capDerivedLimits: false },
+    // `capAllLimits`: whether the cap also applies to maxMint and maxWithdraw (the views mock only caps maxDeposit and maxRedeem)
+    for (const { title, contract, capAllLimits } of [
+      { title: 'through the async hooks', contract: '$ERC7540DelayCappedHooksMock', capAllLimits: true },
+      { title: 'through the public views', contract: '$ERC7540DelayCappedViewsMock', capAllLimits: false },
     ]) {
       describe(title, function () {
         beforeEach(async function () {
@@ -340,9 +340,9 @@ describe('ERC7540Delay', function () {
           await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
         });
 
-        capDerivedLimits
+        capAllLimits
           ? it('mint(maxMint) respects the deposit cap', async function () {
-              // check: maxMint is derived from the capped _asyncMaxDeposit, and minting above it reverts
+              // check: maxMint is capped, and minting above it reverts
               await expect(this.mock.maxMint(this.alice)).to.eventually.equal(cap);
               await expect(this.mock.connect(this.alice).mint(cap + 1n, this.alice, ethers.Typed.address(this.alice)))
                 .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxMint')
@@ -371,11 +371,11 @@ describe('ERC7540Delay', function () {
               await expect(this.mock.maxMint(this.alice)).to.eventually.equal(0n);
             });
 
-        capDerivedLimits
+        capAllLimits
           ? it('withdraw(maxWithdraw) respects the redeem cap', async function () {
               await claimDepositsAndRequestRedeem.call(this);
 
-              // check: maxWithdraw is derived from the capped _asyncMaxRedeem, and withdrawing above it reverts
+              // check: maxWithdraw is capped, and withdrawing above it reverts
               await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(cap);
               await expect(this.mock.connect(this.alice).withdraw(cap + 1n, this.alice, this.alice))
                 .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxWithdraw')

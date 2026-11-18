@@ -36,9 +36,9 @@ import {ERC7540} from "./ERC7540.sol";
  * plain {ERC4626}. Consider a non-zero {_decimalsOffset} to make it unprofitable. See the
  * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
  *
- * NOTE: Deposit claims can be capped per call by overriding {_asyncMaxDeposit}, which both {maxDeposit} and
- * {maxMint} follow, or by overriding the {maxDeposit} or {maxMint} views individually (capping only one of them
- * leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more than
+ * NOTE: Deposit claims can be capped per call by overriding {_asyncMaxDeposit} (or {maxDeposit}) to limit {deposit},
+ * and {_asyncMaxMint} (or {maxMint}) to limit {mint}. The two limits are independent: capping only one of them
+ * leaves the other claim function uncapped. Such overrides MUST only restrict the limit, never return more than
  * the parent implementation: a larger limit lets a controller claim shares for assets it never deposited.
  * Depositing the assets returned by {_asyncMaxDeposit}, or minting their share-equivalent, consumes exactly
  * that amount of assets.
@@ -179,9 +179,9 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         return _readyDepositAt(owner, clock());
     }
 
-    /// @dev Returns the share-equivalent of {_asyncMaxDeposit} (rounded down).
+    /// @dev Returns the share-equivalent of the total claimable assets for `owner` (rounded down).
     function _asyncMaxMint(address owner) internal view virtual override returns (uint256) {
-        return _convertToShares(_asyncMaxDeposit(owner), Math.Rounding.Floor);
+        return _convertToShares(_readyDepositAt(owner, clock()), Math.Rounding.Floor);
     }
 
     /**
