@@ -165,7 +165,7 @@ describe('ERC7540Delay', function () {
       await expectPendingClaimable(timepoint + delay + 10n, user, 200n, 0n);
       await expect(this.mock.maxDeposit(user)).to.eventually.equal(100n);
 
-      await this.mock.getFunction('deposit(uint256,address)')(50n, user);
+      await this.mock.deposit(50n, user);
 
       await expectPendingClaimable(timepoint + delay, user, 0n, 50n);
       await expectPendingClaimable(timepoint + delay + 10n, user, 200n, 0n);
@@ -177,7 +177,7 @@ describe('ERC7540Delay', function () {
       await expectPendingClaimable(timepoint + delay + 10n, user, 0n, 200n);
       await expect(this.mock.maxDeposit(user)).to.eventually.equal(250n);
 
-      await this.mock.getFunction('deposit(uint256,address)')(100n, user);
+      await this.mock.deposit(100n, user);
 
       await expectPendingClaimable(timepoint + delay, user, 0n, 0n);
       await expectPendingClaimable(timepoint + delay + 10n, user, 0n, 150n);
