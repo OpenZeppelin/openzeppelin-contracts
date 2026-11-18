@@ -141,4 +141,93 @@ contract RLPTest is Test {
             vm.computeCreateAddress(deployer, nonce)
         );
     }
+
+    // Trailing bytes: the decoded item must consume the entire buffer.
+
+    function testDecodeUint256RejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeUint256Ext(hex"82000100");
+    }
+
+    function testDecodeUint256RejectsTrailingAfterSingleByte() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeUint256Ext(hex"01ff");
+    }
+
+    function testDecodeBytesRejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeBytesExt(hex"83616263deadbeef");
+    }
+
+    function testDecodeBytes32RejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeBytes32Ext(hex"82000100");
+    }
+
+    function testDecodeBoolRejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeBoolExt(hex"01ff");
+    }
+
+    function testDecodeStringRejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeStringExt(hex"83616263deadbeef");
+    }
+
+    // `require(length == 1 || length == 21)` checks the slice length, not the item length. Before the fix, a 21-byte
+    // buffer `0x81 FF ‖ <19 arbitrary bytes>` would decode to `address(uint160(0xFF))`, the same as the canonical
+    // `0x94 ‖ 0x00…00FF` encoding, yielding 2^152 distinct encodings for the same address.
+    function testDecodeAddressRejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeAddressExt(abi.encodePacked(hex"81ff", new bytes(19)));
+    }
+
+    function testFuzzDecodeAddressRejectsAllTrailingVariants(bytes19 junk) external {
+        bytes memory buf = abi.encodePacked(hex"81ff", junk);
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeAddressExt(buf);
+    }
+
+    function testFuzzDecodeBytesRejectsAnyNonEmptySuffix(bytes memory value, bytes memory junk) external {
+        vm.assume(junk.length > 0);
+        bytes memory polluted = bytes.concat(RLP.encode(value), junk);
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeBytesExt(polluted);
+    }
+
+    // Control: {decodeList} already enforces exact consumption at the outer level.
+    function testDecodeListRejectsTrailing() external {
+        vm.expectRevert(RLP.RLPInvalidEncoding.selector);
+        this.decodeListExt(hex"c382000100");
+    }
+
+    // External wrappers — `vm.expectRevert` needs an external call to observe a library revert.
+
+    function decodeUint256Ext(bytes memory item) external pure returns (uint256) {
+        return RLP.decodeUint256(item);
+    }
+
+    function decodeBytesExt(bytes memory item) external pure returns (bytes memory) {
+        return RLP.decodeBytes(item);
+    }
+
+    function decodeBytes32Ext(bytes memory item) external pure returns (bytes32) {
+        return RLP.decodeBytes32(item);
+    }
+
+    function decodeBoolExt(bytes memory item) external pure returns (bool) {
+        return RLP.decodeBool(item);
+    }
+
+    function decodeStringExt(bytes memory item) external pure returns (string memory) {
+        return RLP.decodeString(item);
+    }
+
+    function decodeAddressExt(bytes memory item) external pure returns (address) {
+        return RLP.decodeAddress(item);
+    }
+
+    function decodeListExt(bytes memory item) external pure returns (uint256) {
+        return RLP.decodeList(item).length;
+    }
 }
