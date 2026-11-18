@@ -429,5 +429,54 @@ describe('ERC7540Delay', function () {
         });
       });
     }
+
+    // at a rate of 300 units per share (or per asset), the cap (400) and the full claim (500) round to the same amount
+    describe('when the cap and the full claim round to the same amount', function () {
+      beforeEach(async function () {
+        this.mock = await ethers.deployContract('$ERC7540DelayCappedHooksMock', [name, symbol, this.token]);
+      });
+
+      it('mint(maxMint) consumes exactly the capped assets', async function () {
+        // setup: 599 assets back 1 share, and alice has a matured deposit of 500 assets
+        await this.token.$_mint(this.mock, 599n);
+        await this.mock.$_mint(this.bob, 1n);
+        await this.token.$_mint(this.alice, 500n);
+        await this.token.connect(this.alice).approve(this.mock, ethers.MaxUint256);
+        await this.mock.connect(this.alice).requestDeposit(500n, this.alice, this.alice);
+        await time.increaseBy.timestamp(delay);
+
+        // check: both the capped (400) and the full (500) claims are worth 1 share
+        await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(cap);
+        await expect(this.mock.maxMint(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.convertToShares(500n)).to.eventually.equal(1n);
+
+        // action: claim with mint(maxMint)
+        await this.mock.connect(this.alice).mint(1n, this.alice, ethers.Typed.address(this.alice));
+
+        // expect: alice received 1 share for exactly the capped 400 assets, and the remaining 100 are still claimable
+        await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(100n);
+      });
+
+      it('withdraw(maxWithdraw) consumes exactly the capped shares', async function () {
+        // setup: 1 asset backs 599 shares, and alice has a matured redeem of 500 shares
+        await this.token.$_mint(this.mock, 1n);
+        await this.mock.$_mint(this.alice, 599n);
+        await this.mock.connect(this.alice).requestRedeem(500n, this.alice, this.alice);
+        await time.increaseBy.timestamp(delay);
+
+        // check: both the capped (400) and the full (500) claims are worth 1 asset
+        await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(cap);
+        await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.convertToAssets(500n)).to.eventually.equal(1n);
+
+        // action: claim with withdraw(maxWithdraw)
+        await this.mock.connect(this.alice).withdraw(1n, this.alice, this.alice);
+
+        // expect: alice received 1 asset for exactly the capped 400 shares, and the remaining 100 are still claimable
+        await expect(this.token.balanceOf(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(100n);
+      });
+    });
   });
 });

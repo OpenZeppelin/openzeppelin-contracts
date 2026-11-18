@@ -40,9 +40,8 @@ import {ERC7540} from "./ERC7540.sol";
  * {maxMint} follow, or by overriding the {maxDeposit} or {maxMint} views individually (capping only one of them
  * leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more than
  * the parent implementation: a larger limit lets a controller claim shares for assets it never deposited.
- * Claiming shares worth all the claimable assets consumes all of them, even if a cap is lower in raw assets. At
- * high share prices, a cap and the full claimable amount can round to the same number of shares, in which case
- * {mint} also consumes the rounding remainder.
+ * Depositing the assets returned by {_asyncMaxDeposit}, or minting their share-equivalent, consumes exactly
+ * that amount of assets.
  *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
  * tries to enforce that property, but the check runs once at construction and only sees the value
@@ -130,12 +129,12 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
 
     /**
      * @dev Consumes the assets worth `shares` at the current rate (rounded up) from claimable deposits and returns them.
-     * Minting the share-equivalent of all claimable assets consumes all of them.
+     * Minting the share-equivalent of {_asyncMaxDeposit} consumes exactly that amount of assets.
      */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 ready = _readyDepositAt(controller, clock());
-        uint256 assets = shares == _convertToShares(ready, Math.Rounding.Floor)
-            ? ready
+        uint256 maxAssets = _asyncMaxDeposit(controller);
+        uint256 assets = shares == _convertToShares(maxAssets, Math.Rounding.Floor)
+            ? maxAssets
             : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;

@@ -34,9 +34,8 @@ import {ERC7540} from "./ERC7540.sol";
  * {maxWithdraw} follow, or by overriding the {maxRedeem} or {maxWithdraw} views individually (capping only one of
  * them leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more
  * than the parent implementation: a larger limit lets a controller claim assets for shares it never requested to
- * redeem. Claiming assets worth all the claimable shares consumes all of them, even if a cap is lower in raw
- * shares. At low share prices, a cap and the full claimable amount can round to the same amount of assets, in
- * which case {withdraw} also consumes the rounding remainder.
+ * redeem. Redeeming the shares returned by {_asyncMaxRedeem}, or withdrawing their asset-equivalent, consumes
+ * exactly that amount of shares.
  *
  * NOTE: This module does not support temporary share custody through {_redeemShareDestination}. The constructor
  * tries to enforce that property, but the check runs once at construction and only sees the value
@@ -115,12 +114,12 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
 
     /**
      * @dev Consumes the shares worth `assets` at the current rate (rounded up) from claimable redeems and returns them.
-     * Withdrawing the asset-equivalent of all claimable shares consumes all of them.
+     * Withdrawing the asset-equivalent of {_asyncMaxRedeem} consumes exactly that amount of shares.
      */
     function _consumeClaimableWithdraw(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 ready = _readyRedeemAt(controller, clock());
-        uint256 shares = assets == _convertToAssets(ready, Math.Rounding.Floor)
-            ? ready
+        uint256 maxShares = _asyncMaxRedeem(controller);
+        uint256 shares = assets == _convertToAssets(maxShares, Math.Rounding.Floor)
+            ? maxShares
             : _convertToShares(assets, Math.Rounding.Ceil);
         _claimedRedeems[controller] += shares;
         return shares;
