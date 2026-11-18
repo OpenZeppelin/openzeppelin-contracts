@@ -36,6 +36,14 @@ import {ERC7540} from "./ERC7540.sol";
  * plain {ERC4626}. Consider a non-zero {_decimalsOffset} to make it unprofitable. See the
  * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
  *
+ * NOTE: Deposit claims can be capped per call by overriding {_asyncMaxDeposit}, which both {maxDeposit} and
+ * {maxMint} follow, or by overriding the {maxDeposit} or {maxMint} views individually (capping only one of them
+ * leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more than
+ * the parent implementation: a larger limit lets a controller claim shares for assets it never deposited.
+ * Claiming shares worth all the claimable assets consumes all of them, even if a cap is lower in raw assets. At
+ * high share prices, a cap and the full claimable amount can round to the same number of shares, in which case
+ * {mint} also consumes the rounding remainder.
+ *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
  * tries to enforce that property, but the check runs once at construction and only sees the value
  * {_depositShareOrigin} returns then, so it cannot catch an override that reads storage written later. Such an

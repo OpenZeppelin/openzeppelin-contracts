@@ -30,6 +30,14 @@ import {ERC7540} from "./ERC7540.sol";
  * Override {redeemDelay} to customize the waiting period (default: 1 hour) and {clock} to
  * change the time source (default: `block.timestamp`).
  *
+ * NOTE: Redeem claims can be capped per call by overriding {_asyncMaxRedeem}, which both {maxRedeem} and
+ * {maxWithdraw} follow, or by overriding the {maxRedeem} or {maxWithdraw} views individually (capping only one of
+ * them leaves the other claim function uncapped). Such overrides MUST only restrict the limit, never return more
+ * than the parent implementation: a larger limit lets a controller claim assets for shares it never requested to
+ * redeem. Claiming assets worth all the claimable shares consumes all of them, even if a cap is lower in raw
+ * shares. At low share prices, a cap and the full claimable amount can round to the same amount of assets, in
+ * which case {withdraw} also consumes the rounding remainder.
+ *
  * NOTE: This module does not support temporary share custody through {_redeemShareDestination}. The constructor
  * tries to enforce that property, but the check runs once at construction and only sees the value
  * {_redeemShareDestination} returns then, so it cannot catch an override that reads storage written later.
