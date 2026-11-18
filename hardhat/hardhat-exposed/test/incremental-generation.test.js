@@ -230,13 +230,55 @@ describe('hardhat-exposed: incremental generation', function () {
     });
 
     it('does not generate a wrapper for an npm file to build that is excluded', async function () {
-      await this.build({ exclude: ['npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'], exclude: ['npm:dep/Dep.sol'] }, [
+        'dep/Dep.sol',
+      ]);
       expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
     });
 
     it('removes the wrapper of an npm file that is no longer built', async function () {
       await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
       await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] });
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('keeps the wrapper of an npm file when building from another directory', async function () {
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const cwd = process.cwd();
+      try {
+        process.chdir(this.root);
+        await this.build(exposed, ['dep/Dep.sol']);
+      } finally {
+        process.chdir(cwd);
+      }
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('keeps the wrapper of an npm file that is no longer built while a source still imports it', async function () {
+      fs.writeFileSync(
+        this.source('Importer'),
+        contract('Importer').replace('contract Importer', 'import {Dep} from "dep/Dep.sol";\ncontract Importer is Dep'),
+      );
+      const exposed = { imports: true, include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'contracts/Importer.sol', 'dep/Dep.sol']);
+      await this.build(exposed);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'contracts/Importer.sol', 'dep/Dep.sol']);
+    });
+
+    it('generates the wrapper of an npm file at its exported path', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      fs.writeFileSync(
+        path.join(dependency, 'package.json'),
+        '{"name":"dep","version":"1.0.0","exports":{"./Dep.sol":"./src/Dep.sol"}}',
+      );
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+      await this.build(exposed);
       expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
     });
   });

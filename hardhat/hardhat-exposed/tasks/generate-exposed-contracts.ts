@@ -105,15 +105,15 @@ export default async function generateExposedContracts(
 
       const exposed = getExposed(buildInfo, buildOutput, hre.config);
 
-      for (const [exposedPath, exposedContent] of exposed) {
+      for (const [exposedPath, exposedContent] of exposed.files) {
         fs.mkdirSync(path.dirname(exposedPath), { recursive: true });
         fs.writeFileSync(exposedPath, exposedContent);
         exposedPaths.add(exposedPath);
       }
 
-      // The exposed file of a root mirrors its path (its module path for an npm root, see `npmFilesToBuild`). Other
-      // exposed files (see the `imports` option) are attributed to all the roots of the job, as any of them may be the
-      // one importing it.
+      // The exposed file of a root mirrors its path (the name it was listed with for an npm root, see
+      // `npmFilesToBuild`). Exposed files needed by an import (see the `imports` option) are attributed to all the
+      // roots of the job, as any of them may be the one importing it. An npm root's exposed file can be both.
       const exposedPathToRoot = new Map(
         roots.map(root => [
           path.join(
@@ -125,7 +125,12 @@ export default async function generateExposedContracts(
       );
       manifest.setGenerated(
         roots,
-        new Map(Array.from(exposed.keys(), p => [p, exposedPathToRoot.has(p) ? [exposedPathToRoot.get(p)!] : roots])),
+        new Map(
+          Array.from(exposed.files.keys(), p => [
+            p,
+            exposedPathToRoot.has(p) && !exposed.imported.has(p) ? [exposedPathToRoot.get(p)!] : roots,
+          ]),
+        ),
       );
     }
   } finally {

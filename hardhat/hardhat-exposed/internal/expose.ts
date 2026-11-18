@@ -34,21 +34,32 @@ export function getExposed(
   solidityBuildInfo: SolidityBuildInfo,
   solcOutput: CompilerOutput,
   config: HardhatConfig,
-): Map<string, string> {
-  const res = new Map<string, string>();
+): {
+  // exposed file absolute path -> content
+  files: Map<string, string>;
+  // exposed files that are needed by an import (see the `imports` option), including the ones also generated for a
+  // root of the job
+  imported: Set<string>;
+} {
+  const files = new Map<string, string>();
+  const imported = new Set<string>();
   const deref = astDereferencer(solcOutput);
   const projectSourcePrefixes = getProjectSourcePrefixes(config);
-  const applicableRemappings = parseApplicableRemappings(
-    solidityBuildInfo.input.settings.remappings ?? [],
-    projectSourcePrefixes,
-  );
+  const applicableRemappings = [
+    // npm roots (see `npmFilesToBuild`) are referred to by the name they were listed with, which may differ from their
+    // path in the package when it uses `package.json#exports`.
+    ...Object.entries(solidityBuildInfo.userSourceNameMap)
+      .filter(([, inputSourceName]) => inputSourceName.startsWith('npm/'))
+      .map(([sourceName, inputSourceName]) => ({ prefix: sourceName, target: inputSourceName })),
+    ...parseApplicableRemappings(solidityBuildInfo.input.settings.remappings ?? [], projectSourcePrefixes),
+  ];
 
   for (const [sourceName, inputSourceName] of Object.entries(solidityBuildInfo.userSourceNameMap)) {
     const ast = solcOutput.sources[inputSourceName].ast;
 
     const exposedFile = getExposedFile(sourceName, inputSourceName, ast, deref, config, applicableRemappings);
     if (exposedFile !== undefined) {
-      res.set(exposedFile.absolutePath, exposedFile.content);
+      files.set(exposedFile.absolutePath, exposedFile.content);
     }
   }
 
@@ -61,6 +72,18 @@ export function getExposed(
     )) {
       const ast = solcOutput.sources[inputSourceName].ast;
 
+      // An npm root's exposed file, generated above, already exposes all of its contracts.
+      const exposedFileAbsolutePath = getExposedFileAbsolutePath(
+        inputSourceName.replace(/^project\//, ''),
+        inputSourceName,
+        config,
+        applicableRemappings,
+      );
+      if (files.has(exposedFileAbsolutePath)) {
+        imported.add(exposedFileAbsolutePath);
+        continue;
+      }
+
       // sourceName is a fallback path for vendored `project/` deps not covered by a remapping.
       const exposedFile = getExposedFile(
         inputSourceName.replace(/^project\//, ''),
@@ -72,15 +95,17 @@ export function getExposed(
         c => contracts.has(c),
       );
       if (exposedFile !== undefined) {
-        res.set(exposedFile.absolutePath, exposedFile.content);
+        files.set(exposedFile.absolutePath, exposedFile.content);
+        imported.add(exposedFile.absolutePath);
       }
     }
   }
 
-  return res;
+  return { files, imported };
 }
 
-// Non-interface contracts named in an import from outside the project sources, grouped by declaring file.
+// Non-interface contracts named in an import from outside the project sources, grouped by declaring file. npm roots
+// (see `npmFilesToBuild`) are not project sources: the imports of their contracts are reported too.
 // Blanket imports contribute nothing: only `import {X} from '...'` symbols count.
 function getImportedContracts(
   solidityBuildInfo: SolidityBuildInfo,
@@ -90,7 +115,8 @@ function getImportedContracts(
 ): Map<string, Set<ContractDefinition>> {
   const userInputSourceNames = new Set(Object.values(solidityBuildInfo.userSourceNameMap));
   const isCoveredByUserSources = (inputSourceName: string) =>
-    userInputSourceNames.has(inputSourceName) || projectSourcePrefixes.some(p => inputSourceName.startsWith(p));
+    (userInputSourceNames.has(inputSourceName) && !inputSourceName.startsWith('npm/')) ||
+    projectSourcePrefixes.some(p => inputSourceName.startsWith(p));
 
   const res = new Map<string, Set<ContractDefinition>>();
 
@@ -198,11 +224,7 @@ function getExposedFile(
   applicableRemappings: ParsedRemapping[],
   filter?: (c: ContractDefinition) => boolean,
 ): ExposedFile | undefined {
-  const exposedFileAbsolutePath = path.join(
-    config.exposed.outDir,
-    getRemappedImportPath(inputSourceName, applicableRemappings) ??
-      (inputSourceName.startsWith('project/') ? sourceName : getNpmImportPath(inputSourceName)),
-  );
+  const exposedFileAbsolutePath = getExposedFileAbsolutePath(sourceName, inputSourceName, config, applicableRemappings);
 
   const content = getExposedContent(
     exposedFileAbsolutePath,
@@ -216,6 +238,19 @@ function getExposedFile(
   );
 
   return content === undefined ? undefined : { absolutePath: exposedFileAbsolutePath, content };
+}
+
+function getExposedFileAbsolutePath(
+  sourceName: string,
+  inputSourceName: string,
+  config: HardhatConfig,
+  applicableRemappings: ParsedRemapping[],
+): string {
+  return path.join(
+    config.exposed.outDir,
+    getRemappedImportPath(inputSourceName, applicableRemappings) ??
+      (inputSourceName.startsWith('project/') ? sourceName : getNpmImportPath(inputSourceName)),
+  );
 }
 
 function getExposedContent(
