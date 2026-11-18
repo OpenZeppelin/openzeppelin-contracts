@@ -362,7 +362,7 @@ describe('ERC7540Delay', function () {
           let max = await this.mock.maxDeposit(user);
           while (max > 0n) {
             expect(max).to.be.lte(cap);
-            await this.mock.connect(user).getFunction('deposit(uint256,address,address)')(max, user, user);
+            await this.mock.connect(user).deposit(max, user, ethers.Typed.address(user));
             max = await this.mock.maxDeposit(user);
           }
         }
