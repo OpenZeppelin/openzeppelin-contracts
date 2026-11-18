@@ -122,11 +122,12 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
 
     /**
      * @dev Consumes the assets worth `shares` at the current rate (rounded up) from claimable deposits and returns them.
-     * Minting the full {maxMint} consumes all of the claimable assets.
+     * Minting the share-equivalent of all claimable assets consumes all of them.
      */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = shares == maxMint(controller)
-            ? maxDeposit(controller)
+        uint256 ready = _readyDepositAt(controller, clock());
+        uint256 assets = shares == _convertToShares(ready, Math.Rounding.Floor)
+            ? ready
             : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;
@@ -173,7 +174,7 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
 
     /// @dev Returns the share-equivalent of {_asyncMaxDeposit} (rounded down).
     function _asyncMaxMint(address owner) internal view virtual override returns (uint256) {
-        return _convertToShares(_readyDepositAt(owner, clock()), Math.Rounding.Floor);
+        return _convertToShares(_asyncMaxDeposit(owner), Math.Rounding.Floor);
     }
 
     /**

@@ -107,11 +107,12 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
 
     /**
      * @dev Consumes the shares worth `assets` at the current rate (rounded up) from claimable redeems and returns them.
-     * Withdrawing the full {maxWithdraw} consumes all of the claimable shares.
+     * Withdrawing the asset-equivalent of all claimable shares consumes all of them.
      */
     function _consumeClaimableWithdraw(uint256 assets, address controller) internal virtual override returns (uint256) {
-        uint256 shares = assets == maxWithdraw(controller)
-            ? maxRedeem(controller)
+        uint256 ready = _readyRedeemAt(controller, clock());
+        uint256 shares = assets == _convertToAssets(ready, Math.Rounding.Floor)
+            ? ready
             : _convertToShares(assets, Math.Rounding.Ceil);
         _claimedRedeems[controller] += shares;
         return shares;
@@ -160,7 +161,7 @@ abstract contract ERC7540DelayRedeem is ERC7540, IERC6372 {
 
     /// @dev Returns the asset-equivalent of {_asyncMaxRedeem} (rounded down).
     function _asyncMaxWithdraw(address owner) internal view virtual override returns (uint256) {
-        return _convertToAssets(_readyRedeemAt(owner, clock()), Math.Rounding.Floor);
+        return _convertToAssets(_asyncMaxRedeem(owner), Math.Rounding.Floor);
     }
 
     /// @dev Returns the total claimable shares across all matured timepoints for `owner`.
