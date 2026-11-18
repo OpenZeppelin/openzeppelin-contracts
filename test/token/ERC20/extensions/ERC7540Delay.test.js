@@ -430,14 +430,16 @@ describe('ERC7540Delay', function () {
       });
     }
 
-    // at a rate of 300 units per share (or per asset), the cap (400) and the full claim (500) round to the same amount
+    // at an effective rate of 300 units per share (or per asset), the cap (400) and the full claim (500) round to
+    // the same amount
     describe('when the cap and the full claim round to the same amount', function () {
       beforeEach(async function () {
         this.mock = await ethers.deployContract('$ERC7540DelayCappedHooksMock', [name, symbol, this.token]);
       });
 
       it('mint(maxMint) consumes exactly the capped assets', async function () {
-        // setup: 599 assets back 1 share, and alice has a matured deposit of 500 assets
+        // setup: 599 assets back 1 share, which with the virtual share and asset gives (599 + 1) / (1 + 1) = 300
+        // assets per share, and alice has a matured deposit of 500 assets
         await this.token.$_mint(this.mock, 599n);
         await this.mock.$_mint(this.bob, 1n);
         await this.token.$_mint(this.alice, 500n);
@@ -456,10 +458,20 @@ describe('ERC7540Delay', function () {
         // expect: alice received 1 share for exactly the capped 400 assets, and the remaining 100 are still claimable
         await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(1n);
         await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(100n);
+
+        // action: claim the remaining 100 assets with deposit(maxDeposit)
+        await this.mock.connect(this.alice).deposit(100n, this.alice, ethers.Typed.address(this.alice));
+
+        // expect: the remaining assets are worth less than a share, so alice receives no more shares, and nothing is left
+        // to claim
+        await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(0n);
+        await expect(this.mock.maxMint(this.alice)).to.eventually.equal(0n);
       });
 
       it('withdraw(maxWithdraw) consumes exactly the capped shares', async function () {
-        // setup: 1 asset backs 599 shares, and alice has a matured redeem of 500 shares
+        // setup: 1 asset backs 599 shares, which with the virtual share and asset gives (599 + 1) / (1 + 1) = 300
+        // shares per asset, and alice has a matured redeem of 500 shares
         await this.token.$_mint(this.mock, 1n);
         await this.mock.$_mint(this.alice, 599n);
         await this.mock.connect(this.alice).requestRedeem(500n, this.alice, this.alice);
@@ -476,6 +488,15 @@ describe('ERC7540Delay', function () {
         // expect: alice received 1 asset for exactly the capped 400 shares, and the remaining 100 are still claimable
         await expect(this.token.balanceOf(this.alice)).to.eventually.equal(1n);
         await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(100n);
+
+        // action: claim the remaining 100 shares with redeem(maxRedeem)
+        await this.mock.connect(this.alice).redeem(100n, this.alice, this.alice);
+
+        // expect: the remaining shares are worth less than an asset, so alice receives no more assets, and nothing is
+        // left to claim
+        await expect(this.token.balanceOf(this.alice)).to.eventually.equal(1n);
+        await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(0n);
+        await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(0n);
       });
     });
   });
