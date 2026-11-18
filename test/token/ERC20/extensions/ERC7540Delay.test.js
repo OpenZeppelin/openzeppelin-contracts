@@ -307,9 +307,14 @@ describe('ERC7540Delay', function () {
       await time.increaseBy.timestamp(delay);
     }
 
-    // `capAllLimits`: whether the cap also applies to maxMint and maxWithdraw (the views mock only caps maxDeposit and maxRedeem)
+    // `capAllLimits`: whether the cap also applies to maxMint and maxWithdraw (the other mocks only cap maxDeposit and maxRedeem)
     for (const { title, contract, capAllLimits } of [
       { title: 'through the async hooks', contract: '$ERC7540DelayCappedHooksMock', capAllLimits: true },
+      {
+        title: 'through the deposit and redeem hooks only',
+        contract: '$ERC7540DelayCappedDepositRedeemHooksMock',
+        capAllLimits: false,
+      },
       { title: 'through the public views', contract: '$ERC7540DelayCappedViewsMock', capAllLimits: false },
     ]) {
       describe(title, function () {

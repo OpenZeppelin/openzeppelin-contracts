@@ -83,6 +83,23 @@ abstract contract ERC7540DelayCappedHooksMock is ERC7540DelayMock {
     }
 }
 
+/// @dev Caps the {_asyncMaxDeposit} and {_asyncMaxRedeem} hooks only, leaving {maxMint} and {maxWithdraw} uncapped.
+abstract contract ERC7540DelayCappedDepositRedeemHooksMock is ERC7540DelayMock {
+    uint256 private constant CAP = 400;
+
+    function _asyncMaxDeposit(
+        address owner
+    ) internal view virtual override(ERC7540, ERC7540DelayDeposit) returns (uint256) {
+        return Math.min(CAP, super._asyncMaxDeposit(owner));
+    }
+
+    function _asyncMaxRedeem(
+        address owner
+    ) internal view virtual override(ERC7540, ERC7540DelayRedeem) returns (uint256) {
+        return Math.min(CAP, super._asyncMaxRedeem(owner));
+    }
+}
+
 /// @dev Caps the public {maxDeposit} and {maxRedeem} views only, leaving {maxMint} and {maxWithdraw} uncapped.
 abstract contract ERC7540DelayCappedViewsMock is ERC7540DelayMock {
     uint256 private constant CAP = 400;
