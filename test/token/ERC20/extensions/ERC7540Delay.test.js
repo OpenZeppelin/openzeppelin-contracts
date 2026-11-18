@@ -281,104 +281,153 @@ describe('ERC7540Delay', function () {
 
     before(async function () {
       [this.alice, this.bob] = await ethers.getSigners();
+      this.forAllUser = (fn, users = [this.alice, this.bob]) => Promise.all(users.map(user => fn(user)));
     });
 
-    describe('through the async hooks', function () {
-      beforeEach(async function () {
-        this.mock = await ethers.deployContract('$ERC7540DelayCappedHooksMock', [name, symbol, this.token]);
-        // alice and bob each request a deposit of `amount` assets, then wait for it to mature
-        for (const user of [this.alice, this.bob]) {
-          await this.token.$_mint(user, amount);
-          await this.token.connect(user).approve(this.mock, ethers.MaxUint256);
-          await this.mock.connect(user).requestDeposit(amount, user, user);
-        }
-        await time.increaseBy.timestamp(delay);
+    // claims `getMax()` with `claim` until nothing is left, checking that each claim stays within `limit`
+    async function claimAll(getMax, claim, limit = cap) {
+      for (let max = await getMax(); max > 0n; max = await getMax()) {
+        expect(max).to.be.lte(limit);
+        await claim(max);
+      }
+    }
+
+    // alice and bob claim their deposits (in capped steps), then alice requests to redeem all her shares and waits for it to mature
+    async function claimDepositsAndRequestRedeem() {
+      await this.forAllUser(user =>
+        claimAll(
+          () => this.mock.maxDeposit(user),
+          max => this.mock.connect(user).deposit(max, user, ethers.Typed.address(user)),
+        ),
+      );
+      await expect(this.token.balanceOf(this.alice)).to.eventually.equal(0n);
+      await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
+
+      await this.mock.connect(this.alice).requestRedeem(amount, this.alice, this.alice);
+      await time.increaseBy.timestamp(delay);
+    }
+
+    // `capDerivedLimits`: whether the cap also applies to maxMint and maxWithdraw (derived from the capped hooks)
+    for (const { title, contract, capDerivedLimits } of [
+      { title: 'through the async hooks', contract: '$ERC7540DelayCappedHooksMock', capDerivedLimits: true },
+      { title: 'through the public views', contract: '$ERC7540DelayCappedViewsMock', capDerivedLimits: false },
+    ]) {
+      describe(title, function () {
+        beforeEach(async function () {
+          this.mock = await ethers.deployContract(contract, [name, symbol, this.token]);
+          await this.forAllUser(async user => {
+            await this.token.$_mint(user, amount);
+            await this.token.connect(user).approve(this.mock, ethers.MaxUint256);
+            await this.mock.connect(user).requestDeposit(amount, user, user);
+          });
+          await time.increaseBy.timestamp(delay);
+        });
+
+        it('deposit(maxDeposit) respects the deposit cap', async function () {
+          // check: maxDeposit is capped, and depositing above it reverts
+          await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(cap);
+          await expect(this.mock.connect(this.alice).deposit(cap + 1n, this.alice, ethers.Typed.address(this.alice)))
+            .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxDeposit')
+            .withArgs(this.alice, cap + 1n, cap);
+
+          // action: claim with deposit(maxDeposit) until nothing is left, each call staying within the cap
+          await claimAll(
+            () => this.mock.maxDeposit(this.alice),
+            max => this.mock.connect(this.alice).deposit(max, this.alice, ethers.Typed.address(this.alice)),
+          );
+
+          // expect: alice received exactly her entitlement
+          await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
+        });
+
+        capDerivedLimits
+          ? it('mint(maxMint) respects the deposit cap', async function () {
+              // check: maxMint is derived from the capped _asyncMaxDeposit, and minting above it reverts
+              await expect(this.mock.maxMint(this.alice)).to.eventually.equal(cap);
+              await expect(this.mock.connect(this.alice).mint(cap + 1n, this.alice, ethers.Typed.address(this.alice)))
+                .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxMint')
+                .withArgs(this.alice, cap + 1n, cap);
+
+              // action: claim with mint(maxMint) until nothing is left, each call staying within the cap
+              await claimAll(
+                () => this.mock.maxMint(this.alice),
+                max => this.mock.connect(this.alice).mint(max, this.alice, ethers.Typed.address(this.alice)),
+              );
+
+              // expect: alice received exactly her entitlement
+              await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
+            })
+          : it('mint(maxMint) is not capped and consumes the full claim', async function () {
+              // check: maxDeposit is capped, but maxMint is not
+              await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(cap);
+              await expect(this.mock.maxMint(this.alice)).to.eventually.equal(amount);
+
+              // action: claim everything in a single mint(maxMint)
+              await this.mock.connect(this.alice).mint(amount, this.alice, ethers.Typed.address(this.alice));
+
+              // expect: alice received exactly her entitlement, and nothing is left to claim
+              await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
+              await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(0n);
+              await expect(this.mock.maxMint(this.alice)).to.eventually.equal(0n);
+            });
+
+        capDerivedLimits
+          ? it('withdraw(maxWithdraw) respects the redeem cap', async function () {
+              await claimDepositsAndRequestRedeem.call(this);
+
+              // check: maxWithdraw is derived from the capped _asyncMaxRedeem, and withdrawing above it reverts
+              await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(cap);
+              await expect(this.mock.connect(this.alice).withdraw(cap + 1n, this.alice, this.alice))
+                .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxWithdraw')
+                .withArgs(this.alice, cap + 1n, cap);
+
+              // action: claim with withdraw(maxWithdraw) until nothing is left, each call staying within the cap
+              await claimAll(
+                () => this.mock.maxWithdraw(this.alice),
+                max => this.mock.connect(this.alice).withdraw(max, this.alice, this.alice),
+              );
+
+              // expect: alice received exactly her entitlement, and bob's position is untouched
+              await expect(this.token.balanceOf(this.alice)).to.eventually.equal(amount);
+              await expect(this.mock.convertToAssets(this.mock.balanceOf(this.bob))).to.eventually.equal(amount);
+            })
+          : it('withdraw(maxWithdraw) is not capped and consumes the full claim', async function () {
+              await claimDepositsAndRequestRedeem.call(this);
+
+              // check: maxRedeem is capped, but maxWithdraw is not
+              await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(cap);
+              await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(amount);
+
+              // action: claim everything in a single withdraw(maxWithdraw)
+              await this.mock.connect(this.alice).withdraw(amount, this.alice, this.alice);
+
+              // expect: alice received exactly her entitlement, nothing is left to claim, and bob's position is untouched
+              await expect(this.token.balanceOf(this.alice)).to.eventually.equal(amount);
+              await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(0n);
+              await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(0n);
+              await expect(this.mock.convertToAssets(this.mock.balanceOf(this.bob))).to.eventually.equal(amount);
+            });
+
+        it('redeem(maxRedeem) respects the redeem cap', async function () {
+          await claimDepositsAndRequestRedeem.call(this);
+
+          // check: maxRedeem is capped, and redeeming above it reverts
+          await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(cap);
+          await expect(this.mock.connect(this.alice).redeem(cap + 1n, this.alice, this.alice))
+            .to.be.revertedWithCustomError(this.mock, 'ERC4626ExceededMaxRedeem')
+            .withArgs(this.alice, cap + 1n, cap);
+
+          // action: claim with redeem(maxRedeem) until nothing is left, each call staying within the cap
+          await claimAll(
+            () => this.mock.maxRedeem(this.alice),
+            max => this.mock.connect(this.alice).redeem(max, this.alice, this.alice),
+          );
+
+          // expect: alice received exactly her entitlement, and bob's position is untouched
+          await expect(this.token.balanceOf(this.alice)).to.eventually.equal(amount);
+          await expect(this.mock.convertToAssets(this.mock.balanceOf(this.bob))).to.eventually.equal(amount);
+        });
       });
-
-      it('mint(maxMint) respects the deposit cap', async function () {
-        await expect(this.mock.maxMint(this.alice)).to.eventually.equal(cap);
-
-        let max = await this.mock.maxMint(this.alice);
-        while (max > 0n) {
-          expect(max).to.be.lte(cap);
-          await this.mock.connect(this.alice).mint(max, this.alice, ethers.Typed.address(this.alice));
-          max = await this.mock.maxMint(this.alice);
-        }
-
-        await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
-      });
-
-      it('withdraw(maxWithdraw) respects the redeem cap', async function () {
-        for (const user of [this.alice, this.bob]) {
-          let max = await this.mock.maxDeposit(user);
-          while (max > 0n) {
-            expect(max).to.be.lte(cap);
-            await this.mock.connect(user).deposit(max, user, ethers.Typed.address(user));
-            max = await this.mock.maxDeposit(user);
-          }
-        }
-        await this.mock.connect(this.alice).requestRedeem(amount, this.alice, this.alice);
-        await time.increaseBy.timestamp(delay);
-
-        await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(cap);
-
-        let max = await this.mock.maxWithdraw(this.alice);
-        while (max > 0n) {
-          expect(max).to.be.lte(cap);
-          await this.mock.connect(this.alice).withdraw(max, this.alice, this.alice);
-          max = await this.mock.maxWithdraw(this.alice);
-        }
-
-        await expect(this.token.balanceOf(this.alice)).to.eventually.equal(amount);
-        await expect(this.mock.convertToAssets(this.mock.balanceOf(this.bob))).to.eventually.equal(amount);
-      });
-    });
-
-    describe('through the public views', function () {
-      beforeEach(async function () {
-        this.mock = await ethers.deployContract('$ERC7540DelayCappedViewsMock', [name, symbol, this.token]);
-        // alice and bob each request a deposit of `amount` assets, then wait for it to mature
-        for (const user of [this.alice, this.bob]) {
-          await this.token.$_mint(user, amount);
-          await this.token.connect(user).approve(this.mock, ethers.MaxUint256);
-          await this.mock.connect(user).requestDeposit(amount, user, user);
-        }
-        await time.increaseBy.timestamp(delay);
-      });
-
-      it('mint(maxMint) consumes the full claim', async function () {
-        await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(cap);
-        await expect(this.mock.maxMint(this.alice)).to.eventually.equal(amount);
-
-        await this.mock.connect(this.alice).mint(amount, this.alice, ethers.Typed.address(this.alice));
-
-        await expect(this.mock.balanceOf(this.alice)).to.eventually.equal(amount);
-        await expect(this.mock.maxDeposit(this.alice)).to.eventually.equal(0n);
-        await expect(this.mock.maxMint(this.alice)).to.eventually.equal(0n);
-      });
-
-      it('withdraw(maxWithdraw) consumes the full claim', async function () {
-        for (const user of [this.alice, this.bob]) {
-          let max = await this.mock.maxDeposit(user);
-          while (max > 0n) {
-            expect(max).to.be.lte(cap);
-            await this.mock.connect(user).deposit(max, user, ethers.Typed.address(user));
-            max = await this.mock.maxDeposit(user);
-          }
-        }
-        await this.mock.connect(this.alice).requestRedeem(amount, this.alice, this.alice);
-        await time.increaseBy.timestamp(delay);
-
-        await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(cap);
-        await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(amount);
-
-        await this.mock.connect(this.alice).withdraw(amount, this.alice, this.alice);
-
-        await expect(this.token.balanceOf(this.alice)).to.eventually.equal(amount);
-        await expect(this.mock.maxRedeem(this.alice)).to.eventually.equal(0n);
-        await expect(this.mock.maxWithdraw(this.alice)).to.eventually.equal(0n);
-        await expect(this.mock.convertToAssets(this.mock.balanceOf(this.bob))).to.eventually.equal(amount);
-      });
-    });
+    }
   });
 });
