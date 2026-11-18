@@ -267,6 +267,35 @@ describe('hardhat-exposed: incremental generation', function () {
       expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'contracts/Importer.sol', 'dep/Dep.sol']);
     });
 
+    it('keeps the full wrapper of an npm file when only a source importing part of it changes', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.writeFileSync(path.join(dependency, 'Dep.sol'), contract('Dep') + 'contract Extra {}\n');
+      fs.writeFileSync(
+        this.source('Importer'),
+        contract('Importer').replace('contract Importer', 'import {Dep} from "dep/Dep.sol";\ncontract Importer is Dep'),
+      );
+      const exposed = { imports: true, include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const wrapper = path.join(this.outDir, 'dep', 'Dep.sol');
+      expect(fs.readFileSync(wrapper, 'utf8')).to.include('contract $Extra');
+      fs.appendFileSync(this.source('Importer'), '// modified\n');
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(fs.readFileSync(wrapper, 'utf8')).to.include('contract $Extra');
+    });
+
+    it('generates the wrappers of npm files whose exported paths are prefixes of one another', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      fs.writeFileSync(path.join(dependency, 'src', 'Dep.solExtra.sol'), contract('Extra'));
+      fs.writeFileSync(
+        path.join(dependency, 'package.json'),
+        '{"name":"dep","version":"1.0.0","exports":{"./Dep.sol":"./src/Dep.sol","./Extra.sol":"./src/Dep.solExtra.sol"}}',
+      );
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol', 'dep/Extra.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol', 'dep/Extra.sol']);
+    });
+
     it('generates the wrapper of an npm file at its exported path', async function () {
       const dependency = path.join(this.root, 'node_modules', 'dep');
       fs.mkdirSync(path.join(dependency, 'src'));

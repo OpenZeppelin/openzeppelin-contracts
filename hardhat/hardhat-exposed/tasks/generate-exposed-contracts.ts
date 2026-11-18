@@ -57,6 +57,19 @@ export default async function generateExposedContracts(
 
   const filteredRootPathsToExpose = rootPathsToExpose.filter(p => force || !compilationJobs.cacheHits.has(p));
 
+  // Input source name of each exposed npm root (see `npmFilesToBuild`), mapped to the name it was listed with. Cached
+  // ones are included, as they are absent from the compilation jobs of the roots that import them.
+  const npmRoots = new Map(
+    rootPathsToExpose
+      .filter(p => p.startsWith('npm:'))
+      .flatMap(p =>
+        Array.from(compilationJobs.indexedIndividualJobs.get(p)!.dependencyGraph.getRoots().values(), f => [
+          f.inputSourceName,
+          p.slice('npm:'.length),
+        ]),
+      ),
+  );
+
   // Roots of the compilation job, restricted to the ones being exposed. All of them are regenerated together.
   const rootPathsToExposeSet = new Set(rootPathsToExpose);
   const getExposedRoots = (compilationJob: CompilationJob) =>
@@ -103,7 +116,7 @@ export default async function generateExposedContracts(
         return errorResult();
       }
 
-      const exposed = getExposed(buildInfo, buildOutput, hre.config);
+      const exposed = getExposed(buildInfo, buildOutput, hre.config, npmRoots);
 
       for (const [exposedPath, exposedContent] of exposed.files) {
         fs.mkdirSync(path.dirname(exposedPath), { recursive: true });
@@ -126,7 +139,7 @@ export default async function generateExposedContracts(
       manifest.setGenerated(
         roots,
         new Map(
-          Array.from(exposed.files.keys(), p => [
+          Array.from(new Set([...exposed.files.keys(), ...exposed.imported]), p => [
             p,
             exposedPathToRoot.has(p) && !exposed.imported.has(p) ? [exposedPathToRoot.get(p)!] : roots,
           ]),

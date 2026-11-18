@@ -28,29 +28,31 @@ type ExposedFile = {
   content: string;
 };
 
-type ParsedRemapping = { prefix: string; target: string };
+// `exact` remappings apply to a single file, rather than to every file whose input source name starts with `target`.
+type ParsedRemapping = { prefix: string; target: string; exact?: boolean };
 
 export function getExposed(
   solidityBuildInfo: SolidityBuildInfo,
   solcOutput: CompilerOutput,
   config: HardhatConfig,
+  // input source name -> name it was listed with, for every exposed npm root (see `npmFilesToBuild`), including the
+  // ones that are not part of this build info because they are cached
+  npmRoots: Map<string, string>,
 ): {
   // exposed file absolute path -> content
   files: Map<string, string>;
-  // exposed files that are needed by an import (see the `imports` option), including the ones also generated for a
-  // root of the job
+  // exposed files that are needed by an import (see the `imports` option), including the ones of npm roots, which may
+  // not be part of `files` if they are cached
   imported: Set<string>;
 } {
   const files = new Map<string, string>();
   const imported = new Set<string>();
   const deref = astDereferencer(solcOutput);
   const projectSourcePrefixes = getProjectSourcePrefixes(config);
-  const applicableRemappings = [
-    // npm roots (see `npmFilesToBuild`) are referred to by the name they were listed with, which may differ from their
-    // path in the package when it uses `package.json#exports`.
-    ...Object.entries(solidityBuildInfo.userSourceNameMap)
-      .filter(([, inputSourceName]) => inputSourceName.startsWith('npm/'))
-      .map(([sourceName, inputSourceName]) => ({ prefix: sourceName, target: inputSourceName })),
+  const applicableRemappings: ParsedRemapping[] = [
+    // npm roots are referred to by the name they were listed with, which may differ from their path in the package when
+    // it uses `package.json#exports`.
+    ...Array.from(npmRoots, ([inputSourceName, name]) => ({ prefix: name, target: inputSourceName, exact: true })),
     ...parseApplicableRemappings(solidityBuildInfo.input.settings.remappings ?? [], projectSourcePrefixes),
   ];
 
@@ -72,15 +74,17 @@ export function getExposed(
     )) {
       const ast = solcOutput.sources[inputSourceName].ast;
 
-      // An npm root's exposed file, generated above, already exposes all of its contracts.
-      const exposedFileAbsolutePath = getExposedFileAbsolutePath(
-        inputSourceName.replace(/^project\//, ''),
-        inputSourceName,
-        config,
-        applicableRemappings,
-      );
-      if (files.has(exposedFileAbsolutePath)) {
-        imported.add(exposedFileAbsolutePath);
+      // An npm root's exposed file already exposes all of its contracts: it must not be replaced, even when it is not
+      // regenerated here because the npm root is cached.
+      if (npmRoots.has(inputSourceName)) {
+        imported.add(
+          getExposedFileAbsolutePath(
+            inputSourceName.replace(/^project\//, ''),
+            inputSourceName,
+            config,
+            applicableRemappings,
+          ),
+        );
         continue;
       }
 
@@ -206,7 +210,9 @@ function parseApplicableRemappings(remappings: string[], projectSourcePrefixes: 
 }
 
 function getRemappedImportPath(inputSourceName: string, applicableRemappings: ParsedRemapping[]): string | undefined {
-  const item = applicableRemappings.find(({ target }) => inputSourceName.startsWith(target));
+  const item = applicableRemappings.find(({ target, exact }) =>
+    exact ? inputSourceName === target : inputSourceName.startsWith(target),
+  );
   return item && item.prefix + inputSourceName.slice(item.target.length);
 }
 
