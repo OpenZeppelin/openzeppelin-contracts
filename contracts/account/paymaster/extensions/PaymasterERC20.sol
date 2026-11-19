@@ -291,8 +291,9 @@ abstract contract PaymasterERC20 is Paymaster {
      * @dev Over-estimates the cost of the post-operation logic, which the EntryPoint charges to the paymaster but
      * excludes from the `actualGasCost` reported to {_postOp}.
      *
-     * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
-     * underestimate drains the paymaster's deposit.
+     * NOTE: The default is calibrated for a simple ERC-20, with no extra logic on transfer, running on a chain with
+     * the Glamsterdam gas schedule. Customize it for other use cases (e.g. tokens with transfer hooks, fees or proxies,
+     * or chains with a different gas schedule); a persistent underestimate drains the paymaster's deposit.
      *
      * NOTE: Extensions that bill extra postOp gas through a separate cost (rather than by widening this virtual)
      * must also widen {_postOpGasBudget} by the same amount, otherwise the extra gas is billed twice: once as cost
