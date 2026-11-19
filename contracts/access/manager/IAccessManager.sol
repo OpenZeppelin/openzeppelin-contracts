@@ -162,7 +162,8 @@ interface IAccessManager {
     /**
      * @dev Get the role that acts as a guardian for a given role.
      *
-     * The guardian permission allows canceling operations that have been scheduled under the role.
+     * The guardian permission allows canceling operations that have been scheduled under the role. This includes
+     * {grantRole} and {revokeRole} operations targeting roles for which `roleId` is the admin.
      */
     function getRoleGuardian(uint64 roleId) external view returns (uint64);
 
@@ -377,7 +378,8 @@ interface IAccessManager {
      *
      * Requirements:
      *
-     * - the caller must be the proposer, a guardian of the targeted function, or a global admin
+     * - the caller must be the proposer, a guardian of the targeted function, or a global admin. For {grantRole}
+     *   and {revokeRole} operations, a guardian of the role's admin (see {getRoleAdmin}) can also cancel.
      *
      * Emits a {OperationCanceled} event.
      */
