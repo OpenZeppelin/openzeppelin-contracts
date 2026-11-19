@@ -371,7 +371,7 @@ describe('PaymasterERC20Guarantor', function () {
         await this.token.$_approve(this.account, this.paymaster, value);
         await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-        // Floor = _postOpCost (30k) + _guaranteedPostOpCost (30k) = 60k.
+        // Floor = _postOpCost (30k) + _guaranteedPostOpCost (35k) = 65k.
         const floor = (await this.paymaster.$_postOpCost()) + (await this.paymaster.$_guaranteedPostOpCost());
 
         const signedUserOp = await this.account
@@ -404,7 +404,7 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (30k) = 60k; 30k is below it.
+      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (35k) = 65k; 30k is below it.
       const signedUserOp = await this.account
         .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 30_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
@@ -436,9 +436,9 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // 60k = the floor (_postOpCost 30k + _guaranteedPostOpCost 30k), so _prefund accepts and pulls the prefund.
+      // 65k = the floor (_postOpCost 30k + _guaranteedPostOpCost 35k), so _prefund accepts and pulls the prefund.
       const signedUserOp = await this.account
-        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 60_000n })
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 65_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
         .then(op => this.signUserOp(op));
 
@@ -481,7 +481,7 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // The guarantor is the sender. 30k is below the guaranteed floor (60k), which only applies to guaranteed ops.
+      // The guarantor is the sender. 30k is below the guaranteed floor (65k), which only applies to guaranteed ops.
       const signedUserOp = await this.account
         .createUserOp({ ...this.userOp, sender: this.guarantor, paymasterPostOpGasLimit: 30_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }));
@@ -570,8 +570,8 @@ describe('PaymasterERC20Guarantor', function () {
       // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
       // guaranteed branch and augments `actualAmount` by `_guaranteedPostOpCost() * feePerGas`
       // (priced in tokens). With tokenPerNative=1e18, denominator=1e18 (1:1), feePerGas=1, the
-      // augmentation adds 30_000 tokens. Passing `actualAmount = 31_000` yields a final
-      // augmented amount of `31_000 + 30_000 = 61_000` charged to the guarantor; the full
+      // augmentation adds 35_000 tokens. Passing `actualAmount = 31_000` yields a final
+      // augmented amount of `31_000 + 35_000 = 66_000` charged to the guarantor; the full
       // `prefundAmount` (100_000) is then refunded to `prefunder` (other).
       await expect(
         this.paymaster.$_refund(
@@ -583,7 +583,7 @@ describe('PaymasterERC20Guarantor', function () {
           100_000n, // prefundAmount
           prefundContext,
         ),
-      ).to.changeTokenBalances(ethers, this.token, [this.guarantor, this.other], [-61_000n, 100_000n]);
+      ).to.changeTokenBalances(ethers, this.token, [this.guarantor, this.other], [-66_000n, 100_000n]);
     });
 
     it('reverts when guarantor has insufficient balance', async function () {

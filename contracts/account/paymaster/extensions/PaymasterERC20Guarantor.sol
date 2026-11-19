@@ -194,7 +194,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
      */
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
-        return 30_000;
+        return 35_000;
     }
 
     /// @dev Returns the guarantor given by {_fetchGuarantor}, or `address(0)` if the sender is its own guarantor.
