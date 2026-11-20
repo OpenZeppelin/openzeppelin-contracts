@@ -36,6 +36,13 @@ import {ERC7540} from "./ERC7540.sol";
  * plain {ERC4626}. Consider a non-zero {_decimalsOffset} to make it unprofitable. See the
  * xref:erc4626.adoc#inflation-attack[ERC-4626 inflation attack] guide.
  *
+ * NOTE: Deposit claims can be capped per call by overriding {_asyncMaxDeposit} (or {maxDeposit}) to limit {deposit},
+ * and {_asyncMaxMint} (or {maxMint}) to limit {mint}. The two limits are independent: capping only one of them
+ * leaves the other claim function uncapped. Such overrides MUST only restrict the limit, never return more than
+ * the parent implementation: a larger limit lets a controller claim shares for assets it never deposited.
+ * Depositing the assets returned by {_asyncMaxDeposit}, or minting their share-equivalent, consumes exactly
+ * that amount of assets.
+ *
  * NOTE: This module does not support temporary share custody through {_depositShareOrigin}. The constructor
  * tries to enforce that property, but the check runs once at construction and only sees the value
  * {_depositShareOrigin} returns then, so it cannot catch an override that reads storage written later. Such an
@@ -122,11 +129,12 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
 
     /**
      * @dev Consumes the assets worth `shares` at the current rate (rounded up) from claimable deposits and returns them.
-     * Minting the full {maxMint} consumes all of the claimable assets.
+     * Minting the share-equivalent of {_asyncMaxDeposit} consumes exactly that amount of assets.
      */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = shares == maxMint(controller)
-            ? maxDeposit(controller)
+        uint256 maxAssets = _asyncMaxDeposit(controller);
+        uint256 assets = shares == _convertToShares(maxAssets, Math.Rounding.Floor)
+            ? maxAssets
             : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;
@@ -171,7 +179,7 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
         return _readyDepositAt(owner, clock());
     }
 
-    /// @dev Returns the share-equivalent of {_asyncMaxDeposit} (rounded down).
+    /// @dev Returns the share-equivalent of the total claimable assets for `owner` (rounded down).
     function _asyncMaxMint(address owner) internal view virtual override returns (uint256) {
         return _convertToShares(_readyDepositAt(owner, clock()), Math.Rounding.Floor);
     }
