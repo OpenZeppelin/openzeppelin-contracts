@@ -48,10 +48,15 @@ library ECDSA {
      * invalidation or nonces for replay protection.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
-     * verification to be secure: it is possible to craft signatures that
-     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
-     * this is by receiving a hash of the original message (which may otherwise
-     * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
+     * verification to be secure. Signature ambiguity is an inherent concern, and
+     * it is possible to craft signatures that recover to arbitrary addresses for
+     * non-hashed data. Most wallet providers append
+     * https://eips.ethereum.org/EIPS/eip-191[ERC-191] prefixes to signed
+     * messages to avoid encoding collisions with signed transactions. When
+     * verifying signatures, consider using
+     * {MessageHashUtils-toEthSignedMessageHash} for Ethereum-signed messages or
+     * {MessageHashUtils-toTypedDataHash} for typed data so the signature is bound
+     * to a fixed-length hash (preimage resistance).
      *
      * Documentation for signature generation:
      *
@@ -116,10 +121,15 @@ library ECDSA {
      * invalidation or nonces for replay protection.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
-     * verification to be secure: it is possible to craft signatures that
-     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
-     * this is by receiving a hash of the original message (which may otherwise
-     * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
+     * verification to be secure. Signature ambiguity is an inherent concern, and
+     * it is possible to craft signatures that recover to arbitrary addresses for
+     * non-hashed data. Most wallet providers append
+     * https://eips.ethereum.org/EIPS/eip-191[ERC-191] prefixes to signed
+     * messages to avoid encoding collisions with signed transactions. When
+     * verifying signatures, consider using
+     * {MessageHashUtils-toEthSignedMessageHash} for Ethereum-signed messages or
+     * {MessageHashUtils-toTypedDataHash} for typed data so the signature is bound
+     * to a fixed-length hash (preimage resistance).
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         (address recovered, RecoverError err, bytes32 errorArg) = tryRecover(hash, signature);
