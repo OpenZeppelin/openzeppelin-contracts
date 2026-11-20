@@ -2405,6 +2405,9 @@ describe('AccessManager', function () {
                 this.caller = this.roles.SOME_ADMIN.members[0];
                 await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.caller, 0, 1); // nonzero execution delay
                 await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.other, 0, 1); // nonzero execution delay
+                this.roleAdminGuardian = 99n;
+                await this.manager.$_setRoleGuardian(this.roles.SOME_ADMIN.id, this.roleAdminGuardian);
+                await this.manager.$_grantRole(this.roleAdminGuardian, this.user, 0, 0);
                 this.calldata = this.manager.interface.encodeFunctionData(
                   this.method,
                   name == 'grant'
@@ -2421,11 +2424,24 @@ describe('AccessManager', function () {
                 await schedule();
               });
 
-              it('another member of the role admin succeeds', async function () {
-                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+              it('a guardian of the role admin succeeds', async function () {
+                await expect(this.manager.connect(this.user).cancel(this.caller, this.manager, this.calldata))
                   .to.emit(this.manager, 'OperationCanceled')
                   .withArgs(this.operationId, 1n);
                 expect(await this.manager.getSchedule(this.operationId)).to.equal('0');
+              });
+
+              it('another member of the role admin reverts', async function () {
+                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(this.other, this.caller, this.manager, this.method.selector);
+              });
+
+              it('a guardian of the granted role but not of its admin reverts', async function () {
+                const roleGuardian = this.roles.SOME_GUARDIAN.members[0];
+                await expect(this.manager.connect(roleGuardian).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(roleGuardian, this.caller, this.manager, this.method.selector);
               });
 
               it('a member of the granted role but not its admin reverts', async function () {

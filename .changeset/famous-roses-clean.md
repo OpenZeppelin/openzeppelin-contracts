@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`AccessManager`: Allow a role admin to cancel grant and revoke operations.
+`AccessManager`: Allow the guardian of a role's admin to cancel grant and revoke operations for that role.
