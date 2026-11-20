@@ -35,9 +35,10 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  *
  * These properties mean that the admin account can only be used for upgrading the proxy, so it's best if it's a
  * dedicated account that is not used for anything else. This will avoid headaches due to sudden errors when trying to
- * call a function from the proxy implementation. For this reason, the proxy deploys an instance of {ProxyAdmin} and
- * allows upgrades only if they come through it. You should think of the `ProxyAdmin` instance as the administrative
- * interface of the proxy, including the ability to change who can trigger upgrades by transferring ownership.
+ * call a function from the proxy implementation. For this reason, the proxy deploys an instance of {ProxyAdmin} through
+ * {_deployProxyAdmin} and allows upgrades only if they come through it. You should think of the `ProxyAdmin` instance as
+ * the administrative interface of the proxy, including the ability to change who can trigger upgrades by transferring
+ * ownership.
  *
  * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
  * inherit from that interface, and instead `upgradeToAndCall` is implicitly implemented using a custom dispatch
@@ -77,9 +78,20 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * {ERC1967Proxy-constructor}.
      */
     constructor(address _logic, address initialOwner, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
-        _admin = address(new ProxyAdmin(initialOwner));
+        _admin = _deployProxyAdmin(initialOwner);
         // Set the storage value and emit an event for ERC-1967 compatibility
         ERC1967Utils.changeAdmin(_proxyAdmin());
+    }
+
+    /**
+     * @dev Deploys a new {ProxyAdmin} owned by `initialOwner`. The returned address becomes this proxy's immutable
+     * admin.
+     *
+     * NOTE: Override this function to customize admin deployment, for example to reuse an existing {ProxyAdmin} or to
+     * deploy a different admin contract. The returned address cannot be changed thereafter.
+     */
+    function _deployProxyAdmin(address initialOwner) internal virtual returns (address) {
+        return address(new ProxyAdmin(initialOwner));
     }
 
     /**

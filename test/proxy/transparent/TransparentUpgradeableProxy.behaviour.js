@@ -2,8 +2,8 @@ import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { ImplementationLabel, AdminLabel } from '../../helpers/storage';
 
-// createProxy, initialOwner, accounts
-export function shouldBehaveLikeTransparentUpgradeableProxy() {
+// createProxy, owner, accounts [, proxyAdmin if !deployProxyAdmin]
+export function shouldBehaveLikeTransparentUpgradeableProxy({ deployProxyAdmin = true } = {}) {
   before(async function () {
     const implementationV0 = await this.ethers.deployContract('DummyImplementation');
     const implementationV1 = await this.ethers.deployContract('DummyImplementation');
@@ -18,7 +18,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
 
       const proxyAdmin = await this.ethers.getContractAt(
         'ProxyAdmin',
-        ethers.getCreateAddress({ from: proxy.target, nonce: 1n }),
+        deployProxyAdmin ? ethers.getCreateAddress({ from: proxy.target, nonce: 1n }) : this.proxyAdmin.target,
       );
       const proxyAdminAsSigner = await proxyAdmin.getAddress().then(this.helpers.impersonate);
 
@@ -70,6 +70,14 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
 
       expect(await this.proxyAdmin.owner()).to.equal(this.owner);
     });
+
+    if (!deployProxyAdmin) {
+      it('does not deploy a new ProxyAdmin', async function () {
+        expect(
+          await this.proxy.runner.provider.getCode(ethers.getCreateAddress({ from: this.proxy.target, nonce: 1n })),
+        ).to.equal('0x');
+      });
+    }
 
     it('can overwrite the admin by the implementation', async function () {
       await this.instance.unsafeOverrideAdmin(this.other);
