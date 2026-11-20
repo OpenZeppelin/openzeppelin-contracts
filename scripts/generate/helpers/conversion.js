@@ -27,3 +27,5 @@ export function fromBytes32(type, value) {
       throw new Error(`Conversion from bytes32 to ${type} not supported`);
   }
 }
+
+export { toBeHex } from 'ethers';
