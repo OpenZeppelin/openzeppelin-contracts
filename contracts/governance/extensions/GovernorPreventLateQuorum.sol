@@ -52,16 +52,19 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /**
      * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
-     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()`. Since {lateQuorumVoteExtension}
-     * is bounded by {_maxLateQuorumVoteExtension} when set, this addition cannot overflow in practice and brick
-     * governance mid-vote.
+     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()`, with the extension capped by
+     * {_maxLateQuorumVoteExtension}. Since the cap is applied here, and not only when the extension is set, this
+     * addition cannot overflow in practice and brick governance mid-vote, even if the bound was not known when the
+     * extension was set or has decreased since.
      *
      * May emit a {ProposalExtended} event.
      */
     function _tallyUpdated(uint256 proposalId) internal virtual override {
         super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
+            // Downcast is safe: the minimum is at most `lateQuorumVoteExtension()`, which is a uint48.
+            uint48 voteExtension = uint48(Math.min(lateQuorumVoteExtension(), _maxLateQuorumVoteExtension()));
+            uint48 extendedDeadline = clock() + voteExtension;
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -74,19 +77,27 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /**
      * @dev Returns the current value of the vote extension parameter: the number of blocks that are required to pass
      * from the time a proposal reaches quorum until its voting period ends.
+     *
+     * NOTE: The extension applied to a proposal is capped by {_maxLateQuorumVoteExtension}, so it can be shorter than
+     * this value (e.g. if the voting period was lowered after this value was set).
      */
     function lateQuorumVoteExtension() public view virtual returns (uint48) {
         return _voteExtension;
     }
 
     /**
-     * @dev Upper bound applied to {lateQuorumVoteExtension} when it is set. Defaults to the voting period,
-     * resulting in a total maximum voting period of twice the governor's documented voting period.
-     * Can be overridden to provide a different upper bound.
+     * @dev Upper bound applied to {lateQuorumVoteExtension} when it is set, and when it is used to extend a proposal's
+     * deadline. Defaults to the voting period, resulting in a total maximum voting period of twice the governor's
+     * documented voting period. Can be overridden to provide a different upper bound.
      *
-     * NOTE: {_tallyUpdated} adds `lateQuorumVoteExtension()` to `clock()` using `uint48` arithmetic, which is
-     * safe under the default bound. Overriding this to a value close to (or greater than) `type(uint48).max`
-     * can make that addition overflow and revert the quorum-reaching vote, bricking governance.
+     * A bound of zero is treated as not yet known when the extension is set, and the check is skipped. This happens
+     * in the constructor when the voting period is set by a module constructed later (e.g. {GovernorSettings} listed
+     * after this contract), or read from an immutable assigned in the derived contract's constructor. The bound is
+     * still applied when the extension is used.
+     *
+     * NOTE: {_tallyUpdated} adds the capped extension to `clock()` using `uint48` arithmetic, which is safe under the
+     * default bound. Overriding this to a value close to (or greater than) `type(uint48).max` can make that addition
+     * overflow and revert the quorum-reaching vote, bricking governance.
      */
     function _maxLateQuorumVoteExtension() internal view virtual returns (uint256) {
         return votingPeriod();
@@ -110,8 +121,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
      */
     function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
         uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
+        // A zero bound is not known yet (see {_maxLateQuorumVoteExtension}). {_tallyUpdated} applies it once it is.
         require(
-            newVoteExtension <= maxVoteExtension,
+            maxVoteExtension == 0 || newVoteExtension <= maxVoteExtension,
             GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension)
         );
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
