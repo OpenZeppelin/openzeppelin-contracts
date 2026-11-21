@@ -1,6 +1,5 @@
 import proc from 'child_process';
 import fs from 'fs';
-import path from 'path';
 
 const read = cmd => proc.execSync(cmd, { encoding: 'utf8' }).trim();
 const run = cmd => {
@@ -24,7 +23,7 @@ if (!match) {
   process.exit(1);
 }
 
-const pkgVersion = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../package.json'), 'utf8')).version;
+const pkgVersion = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
 
 if (pkgVersion.includes('-') && !pkgVersion.includes('.0.0-')) {
   console.error('Refusing to update docs: non-major prerelease detected');
