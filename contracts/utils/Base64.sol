@@ -240,6 +240,16 @@ library Base64 {
                 resultPtr := add(resultPtr, 3)
             }
 
+            // If `dataLength % 4 == 1`, the loop above produces all `resultLength` bytes from the first
+            // `dataLength - 1` characters, and the last character is never read. Validate it separately.
+            if and(iszero(err), eq(mod(dataLength, 4), 1)) {
+                let e := sub(byte(0, mload(sub(afterPtr, 1))), 43)
+                // slither-disable-next-line incorrect-shift
+                if iszero(and(shl(e, 1), 0xffffffd0ffffffc47ff5)) {
+                    err := e
+                }
+            }
+
             // Reset the value that was cached
             mstore(afterPtr, afterCache)
             switch err
