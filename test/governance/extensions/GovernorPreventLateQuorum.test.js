@@ -222,6 +222,56 @@ describe('GovernorPreventLateQuorum', function () {
           .to.be.revertedWithCustomError(this.mock, 'GovernorPreventLateQuorumVoteExtensionTooLarge')
           .withArgs(votingPeriod + 1n, votingPeriod);
       });
+
+      it('applied extension is capped by a voting period lowered after the extension was set', async function () {
+        const loweredVotingPeriod = lateQuorumVoteExtension / 2n;
+        await this.mock.$_setVotingPeriod(loweredVotingPeriod);
+
+        await this.helper.connect(this.proposer).propose();
+        await this.helper.waitForDeadline(-1n);
+        const txVote = await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+
+        expect(await this.mock.lateQuorumVoteExtension()).to.equal(lateQuorumVoteExtension);
+        const extendedDeadline = (await time.clockFromReceipt[mode](txVote)) + loweredVotingPeriod;
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(extendedDeadline);
+        await expect(txVote).to.emit(this.mock, 'ProposalExtended').withArgs(this.proposal.id, extendedDeadline);
+      });
+
+      describe('with GovernorSettings constructed after GovernorPreventLateQuorum', function () {
+        const deploySettingsLast = (token, voteExtension) =>
+          ethers.deployContract('$GovernorPreventLateQuorumSettingsLastMock', [
+            name, // name
+            token, // tokenAddress
+            voteExtension,
+            votingDelay, // initialVotingDelay
+            votingPeriod, // initialVotingPeriod
+            0n, // initialProposalThreshold
+            quorum,
+          ]);
+
+        it('deploys', async function () {
+          const mock = await deploySettingsLast(this.token, lateQuorumVoteExtension);
+          expect(await mock.votingPeriod()).to.equal(votingPeriod);
+          expect(await mock.lateQuorumVoteExtension()).to.equal(lateQuorumVoteExtension);
+        });
+
+        it('applied extension is capped by the voting period', async function () {
+          const mock = await deploySettingsLast(this.token, 2n ** 48n - 1n);
+          const helper = new GovernorHelper(connection, mock, mode);
+          const proposal = helper.setProposal(
+            [{ target: this.receiver.target, data: this.receiver.interface.encodeFunctionData('mockFunction') }],
+            '<proposal description>',
+          );
+
+          await helper.connect(this.proposer).propose();
+          await helper.waitForDeadline(-1n);
+          const txVote = await helper.connect(this.voter2).vote({ support: VoteType.For });
+
+          const extendedDeadline = (await time.clockFromReceipt[mode](txVote)) + votingPeriod;
+          expect(await mock.proposalDeadline(proposal.id)).to.equal(extendedDeadline);
+          await expect(txVote).to.emit(mock, 'ProposalExtended').withArgs(proposal.id, extendedDeadline);
+        });
+      });
     });
   }
 });
