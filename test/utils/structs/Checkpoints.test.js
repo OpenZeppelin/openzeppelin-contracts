@@ -21,6 +21,10 @@ describe('Checkpoints', function () {
           lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${keySize})`)(0, ...args),
           upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,uint${keySize})`)(0, ...args),
           upperLookupRecent: (...args) => mock.getFunction(`$upperLookupRecent(uint256,uint${keySize})`)(0, ...args),
+          upperLookupCheckpoint: (...args) =>
+            mock.getFunction(`$upperLookupCheckpoint(uint256,uint${keySize})`)(0, ...args),
+          upperLookupRecentCheckpoint: (...args) =>
+            mock.getFunction(`$upperLookupRecentCheckpoint(uint256,uint${keySize})`)(0, ...args),
         };
 
         return { mock, methods };
@@ -49,6 +53,8 @@ describe('Checkpoints', function () {
           expect(await this.methods.lowerLookup(0)).to.equal(0n);
           expect(await this.methods.upperLookup(0)).to.equal(0n);
           expect(await this.methods.upperLookupRecent(0)).to.equal(0n);
+          expect(await this.methods.upperLookupCheckpoint(0)).to.deep.equal([false, 0n, 0n]);
+          expect(await this.methods.upperLookupRecentCheckpoint(0)).to.deep.equal([false, 0n, 0n]);
         });
       });
 
@@ -122,6 +128,16 @@ describe('Checkpoints', function () {
           }
         });
 
+        it('upperLookupCheckpoint & upperLookupRecentCheckpoint', async function () {
+          for (let i = 0; i < 14; ++i) {
+            const ckpt = this.checkpoints.findLast(x => i >= x.key);
+            const expected = ckpt ? [true, ckpt.key, ckpt.value] : [false, 0n, 0n];
+
+            expect(await this.methods.upperLookupCheckpoint(i)).to.deep.equal(expected);
+            expect(await this.methods.upperLookupRecentCheckpoint(i)).to.deep.equal(expected);
+          }
+        });
+
         it('upperLookupRecent with more than 5 checkpoints', async function () {
           const moreCheckpoints = [
             { key: 12n, value: 22n },
@@ -137,9 +153,13 @@ describe('Checkpoints', function () {
           }
 
           for (let i = 0; i < 25; ++i) {
-            const value = allCheckpoints.findLast(x => i >= x.key)?.value || 0n;
+            const ckpt = allCheckpoints.findLast(x => i >= x.key);
+            const value = ckpt?.value || 0n;
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
+            expect(await this.methods.upperLookupRecentCheckpoint(i)).to.deep.equal(
+              ckpt ? [true, ckpt.key, ckpt.value] : [false, 0n, 0n],
+            );
           }
         });
       });
