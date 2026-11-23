@@ -170,7 +170,19 @@ export function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainB
 
         await expect(
           this.bridgeA.connect(alice).crosschainTransferFrom(alice, this.helpers.chain.toErc7930(undefined), tokenId), // No address
-        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainNonFungibleEmptyAddress');
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainNonFungibleInvalidAddress');
+      });
+
+      it('reverts if the address part of the interoperable address has an invalid length', async function () {
+        const [alice] = this.accounts;
+        const to = this.helpers.chain.toErc7930(ethers.zeroPadValue(alice.address, 32)); // 32-byte EVM address
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).crosschainTransferFrom(alice, to, tokenId),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainNonFungibleInvalidAddress');
       });
     });
 
@@ -226,6 +238,15 @@ export function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainB
         await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, false))
           .to.be.revertedWithCustomError(this.bridgeA, 'LinkAlreadyRegistered')
           .withArgs(this.helpers.chain.erc7930);
+      });
+
+      it('reject counterpart with invalid address length', async function () {
+        const newGateway = await this.ethers.deployContract('$ERC7786GatewayMock');
+        const newCounterpart = this.helpers.chain.toErc7930(ethers.zeroPadValue(this.accounts[0].address, 32)); // 32-byte EVM address
+
+        await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, true))
+          .to.be.revertedWithCustomError(this.bridgeA, 'InteroperableAddressParsingError')
+          .withArgs(newCounterpart);
       });
 
       it('reject invalid gateway', async function () {

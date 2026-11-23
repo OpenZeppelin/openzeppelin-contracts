@@ -24,4 +24,6 @@ Implementations are provided for each of the 4 interfaces defined in the ERC.
 
 {{ERC6909Metadata}}
 
+{{ERC6909Pausable}}
+
 {{ERC6909TokenSupply}}

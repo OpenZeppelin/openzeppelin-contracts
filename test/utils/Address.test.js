@@ -88,8 +88,8 @@ describe('Address', function () {
         it('reverts on recipient revert', async function () {
           await this.targetEther.setAcceptEther(false);
           await expect(this.mock.$sendValue(this.targetEther, funds)).to.be.revertedWithCustomError(
-            this.mock,
-            'FailedCall',
+            this.targetEther,
+            'EtherReceiveRejected',
           );
         });
       });

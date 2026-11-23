@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/extensions/PaymasterERC20Guarantor.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
@@ -67,7 +67,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         override
         returns (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext)
     {
-        address guarantor = _fetchGuarantor(userOp);
+        address guarantor = _guarantorOf(userOp);
         bool isGuaranteed = guarantor != address(0);
 
         // If there is a guarantor, add more funds to cover the extra postOp cost
@@ -170,14 +170,15 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     function _postOpGasBudget(PackedUserOperation calldata userOp) internal view virtual override returns (uint256) {
         return
             super._postOpGasBudget(userOp) +
-            Math.ternary(_fetchGuarantor(userOp) == address(0), 0, _guaranteedPostOpCost());
+            Math.ternary(_guarantorOf(userOp) == address(0), 0, _guaranteedPostOpCost());
     }
 
     /**
      * @dev Fetches the guarantor address and validation data from the user operation.
      *
      * NOTE: Return `address(0)` to disable the guarantor feature. If supported, ensure
-     * explicit consent (e.g., signature verification) to prevent unauthorized use.
+     * explicit consent (e.g., signature verification) to prevent unauthorized use. Returning
+     * `userOp.sender` is equivalent to returning `address(0)`: the operation is not guaranteed.
      */
     function _fetchGuarantor(PackedUserOperation calldata userOp) internal view virtual returns (address guarantor);
 
@@ -185,9 +186,22 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * @dev Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for
      * guaranteed userOps.
      *
-     * NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
+     * The guaranteed path pulls the cost from `userOp.sender`, whose balance (and allowance, if finite) was not
+     * written during validation. The userOp execution may have accessed or modified these slots, but that cannot be
+     * relied on: in the worst case, they are cold and written for the first time in the transaction, which EIP-8038
+     * (Glamsterdam) prices at `STORAGE_WRITE` (10_000) instead of 2_800. The default is sized for that worst case.
+     *
+     * NOTE: Like {PaymasterERC20-_postOpCost}, the default is calibrated for a simple ERC-20, with no extra logic on
+     * transfer, running on a chain with the Glamsterdam gas schedule. Customize it for other use cases (e.g. tokens
+     * with transfer hooks, fees or proxies, or chains with a different gas schedule).
      */
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
-        return 15_000;
+        return 35_000;
+    }
+
+    /// @dev Returns the guarantor given by {_fetchGuarantor}, or `address(0)` if the sender is its own guarantor.
+    function _guarantorOf(PackedUserOperation calldata userOp) private view returns (address) {
+        address guarantor = _fetchGuarantor(userOp);
+        return address(uint160(Math.ternary(guarantor == userOp.sender, 0, uint160(guarantor))));
     }
 }

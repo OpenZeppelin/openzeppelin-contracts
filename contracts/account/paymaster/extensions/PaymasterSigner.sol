@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/extensions/PaymasterSigner.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Calldata} from "../../../utils/Calldata.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";

@@ -1,3 +1,4 @@
+import { globalOptions } from 'hardhat';
 import { ethers } from 'ethers';
 import { ValidationRange } from './enums';
 import * as random from './random';
@@ -74,8 +75,9 @@ export class UserOperation {
     this.factory = params.factory ?? undefined;
     this.factoryData = params.factoryData ?? '0x';
     this.callData = params.callData ?? '0x';
-    this.verificationGas = params.verificationGas ?? 10_000_000n;
-    this.callGas = params.callGas ?? 100_000n;
+    // Account deployment through initCode is much more expensive with coverage instrumentation
+    this.verificationGas = params.verificationGas ?? (globalOptions.coverage ? 100_000_000n : 30_000_000n);
+    this.callGas = params.callGas ?? 1_000_000n;
     this.preVerificationGas = params.preVerificationGas ?? 100_000n;
     this.maxPriorityFee = params.maxPriorityFee ?? 100_000n;
     this.maxFeePerGas = params.maxFeePerGas ?? 100_000n;
@@ -115,8 +117,8 @@ export class UserOperation {
 }
 
 const parseInitCode = initCode => ({
-  factory: '0x' + initCode.replace(/0x/, '').slice(0, 40),
-  factoryData: '0x' + initCode.replace(/0x/, '').slice(40),
+  factory: ethers.dataSlice(initCode, 0, 20),
+  factoryData: ethers.dataSlice(initCode, 20),
 });
 
 /// Global ERC-4337 environment helper.
@@ -158,7 +160,7 @@ export class ERC4337Helper {
           to: env.senderCreator,
           data: env.senderCreator.interface.encodeFunctionData('createSender', [initCode]),
         })
-        .then(result => ethers.getAddress(ethers.hexlify(ethers.getBytes(result).slice(-20))))
+        .then(result => ethers.getAddress(ethers.dataSlice(result, -20)))
         .then(address => accountFactory.attach(address));
 
       return new SmartAccount(instance, initCode, env);
@@ -186,7 +188,7 @@ class SmartAccount extends ethers.BaseContract {
     userOp.nonce ??= await this.env.entrypoint.getNonce(userOp.sender, 0);
     if (ethers.isAddressable(userOp.paymaster)) {
       userOp.paymaster = await ethers.resolveAddress(userOp.paymaster);
-      userOp.paymasterVerificationGasLimit ??= 100_000n;
+      userOp.paymasterVerificationGasLimit ??= 1_000_000n;
       userOp.paymasterPostOpGasLimit ??= 100_000n;
     }
     return new UserOperationWithContext(userOp);

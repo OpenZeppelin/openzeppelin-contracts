@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/draft-ERC3009.sol)
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";

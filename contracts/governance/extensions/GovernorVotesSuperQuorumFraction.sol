@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
@@ -96,14 +96,16 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      */
     function _updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) internal virtual {
         uint256 denominator = quorumDenominator();
-        if (newSuperQuorumNumerator > denominator) {
-            revert GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator);
-        }
+        require(
+            newSuperQuorumNumerator <= denominator,
+            GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator)
+        );
 
         uint256 quorumNumerator = quorumNumerator();
-        if (newSuperQuorumNumerator < quorumNumerator) {
-            revert GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator);
-        }
+        require(
+            newSuperQuorumNumerator >= quorumNumerator,
+            GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator)
+        );
 
         uint256 oldSuperQuorumNumerator = _superQuorumNumeratorHistory.latest();
         _superQuorumNumeratorHistory.push(clock(), SafeCast.toUint208(newSuperQuorumNumerator));
@@ -119,9 +121,10 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
         // Ignoring check when the superQuorum was never set (construction sets quorum before superQuorum)
         if (_superQuorumNumeratorHistory.length() > 0) {
             uint256 superQuorumNumerator_ = superQuorumNumerator();
-            if (newQuorumNumerator > superQuorumNumerator_) {
-                revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
-            }
+            require(
+                newQuorumNumerator <= superQuorumNumerator_,
+                GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_)
+            );
         }
         super._updateQuorumNumerator(newQuorumNumerator);
     }
