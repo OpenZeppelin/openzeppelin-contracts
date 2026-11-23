@@ -58,7 +58,7 @@ Frozen tokens never exceed the balance. Burns and forced transfers unfreeze just
 
 `recoveryAddress` moves the whole balance of a lost wallet to a new one. The new wallet is registered with the investor's identity before the balance moves, so the compliance contract sees both wallets resolve to their identities when it is notified, and the lost wallet is removed from the identity registry afterwards. Frozen tokens and a frozen status are carried over to the new wallet.
 
-The base implementation authorizes the recovery through `_checkAdmin` and requires the investor identity to be the one the lost wallet is registered with. That check lives in `recoveryAddress`. An issuer with a different recovery policy, such as accepting a lost wallet that was never registered when the new wallet already belongs to the investor, overrides `recoveryAddress` and calls `_recoveryAddress` after its own checks. An issuer that wants additional migration steps overrides `_recoveryAddress`.
+The base implementation authorizes the recovery through `_checkAdmin`, requires the new wallet to differ from the lost one, and requires the investor identity to be the one the lost wallet is registered with. These checks live in `recoveryAddress`. An issuer with a different recovery policy, such as accepting a lost wallet that was never registered when the new wallet already belongs to the investor, overrides `recoveryAddress` and calls `_recoveryAddress` after its own checks. An issuer that wants additional migration steps overrides `_recoveryAddress`.
 
 [[design-choices]]
 == Design choices

@@ -33,6 +33,9 @@ contract ERC3643IdentityRegistryMock {
     event IdentityRegistered(address indexed investorAddress, IERC3643Identity indexed identity);
     event IdentityRemoved(address indexed investorAddress, IERC3643Identity indexed identity);
 
+    error ERC3643IdentityRegistryMockAlreadyRegistered(address user);
+    error ERC3643IdentityRegistryMockNotRegistered(address user);
+
     function setIdentity(address user, IERC3643Identity identity_) public {
         _identities[user] = identity_;
     }
@@ -41,7 +44,9 @@ contract ERC3643IdentityRegistryMock {
         _verified[identity_] = verified;
     }
 
+    // Follows the ERC requirements: a wallet is registered once and deleted only if registered.
     function registerIdentity(address user, IERC3643Identity identity_, uint16 country) public {
+        require(address(_identities[user]) == address(0), ERC3643IdentityRegistryMockAlreadyRegistered(user));
         _identities[user] = identity_;
         _countries[user] = country;
         emit IdentityRegistered(user, identity_);
@@ -49,6 +54,7 @@ contract ERC3643IdentityRegistryMock {
 
     function deleteIdentity(address user) public {
         IERC3643Identity identity_ = _identities[user];
+        require(address(identity_) != address(0), ERC3643IdentityRegistryMockNotRegistered(user));
         delete _identities[user];
         delete _countries[user];
         emit IdentityRemoved(user, identity_);

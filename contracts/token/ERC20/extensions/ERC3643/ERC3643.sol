@@ -128,6 +128,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     /// @dev The investor identity of a recovery is not the identity `lost` is registered with.
     error ERC3643InvalidRecoveryIdentity(address lost, address investorOnchainID);
 
+    /// @dev The new wallet of a recovery is the lost wallet.
+    error ERC3643InvalidRecoveryWallet(address wallet);
+
     /// @dev A batch entry point received arrays of different lengths.
     error ERC3643InvalidArrayLength();
 
@@ -251,8 +254,9 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     }
 
     /**
-     * @dev See {IERC3643-recoveryAddress}. Requires `investorOnchainID` to be the identity `lost` is
-     * registered with, so a recovery only moves an investor's position between their own wallets.
+     * @dev See {IERC3643-recoveryAddress}. Requires `updated` to be a different wallet than `lost`,
+     * and `investorOnchainID` to be the identity `lost` is registered with, so a recovery only moves
+     * an investor's position between their own wallets.
      *
      * A derived contract with a different recovery policy (e.g. accepting an unregistered `lost`
      * when `updated` already belongs to `investorOnchainID`, or checking keys on the identity)
@@ -263,6 +267,7 @@ abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
         address updated,
         address investorOnchainID
     ) public virtual onlyAdmin returns (bool) {
+        require(lost != updated, ERC3643InvalidRecoveryWallet(updated));
         require(
             address(identityRegistry().identity(lost)) == investorOnchainID,
             ERC3643InvalidRecoveryIdentity(lost, investorOnchainID)
