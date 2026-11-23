@@ -29,9 +29,14 @@ export default async function generateExposedContracts(
     return rel !== '..' && !rel.startsWith('..' + path.sep);
   };
 
+  // npm roots (`npm:<module>`) only match `npm:` patterns, without the prefix so that `**` works across segments.
+  const matches = (rootPath: string, pattern: string) =>
+    rootPath.startsWith('npm:') === pattern.startsWith('npm:') &&
+    path.matchesGlob(rootPath.replace(/^npm:/, ''), pattern.replace(/^npm:/, ''));
+
   const includes = async (rootPath: string) =>
-    hre.config.exposed.include.some(p => path.matchesGlob(rootPath, p)) &&
-    !hre.config.exposed.exclude.some(p => path.matchesGlob(rootPath, p)) &&
+    hre.config.exposed.include.some(p => matches(rootPath, p)) &&
+    !hre.config.exposed.exclude.some(p => matches(rootPath, p)) &&
     !isInExposedOutDir(rootPath) &&
     (await hre.solidity.getScope(rootPath)) === 'contracts';
 

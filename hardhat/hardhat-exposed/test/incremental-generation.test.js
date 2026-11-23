@@ -224,6 +224,14 @@ describe('hardhat-exposed: incremental generation', function () {
       expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
     });
 
+    it('generates a wrapper for an npm file matched by a globstar', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      await this.build({ include: ['contracts/**/*.sol', 'npm:**/*.sol'] }, ['dep/src/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/src/Dep.sol']);
+    });
+
     it('does not generate a wrapper for an npm file to build that is not included', async function () {
       await this.build({ include: ['contracts/**/*.sol'] }, ['dep/Dep.sol']);
       expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
