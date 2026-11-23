@@ -72,6 +72,8 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{NoncesKeyed}}
 
+{{IPausable}}
+
 {{Pausable}}
 
 {{ReentrancyGuard}}

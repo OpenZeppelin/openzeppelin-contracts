@@ -28,6 +28,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
 * {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
+* {ERC3643}: institutional grade security token standard (T-REX) that provides compliance-driven token transfers with identity verification, freezing capabilities, and regulatory controls.
 
 Some extensions are vault standards where shares are represented by the core ERC-20 functionality:
 
@@ -90,6 +91,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20TemporaryApproval}}
 
 {{ERC1363}}
+
+{{ERC3643}}
 
 == Vaults
 
