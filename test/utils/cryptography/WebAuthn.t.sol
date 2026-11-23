@@ -142,7 +142,7 @@ contract WebAuthnTest is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testVerifyIndexOutOfBoundChallengeIndex(bytes memory challenge, uint256 seed) public view {
+    function testVerifyIndexOutOfBounds(bytes memory challenge, uint256 seed) public view {
         bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
         string memory clientDataJSON = _encodeClientDataJSON(challenge);
 
@@ -172,15 +172,18 @@ contract WebAuthnTest is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testVerifyInvalidOutOfBoundTypeIndex(bytes memory challenge, uint256 seed) public view {
+    function testVerifyTypeIndexOutOfBounds(bytes memory challenge, uint256 seed, uint256 typeIndex) public view {
+        bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
+        string memory clientDataJSON = _encodeClientDataJSON(challenge);
+
         assertFalse(
             _runVerify(
                 seed,
                 challenge,
                 23,
-                100000000, // try reading type at an out-of-bound index, should return false instead of reverting OOG
-                _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
-                _encodeClientDataJSON(challenge),
+                bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max), // no room for the type field
+                authenticatorData,
+                clientDataJSON,
                 false
             )
         );
@@ -190,9 +193,9 @@ contract WebAuthnTest is Test {
                 seed,
                 challenge,
                 23,
-                type(uint256).max,
-                _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
-                _encodeClientDataJSON(challenge),
+                type(uint256).max, // way out of bound, causing an overflow when figuring out the end of the type field
+                authenticatorData,
+                clientDataJSON,
                 false
             )
         );
