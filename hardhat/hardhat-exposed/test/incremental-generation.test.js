@@ -13,7 +13,8 @@ contract ${name} {}
 
 describe('hardhat-exposed: incremental generation', function () {
   beforeEach(function () {
-    this.root = fs.mkdtempSync(path.join(os.tmpdir(), 'hardhat-exposed-'));
+    // Resolved so that `process.cwd()` matches it after a `chdir` (on macOS, the temporary directory is a symlink)
+    this.root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'hardhat-exposed-')));
     this.outDir = path.join(this.root, 'contracts-exposed');
     fs.mkdirSync(path.join(this.root, 'contracts'));
     fs.writeFileSync(path.join(this.root, 'package.json'), '{}');
@@ -44,9 +45,14 @@ describe('hardhat-exposed: incremental generation', function () {
     };
     this.manifest = () => path.join(this.outDir, 'manifest.json');
     // A new environment per build mimics separate CLI invocations
-    this.build = async exposed => {
+    this.build = async (exposed, npmFilesToBuild = []) => {
       const hre = await createHardhatRuntimeEnvironment(
-        { plugins: [hardhatExposed], solidity: '0.8.35', paths: { sources: 'contracts' }, exposed },
+        {
+          plugins: [hardhatExposed],
+          solidity: { version: '0.8.35', npmFilesToBuild },
+          paths: { sources: 'contracts' },
+          exposed,
+        },
         {},
         this.root,
       );
@@ -202,6 +208,129 @@ describe('hardhat-exposed: incremental generation', function () {
       fs.writeFileSync(this.manifest(), JSON.stringify(manifest));
       await this.build();
       expect(fs.readFileSync(outside, 'utf8')).to.equal('keep me');
+    });
+  });
+
+  describe('npm files', function () {
+    beforeEach(function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(dependency, { recursive: true });
+      fs.writeFileSync(path.join(dependency, 'package.json'), '{"name":"dep","version":"1.0.0"}');
+      fs.writeFileSync(path.join(dependency, 'Dep.sol'), contract('Dep'));
+      this.write('A');
+    });
+
+    it('generates a wrapper for an npm file to build that is included', async function () {
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('generates a wrapper for an npm file matched by a globstar', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      await this.build({ include: ['contracts/**/*.sol', 'npm:**/*.sol'] }, ['dep/src/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/src/Dep.sol']);
+    });
+
+    it('does not generate a wrapper for an npm file to build that is not included', async function () {
+      await this.build({ include: ['contracts/**/*.sol'] }, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('does not generate a wrapper for an npm file to build that is excluded', async function () {
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'], exclude: ['npm:dep/Dep.sol'] }, [
+        'dep/Dep.sol',
+      ]);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('removes the wrapper of an npm file that is no longer built', async function () {
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol']);
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] });
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
+    });
+
+    it('keeps the wrapper of an npm file when building from another directory', async function () {
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const cwd = process.cwd();
+      try {
+        process.chdir(this.root);
+        await this.build(exposed, ['dep/Dep.sol']);
+      } finally {
+        process.chdir(cwd);
+      }
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('keeps the wrapper of an npm file when building from the output directory', async function () {
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const cwd = process.cwd();
+      try {
+        process.chdir(this.outDir);
+        await this.build(exposed, ['dep/Dep.sol']);
+      } finally {
+        process.chdir(cwd);
+      }
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('keeps the wrapper of an npm file that is no longer built while a source still imports it', async function () {
+      fs.writeFileSync(
+        this.source('Importer'),
+        contract('Importer').replace('contract Importer', 'import {Dep} from "dep/Dep.sol";\ncontract Importer is Dep'),
+      );
+      const exposed = { imports: true, include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'contracts/Importer.sol', 'dep/Dep.sol']);
+      await this.build(exposed);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'contracts/Importer.sol', 'dep/Dep.sol']);
+    });
+
+    it('keeps the full wrapper of an npm file when only a source importing part of it changes', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.writeFileSync(path.join(dependency, 'Dep.sol'), contract('Dep') + 'contract Extra {}\n');
+      fs.writeFileSync(
+        this.source('Importer'),
+        contract('Importer').replace('contract Importer', 'import {Dep} from "dep/Dep.sol";\ncontract Importer is Dep'),
+      );
+      const exposed = { imports: true, include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const wrapper = path.join(this.outDir, 'dep', 'Dep.sol');
+      expect(fs.readFileSync(wrapper, 'utf8')).to.include('contract $Extra');
+      fs.appendFileSync(this.source('Importer'), '// modified\n');
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(fs.readFileSync(wrapper, 'utf8')).to.include('contract $Extra');
+    });
+
+    it('generates the wrappers of npm files whose exported paths are prefixes of one another', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      fs.writeFileSync(path.join(dependency, 'src', 'Dep.solExtra.sol'), contract('Extra'));
+      fs.writeFileSync(
+        path.join(dependency, 'package.json'),
+        '{"name":"dep","version":"1.0.0","exports":{"./Dep.sol":"./src/Dep.sol","./Extra.sol":"./src/Dep.solExtra.sol"}}',
+      );
+      await this.build({ include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] }, ['dep/Dep.sol', 'dep/Extra.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol', 'dep/Extra.sol']);
+    });
+
+    it('generates the wrapper of an npm file at its exported path', async function () {
+      const dependency = path.join(this.root, 'node_modules', 'dep');
+      fs.mkdirSync(path.join(dependency, 'src'));
+      fs.renameSync(path.join(dependency, 'Dep.sol'), path.join(dependency, 'src', 'Dep.sol'));
+      fs.writeFileSync(
+        path.join(dependency, 'package.json'),
+        '{"name":"dep","version":"1.0.0","exports":{"./Dep.sol":"./src/Dep.sol"}}',
+      );
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+      await this.build(exposed);
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol']);
     });
   });
 
