@@ -3,11 +3,13 @@ import { expect } from 'chai';
 import { ForwardRequest, getDomain } from '../helpers/eip712';
 import { sum } from '../helpers/math';
 
+// Since Amsterdam, the state gas of a halted transaction is refunded and the calldata floor exceeds the gas limits
+// used to force an out-of-gas. The out-of-gas tests below rely on the pre-Amsterdam gas accounting.
 const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = await network.create();
+} = await network.create({ override: { hardfork: 'osaka' } });
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
