@@ -153,9 +153,13 @@ function shouldBehaveLikeERC7540Deposit({
           const [tx1, tx2] = await batchInBlock(
             [
               () =>
-                this.mock.connect(this.owner).requestDeposit(17n, this.controller, this.owner, { gasLimit: 200000n }),
+                this.mock
+                  .connect(this.owner)
+                  .requestDeposit(17n, this.controller, this.owner, { gasLimit: 1_000_000n }),
               () =>
-                this.mock.connect(this.owner).requestDeposit(42n, this.controller, this.owner, { gasLimit: 200000n }),
+                this.mock
+                  .connect(this.owner)
+                  .requestDeposit(42n, this.controller, this.owner, { gasLimit: 1_000_000n }),
             ],
             this.ethers.provider,
           );
@@ -522,9 +526,13 @@ function shouldBehaveLikeERC7540Redeem({
           const [tx1, tx2] = await batchInBlock(
             [
               () =>
-                this.mock.connect(this.operator).requestRedeem(17n, this.controller, this.owner, { gasLimit: 200000n }),
+                this.mock
+                  .connect(this.operator)
+                  .requestRedeem(17n, this.controller, this.owner, { gasLimit: 1_000_000n }),
               () =>
-                this.mock.connect(this.operator).requestRedeem(42n, this.controller, this.owner, { gasLimit: 200000n }),
+                this.mock
+                  .connect(this.operator)
+                  .requestRedeem(42n, this.controller, this.owner, { gasLimit: 1_000_000n }),
             ],
             this.ethers.provider,
           );
