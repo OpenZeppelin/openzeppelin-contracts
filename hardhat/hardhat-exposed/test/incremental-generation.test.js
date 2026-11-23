@@ -13,7 +13,8 @@ contract ${name} {}
 
 describe('hardhat-exposed: incremental generation', function () {
   beforeEach(function () {
-    this.root = fs.mkdtempSync(path.join(os.tmpdir(), 'hardhat-exposed-'));
+    // Resolved so that `process.cwd()` matches it after a `chdir` (on macOS, the temporary directory is a symlink)
+    this.root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'hardhat-exposed-')));
     this.outDir = path.join(this.root, 'contracts-exposed');
     fs.mkdirSync(path.join(this.root, 'contracts'));
     fs.writeFileSync(path.join(this.root, 'package.json'), '{}');
@@ -256,6 +257,19 @@ describe('hardhat-exposed: incremental generation', function () {
       const cwd = process.cwd();
       try {
         process.chdir(this.root);
+        await this.build(exposed, ['dep/Dep.sol']);
+      } finally {
+        process.chdir(cwd);
+      }
+      expect(this.wrappers()).to.deep.equal(['contracts/A.sol', 'dep/Dep.sol']);
+    });
+
+    it('keeps the wrapper of an npm file when building from the output directory', async function () {
+      const exposed = { include: ['contracts/**/*.sol', 'npm:dep/**/*.sol'] };
+      await this.build(exposed, ['dep/Dep.sol']);
+      const cwd = process.cwd();
+      try {
+        process.chdir(this.outDir);
         await this.build(exposed, ['dep/Dep.sol']);
       } finally {
         process.chdir(cwd);

@@ -37,7 +37,8 @@ export default async function generateExposedContracts(
   const includes = async (rootPath: string) =>
     hre.config.exposed.include.some(p => matches(rootPath, p)) &&
     !hre.config.exposed.exclude.some(p => matches(rootPath, p)) &&
-    !isInExposedOutDir(rootPath) &&
+    // npm roots are not paths, and can't be in the output directory
+    (rootPath.startsWith('npm:') || !isInExposedOutDir(rootPath)) &&
     (await hre.solidity.getScope(rootPath)) === 'contracts';
 
   const inclusionResults = await Promise.all(rootPaths.map(root => includes(root)));
