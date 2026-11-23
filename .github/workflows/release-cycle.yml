@@ -209,6 +209,14 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
+            const { data: open } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.MERGE_BRANCH}`,
+              base: 'master',
+              state: 'open',
+            });
+            if (open.length > 0) return;
             await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -224,6 +232,14 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
+            const { data: open } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.CLEANUP_BRANCH}`,
+              base: 'master',
+              state: 'open',
+            });
+            if (open.length > 0) return;
             await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
