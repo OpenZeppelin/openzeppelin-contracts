@@ -1,0 +1,28 @@
+name: Formal verification - Halmos
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+jobs:
+  halmos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          foundry: 'on'
+          python: 'on'
+          python-requirements: 'fv-requirements.txt'
+      - name: Run Halmos
+        run: halmos --match-test '^symbolic|^testSymbolic' -vv
+        env:
+          HALMOS_ALLOW_DOWNLOAD: 1

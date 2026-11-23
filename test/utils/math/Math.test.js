@@ -1,12 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { Rounding } from '../../helpers/enums';
+import { product, range } from '../../helpers/iterate';
+import { min, max, modExp } from '../../helpers/math';
+import * as random from '../../helpers/random';
 
-const { Rounding } = require('../../helpers/enums');
-const { min, max, modExp } = require('../../helpers/math');
-const { generators } = require('../../helpers/random');
-const { product, range } = require('../../helpers/iterate');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -467,7 +470,7 @@ describe('Math', function () {
         });
 
         if (p != 0) {
-          for (const value of Array.from({ length: 16 }, generators.uint256)) {
+          for (const value of Array.from({ length: 16 }, random.uint256)) {
             const isInversible = factors.every(f => value % f);
             it(`trying to inverse ${value}`, async function () {
               const result = await this.mock.$invMod(value, p);

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {Governor} from "../Governor.sol";
-import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
-import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
+import {Governor} from "../Governor.sol";
+import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
+import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
 
 /**
  * @dev Extension of {GovernorVotesQuorumFraction} with a super quorum expressed as a
@@ -28,7 +28,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     error GovernorInvalidSuperQuorumFraction(uint256 superQuorumNumerator, uint256 denominator);
 
     /**
-     * @dev The super quorum set is not valid as it is smaller or equal to the quorum.
+     * @dev The super quorum set is not valid as it is smaller than the quorum.
      */
     error GovernorInvalidSuperQuorumTooSmall(uint256 superQuorumNumerator, uint256 quorumNumerator);
 
@@ -41,7 +41,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * @dev Initialize super quorum as a fraction of the token's total supply.
      *
      * The super quorum is specified as a fraction of the token's total supply and has to
-     * be greater than the quorum.
+     * be greater than or equal to the quorum.
      */
     constructor(uint256 superQuorumNumeratorValue) {
         _updateSuperQuorumNumerator(superQuorumNumeratorValue);
@@ -96,14 +96,16 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      */
     function _updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) internal virtual {
         uint256 denominator = quorumDenominator();
-        if (newSuperQuorumNumerator > denominator) {
-            revert GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator);
-        }
+        require(
+            newSuperQuorumNumerator <= denominator,
+            GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator)
+        );
 
         uint256 quorumNumerator = quorumNumerator();
-        if (newSuperQuorumNumerator < quorumNumerator) {
-            revert GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator);
-        }
+        require(
+            newSuperQuorumNumerator >= quorumNumerator,
+            GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator)
+        );
 
         uint256 oldSuperQuorumNumerator = _superQuorumNumeratorHistory.latest();
         _superQuorumNumeratorHistory.push(clock(), SafeCast.toUint208(newSuperQuorumNumerator));
@@ -119,9 +121,10 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
         // Ignoring check when the superQuorum was never set (construction sets quorum before superQuorum)
         if (_superQuorumNumeratorHistory.length() > 0) {
             uint256 superQuorumNumerator_ = superQuorumNumerator();
-            if (newQuorumNumerator > superQuorumNumerator_) {
-                revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
-            }
+            require(
+                newQuorumNumerator <= superQuorumNumerator_,
+                GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_)
+            );
         }
         super._updateQuorumNumerator(newQuorumNumerator);
     }

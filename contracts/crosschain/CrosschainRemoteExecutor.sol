@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/CrosschainRemoteExecutor.sol)
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.31;
 
-import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
-import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../account/utils/draft-ERC7579Utils.sol";
+import {IERC7786GatewaySource} from "../interfaces/IERC7786.sol";
 import {Bytes} from "../utils/Bytes.sol";
+import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
+import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 
 /**
  * @dev Helper contract used to relay transactions received from a controller through an ERC-7786 gateway. This is
@@ -61,6 +63,13 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, accounts without code would fail that test (nothing returned).
         IERC7786GatewaySource(gateway_).supportsAttribute(bytes4(0));
+
+        // Reject any controller that could never match a sender reported by the gateway (see _isAuthorizedGateway).
+        (bytes2 chainType, , bytes memory addr) = InteroperableAddress.parseV1(controller_, true);
+        require(
+            InteroperableAddress.isValidAddressLength(chainType, addr),
+            InteroperableAddress.InteroperableAddressParsingError(controller_)
+        );
 
         _gateway = gateway_;
         _controller = controller_;

@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/Governor.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
 import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
-import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
-import {Address} from "../utils/Address.sol";
-import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
+import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
@@ -81,9 +81,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
      */
     receive() external payable virtual {
-        if (_executor() != address(this)) {
-            revert GovernorDisabledDeposit();
-        }
+        require(_executor() == address(this), GovernorDisabledDeposit());
     }
 
     /// @inheritdoc IERC165
@@ -154,9 +152,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         uint256 snapshot = proposalSnapshot(proposalId);
 
-        if (snapshot == 0) {
-            revert GovernorNonexistentProposal(proposalId);
-        }
+        require(snapshot != 0, GovernorNonexistentProposal(proposalId));
 
         uint256 currentTimepoint = clock();
 
@@ -280,17 +276,16 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address proposer = _msgSender();
 
         // check description restriction
-        if (!_isValidDescriptionForProposer(proposer, description)) {
-            revert GovernorRestrictedProposer(proposer);
-        }
+        require(_isValidDescriptionForProposer(proposer, description), GovernorRestrictedProposer(proposer));
 
         // check proposal threshold
         uint256 votesThreshold = proposalThreshold();
         if (votesThreshold > 0) {
             uint256 proposerVotes = getVotes(proposer, clock() - 1);
-            if (proposerVotes < votesThreshold) {
-                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
-            }
+            require(
+                proposerVotes >= votesThreshold,
+                GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold)
+            );
         }
 
         return _propose(targets, values, calldatas, description, proposer);
@@ -348,8 +343,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+
+        require(needsQueueing, GovernorProposalQueueingNotRequired(proposalId));
 
         uint48 etaSeconds = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
 
@@ -357,7 +355,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             _proposals[proposalId].etaSeconds = etaSeconds;
             emit ProposalQueued(proposalId, etaSeconds);
         } else {
-            revert GovernorQueueNotImplemented();
+            revert GovernorProposalQueueingFailed(proposalId);
         }
 
         return proposalId;
@@ -458,7 +456,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
         address caller = _msgSender();
-        if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
+        require(_validateCancel(proposalId, caller), GovernorUnableToCancel(proposalId, caller));
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -539,9 +537,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        if (!_validateVoteSig(proposalId, support, voter, signature)) {
-            revert GovernorInvalidSignature(voter);
-        }
+        require(_validateVoteSig(proposalId, support, voter, signature), GovernorInvalidSignature(voter));
         return _castVote(proposalId, voter, support, "");
     }
 
@@ -554,9 +550,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        if (!_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)) {
-            revert GovernorInvalidSignature(voter);
-        }
+        require(
+            _validateExtendedVoteSig(proposalId, support, voter, reason, params, signature),
+            GovernorInvalidSignature(voter)
+        );
         return _castVote(proposalId, voter, support, reason, params);
     }
 
@@ -672,9 +669,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * Receiving tokens is disabled if the governance executor is other than the governor itself (eg. when using with a timelock).
      */
     function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
-        if (_executor() != address(this)) {
-            revert GovernorDisabledDeposit();
-        }
+        require(_executor() == address(this), GovernorDisabledDeposit());
         return this.onERC721Received.selector;
     }
 
@@ -683,9 +678,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * Receiving tokens is disabled if the governance executor is other than the governor itself (eg. when using with a timelock).
      */
     function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
-        if (_executor() != address(this)) {
-            revert GovernorDisabledDeposit();
-        }
+        require(_executor() == address(this), GovernorDisabledDeposit());
         return this.onERC1155Received.selector;
     }
 
@@ -700,9 +693,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256[] memory,
         bytes memory
     ) public virtual returns (bytes4) {
-        if (_executor() != address(this)) {
-            revert GovernorDisabledDeposit();
-        }
+        require(_executor() == address(this), GovernorDisabledDeposit());
         return this.onERC1155BatchReceived.selector;
     }
 
@@ -730,9 +721,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      */
     function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) internal view returns (ProposalState) {
         ProposalState currentState = state(proposalId);
-        if (_encodeStateBitmap(currentState) & allowedStates == bytes32(0)) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, allowedStates);
-        }
+        require(
+            _encodeStateBitmap(currentState) & allowedStates != bytes32(0),
+            GovernorUnexpectedProposalState(proposalId, currentState, allowedStates)
+        );
         return currentState;
     }
 

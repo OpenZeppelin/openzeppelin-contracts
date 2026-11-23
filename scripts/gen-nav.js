@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const glob = require('glob');
-const startCase = require('lodash.startcase');
+import path from 'node:path';
+import { glob } from 'glob';
+import startCase from 'lodash.startcase';
 
 const baseDir = process.argv[2];
 

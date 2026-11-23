@@ -1,9 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import * as random from '../../helpers/random';
 
-const { generators } = require('../../helpers/random');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const LENGTH = 4;
 
@@ -30,7 +33,7 @@ describe('CircularBuffer', function () {
   });
 
   it('push', async function () {
-    const values = Array.from({ length: LENGTH + 3 }, generators.bytes32);
+    const values = Array.from({ length: LENGTH + 3 }, random.bytes32);
 
     for (const [i, value] of values.map((v, i) => [i, v])) {
       // push value
@@ -65,7 +68,7 @@ describe('CircularBuffer', function () {
   });
 
   it('clear', async function () {
-    const value = generators.bytes32();
+    const value = random.bytes32();
     await this.mock.$push(0, value);
 
     expect(await this.mock.$count(0)).to.equal(1n);

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (governance/utils/VotesExtended.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 import {Votes} from "./Votes.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Votes} that adds checkpoints for delegations and balances.

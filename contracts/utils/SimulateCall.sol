@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/SimulateCall.sol)
 
 pragma solidity ^0.8.20;
 
@@ -9,6 +10,20 @@ pragma solidity ^0.8.20;
  * This pattern is useful when you need to simulate the result of a call without actually executing it on-chain. Since
  * the address of the sender is preserved, this supports simulating calls that perform token swap that use the caller's
  * balance, or any operation that is restricted to the caller.
+ *
+ * WARNING: The target controls the size of the data it returns (or reverts with), and the cost of copying that data
+ * grows quadratically with its size. This puts the following limits on the simulation:
+ *
+ * * On a reverting call, only the first 2048 bytes of the revert data are returned. This bounds the cost of handling
+ *   a failure, so that a target cannot make a failed call look like a success by reverting with oversized data.
+ * * On a successful call, the return data is not truncated: the simulator copies it in full. If the target can afford
+ *   to produce its return data, but the simulator cannot afford to copy it with the gas the target did not use, the
+ *   simulator runs out of gas and the call is reported as a *success with empty return data*.
+ * * If the target cannot afford to produce its return (or revert) data, it runs out of gas. The call is then reported
+ *   as a *failure with empty return data*, like any other out-of-gas failure, even if the target would have succeeded
+ *   with more gas.
+ * * When the simulation completes, the caller still has to pay for receiving the return data, which may cause it to
+ *   run out of gas.
  */
 library SimulateCall {
     /// @dev Simulates a call to the target contract through a dynamically deployed simulator.
@@ -29,67 +44,25 @@ library SimulateCall {
     /**
      * @dev Returns the simulator address.
      *
-     * The simulator REVERTs on success and RETURNs on failure, preserving the return data in both cases.
+     * The simulator REVERTs on success and RETURNs on failure, preserving the return data in both cases. The
+     * failure branch copies at most 2048 bytes, so a target cannot emit oversized returndata to run the copy out
+     * of gas, which {simulateCall} would otherwise report as a success.
      *
      * * A failed target call returns the return data and succeeds in our context (no state changes).
      * * A successful target call causes a revert in our context (undoing all state changes) while still
      * capturing the return data.
      */
     function getSimulator() internal returns (address instance) {
-        // [Simulator details]
-        // deployment prefix: 60315f8160095f39f3
-        // deployed bytecode: 60333611600a575f5ffd5b6034360360345f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd
-        //
-        // offset | bytecode    | opcode         | stack
-        // -------|-------------|----------------|--------
-        // 0x0000 | 6033        | push1 0x33     | 0x33
-        // 0x0002 | 36          | calldatasize   | cds 0x33
-        // 0x0003 | 11          | gt             | (cds>0x33)
-        // 0x0004 | 600a        | push1 0x0a     | 0x0a (cds>0x33)
-        // 0x0006 | 57          | jumpi          |
-        // 0x0007 | 5f          | push0          | 0
-        // 0x0008 | 5f          | push0          | 0 0
-        // 0x0009 | fd          | revert         |
-        // 0x000a | 5b          | jumpdest       |
-        // 0x000b | 6034        | push1 0x34     | 0x34
-        // 0x000d | 36          | calldatasize   | cds 0x34
-        // 0x000e | 03          | sub            | (cds-0x34)
-        // 0x000f | 6034        | push1 0x34     | 0x34 (cds-0x34)
-        // 0x0011 | 5f          | push0          | 0 0x34 (cds-0x34)
-        // 0x0012 | 37          | calldatacopy   |
-        // 0x0013 | 5f          | push0          | 0
-        // 0x0014 | 5f          | push0          | 0 0
-        // 0x0015 | 6034        | push1 0x34     | 0x34 0 0
-        // 0x0017 | 36          | calldatasize   | cds 0x34 0 0
-        // 0x0018 | 03          | sub            | (cds-0x34) 0 0
-        // 0x0019 | 5f          | push0          | 0 (cds-0x34) 0 0
-        // 0x001a | 6014        | push1 0x14     | 0x14 0 (cds-0x34) 0 0
-        // 0x001c | 35          | calldataload   | cd[0x14] 0 (cds-0x34) 0 0
-        // 0x001d | 5f          | push0          | 0 cd[0x14] 0 (cds-0x34) 0 0
-        // 0x001e | 35          | calldataload   | cd[0] cd[0x14] 0 (cds-0x34) 0 0
-        // 0x001f | 6060        | push1 0x60     | 0x60 cd[0] cd[0x14] 0 (cds-0x34) 0 0
-        // 0x0021 | 1c          | shr            | target cd[0x14] 0 (cds-0x34) 0 0
-        // 0x0022 | 5a          | gas            | gas target cd[0x14] 0 (cds-0x34) 0 0
-        // 0x0023 | f1          | call           | suc
-        // 0x0024 | 3d          | returndatasize | rds suc
-        // 0x0025 | 5f          | push0          | 0 rds suc
-        // 0x0026 | 5f          | push0          | 0 0 rds suc
-        // 0x0027 | 3e          | returndatacopy | suc
-        // 0x0028 | 5f          | push0          | 0 suc
-        // 0x0029 | 3d          | returndatasize | rds 0 suc
-        // 0x002a | 91          | swap2          | suc 0 rds
-        // 0x002b | 602f        | push1 0x2f     | 0x2f suc 0 rds
-        // 0x002d | 57          | jumpi          | 0 rds
-        // 0x002e | f3          | return         |
-        // 0x002f | 5b          | jumpdest       | 0 rds
-        // 0x0030 | fd          | revert         |
+        // Bytecode compiled from contracts/utils/SimulateCall.yul.
+        // deployment prefix: 0x603580600a5f395ff3fe
+        // deployed bytecode: 0x5f803660331901806034833781601435813560601c5af1602d576108003d116108003d18023d18805f803e5ff35b3d5f803e3d5ffd
         assembly ("memory-safe") {
             let fmp := mload(0x40)
 
             // build initcode at FMP
-            mstore(add(fmp, 0x20), 0x5f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd)
-            mstore(fmp, 0x60315f8160095f39f360333611600a575f5ffd5b603436036034)
-            let initcodehash := keccak256(add(fmp, 0x06), 0x3a)
+            mstore(add(fmp, 0x20), 0x5af1602d576108003d116108003d18023d18805f803e5ff35b3d5f803e3d5ffd)
+            mstore(fmp, 0x603580600a5f395ff3fe5f803660331901806034833781601435813560601c)
+            let initcodehash := keccak256(add(fmp, 0x01), 0x3f)
 
             // compute create2 address
             mstore(0x40, initcodehash)
@@ -100,7 +73,7 @@ library SimulateCall {
 
             // if simulator not yet deployed, deploy it
             if iszero(extcodesize(instance)) {
-                if iszero(create2(0, add(fmp, 0x06), 0x3a, 0)) {
+                if iszero(create2(0, add(fmp, 0x01), 0x3f, 0)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }

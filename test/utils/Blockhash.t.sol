@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {Blockhash} from "../../contracts/utils/Blockhash.sol";
+import {Blockhash} from "@openzeppelin/contracts/utils/Blockhash.sol";
 
 contract BlockhashTest is Test {
     uint256 internal startingBlock;

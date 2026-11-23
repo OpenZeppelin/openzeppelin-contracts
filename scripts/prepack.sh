@@ -13,11 +13,10 @@ cd "$(git rev-parse --show-toplevel)"
 
 npm run clean
 
-env COMPILE_MODE=production npm run compile
+env COMPILE_MODE=production npx hardhat build --noExpose
 
 mkdirp contracts/build/contracts
 cp artifacts/contracts/**/*.json contracts/build/contracts
-rm contracts/build/contracts/*.dbg.json
 node scripts/remove-ignored-artifacts.js
 
 cp README.md contracts/

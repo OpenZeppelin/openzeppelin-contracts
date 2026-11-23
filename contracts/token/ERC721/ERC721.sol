@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (token/ERC721/ERC721.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {IERC721} from "./IERC721.sol";
-import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
-import {ERC721Utils} from "./utils/ERC721Utils.sol";
+import {IERC721Errors} from "../../interfaces/IERC6093.sol";
 import {Context} from "../../utils/Context.sol";
-import {Strings} from "../../utils/Strings.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
-import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
+import {Strings} from "../../utils/Strings.sol";
+import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
+import {IERC721} from "./IERC721.sol";
+import {ERC721Utils} from "./utils/ERC721Utils.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC-721] Non-Fungible Token Standard, including
@@ -51,9 +51,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /// @inheritdoc IERC721
     function balanceOf(address owner) public view virtual returns (uint256) {
-        if (owner == address(0)) {
-            revert ERC721InvalidOwner(address(0));
-        }
+        require(owner != address(0), ERC721InvalidOwner(address(0)));
         return _balances[owner];
     }
 
@@ -113,15 +111,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /// @inheritdoc IERC721
     function transferFrom(address from, address to, uint256 tokenId) public virtual {
-        if (to == address(0)) {
-            revert ERC721InvalidReceiver(address(0));
-        }
+        require(to != address(0), ERC721InvalidReceiver(address(0)));
         // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         address previousOwner = _update(to, tokenId, _msgSender());
-        if (previousOwner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
-        }
+        require(previousOwner == from, ERC721IncorrectOwner(from, tokenId, previousOwner));
     }
 
     /// @inheritdoc IERC721
@@ -257,13 +251,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal {
-        if (to == address(0)) {
-            revert ERC721InvalidReceiver(address(0));
-        }
+        require(to != address(0), ERC721InvalidReceiver(address(0)));
         address previousOwner = _update(to, tokenId, address(0));
-        if (previousOwner != address(0)) {
-            revert ERC721InvalidSender(address(0));
-        }
+        require(previousOwner == address(0), ERC721InvalidSender(address(0)));
     }
 
     /**
@@ -302,9 +292,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _burn(uint256 tokenId) internal {
         address previousOwner = _update(address(0), tokenId, address(0));
-        if (previousOwner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
+        require(previousOwner != address(0), ERC721NonexistentToken(tokenId));
     }
 
     /**
@@ -319,9 +307,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal {
-        if (to == address(0)) {
-            revert ERC721InvalidReceiver(address(0));
-        }
+        require(to != address(0), ERC721InvalidReceiver(address(0)));
         address previousOwner = _update(to, tokenId, address(0));
         if (previousOwner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
@@ -386,9 +372,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             address owner = _requireOwned(tokenId);
 
             // We do not use _isAuthorized because single-token approvals should not be able to call approve
-            if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
-                revert ERC721InvalidApprover(auth);
-            }
+            require(auth == address(0) || owner == auth || isApprovedForAll(owner, auth), ERC721InvalidApprover(auth));
 
             if (emitEvent) {
                 emit Approval(owner, to, tokenId);
@@ -407,12 +391,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        if (owner == address(0)) {
-            revert ERC721InvalidApprover(address(0));
-        }
-        if (operator == address(0)) {
-            revert ERC721InvalidOperator(operator);
-        }
+        require(owner != address(0), ERC721InvalidApprover(address(0)));
+        require(operator != address(0), ERC721InvalidOperator(operator));
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }
@@ -425,9 +405,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _requireOwned(uint256 tokenId) internal view returns (address) {
         address owner = _ownerOf(tokenId);
-        if (owner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
+        require(owner != address(0), ERC721NonexistentToken(tokenId));
         return owner;
     }
 }

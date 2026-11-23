@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/Packing.t.js.
 
 pragma solidity ^0.8.20;
 

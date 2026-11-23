@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Test} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
@@ -18,6 +18,12 @@ contract ArraysTest is Test, SymTest {
         for (uint256 i = 0; i < 3; i++) {
             values[i] = svm.createUint256("arrayElement");
         }
+        Arrays.sort(values);
+        _assertSort(values);
+    }
+
+    function testSortAddressDirty(address[] memory values, uint256 seed) public pure {
+        _dirty(values, seed);
         Arrays.sort(values);
         _assertSort(values);
     }
@@ -358,6 +364,12 @@ contract ArraysTest is Test, SymTest {
         }
     }
 
+    function _assertSort(address[] memory values) internal pure {
+        for (uint256 i = 1; i < values.length; ++i) {
+            assertLe(uint160(values[i - 1]), uint160(values[i]));
+        }
+    }
+
     function _assertSliceOf(
         address[] memory result,
         address[] memory original,
@@ -395,6 +407,17 @@ contract ArraysTest is Test, SymTest {
     }
 
     /// Helpers
+
+    /// @dev Sets the unused upper 96 bits of each entry to a (per-entry) non-zero value.
+    function _dirty(address[] memory values, uint256 seed) internal pure {
+        for (uint256 i = 0; i < values.length; ++i) {
+            uint256 mask = uint256(keccak256(abi.encode(seed, i))) << 160;
+            assembly ("memory-safe") {
+                let ptr := add(add(values, 0x20), mul(i, 0x20))
+                mstore(ptr, or(mload(ptr), mask))
+            }
+        }
+    }
 
     function _copyArray(uint256[] memory values) internal pure returns (uint256[] memory) {
         uint256[] memory copy = new uint256[](values.length);

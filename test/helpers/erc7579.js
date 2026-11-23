@@ -1,18 +1,18 @@
-const { ethers } = require('hardhat');
+import { ethers } from 'ethers';
 
-const MODULE_TYPE_VALIDATOR = 1;
-const MODULE_TYPE_EXECUTOR = 2;
-const MODULE_TYPE_FALLBACK = 3;
-const MODULE_TYPE_HOOK = 4;
+export const MODULE_TYPE_VALIDATOR = 1;
+export const MODULE_TYPE_EXECUTOR = 2;
+export const MODULE_TYPE_FALLBACK = 3;
+export const MODULE_TYPE_HOOK = 4;
 
-const EXEC_TYPE_DEFAULT = '0x00';
-const EXEC_TYPE_TRY = '0x01';
+export const EXEC_TYPE_DEFAULT = '0x00';
+export const EXEC_TYPE_TRY = '0x01';
 
-const CALL_TYPE_CALL = '0x00';
-const CALL_TYPE_BATCH = '0x01';
-const CALL_TYPE_DELEGATE = '0xff';
+export const CALL_TYPE_CALL = '0x00';
+export const CALL_TYPE_BATCH = '0x01';
+export const CALL_TYPE_DELEGATE = '0xff';
 
-const encodeMode = ({
+export const encodeMode = ({
   callType = '0x00',
   execType = '0x00',
   selector = '0x00000000',
@@ -23,10 +23,10 @@ const encodeMode = ({
     [callType, execType, '0x00000000', selector, payload],
   );
 
-const encodeSingle = (target, value = 0n, data = '0x') =>
+export const encodeSingle = (target, value = 0n, data = '0x') =>
   ethers.solidityPacked(['address', 'uint256', 'bytes'], [target.target ?? target.address ?? target, value, data]);
 
-const encodeBatch = (...entries) =>
+export const encodeBatch = (...entries) =>
   ethers.AbiCoder.defaultAbiCoder().encode(
     ['(address,uint256,bytes)[]'],
     [
@@ -38,21 +38,5 @@ const encodeBatch = (...entries) =>
     ],
   );
 
-const encodeDelegate = (target, data = '0x') =>
+export const encodeDelegate = (target, data = '0x') =>
   ethers.solidityPacked(['address', 'bytes'], [target.target ?? target.address ?? target, data]);
-
-module.exports = {
-  MODULE_TYPE_VALIDATOR,
-  MODULE_TYPE_EXECUTOR,
-  MODULE_TYPE_FALLBACK,
-  MODULE_TYPE_HOOK,
-  EXEC_TYPE_DEFAULT,
-  EXEC_TYPE_TRY,
-  CALL_TYPE_CALL,
-  CALL_TYPE_BATCH,
-  CALL_TYPE_DELEGATE,
-  encodeMode,
-  encodeSingle,
-  encodeBatch,
-  encodeDelegate,
-};

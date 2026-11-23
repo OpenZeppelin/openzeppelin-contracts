@@ -1,13 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve } from './ERC20.behavior';
 
+const connection = await network.create();
 const {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
-} = require('./ERC20.behavior');
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
 
@@ -30,21 +30,35 @@ describe('ERC20', function () {
       };
 
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
       });
 
       shouldBehaveLikeERC20(initialSupply, { forcedApproval });
 
       it('has a name', async function () {
-        expect(await this.token.name()).to.equal(name);
+        await expect(this.token.name()).to.eventually.equal(name);
       });
 
       it('has a symbol', async function () {
-        expect(await this.token.symbol()).to.equal(symbol);
+        await expect(this.token.symbol()).to.eventually.equal(symbol);
       });
 
       it('has 18 decimals', async function () {
-        expect(await this.token.decimals()).to.equal(18n);
+        await expect(this.token.decimals()).to.eventually.equal(18n);
+      });
+
+      describe('_setName', function () {
+        it('updates the name', async function () {
+          await this.token.$_setName('New Name');
+          await expect(this.token.name()).to.eventually.equal('New Name');
+        });
+      });
+
+      describe('_setSymbol', function () {
+        it('updates the symbol', async function () {
+          await this.token.$_setSymbol('NEW');
+          await expect(this.token.symbol()).to.eventually.equal('NEW');
+        });
       });
 
       describe('_mint', function () {
@@ -67,11 +81,11 @@ describe('ERC20', function () {
           });
 
           it('increments totalSupply', async function () {
-            await expect(await this.token.totalSupply()).to.equal(initialSupply + value);
+            await expect(this.token.totalSupply()).to.eventually.equal(initialSupply + value);
           });
 
           it('increments recipient balance', async function () {
-            await expect(this.tx).to.changeTokenBalance(this.token, this.recipient, value);
+            await expect(this.tx).to.changeTokenBalance(ethers, this.token, this.recipient, value);
           });
 
           it('emits Transfer event', async function () {
@@ -101,11 +115,11 @@ describe('ERC20', function () {
               });
 
               it('decrements totalSupply', async function () {
-                expect(await this.token.totalSupply()).to.equal(initialSupply - value);
+                await expect(this.token.totalSupply()).to.eventually.equal(initialSupply - value);
               });
 
               it('decrements holder balance', async function () {
-                await expect(this.tx).to.changeTokenBalance(this.token, this.holder, -value);
+                await expect(this.tx).to.changeTokenBalance(ethers, this.token, this.holder, -value);
               });
 
               it('emits Transfer event', async function () {
@@ -130,16 +144,16 @@ describe('ERC20', function () {
           const tx = await this.token.$_update(ethers.ZeroAddress, this.holder, value);
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.holder, value);
 
-          expect(await this.token.totalSupply()).to.equal(this.totalSupply + value);
-          await expect(tx).to.changeTokenBalance(this.token, this.holder, value);
+          await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply + value);
+          await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, value);
         });
 
         it('to is the zero address', async function () {
           const tx = await this.token.$_update(this.holder, ethers.ZeroAddress, value);
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder, ethers.ZeroAddress, value);
 
-          expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
-          await expect(tx).to.changeTokenBalance(this.token, this.holder, -value);
+          await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply - value);
+          await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, -value);
         });
 
         describe('from and to are the same address', function () {
@@ -147,8 +161,8 @@ describe('ERC20', function () {
             const tx = await this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, value);
             await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, ethers.ZeroAddress, value);
 
-            expect(await this.token.totalSupply()).to.equal(this.totalSupply);
-            await expect(tx).to.changeTokenBalance(this.token, ethers.ZeroAddress, 0n);
+            await expect(this.token.totalSupply()).to.eventually.equal(this.totalSupply);
+            await expect(tx).to.changeTokenBalance(ethers, this.token, ethers.ZeroAddress, 0n);
           });
 
           describe('non zero address', function () {
@@ -160,7 +174,7 @@ describe('ERC20', function () {
 
             it('executes with balance', async function () {
               const tx = await this.token.$_update(this.holder, this.holder, value);
-              await expect(tx).to.changeTokenBalance(this.token, this.holder, 0n);
+              await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, 0n);
               await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder, this.holder, value);
             });
           });

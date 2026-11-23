@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (token/ERC1155/ERC1155.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {IERC1155} from "./IERC1155.sol";
-import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
-import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
+import {IERC1155Errors} from "../../interfaces/IERC6093.sol";
+import {Arrays} from "../../utils/Arrays.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
-import {Arrays} from "../../utils/Arrays.sol";
-import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
+import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
+import {IERC1155} from "./IERC1155.sol";
+import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -115,9 +115,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
     /// @dev Checks if `operator` is authorized to transfer tokens owned by `owner`. Reverts with {ERC1155MissingApprovalForAll} if not.
     function _checkAuthorized(address operator, address owner) internal view virtual {
-        if (owner != operator && !isApprovedForAll(owner, operator)) {
-            revert ERC1155MissingApprovalForAll(operator, owner);
-        }
+        require(owner == operator || isApprovedForAll(owner, operator), ERC1155MissingApprovalForAll(operator, owner));
     }
 
     /**
@@ -147,9 +145,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
             if (from != address(0)) {
                 uint256 fromBalance = _balances[id][from];
-                if (fromBalance < value) {
-                    revert ERC1155InsufficientBalance(from, fromBalance, value, id);
-                }
+                require(fromBalance >= value, ERC1155InsufficientBalance(from, fromBalance, value, id));
                 unchecked {
                     // Overflow not possible: value <= fromBalance
                     _balances[id][from] = fromBalance - value;
@@ -235,12 +231,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * acceptance magic value.
      */
     function _safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) internal {
-        if (to == address(0)) {
-            revert ERC1155InvalidReceiver(address(0));
-        }
-        if (from == address(0)) {
-            revert ERC1155InvalidSender(address(0));
-        }
+        require(to != address(0), ERC1155InvalidReceiver(address(0)));
+        require(from != address(0), ERC1155InvalidSender(address(0)));
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
         _updateWithAcceptanceCheck(from, to, ids, values, data, false);
     }
@@ -263,12 +255,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256[] memory values,
         bytes memory data
     ) internal {
-        if (to == address(0)) {
-            revert ERC1155InvalidReceiver(address(0));
-        }
-        if (from == address(0)) {
-            revert ERC1155InvalidSender(address(0));
-        }
+        require(to != address(0), ERC1155InvalidReceiver(address(0)));
+        require(from != address(0), ERC1155InvalidSender(address(0)));
         _updateWithAcceptanceCheck(from, to, ids, values, data, true);
     }
 
@@ -307,9 +295,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * acceptance magic value.
      */
     function _mint(address to, uint256 id, uint256 value, bytes memory data) internal {
-        if (to == address(0)) {
-            revert ERC1155InvalidReceiver(address(0));
-        }
+        require(to != address(0), ERC1155InvalidReceiver(address(0)));
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
         _updateWithAcceptanceCheck(address(0), to, ids, values, data, false);
     }
@@ -327,9 +313,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * acceptance magic value.
      */
     function _mintBatch(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal {
-        if (to == address(0)) {
-            revert ERC1155InvalidReceiver(address(0));
-        }
+        require(to != address(0), ERC1155InvalidReceiver(address(0)));
         _updateWithAcceptanceCheck(address(0), to, ids, values, data, true);
     }
 
@@ -344,9 +328,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * - `from` must have at least `value` amount of tokens of type `id`.
      */
     function _burn(address from, uint256 id, uint256 value) internal {
-        if (from == address(0)) {
-            revert ERC1155InvalidSender(address(0));
-        }
+        require(from != address(0), ERC1155InvalidSender(address(0)));
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
         _updateWithAcceptanceCheck(from, address(0), ids, values, "", false);
     }
@@ -363,9 +345,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * - `ids` and `values` must have the same length.
      */
     function _burnBatch(address from, uint256[] memory ids, uint256[] memory values) internal {
-        if (from == address(0)) {
-            revert ERC1155InvalidSender(address(0));
-        }
+        require(from != address(0), ERC1155InvalidSender(address(0)));
         _updateWithAcceptanceCheck(from, address(0), ids, values, "", true);
     }
 
@@ -380,12 +360,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * - `operator` cannot be the zero address.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        if (owner == address(0)) {
-            revert ERC1155InvalidApprover(address(0));
-        }
-        if (operator == address(0)) {
-            revert ERC1155InvalidOperator(address(0));
-        }
+        require(owner != address(0), ERC1155InvalidApprover(address(0)));
+        require(operator != address(0), ERC1155InvalidOperator(address(0)));
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }

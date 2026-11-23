@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (proxy/Clones.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Create2} from "../utils/Create2.sol";
 import {Errors} from "../utils/Errors.sol";
+import {Math} from "../utils/math/Math.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
@@ -56,9 +57,7 @@ library Clones {
             mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(value, 0x09, 0x37)
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -103,9 +102,7 @@ library Clones {
             mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(value, 0x09, 0x37, salt)
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -176,9 +173,7 @@ library Clones {
         assembly ("memory-safe") {
             instance := create(value, add(bytecode, 0x20), mload(bytecode))
         }
-        if (instance == address(0)) {
-            revert Errors.FailedDeployment();
-        }
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
     /**
@@ -259,9 +254,34 @@ library Clones {
      *   function should only be used to check addresses that are known to be clones.
      */
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
-        bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
+        return fetchCloneArgs(instance, 0, type(uint256).max);
+    }
+
+    /**
+     * @dev Variant of {fetchCloneArgs-address} that copies the immutable args starting at position `start` (included)
+     * to the end. This is useful (and cheaper) when only a portion of the immutable args is needed. The `start`
+     * argument is truncated to the length of the immutable args.
+     */
+    function fetchCloneArgs(address instance, uint256 start) internal view returns (bytes memory) {
+        return fetchCloneArgs(instance, start, type(uint256).max);
+    }
+
+    /**
+     * @dev Variant of {fetchCloneArgs-address} that copies at most `length` bytes of the immutable args, starting at
+     * position `start`. This is useful (and cheaper) when only a portion of the immutable args is needed. The slice
+     * [`start`, `start + length`) is truncated to the length of the immutable args, so the returned array may
+     * be shorter than `length`. The resulting slice is [`start`, `min(start + length, argsLength)`].
+     */
+    function fetchCloneArgs(address instance, uint256 start, uint256 length) internal view returns (bytes memory) {
+        uint256 argsLength = instance.code.length - 0x2d; // revert if instance code is too short
+
+        // sanitize
+        start = Math.min(start, argsLength);
+        length = Math.min(length, argsLength - start);
+
+        bytes memory result = new bytes(length);
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
+            extcodecopy(instance, add(result, 0x20), add(0x2d, start), length)
         }
         return result;
     }
@@ -280,7 +300,7 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 0x5fd3) revert CloneArgumentsTooLong();
+        require(args.length < 0x5fd4, CloneArgumentsTooLong());
         return
             abi.encodePacked(
                 hex"61",

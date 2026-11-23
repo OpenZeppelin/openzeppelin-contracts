@@ -15,18 +15,18 @@ contract ConstructorMock {
 
     error CustomError();
 
-    constructor(RevertType error) {
+    constructor(RevertType err) {
         // After transpilation to upgradeable contract, the constructor will become an initializer
         // To silence the `... can be restricted to view` warning, we write to state
         foo = true;
 
-        if (error == RevertType.RevertWithoutMessage) {
+        if (err == RevertType.RevertWithoutMessage) {
             revert();
-        } else if (error == RevertType.RevertWithMessage) {
+        } else if (err == RevertType.RevertWithMessage) {
             revert("ConstructorMock: reverting");
-        } else if (error == RevertType.RevertWithCustomError) {
+        } else if (err == RevertType.RevertWithCustomError) {
             revert CustomError();
-        } else if (error == RevertType.Panic) {
+        } else if (err == RevertType.Panic) {
             uint256 a = uint256(0) / uint256(0);
             a;
         }

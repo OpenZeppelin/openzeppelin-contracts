@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const proc = require('child_process');
-const semver = require('semver');
+import fs from 'fs';
+import path from 'path';
+import proc from 'child_process';
+import semver from 'semver';
+
 const run = (cmd, ...args) => proc.execFileSync(cmd, args, { encoding: 'utf8' }).trim();
 
 const gitStatus = run('git', 'status', '--porcelain', '-uno', 'contracts/**/*.sol');
@@ -10,7 +12,7 @@ if (gitStatus.length > 0) {
   process.exit(1);
 }
 
-const { version } = require('../../package.json');
+const { version } = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../../package.json'), 'utf8'));
 
 // Get latest tag according to semver.
 const [tag] = run('git', 'tag')

@@ -1,23 +1,15 @@
-const { ethers, config } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
 
-// [NOTE]
-//
-// ethers.getSigners() returns object than cannot currently send type-4 transaction, or sign authorization. Therefore,
-// we have to instantiate the eoa AND the relayer manually using ethers 6.14.0 wallets. This can be improved when
-// @nomicfoundation/hardhat-ethers starts instantiating signers with 7702 support.
-const relayAuthorization = authorization =>
-  ethers.Wallet.fromPhrase(config.networks.hardhat.accounts.mnemonic, ethers.provider).sendTransaction({
-    to: ethers.ZeroAddress,
-    authorizationList: [authorization],
-    gasLimit: 46_000n,
-  });
+const {
+  ethers,
+  networkHelpers: { loadFixture, setCode },
+} = await network.create();
 
 const fixture = async () => {
-  const eoa = ethers.Wallet.createRandom(ethers.provider);
+  const [eoa, relayer] = await ethers.getSigners();
   const mock = await ethers.deployContract('$EIP7702Utils');
-  return { eoa, mock };
+  return { eoa, relayer, mock };
 };
 
 describe('EIP7702Utils', function () {
@@ -32,22 +24,43 @@ describe('EIP7702Utils', function () {
 
     it('EOA with delegation', async function () {
       // set delegation
-      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
+      await this.eoa
+        .authorize({ address: this.mock })
+        .then(authorization =>
+          this.relayer.sendTransaction({ to: ethers.ZeroAddress, authorizationList: [authorization] }),
+        );
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(this.mock);
     });
 
     it('EOA with revoked delegation', async function () {
       // set delegation
-      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
+      await this.eoa
+        .authorize({ address: this.mock })
+        .then(authorization =>
+          this.relayer.sendTransaction({ to: ethers.ZeroAddress, authorizationList: [authorization] }),
+        );
       // reset delegation
-      await this.eoa.authorize({ address: ethers.ZeroAddress }).then(relayAuthorization);
+      await this.eoa
+        .authorize({ address: ethers.ZeroAddress })
+        .then(authorization =>
+          this.relayer.sendTransaction({ to: ethers.ZeroAddress, authorizationList: [authorization] }),
+        );
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(ethers.ZeroAddress);
     });
 
     it('other smart contract', async function () {
       await expect(this.mock.$fetchDelegate(this.mock)).to.eventually.equal(ethers.ZeroAddress);
+    });
+
+    // code shorter than a delegation designator is zero-padded, and never resolves to a delegate
+    it('code shorter than a delegation designator', async function () {
+      for (const code of ['0x60', '0x6001600155', '0x60016001556000']) {
+        const account = ethers.Wallet.createRandom().address;
+        await setCode(account, code);
+        await expect(this.mock.$fetchDelegate(account)).to.eventually.equal(ethers.ZeroAddress);
+      }
     });
   });
 });

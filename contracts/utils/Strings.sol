@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (utils/Strings.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
+import {Bytes} from "./Bytes.sol";
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
-import {Bytes} from "./Bytes.sol";
 
 /**
  * @dev String operations.
@@ -87,9 +87,7 @@ library Strings {
             buffer[i] = HEX_DIGITS[localValue & 0xf];
             localValue >>= 4;
         }
-        if (localValue != 0) {
-            revert StringsInsufficientHexLength(value, length);
-        }
+        require(localValue == 0, StringsInsufficientHexLength(value, length));
         return string(buffer);
     }
 
@@ -170,7 +168,7 @@ library Strings {
      */
     function parseUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
         (bool success, uint256 value) = tryParseUint(input, begin, end);
-        if (!success) revert StringsInvalidChar();
+        require(success, StringsInvalidChar());
         return value;
     }
 
@@ -240,7 +238,7 @@ library Strings {
      */
     function parseInt(string memory input, uint256 begin, uint256 end) internal pure returns (int256) {
         (bool success, int256 value) = tryParseInt(input, begin, end);
-        if (!success) revert StringsInvalidChar();
+        require(success, StringsInvalidChar());
         return value;
     }
 
@@ -318,7 +316,7 @@ library Strings {
      */
     function parseHexUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
         (bool success, uint256 value) = tryParseHexUint(input, begin, end);
-        if (!success) revert StringsInvalidChar();
+        require(success, StringsInvalidChar());
         return value;
     }
 
@@ -394,7 +392,7 @@ library Strings {
      */
     function parseAddress(string memory input, uint256 begin, uint256 end) internal pure returns (address) {
         (bool success, address value) = tryParseAddress(input, begin, end);
-        if (!success) revert StringsInvalidAddressFormat();
+        require(success, StringsInvalidAddressFormat());
         return value;
     }
 

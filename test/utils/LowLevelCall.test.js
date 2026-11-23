@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const value = ethers.parseEther('1');
 const returnValue1 = ethers.id('hello');
@@ -39,7 +43,7 @@ describe('LowLevelCall', function () {
           ethers.Typed.uint256(value),
           this.target.interface.encodeFunctionData('mockFunction'),
         );
-        await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.target], [-value, value]);
         await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(true);
       });
 
@@ -49,7 +53,7 @@ describe('LowLevelCall', function () {
           ethers.Typed.uint256(value),
           this.target.interface.encodeFunctionData('mockFunction'),
         );
-        await expect(tx).to.changeEtherBalances([this.mock, this.target], [0n, 0n]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.target], [0n, 0n]);
         await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(false);
       });
 
@@ -84,7 +88,7 @@ describe('LowLevelCall', function () {
           ethers.Typed.uint256(value),
           this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
         );
-        await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.target], [-value, value]);
         await expect(tx)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
           .withArgs(true, returnValue1, returnValue2);
@@ -96,7 +100,7 @@ describe('LowLevelCall', function () {
           ethers.Typed.uint256(value),
           this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
         );
-        await expect(tx).to.changeEtherBalances([this.mock, this.target], [0n, 0n]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.target], [0n, 0n]);
         await expect(tx)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
           .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
@@ -125,11 +129,7 @@ describe('LowLevelCall', function () {
           ),
         )
           .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
-          .withArgs(
-            false,
-            ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
-            ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
-          );
+          .withArgs(false, ethers.dataSlice(encoded, 0x00, 0x20), ethers.dataSlice(encoded, 0x20, 0x40));
       });
     });
   });
@@ -183,8 +183,8 @@ describe('LowLevelCall', function () {
           ),
         ).to.eventually.deep.equal([
           false,
-          ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
-          ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
+          ethers.dataSlice(encoded, 0x00, 0x20),
+          ethers.dataSlice(encoded, 0x20, 0x40),
         ]);
       });
     });

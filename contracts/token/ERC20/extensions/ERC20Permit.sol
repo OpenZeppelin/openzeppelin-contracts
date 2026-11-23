@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (token/ERC20/extensions/ERC20Permit.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
-import {IERC20Permit} from "./IERC20Permit.sol";
-import {ERC20} from "../ERC20.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Nonces} from "../../../utils/Nonces.sol";
+import {ERC20} from "../ERC20.sol";
+import {IERC20Permit} from "./IERC20Permit.sol";
 
 /**
  * @dev Implementation of the ERC-20 Permit extension allowing approvals to be made via signatures, as defined in
@@ -48,18 +48,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        if (block.timestamp > deadline) {
-            revert ERC2612ExpiredSignature(deadline);
-        }
+        require(block.timestamp <= deadline, ERC2612ExpiredSignature(deadline));
 
         bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner) {
-            revert ERC2612InvalidSigner(signer, owner);
-        }
+        require(signer == owner, ERC2612InvalidSigner(signer, owner));
 
         _approve(owner, spender, value);
     }

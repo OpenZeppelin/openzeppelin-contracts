@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC721/extensions/ERC721Crosschain.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
-import {ERC721} from "../ERC721.sol";
 import {BridgeNonFungible} from "../../../crosschain/bridges/abstract/BridgeNonFungible.sol";
+import {ERC721} from "../ERC721.sol";
 
 /**
  * @dev Extension of {ERC721} that makes it natively cross-chain using the ERC-7786 based {BridgeNonFungible}.
@@ -13,7 +14,7 @@ import {BridgeNonFungible} from "../../../crosschain/bridges/abstract/BridgeNonF
  * * {ERC721} instances on other chains that are bridged using {BridgeERC721},
  */
 // slither-disable-next-line locked-ether
-abstract contract ERC721Crosschain is ERC721, BridgeNonFungible {
+abstract contract ERC721Crosschain is BridgeNonFungible, ERC721 {
     /// @dev Crosschain variant of {transferFrom}, using the allowance system from the underlying ERC-721 token.
     function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
         // operator (_msgSender) permission over `from` is checked in `_onSend`

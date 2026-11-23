@@ -1,9 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { bytes, bytes32 } = ethers.Typed;
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import path from 'path';
+import { constants, generateKeyPairSync, privateEncrypt } from 'crypto';
+import { parse } from './RSA.helper';
 
-const parse = require('./RSA.helper');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$RSA') };
@@ -17,7 +21,7 @@ describe('RSA', function () {
   // Load test cases from file SigVer15_186-3.rsp from:
   // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
   describe('SigVer15_186-3.rsp tests', function () {
-    for (const test of parse('SigVer15_186-3.rsp')) {
+    for (const test of parse(path.join(import.meta.dirname, 'SigVer15_186-3.rsp'))) {
       const { length } = Buffer.from(test.S, 'hex');
 
       /// For now, RSA only supports digest that are 32bytes long. If we ever extend that, we can use these hashing functions for @noble:
@@ -34,8 +38,10 @@ describe('RSA', function () {
           const exp = ethers.stripZerosLeft('0x' + test.e); // strip zeros to reduce gas cost of the precompile
           const mod = '0x' + test.n;
 
-          expect(await this.mock.$pkcs1Sha256(bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(result);
-          expect(await this.mock.$pkcs1Sha256(bytes(data), sig, exp, mod)).to.equal(result);
+          expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(
+            result,
+          );
+          expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes(data), sig, exp, mod)).to.equal(result);
         });
       }
     }
@@ -95,8 +101,134 @@ describe('RSA', function () {
 
     for (const { descr, data, sig, exp, mod, result } of [openssl, rfc4055, shortN, differentLength, sTooLarge]) {
       it(descr, async function () {
-        expect(await this.mock.$pkcs1Sha256(bytes(data), sig, exp, mod)).to.equal(result);
+        expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes(data), sig, exp, mod)).to.equal(result);
       });
     }
+  });
+
+  // Signatures over hand-built encoded messages (EM), produced with raw RSA (no padding) so that the PS bytes are
+  // fully controlled. Tampering with a valid signature is not enough to test the padding check: the tampered
+  // signature decrypts to random bytes, which fail on the first PS bytes before any later PS byte is checked.
+  //
+  // EM ::= 0x00 | 0x01 | PS | 0x00 | DigestInfo, and the padding check covers EM[2..paddingEnd), where paddingEnd is
+  // the length of the modulus minus 0x34 (explicit NULL parameter) or 0x32 (implicit NULL parameter).
+  describe('padding', function () {
+    const digest = ethers.sha256(ethers.toUtf8Bytes('hello world!'));
+    const digestInfo = {
+      explicitNull: '0x3031300d060960864801650304020105000420',
+      implicitNull: '0x302f300b06096086480165030402010420',
+    };
+
+    const makeKey = modulusLength => {
+      const { privateKey } = generateKeyPairSync('rsa', { modulusLength });
+      const { n, e } = privateKey.export({ format: 'jwk' });
+      return { privateKey, exp: ethers.hexlify(ethers.decodeBase64(e)), mod: ethers.hexlify(ethers.decodeBase64(n)) };
+    };
+
+    // EM of `length` bytes, with the byte at each index in `corrupt` replaced by 0xFE.
+    const encode = (length, info, corrupt = []) => {
+      const suffix = ethers.getBytes(ethers.concat(['0x00', info, digest]));
+      const em = new Uint8Array(length).fill(0xff);
+      em[0] = 0x00;
+      em[1] = 0x01;
+      em.set(suffix, length - suffix.length);
+      for (const i of corrupt) em[i] = 0xfe;
+      return em;
+    };
+
+    const sign = (key, em) =>
+      ethers.hexlify(privateEncrypt({ key: key.privateKey, padding: constants.RSA_NO_PADDING }, em));
+
+    // PS runs from byte 0x02 up to paddingEnd (exclusive). With the 2048-bit key paddingEnd is 0xcc (explicit NULL)
+    // or 0xce (implicit NULL). With the 2208-bit key (length 0x114) it is 0xe0 (explicit NULL). Each rejection test
+    // corrupts the single byte at the offset in its name.
+    const key2048 = makeKey(2048);
+    const key2208 = makeKey(2208);
+
+    for (const { descr, key, info, corrupt, result } of [
+      { descr: 'accepts a well-formed EM (explicit NULL)', key: key2048, info: digestInfo.explicitNull, result: true },
+      { descr: 'accepts a well-formed EM (implicit NULL)', key: key2048, info: digestInfo.implicitNull, result: true },
+      {
+        descr: 'accepts a well-formed EM (2208-bit key)',
+        key: key2208,
+        info: digestInfo.explicitNull,
+        result: true,
+      },
+      { descr: 'rejects a bad block type byte', key: key2048, info: digestInfo.explicitNull, corrupt: [0x01] },
+      {
+        descr: 'rejects PS byte 0x02 corrupted',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0x02],
+      },
+      {
+        descr: 'rejects PS byte 0x1f corrupted',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0x1f],
+      },
+      {
+        descr: 'rejects PS byte 0x20 corrupted',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0x20],
+      },
+      {
+        descr: 'rejects PS byte 0xbf corrupted',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0xbf],
+      },
+      {
+        descr: 'rejects PS byte 0xc0 corrupted',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0xc0],
+      },
+      {
+        descr: 'rejects PS byte 0xcb corrupted (last PS byte, explicit NULL)',
+        key: key2048,
+        info: digestInfo.explicitNull,
+        corrupt: [0xcb],
+      },
+      {
+        descr: 'rejects PS byte 0xcd corrupted (last PS byte, implicit NULL)',
+        key: key2048,
+        info: digestInfo.implicitNull,
+        corrupt: [0xcd],
+      },
+      {
+        descr: 'rejects PS byte 0xdf corrupted (last PS byte, 2208-bit key)',
+        key: key2208,
+        info: digestInfo.explicitNull,
+        corrupt: [0xdf],
+      },
+    ]) {
+      it(descr, async function () {
+        const length = ethers.dataLength(key.mod);
+        const sig = sign(key, encode(length, info, corrupt));
+        await expect(this.mock.$pkcs1Sha256(ethers.Typed.bytes32(digest), sig, key.exp, key.mod)).to.eventually.equal(
+          result ?? false,
+        );
+      });
+    }
+  });
+
+  // Regression: a modexp precompile failure must make verification fail closed (return false) rather than revert.
+  // The precompile can only fail by running out of gas, so we force that with an oversized exponent whose modexp
+  // gas cost far exceeds the gas forwarded to the precompile under a capped gas limit. Because the staticcall keeps
+  // the EIP-150 1/64th gas reserve, the outer call still has enough gas to return false.
+  describe('modexp failure', function () {
+    it('returns false instead of reverting when the modexp precompile runs out of gas', async function () {
+      const digest = ethers.ZeroHash;
+      // n = 2048-bit modulus (all ones), s = 1 so that the `s < n` check passes and modexp is reached.
+      const mod = '0x' + 'ff'.repeat(0x100);
+      const sig = '0x' + '00'.repeat(0xff) + '01';
+      // Oversized exponent: makes the modexp gas cost tens of millions, exceeding the forwarded gas below.
+      const exp = '0x' + 'ff'.repeat(20000);
+
+      await expect(this.mock.$pkcs1Sha256(ethers.Typed.bytes32(digest), sig, exp, mod, { gasLimit: 16_000_000n })).to
+        .eventually.be.false;
+    });
   });
 });

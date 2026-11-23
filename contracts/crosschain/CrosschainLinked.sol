@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (crosschain/CrosschainLinked.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/CrosschainLinked.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
-import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
-import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
+import {IERC7786GatewaySource} from "../interfaces/IERC7786.sol";
 import {Bytes} from "../utils/Bytes.sol";
+import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
 import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 
 /**
@@ -70,7 +70,13 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
         IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        bytes memory chain = _extractChain(counterpart);
+        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = counterpart.parseV1();
+        require(
+            InteroperableAddress.isValidAddressLength(chainType, addr),
+            InteroperableAddress.InteroperableAddressParsingError(counterpart)
+        );
+
+        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
         if (allowOverride || _links[chain].gateway == address(0)) {
             _links[chain] = Link(gateway, counterpart);
             emit LinkRegistered(gateway, counterpart);
@@ -102,8 +108,8 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         return instance == gateway && sender.equal(router);
     }
 
-    function _extractChain(bytes memory self) private pure returns (bytes memory) {
-        (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();
+    function _extractChain(bytes calldata self) private pure returns (bytes memory) {
+        (bytes2 chainType, bytes calldata chainReference, ) = self.parseV1Calldata();
         return InteroperableAddress.formatV1(chainType, chainReference, hex"");
     }
 }

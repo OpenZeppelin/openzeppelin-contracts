@@ -7,12 +7,12 @@
 //    node fv/run.js ERC721
 //    node fv/run.js fv/specs/ERC721.conf
 
-const glob = require('glob');
-const fs = require('fs');
-const pLimit = require('p-limit').default;
-const { hideBin } = require('yargs/helpers');
-const yargs = require('yargs/yargs');
-const { exec } = require('child_process');
+import { glob } from 'glob';
+import fs from 'fs';
+import pLimit from 'p-limit';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
+import { execFile } from 'child_process';
 
 const { argv } = yargs(hideBin(process.argv))
   .env('')
@@ -39,14 +39,16 @@ if (argv._.length == 0 && !argv.all) {
   console.error(`Warning: No specs requested. Did you forget to toggle '--all'?`);
   process.exitCode = 1;
 } else {
-  Promise.all(
+  await Promise.all(
     (argv.all ? glob.sync(pattern) : argv._.map(name => (fs.existsSync(name) ? name : pattern.replace('*', name)))).map(
       (conf, i, { length }) =>
         limit(
           () =>
             new Promise(resolve => {
               if (argv.verbose) console.log(`[${i + 1}/${length}] Running ${conf}`);
-              exec(`certoraRun ${conf}`, (error, stdout, stderr) => {
+              // execFile (and not exec) so that the config name is passed as an argument and never
+              // interpreted by a shell: it may come from an untrusted pull request.
+              execFile('certoraRun', [conf], (error, stdout, stderr) => {
                 const match = stdout.match(
                   'https://prover.certora.com/output/[a-z0-9]+/[a-z0-9]+[?]anonymousKey=[a-z0-9]+',
                 );

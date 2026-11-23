@@ -1,9 +1,9 @@
-const { ethers } = require('ethers');
-const { p256 } = require('@noble/curves/nist.js');
-const { generateKeyPairSync, privateEncrypt } = require('crypto');
+import { ethers } from 'ethers';
+import { p256 } from '@noble/curves/nist.js';
+import { generateKeyPairSync, privateEncrypt } from 'crypto';
 
 // Lightweight version of BaseWallet
-class NonNativeSigner extends ethers.AbstractSigner {
+export class NonNativeSigner extends ethers.AbstractSigner {
   #signingKey;
 
   constructor(privateKey, provider) {
@@ -60,7 +60,7 @@ class NonNativeSigner extends ethers.AbstractSigner {
   }
 }
 
-class P256SigningKey {
+export class P256SigningKey {
   #privateKey;
 
   constructor(privateKey) {
@@ -78,8 +78,8 @@ class P256SigningKey {
   get publicKey() {
     const publicKeyBytes = p256.getPublicKey(this.#privateKey, false);
     return {
-      qx: ethers.hexlify(publicKeyBytes.slice(0x01, 0x21)),
-      qy: ethers.hexlify(publicKeyBytes.slice(0x21, 0x41)),
+      qx: ethers.dataSlice(publicKeyBytes, 0x01, 0x21),
+      qy: ethers.dataSlice(publicKeyBytes, 0x21, 0x41),
     };
   }
 
@@ -92,14 +92,14 @@ class P256SigningKey {
     });
 
     return ethers.Signature.from({
-      r: ethers.hexlify(rawSignature.slice(0x01, 0x21)),
-      s: ethers.hexlify(rawSignature.slice(0x21, 0x41)),
+      r: ethers.dataSlice(rawSignature, 0x01, 0x21),
+      s: ethers.dataSlice(rawSignature, 0x21, 0x41),
       v: rawSignature[0] ? 0x1c : 0x1b,
     });
   }
 }
 
-class RSASigningKey {
+export class RSASigningKey {
   #privateKey;
   #publicKey;
 
@@ -135,14 +135,14 @@ class RSASigningKey {
   }
 }
 
-class RSASHA256SigningKey extends RSASigningKey {
+export class RSASHA256SigningKey extends RSASigningKey {
   sign(digest /*: BytesLike*/) /*: ethers.Signature*/ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
     return super.sign(ethers.sha256(ethers.getBytes(digest)));
   }
 }
 
-class WebAuthnSigningKey extends P256SigningKey {
+export class WebAuthnSigningKey extends P256SigningKey {
   sign(digest /*: BytesLike*/) /*: { serialized: string } */ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
 
@@ -178,7 +178,7 @@ class WebAuthnSigningKey extends P256SigningKey {
   }
 }
 
-class MultiERC7913SigningKey {
+export class MultiERC7913SigningKey {
   // this is a sorted array of objects that contain {signer, weight}
   #signers;
 
@@ -191,8 +191,11 @@ class MultiERC7913SigningKey {
     );
 
     // Sorting is done at construction so that it doesn't have to be done in sign()
-    this.#signers = signers.sort(
-      (s1, s2) => ethers.keccak256(s1.bytes ?? s1.address) - ethers.keccak256(s2.bytes ?? s2.address),
+    this.#signers = signers.sort((s1, s2) =>
+      Buffer.compare(
+        ethers.getBytes(ethers.keccak256(s1.bytes ?? s1.address)),
+        ethers.getBytes(ethers.keccak256(s2.bytes ?? s2.address)),
+      ),
     );
   }
 
@@ -214,12 +217,3 @@ class MultiERC7913SigningKey {
     };
   }
 }
-
-module.exports = {
-  NonNativeSigner,
-  P256SigningKey,
-  RSASigningKey,
-  RSASHA256SigningKey,
-  WebAuthnSigningKey,
-  MultiERC7913SigningKey,
-};
