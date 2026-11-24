@@ -44,7 +44,9 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {SignerERC7913} from "@openzeppelin/contracts/utils/cryptography/signers/SignerERC7913.sol";
 
 contract MyAccountERC7913 is Account, EIP712, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
-    constructor(bytes memory signer) EIP712("MyAccount7913", "1") SignerERC7913(signer) {}
+    constructor(bytes memory signer) EIP712("MyAccount7913", "1") SignerERC7913(signer) {
+        _disableInitializers();
+    }
 
     function initialize(bytes memory signer) public initializer {
         _setSigner(signer);
@@ -100,7 +102,9 @@ contract MyAccountMultiSigner is
     constructor(
         bytes[] memory signers,
         uint64 threshold
-    ) EIP712("MyAccountMultiSigner", "1") MultiSignerERC7913(signers, threshold) {}
+    ) EIP712("MyAccountMultiSigner", "1") MultiSignerERC7913(signers, threshold) {
+        _disableInitializers();
+    }
 
     function initialize(bytes[] memory signers, uint64 threshold) public initializer {
         _addSigners(signers);
@@ -172,7 +176,9 @@ contract MyAccountMultiSignerWeighted is
         bytes[] memory signers,
         uint64[] memory weights,
         uint64 threshold
-    ) EIP712("MyAccountMultiSignerWeighted", "1") MultiSignerERC7913Weighted(signers, weights, threshold) {}
+    ) EIP712("MyAccountMultiSignerWeighted", "1") MultiSignerERC7913Weighted(signers, weights, threshold) {
+        _disableInitializers();
+    }
 
     function initialize(bytes[] memory signers, uint64[] memory weights, uint64 threshold) public initializer {
         _addSigners(signers);
@@ -224,7 +230,7 @@ To create a multisig account, you need to:
 
 1. Define your signers
 2. Determine your threshold
-3. Initialize your account with these parameters
+3. Pass these parameters to the constructor when deploying the account directly, or to `initialize` when the account is a clone of it that a factory deploys and initializes in the same transaction
 
 The example below demonstrates setting up a 2-of-3 multisig account with different types of signers:
 
@@ -257,7 +263,7 @@ function setupMultisigAccount() external {
     // Set threshold to 2 (2-of-3 multisig)
     uint64 threshold = 2;
     
-    // Initialize the account
+    // Initialize the account (a clone, see above)
     myMultisigAccount.initialize(signers, threshold);
 }
 ----
@@ -283,7 +289,7 @@ function setupWeightedMultisigAccount() external {
     // Set threshold to 4 (requires at least Bob+Charlie or all three)
     uint64 threshold = 4;
     
-    // Initialize the weighted account
+    // Initialize the weighted account (a clone, see above)
     myWeightedMultisigAccount.initialize(signers, weights, threshold);
 }
 ----
