@@ -176,7 +176,7 @@ contract WebAuthnTest is Test {
         bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
         string memory clientDataJSON = _encodeClientDataJSON(challenge);
 
-        typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max), // no room for the type field
+        typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max); // no room for the type field
 
         assertFalse(
             _runVerify(
