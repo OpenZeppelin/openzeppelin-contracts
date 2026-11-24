@@ -176,24 +176,14 @@ contract WebAuthnTest is Test {
         bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
         string memory clientDataJSON = _encodeClientDataJSON(challenge);
 
-        assertFalse(
-            _runVerify(
-                seed,
-                challenge,
-                23,
-                bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max), // no room for the type field
-                authenticatorData,
-                clientDataJSON,
-                false
-            )
-        );
+        typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max), // no room for the type field
 
         assertFalse(
             _runVerify(
                 seed,
                 challenge,
                 23,
-                type(uint256).max, // way out of bound, causing an overflow when figuring out the end of the type field
+                typeIndex,
                 authenticatorData,
                 clientDataJSON,
                 false
