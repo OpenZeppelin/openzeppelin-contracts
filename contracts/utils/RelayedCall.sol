@@ -61,67 +61,20 @@ library RelayedCall {
 
     /// @dev Returns the relayer address for a given salt.
     function getRelayer(bytes32 salt) internal returns (address relayer) {
-        // [Relayer details]
-        //
-        // deployment prefix: 60475f8160095f39f3
-        // deployed bytecode: 73<addr>331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3
-        //
-        // offset | bytecode    | opcode         | stack
-        // -------|-------------|----------------|--------
-        // 0x0000 | 73<factory> | push20 <addr>  | <factory>
-        // 0x0015 | 33          | address        | <caller> <factory>
-        // 0x0016 | 14          | eq             | access
-        // 0x0017 | 6013        | push1 0x13     | 0x13 access
-        // 0x0019 | 36          | calldatasize   | cds 0x13 access
-        // 0x001a | 11          | gt             | (cds>0x13) access
-        // 0x001b | 16          | and            | (cds>0x13 && access)
-        // 0x001c | 6022        | push1 0x22     | 0x22 (cds>0x13 && access)
-        // 0x001e | 57          | jumpi          |
-        // 0x001f | 5f          | push0          | 0
-        // 0x0020 | 5f          | push0          | 0 0
-        // 0x0021 | fd          | revert         |
-        // 0x0022 | 5b          | jumpdest       |
-        // 0x0023 | 6014        | push1 0x14     | 0x14
-        // 0x0025 | 36          | calldatasize   | cds 0x14
-        // 0x0026 | 03          | sub            | (cds-0x14)
-        // 0x0027 | 6014        | push1 0x14     | 0x14 (cds-0x14)
-        // 0x0029 | 5f          | push0          | 0 0x14 (cds-0x14)
-        // 0x002a | 37          | calldatacopy   |
-        // 0x002b | 5f          | push0          | 0
-        // 0x002c | 5f          | push0          | 0 0
-        // 0x002d | 6014        | push1 0x14     | 0x14 0 0
-        // 0x002f | 36          | calldatasize   | cds 0x14 0 0
-        // 0x0030 | 03          | sub            | (cds-0x14) 0 0
-        // 0x0031 | 5f          | push0          | 0 (cds-0x14) 0 0
-        // 0x0032 | 34          | callvalue      | value 0 (cds-0x14) 0 0
-        // 0x0033 | 5f          | push0          | 0 value 0 (cds-0x14) 0 0
-        // 0x0034 | 35          | calldataload   | cd[0] value 0 (cds-0x14) 0 0
-        // 0x0035 | 6060        | push1 0x60     | 0x60 cd[0] value 0 (cds-0x14) 0 0
-        // 0x0037 | 1c          | shr            | target value 0 (cds-0x14) 0 0
-        // 0x0038 | 5a          | gas            | gas target value 0 (cds-0x14) 0 0
-        // 0x0039 | f1          | call           | suc
-        // 0x003a | 3d          | returndatasize | rds suc
-        // 0x003b | 5f          | push0          | 0 rds suc
-        // 0x003c | 5f          | push0          | 0 0 rds suc
-        // 0x003d | 3e          | returndatacopy | suc
-        // 0x003e | 5f          | push0          | 0 suc
-        // 0x003f | 3d          | returndatasize | rds 0 suc
-        // 0x0040 | 91          | swap2          | suc 0 rds
-        // 0x0041 | 6045        | push1 0x45     | 0x45 suc 0 rds
-        // 0x0043 | 57          | jumpi          | 0 rds
-        // 0x0044 | fd          | revert         |
-        // 0x0045 | 5b          | jumpdest       | 0 rds
-        // 0x0046 | f3          | return         |
-
+        // Bytecode compiled from contracts/utils/RelayedCall.yul. The initcode is followed by the ABI-encoded factory
+        // address, which the constructor stores as an immutable in the deployed code.
+        // deployment prefix: 0x60538060175f396020606a823980515f600501525ff3fe
+        // deployed bytecode: 0x601436107f<factory>33141517604f575f80366013190180601483378134813560601c5af13d5f803e604b573d5ffd5b3d5ff35b5f80fd
         assembly ("memory-safe") {
             let fmp := mload(0x40)
 
-            // build initcode at FMP
-            mstore(add(fmp, 0x46), 0x60145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3)
-            mstore(add(fmp, 0x26), 0x331460133611166022575f5ffd5b60143603)
-            mstore(add(fmp, 0x14), address())
-            mstore(add(fmp, 0x00), 0x60475f8160095f39f373)
-            let initcodehash := keccak256(add(fmp, 0x16), 0x50)
+            // build initcode at FMP + 0x16 (0x6a bytes of code followed by the factory address)
+            mstore(add(fmp, 0x00), 0x60538060175f39602060)
+            mstore(add(fmp, 0x20), 0x6a823980515f600501525ff3fe601436107f0000000000000000000000000000)
+            mstore(add(fmp, 0x40), 0x33141517604f575f803660131901)
+            mstore(add(fmp, 0x60), 0x80601483378134813560601c5af13d5f803e604b573d5ffd5b3d5ff35b5f80fd)
+            mstore(add(fmp, 0x80), address())
+            let initcodehash := keccak256(add(fmp, 0x16), 0x8a)
 
             // compute create2 address
             mstore(0x40, initcodehash)
@@ -132,7 +85,7 @@ library RelayedCall {
 
             // is relayer not yet deployed, deploy it
             if iszero(extcodesize(relayer)) {
-                if iszero(create2(0, add(fmp, 0x16), 0x50, salt)) {
+                if iszero(create2(0, add(fmp, 0x16), 0x8a, salt)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
