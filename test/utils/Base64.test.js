@@ -90,6 +90,11 @@ describe('Base64', function () {
   it('tryDecode returns a success flag instead of reverting', async function () {
     await expect(this.mock.$tryDecode('TWFu')).to.eventually.deep.equal([true, ethers.hexlify(Buffer.from('Man'))]);
     await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
+    // input length 4k+1 with a valid last character: still decoded, the trailing 6 bits are dropped (as Buffer does)
+    await expect(this.mock.$tryDecode('TWFuQ')).to.eventually.deep.equal([
+      true,
+      ethers.hexlify(Buffer.from('TWFuQ', 'base64')),
+    ]);
 
     for (const input of [
       '@WFu',
