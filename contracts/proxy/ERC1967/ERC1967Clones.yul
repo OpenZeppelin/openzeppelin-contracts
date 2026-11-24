@@ -33,8 +33,9 @@ object "ERC1967Clone" {
       returndatacopy(0x00, 0x00, returndatasize())
       if success {
         return(0x00, returndatasize())
+      } /* else */ {
+        revert(0x00, returndatasize())
       }
-      revert(0x00, returndatasize())
     }
   }
 }
