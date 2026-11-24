@@ -178,17 +178,7 @@ contract WebAuthnTest is Test {
 
         typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max); // no room for the type field
 
-        assertFalse(
-            _runVerify(
-                seed,
-                challenge,
-                23,
-                typeIndex,
-                authenticatorData,
-                clientDataJSON,
-                false
-            )
-        );
+        assertFalse(_runVerify(seed, challenge, 23, typeIndex, authenticatorData, clientDataJSON, false));
     }
 
     function _runVerify(
