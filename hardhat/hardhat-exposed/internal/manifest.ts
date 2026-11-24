@@ -80,8 +80,9 @@ export class ExposedManifest {
     }
   }
 
+  // npm roots (`npm:<module>`, see `npmFilesToBuild`) are not paths: they are stored as-is.
   private relative(p: string): string {
-    return path.relative(this.rootDir, p);
+    return p.startsWith('npm:') ? p : path.relative(this.rootDir, p);
   }
 
   private absolute(p: string): string {
