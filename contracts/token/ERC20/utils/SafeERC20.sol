@@ -190,10 +190,12 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            mstore(0x00, selector)
-            mstore(0x04, and(to, shr(96, not(0))))
-            mstore(0x24, value)
-            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
+            // calldata is laid out at [0x10, 0x54) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
+            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            mstore(0x00, shr(128, selector))
+            mstore(0x14, and(to, shr(96, not(0))))
+            mstore(0x34, value)
+            success := call(gas(), token, 0, 0x10, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
@@ -232,11 +234,13 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            mstore(0x00, selector)
-            mstore(0x04, and(from, shr(96, not(0))))
-            mstore(0x24, and(to, shr(96, not(0))))
-            mstore(0x44, value)
-            success := call(gas(), token, 0, 0x00, 0x64, 0x00, 0x20)
+            // calldata is laid out at [0x10, 0x74) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
+            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            mstore(0x00, shr(128, selector))
+            mstore(0x14, and(from, shr(96, not(0))))
+            mstore(0x34, and(to, shr(96, not(0))))
+            mstore(0x54, value)
+            success := call(gas(), token, 0, 0x10, 0x64, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
@@ -269,10 +273,12 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            mstore(0x00, selector)
-            mstore(0x04, and(spender, shr(96, not(0))))
-            mstore(0x24, value)
-            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
+            // calldata is laid out at [0x10, 0x54) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
+            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            mstore(0x00, shr(128, selector))
+            mstore(0x14, and(spender, shr(96, not(0))))
+            mstore(0x34, value)
+            success := call(gas(), token, 0, 0x10, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
