@@ -39,7 +39,7 @@ const {
 } = connection;
 
 async function fixture() {
-  const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
+  const [admin, roleAdmin, roleGuardian, member, user, other, roleAdminGuardian] = await ethers.getSigners();
 
   // Build roles
   const roles = buildBaseRoles();
@@ -47,9 +47,10 @@ async function fixture() {
   // Add members
   roles.ADMIN.members = [admin];
   roles.SOME_ADMIN.members = [roleAdmin];
+  roles.SOME_ADMIN_GUARDIAN.members = [roleAdminGuardian];
   roles.SOME_GUARDIAN.members = [roleGuardian];
   roles.SOME.members = [member];
-  roles.PUBLIC.members = [admin, roleAdmin, roleGuardian, member, user, other];
+  roles.PUBLIC.members = [admin, roleAdmin, roleAdminGuardian, roleGuardian, member, user, other];
 
   const manager = await ethers.deployContract('$AccessManagerMock', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
@@ -2405,9 +2406,6 @@ describe('AccessManager', function () {
                 this.caller = this.roles.SOME_ADMIN.members[0];
                 await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.caller, 0, 1); // nonzero execution delay
                 await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.other, 0, 1); // nonzero execution delay
-                this.roleAdminGuardian = 99n;
-                await this.manager.$_setRoleGuardian(this.roles.SOME_ADMIN.id, this.roleAdminGuardian);
-                await this.manager.$_grantRole(this.roleAdminGuardian, this.user, 0, 0);
                 this.calldata = this.manager.interface.encodeFunctionData(
                   this.method,
                   name == 'grant'
@@ -2425,7 +2423,8 @@ describe('AccessManager', function () {
               });
 
               it('a guardian of the role admin succeeds', async function () {
-                await expect(this.manager.connect(this.user).cancel(this.caller, this.manager, this.calldata))
+                const roleAdminGuardian = this.roles.SOME_ADMIN_GUARDIAN.members[0];
+                await expect(this.manager.connect(roleAdminGuardian).cancel(this.caller, this.manager, this.calldata))
                   .to.emit(this.manager, 'OperationCanceled')
                   .withArgs(this.operationId, 1n);
                 expect(await this.manager.getSchedule(this.operationId)).to.equal('0');
