@@ -178,7 +178,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.transfer(to, value)` call, relaxing the requirement on the return value: the
-     * return value is optional (but if data is returned, it must not be false).
+     * return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param to The recipient of the tokens
@@ -213,7 +213,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.transferFrom(from, to, value)` call, relaxing the requirement on the return
-     * value: the return value is optional (but if data is returned, it must not be false).
+     * value: the return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param from The sender of the tokens
@@ -257,7 +257,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.approve(spender, value)` call, relaxing the requirement on the return value:
-     * the return value is optional (but if data is returned, it must not be false).
+     * the return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param spender The spender of the tokens
