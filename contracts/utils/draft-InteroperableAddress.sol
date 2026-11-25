@@ -279,6 +279,7 @@ library InteroperableAddress {
             (success_ &&
                 chainType_ == 0x0000 &&
                 chainReference_.length < 33 &&
+                (chainReference_.length < 2 || chainReference_[0] != 0) &&
                 (addr_.length == 0 || addr_.length == 20))
                 ? (
                     true,
@@ -313,6 +314,7 @@ library InteroperableAddress {
             (success_ &&
                 chainType_ == 0x0000 &&
                 chainReference_.length < 33 &&
+                (chainReference_.length < 2 || chainReference_[0] != 0) &&
                 (addr_.length == 0 || addr_.length == 20))
                 ? (
                     true,
