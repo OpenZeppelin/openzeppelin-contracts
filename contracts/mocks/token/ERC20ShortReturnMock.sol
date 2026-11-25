@@ -5,9 +5,12 @@ pragma solidity ^0.8.20;
 import {ERC20} from "../../token/ERC20/ERC20.sol";
 
 abstract contract ERC20ShortReturnMock is ERC20 {
+    error NotShortReturn();
+
     uint256 internal immutable _zeroCount;
 
     constructor(uint256 zeroCount) {
+        require(zeroCount < 32, NotShortReturn());
         _zeroCount = zeroCount;
     }
 
@@ -16,13 +19,7 @@ abstract contract ERC20ShortReturnMock is ERC20 {
 
         uint256 returndatalength = _zeroCount;
         assembly ("memory-safe") {
-            for {
-                let i := 0
-            } lt(i, returndatalength) {
-                i := add(i, 32)
-            } {
-                mstore(i, 0)
-            }
+            mstore(0, 0)
             return(0, returndatalength)
         }
     }
@@ -32,13 +29,7 @@ abstract contract ERC20ShortReturnMock is ERC20 {
 
         uint256 returndatalength = _zeroCount;
         assembly ("memory-safe") {
-            for {
-                let i := 0
-            } lt(i, returndatalength) {
-                i := add(i, 32)
-            } {
-                mstore(i, 0)
-            }
+            mstore(0, 0)
             return(0, returndatalength)
         }
     }
@@ -48,13 +39,7 @@ abstract contract ERC20ShortReturnMock is ERC20 {
 
         uint256 returndatalength = _zeroCount;
         assembly ("memory-safe") {
-            for {
-                let i := 0
-            } lt(i, returndatalength) {
-                i := add(i, 32)
-            } {
-                mstore(i, 0)
-            }
+            mstore(0, 0)
             return(0, returndatalength)
         }
     }
