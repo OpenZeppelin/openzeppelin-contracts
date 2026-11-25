@@ -193,6 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MERGE_BRANCH: merge/${{ github.ref_name }}
+      CLEANUP_BRANCH: cleanup/${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -208,10 +209,42 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
+            const { data: open } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.MERGE_BRANCH}`,
+              base: 'master',
+              state: 'open',
+            });
+            if (open.length > 0) return;
             await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: process.env.MERGE_BRANCH,
               base: 'master',
               title: '${{ format('Merge {0} branch', github.ref_name) }}'
+            });
+      - id: cleanup
+        name: Remove released changesets from master
+        run: bash scripts/release/workflow/remove-released-changesets.sh
+      - name: Create PR to remove released changesets
+        if: steps.cleanup.outputs.pushed == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: open } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.CLEANUP_BRANCH}`,
+              base: 'master',
+              state: 'open',
+            });
+            if (open.length > 0) return;
+            await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: process.env.CLEANUP_BRANCH,
+              base: 'master',
+              title: '${{ format('Remove changesets released in {0}', github.ref_name) }}',
+              body: 'These changesets were cherry-picked to the release branch and released, but merging the release branch back does not remove them from `master`.',
             });
