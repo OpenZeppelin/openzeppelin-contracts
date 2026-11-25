@@ -24,8 +24,10 @@ const argv = await yargs()
     runs: { type: 'number', default: 200 },
     ir: { type: 'boolean', default: false },
     evm: { type: 'string', default: 'osaka' },
+    hardfork: { type: 'string', default: 'amsterdam' },
   })
   .parse();
+const coverage = process.argv.includes('--coverage') || process.env.HARDHAT_COVERAGE === 'true';
 
 // Configuration
 export default defineConfig({
@@ -62,10 +64,13 @@ export default defineConfig({
   networks: {
     default: {
       type: 'edr-simulated',
-      hardfork: argv.evm,
+      hardfork: argv.hardfork,
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
+      // Since Amsterdam, code deposit is priced per byte. Coverage instrumentation makes some (exposed) mocks
+      // so large that deploying them needs more gas than the default block gas limit.
+      blockGasLimit: coverage ? 1_000_000_000n : undefined,
     },
   },
   test: {

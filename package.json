@@ -31,6 +31,7 @@
     "test:generation": "scripts/checks/generation.sh",
     "test:inheritance": "hardhat build --noExpose && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
     "test:pragma": "hardhat build --noExpose && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
+    "test:plugins": "mocha --node-option experimental-transform-types 'hardhat/*/test/*.test.js'",
     "coverage": "hardhat test --coverage",
     "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."

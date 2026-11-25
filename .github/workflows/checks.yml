@@ -59,6 +59,17 @@ jobs:
           token: ${{ github.token }}
           report: gasReport.json
 
+  tests-plugins:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run hardhat plugin tests
+        run: npm run test:plugins
+
   tests-upgradeable:
     runs-on: ubuntu-latest
     env:

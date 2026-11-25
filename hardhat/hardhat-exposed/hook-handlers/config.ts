@@ -38,8 +38,10 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
   resolveUserConfig: async (userConfig, resolveConfigurationVariable, next) => {
     const partiallyResolvedConfig = await next(userConfig, resolveConfigurationVariable);
 
+    // Patterns starting with `npm:` match the npm root paths of the files listed in `solidity.npmFilesToBuild` (e.g.
+    // `npm:@openzeppelin/contracts/**/*.sol`), and are kept as-is.
     const makeAbsolutePath = (p: string) =>
-      path.isAbsolute(p) ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
+      path.isAbsolute(p) || p.startsWith('npm:') ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
 
     // Note: the output directory is deliberately NOT added to `paths.sources.solidity` here. The `build` task adds it,
     // in place, right after generating its content. That way tasks that don't generate the exposed contracts (docgen,

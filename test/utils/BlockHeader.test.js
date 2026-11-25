@@ -5,7 +5,7 @@ import { Enum } from '../helpers/enums';
 const {
   ethers,
   networkHelpers: { loadFixture, mine },
-} = await network.create({ override: { hardfork: 'amsterdam' } });
+} = await network.create();
 
 const HeaderField = Enum(
   'ParentHash', // Since Frontier

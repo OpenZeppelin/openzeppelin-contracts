@@ -171,6 +171,16 @@ contract WebAuthnTest is Test {
         );
     }
 
+    /// forge-config: default.fuzz.runs = 512
+    function testVerifyTypeIndexOutOfBounds(bytes memory challenge, uint256 seed, uint256 typeIndex) public view {
+        bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
+        string memory clientDataJSON = _encodeClientDataJSON(challenge);
+
+        typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max); // no room for the type field
+
+        assertFalse(_runVerify(seed, challenge, 23, typeIndex, authenticatorData, clientDataJSON, false));
+    }
+
     function _runVerify(
         uint256 seed,
         bytes memory challenge,
