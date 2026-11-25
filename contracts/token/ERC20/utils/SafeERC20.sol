@@ -196,7 +196,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())
@@ -239,7 +239,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x64, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())
@@ -275,7 +275,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())
