@@ -19,9 +19,6 @@ async function fixture() {
   const erc20ReturnFalseMock = await ethers.deployContract('$ERC20ReturnFalseMock', [name, symbol]);
   const erc20ReturnTrueMock = await ethers.deployContract('$ERC20', [name, symbol]); // default implementation returns true
   const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
-  const erc20ShortReturnMocks = await Promise.all(
-    shortReturnLengths.map(length => ethers.deployContract('$ERC20ShortReturnMock', [name, symbol, length])),
-  );
   const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
   const erc20DecimalsMock = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, 6]);
   const erc20ExcessDecimalsMock = await ethers.deployContract('$ERC20ExcessDecimalsMock');
@@ -43,7 +40,6 @@ async function fixture() {
     erc20ReturnFalseMock,
     erc20ReturnTrueMock,
     erc20NoReturnMock,
-    erc20ShortReturnMocks,
     erc20ForceApproveMock,
     erc20DecimalsMock,
     erc20ExcessDecimalsMock,
@@ -172,10 +168,10 @@ describe('SafeERC20', function () {
     shouldOnlyRevertOnErrors();
   });
 
-  for (const [i, length] of Object.entries(shortReturnLengths)) {
+  for (const length of shortReturnLengths) {
     describe(`with token that returns ${length} zero bytes on all calls`, function () {
       beforeEach(async function () {
-        this.token = this.erc20ShortReturnMocks[i];
+        this.token = await ethers.deployContract('$ERC20ShortReturnMock', [name, symbol, length]);
         // 15 zero bytes followed by 0x01: if the short return is completed with leftover calldata (the first address
         // argument), the return buffer reads as `true`.
         this.account = ethers.getAddress('0x' + '00'.repeat(15) + '01' + 'ab'.repeat(4));
