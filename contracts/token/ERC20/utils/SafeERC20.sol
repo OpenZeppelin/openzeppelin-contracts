@@ -190,8 +190,8 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            // calldata is laid out at [0x10, 0x54) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
-            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            // calldata is laid out at [0x10, 0x54) so that the last byte of the return buffer (0x1f) falls in the zero
+            // padding of the first address argument: a return shorter than 32 bytes can then never be read back as `1`.
             mstore(0x00, shr(128, selector))
             mstore(0x14, and(to, shr(96, not(0))))
             mstore(0x34, value)
@@ -234,8 +234,8 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            // calldata is laid out at [0x10, 0x74) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
-            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            // calldata is laid out at [0x10, 0x74) so that the last byte of the return buffer (0x1f) falls in the zero
+            // padding of the first address argument: a return shorter than 32 bytes can then never be read back as `1`.
             mstore(0x00, shr(128, selector))
             mstore(0x14, and(from, shr(96, not(0))))
             mstore(0x34, and(to, shr(96, not(0))))
@@ -273,8 +273,8 @@ library SafeERC20 {
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            // calldata is laid out at [0x10, 0x54) so that byte 0x1f of the return buffer [0x00, 0x20) is zero
-            // before the call: a return shorter than 32 bytes can then never be read back as `1`.
+            // calldata is laid out at [0x10, 0x54) so that the last byte of the return buffer (0x1f) falls in the zero
+            // padding of the first address argument: a return shorter than 32 bytes can then never be read back as `1`.
             mstore(0x00, shr(128, selector))
             mstore(0x14, and(spender, shr(96, not(0))))
             mstore(0x34, value)
