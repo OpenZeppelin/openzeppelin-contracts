@@ -39,7 +39,7 @@ const {
 } = connection;
 
 async function fixture() {
-  const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
+  const [admin, roleAdmin, roleGuardian, member, user, other, roleAdminGuardian] = await ethers.getSigners();
 
   // Build roles
   const roles = buildBaseRoles();
@@ -47,9 +47,10 @@ async function fixture() {
   // Add members
   roles.ADMIN.members = [admin];
   roles.SOME_ADMIN.members = [roleAdmin];
+  roles.SOME_ADMIN_GUARDIAN.members = [roleAdminGuardian];
   roles.SOME_GUARDIAN.members = [roleGuardian];
   roles.SOME.members = [member];
-  roles.PUBLIC.members = [admin, roleAdmin, roleGuardian, member, user, other];
+  roles.PUBLIC.members = [admin, roleAdmin, roleAdminGuardian, roleGuardian, member, user, other];
 
   const manager = await ethers.deployContract('$AccessManagerMock', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
@@ -2421,11 +2422,25 @@ describe('AccessManager', function () {
                 await schedule();
               });
 
-              it('another member of the role admin succeeds', async function () {
-                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+              it('a guardian of the role admin succeeds', async function () {
+                const roleAdminGuardian = this.roles.SOME_ADMIN_GUARDIAN.members[0];
+                await expect(this.manager.connect(roleAdminGuardian).cancel(this.caller, this.manager, this.calldata))
                   .to.emit(this.manager, 'OperationCanceled')
                   .withArgs(this.operationId, 1n);
                 expect(await this.manager.getSchedule(this.operationId)).to.equal('0');
+              });
+
+              it('another member of the role admin reverts', async function () {
+                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(this.other, this.caller, this.manager, this.method.selector);
+              });
+
+              it('a guardian of the granted role but not of its admin reverts', async function () {
+                const roleGuardian = this.roles.SOME_GUARDIAN.members[0];
+                await expect(this.manager.connect(roleGuardian).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(roleGuardian, this.caller, this.manager, this.method.selector);
               });
 
               it('a member of the granted role but not its admin reverts', async function () {

@@ -11,6 +11,9 @@ export function buildBaseRoles() {
     SOME_ADMIN: {
       id: 17n,
     },
+    SOME_ADMIN_GUARDIAN: {
+      id: 23n,
+    },
     SOME_GUARDIAN: {
       id: 35n,
     },
@@ -35,6 +38,7 @@ export function buildBaseRoles() {
   roles.SOME.admin = roles.SOME_ADMIN;
 
   // Guardians
+  roles.SOME_ADMIN.guardian = roles.SOME_ADMIN_GUARDIAN;
   roles.SOME.guardian = roles.SOME_GUARDIAN;
 
   return roles;
