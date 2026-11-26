@@ -1,0 +1,46 @@
+{
+  "name": "hardhat-transpiler",
+  "version": "0.1.0",
+  "description": "Transpile contracts into their upgrade-safe variant",
+  "license": "MIT",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenZeppelin/openzeppelin-contracts.git",
+    "directory": "hardhat/hardhat-transpiler"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "prepare": "npm run clean && tsc"
+  },
+  "dependencies": {
+    "@openzeppelin/upgrade-safe-transpiler": "^0.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.4",
+    "hardhat": "^3.9.1",
+    "rimraf": "^6.1.2",
+    "typescript": "^7.0.2"
+  },
+  "peerDependencies": {
+    "hardhat": "^3.9.1"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

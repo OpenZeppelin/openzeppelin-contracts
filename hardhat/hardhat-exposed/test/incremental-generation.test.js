@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import hardhatExposed from '../plugin.ts';
+import hardhatExposed from '../src/index.ts';
 
 const contract = name => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;

@@ -7,11 +7,11 @@ import hardhatIgnoreWarnings from 'hardhat-ignore-warnings';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
-import hardhatDocgen from './hardhat/hardhat-solidity-docgen/plugin.ts';
-import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
-import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
-import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
-import hardhatYul from './hardhat/hardhat-yul/plugin.ts';
+import hardhatDocgen from 'hardhat-solidity-docgen';
+import hardhatExposed from 'hardhat-exposed';
+import hardhatTranspiler from 'hardhat-transpiler';
+import hardhatOzContractsHelpers from 'hardhat-oz-contracts-helpers';
+import hardhatYul from 'hardhat-yul';
 import './hardhat/async-test-sanity.ts';
 
 // Parameters

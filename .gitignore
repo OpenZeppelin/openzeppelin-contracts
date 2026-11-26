@@ -23,6 +23,9 @@ coverageEnv
 # Dependency directory
 node_modules
 
+# Build output of the local hardhat plugins
+hardhat/*/dist
+
 # Debug log from npm
 npm-debug.log
 

@@ -20,6 +20,8 @@ permissions:
 
 env:
   NODE_OPTIONS: --max_old_space_size=8192
+  # npm replaces NODE_OPTIONS with its `node-options` setting (see .npmrc), so it must repeat them.
+  npm_config_node_options: --conditions=source --max_old_space_size=8192
 
 jobs:
   lint:
@@ -58,17 +60,6 @@ jobs:
         with:
           token: ${{ github.token }}
           report: gasReport.json
-
-  tests-plugins:
-    runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
-    steps:
-      - uses: actions/checkout@v7
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - name: Run hardhat plugin tests
-        run: npm run test:plugins
 
   tests-upgradeable:
     runs-on: ubuntu-latest

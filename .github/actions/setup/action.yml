@@ -71,6 +71,12 @@ runs:
       if: inputs.node != 'off' && steps.cache.outputs.cache-hit != 'true' && steps.cache-restore.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
+    # The cache only holds node_modules: local packages (built by `npm ci` through their `prepare` script) must be
+    # rebuilt when it is restored.
+    - name: Build local packages
+      if: inputs.node != 'off' && (steps.cache.outputs.cache-hit == 'true' || steps.cache-restore.outputs.cache-hit == 'true')
+      shell: bash
+      run: npm run plugins:prepare
     # Foundry setup
     - name: Install Foundry (${{ steps.versions.outputs.foundry }})
       if: inputs.foundry != 'off'
