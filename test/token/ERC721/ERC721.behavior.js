@@ -935,6 +935,20 @@ export function shouldBehaveLikeERC721Metadata(name, symbol) {
       expect(await this.token.symbol()).to.equal(symbol);
     });
 
+    describe('_setName', function () {
+      it('updates the name', async function () {
+        await this.token.$_setName('New Name');
+        await expect(this.token.name()).to.eventually.equal('New Name');
+      });
+    });
+
+    describe('_setSymbol', function () {
+      it('updates the symbol', async function () {
+        await this.token.$_setSymbol('NEW');
+        await expect(this.token.symbol()).to.eventually.equal('NEW');
+      });
+    });
+
     describe('token URI', function () {
       beforeEach(async function () {
         await this.token.$_mint(this.owner, firstTokenId);
