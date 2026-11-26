@@ -64,6 +64,13 @@ abstract contract CrosschainLinked is ERC7786Recipient {
      * @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
      *
      * Note: The `counterpart` parameter is the full InteroperableAddress (chain ref + address).
+     *
+     * WARNING: The `counterpart` is stored as-is and compared to inbound `sender` bytes using strict byte
+     * equality in {_isAuthorizedGateway}. It must be byte-identical to what the ERC-7786 gateway emits as
+     * `sender` when the remote counterpart sends a message. {InteroperableAddress-parseV1} tolerates trailing
+     * bytes and ERC-7930 does not mandate a canonical binary encoding across all chain profiles, so a
+     * counterpart that "parses correctly" is not enough. It must match the gateway's exact emission byte
+     * for byte. Integrators should verify the round trip (send + receive) after configuring a new link.
      */
     function _setLink(address gateway, bytes memory counterpart, bool allowOverride) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
