@@ -85,7 +85,9 @@ import {ERC20} from "../../ERC20.sol";
  * `nonReentrant`. {_forcedTransfer} stays unguarded because {_recoveryAddress} calls it,
  * and a nested guard would make every recovery revert.
  *
- * WARNING: This contract should not be combined with any other ERC-20 extension. It assumes it
+ * [WARNING]
+ * ====
+ * This contract should not be combined with any other ERC-20 extension. It assumes it
  * is the only extension that customizes balance movements: forced transfers and recoveries
  * skip the {_update} chain, and the compliance is notified from inside {_update}. Extensions
  * that keep balance-derived accounting in {_update}, such as {ERC20Votes}, would miss these
@@ -99,6 +101,7 @@ import {ERC20} from "../../ERC20.sol";
  * * {ERC4626} and {ERC7540}
  * * {ERC20FlashMint}
  * * {ERC20Crosschain} and {ERC20Bridgeable}
+ * ====
  *
  * IMPORTANT: ERC-3643 requires an ERC-173 owner and an agent role compatible with {IERC3643AgentRole}.
  * The owner sets the name, symbol, onchain ID, identity registry and compliance; agents run the
