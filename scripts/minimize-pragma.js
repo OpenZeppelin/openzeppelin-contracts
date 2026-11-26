@@ -8,7 +8,7 @@ import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 
 import { getContractsMetadata } from './get-contracts-metadata.js';
-import { versions as allSolcVersions, compile } from './solc-versions.js';
+import { versions as allSolcVersions, compile, satisfies, toPragma } from './solc-versions.js';
 
 const {
   argv: { pattern, skipPatterns, minVersionForContracts, minVersionForInterfaces, concurrency, _: artifacts },
@@ -17,7 +17,7 @@ const {
   .options({
     pattern: { alias: 'p', type: 'string', default: 'contracts/**/*.sol' },
     skipPatterns: { alias: 's', type: 'string', default: 'contracts/mocks/**/*.sol' },
-    minVersionForContracts: { type: 'string', default: '0.8.20' },
+    minVersionForContracts: { type: 'string', default: '0.9.0-pre.1' },
     minVersionForInterfaces: { type: 'string', default: '0.0.0' },
     concurrency: { alias: 'c', type: 'number', default: 8 },
   });
@@ -32,9 +32,7 @@ const limit = pLimit(concurrency);
 const setPragma = (file, pragma) =>
   fs.writeFileSync(
     file,
-    fs
-      .readFileSync(file, 'utf8')
-      .replace(/pragma solidity [><=^]*[0-9]+\.[0-9]+\.[0-9]+;/, `pragma solidity ${pragma};`),
+    fs.readFileSync(file, 'utf8').replace(/pragma solidity [^;]+;/, `pragma solidity ${pragma};`),
     'utf8',
   );
 
@@ -43,7 +41,7 @@ const setPragma = (file, pragma) =>
  * generated, the same update is applied to its `.eta` template, so the change survives the next
  * `npm run generate` and keeps the generated file in sync with its source.
  * @param {*} file Path to the file to update (relative to the repo root).
- * @param {*} pragma New pragma version to set. (ex: '>=0.8.4')
+ * @param {*} pragma New pragma version to set. (ex: '>=0.8.4' or '>0.8.999 <0.10.0')
  */
 const updatePragma = (file, pragma) => {
   setPragma(file, pragma);
@@ -93,7 +91,7 @@ const getMinimalApplicablePragma = (file, candidates = allSolcVersions) =>
  */
 const setMinimalApplicablePragma = (file, candidates = allSolcVersions, prefix = '>=') =>
   getMinimalApplicablePragma(file, candidates)
-    .then(version => `${prefix}${version}`)
+    .then(version => toPragma(prefix, version))
     .then(pragma => {
       updatePragma(file, pragma);
       return pragma;
@@ -130,7 +128,7 @@ Object.keys(metadata).forEach(file => setPragma(file, '>=0.0.0'));
           .map(file => pragmas[file])
           .filter(Boolean);
         const candidates = allSolcVersions.filter(
-          v => semver.gte(v, minVersion) && parentsPragmas.every(p => semver.satisfies(v, p)),
+          v => semver.gte(v, minVersion) && parentsPragmas.every(p => satisfies(v, p)),
         );
         const pragmaPrefix = metadata[file].interface ? '>=' : '^';
 

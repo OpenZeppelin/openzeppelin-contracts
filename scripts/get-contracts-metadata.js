@@ -26,7 +26,9 @@ export function getContractsMetadata(
             pragma: Array.from(findAll('PragmaDirective', solcOutput.sources[source].ast))
               .find(({ literals }) => literals.at(0) == 'solidity')
               .literals.slice(1)
-              .join(''),
+              .join('')
+              // Separate the comparators of ranges (ex: '>0.8.999<0.10.0' → '>0.8.999 <0.10.0')
+              .replace(/(?<=\d)(?=[<>=^~])/g, ' '),
             sources: Array.from(findAll('ImportDirective', solcOutput.sources[source].ast)).map(({ absolutePath }) =>
               absolutePath.replace(/^project\//, ''),
             ),
@@ -46,8 +48,7 @@ export function getContractsMetadata(
     .forEach(file => {
       const entries = glob.sync(`out/${path.basename(file)}/*`);
       metadata[file] = {
-        pragma: fs.readFileSync(file, 'utf-8').match(/pragma solidity (?<pragma>[<>=^]*[0-9]+\.[0-9]+\.[0-9]+);/)
-          ?.groups.pragma,
+        pragma: fs.readFileSync(file, 'utf-8').match(/pragma solidity (?<pragma>[^;]+);/)?.groups.pragma,
         sources: entries
           .flatMap(entry => Object.keys(JSON.parse(fs.readFileSync(entry)).metadata.sources))
           .filter(source => source !== file && match.all(source, pattern) && !match.any(source, skipPatterns)),
