@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {IERC7540, IERC7540Operator, IERC7540Deposit, IERC7540Redeem} from "../../../interfaces/IERC7540.sol";

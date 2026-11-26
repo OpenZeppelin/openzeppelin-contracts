@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/SignerP256.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {P256} from "../P256.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";

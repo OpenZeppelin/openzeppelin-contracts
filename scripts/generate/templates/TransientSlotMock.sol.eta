@@ -1,4 +1,4 @@
-pragma solidity ^0.8.24;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Multicall} from "../utils/Multicall.sol";
 import {TransientSlot} from "../utils/TransientSlot.sol";

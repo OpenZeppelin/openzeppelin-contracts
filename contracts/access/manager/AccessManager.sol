@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Address} from "../../utils/Address.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";

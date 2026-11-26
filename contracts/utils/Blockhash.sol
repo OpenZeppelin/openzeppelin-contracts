@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (utils/Blockhash.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Library for accessing historical block hashes beyond the standard 256 block limit.

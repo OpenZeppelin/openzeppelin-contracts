@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/signers/MultiSignerERC7913.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Calldata} from "../../Calldata.sol";
 import {EnumerableSet} from "../../structs/EnumerableSet.sol";

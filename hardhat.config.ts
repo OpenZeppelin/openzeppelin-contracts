@@ -12,14 +12,19 @@ import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
 import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
 import hardhatYul from './hardhat/hardhat-yul/plugin.ts';
+import hardhatLocalSolc from './hardhat/hardhat-local-solc/plugin.ts';
 import './hardhat/async-test-sanity.ts';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Parameters
 import yargs from 'yargs/yargs';
 const argv = await yargs()
   .env('')
   .options({
-    compiler: { type: 'string', default: '0.8.35' },
+    compiler: { type: 'string', default: '0.9.0' },
+    // Local solc binary (absolute path, or name looked up in PATH). Set to an empty string to download `compiler`.
+    solc: { type: 'string', default: 'solc-linux-amd64-v0.9.0-pre.1+commit.91c99213' },
     src: { type: 'string', default: 'contracts' },
     runs: { type: 'number', default: 200 },
     ir: { type: 'boolean', default: false },
@@ -27,6 +32,7 @@ const argv = await yargs()
     hardfork: { type: 'string', default: 'amsterdam' },
   })
   .parse();
+const solcPath = argv.solc ? resolveBinary(argv.solc) : undefined;
 const coverage = process.argv.includes('--coverage') || process.env.HARDHAT_COVERAGE === 'true';
 
 // Configuration
@@ -45,12 +51,14 @@ export default defineConfig({
     hardhatTranspiler,
     hardhatOzContractsHelpers,
     hardhatYul,
+    hardhatLocalSolc,
   ],
   paths: {
     sources: argv.src,
   },
   solidity: {
     version: argv.compiler,
+    path: solcPath,
     settings: {
       optimizer: {
         enabled: true,
@@ -108,3 +116,12 @@ export default defineConfig({
   },
   docgen: await import('./docs/config.mjs').then(m => m.default),
 });
+
+function resolveBinary(name: string): string {
+  const candidates = path.isAbsolute(name)
+    ? [name]
+    : (process.env.PATH ?? '').split(path.delimiter).map(dir => path.join(dir, name));
+  const found = candidates.find(file => fs.existsSync(file));
+  if (found === undefined) throw new Error(`solc binary not found: ${name}`);
+  return found;
+}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (account/utils/draft-ERC7579Utils.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Execution} from "../../interfaces/draft-IERC7579.sol";
 import {Address} from "../../utils/Address.sol";

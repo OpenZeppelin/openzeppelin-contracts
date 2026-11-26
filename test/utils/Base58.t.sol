@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.26;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Test} from "forge-std/Test.sol";
 import {Base58} from "@openzeppelin/contracts/utils/Base58.sol";

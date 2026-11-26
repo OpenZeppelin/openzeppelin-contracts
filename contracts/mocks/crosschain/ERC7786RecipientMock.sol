@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity >0.8.999 <0.10.0;
 
 import {ERC7786Recipient} from "../../crosschain/ERC7786Recipient.sol";
 

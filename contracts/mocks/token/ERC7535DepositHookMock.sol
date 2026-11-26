@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity >0.8.999 <0.10.0;
 
 // Used by the upgradeable transpilation, which inlines the `ERC7535` constructor argument into this mock.
 // forge-lint: disable-next-line(unused-import)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/Account.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/IERC4337.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";

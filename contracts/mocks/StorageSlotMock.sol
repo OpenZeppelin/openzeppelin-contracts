@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // This file was procedurally generated from scripts/generate/templates/StorageSlotMock.sol.eta.
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Multicall} from "../utils/Multicall.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";

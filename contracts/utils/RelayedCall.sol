@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/RelayedCall.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Library for performing external calls through dynamically deployed relay contracts that hide the original

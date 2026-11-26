@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.1.0) (utils/Errors.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Collection of common custom errors used in multiple contracts

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {IERC3156FlashBorrower} from "../interfaces/IERC3156.sol";

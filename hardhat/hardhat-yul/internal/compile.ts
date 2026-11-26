@@ -3,6 +3,7 @@ import type { SolidityBuildInfo } from 'hardhat/types/solidity';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { compileBuildInfo } from '../../hardhat-local-solc/compile-build-info.ts';
 
 export interface YulContract {
   contractName: string;
@@ -13,7 +14,8 @@ export interface YulContract {
 
 // Compile a Yul source with the solc resolved by Hardhat (courtesy from the Hardhat team).
 export async function compileYul(context: HookContext, sourceName: string): Promise<YulContract[]> {
-  const { version, settings } = context.config.solidity.profiles.default.compilers[0];
+  const solcConfig = context.config.solidity.profiles.default.compilers[0];
+  const { version, settings } = solcConfig;
 
   const input = {
     language: 'Yul',
@@ -31,9 +33,11 @@ export async function compileYul(context: HookContext, sourceName: string): Prom
   // (the solc version is parsed from it). No build info file is written: only the id is needed.
   const buildInfoId = `solc-${version.replaceAll('.', '_')}-${createHash('sha256').update(JSON.stringify(input)).digest('hex')}`;
 
-  // `context.solidity.compileBuildInfo` downloads (or reuses from cache) the requested solc version
-  const output = await context.solidity.compileBuildInfo(
+  // Downloads (or reuses from cache) the requested solc version, or uses the configured local binary
+  const output = await compileBuildInfo(
+    context,
     { solcVersion: version, input } as unknown as SolidityBuildInfo,
+    solcConfig,
     {
       quiet: true,
     },

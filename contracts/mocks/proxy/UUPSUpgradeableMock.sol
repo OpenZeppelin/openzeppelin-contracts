@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.22;
+pragma solidity >0.8.999 <0.10.0;
 
 import {UUPSUpgradeable} from "../../proxy/utils/UUPSUpgradeable.sol";
 import {ERC1967Utils} from "../../proxy/ERC1967/ERC1967Utils.sol";

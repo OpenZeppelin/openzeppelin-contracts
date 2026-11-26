@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v5.3.0) (utils/TransientSlot.sol)
 // This file was procedurally generated from scripts/generate/templates/TransientSlot.sol.eta.
 
-pragma solidity ^0.8.24;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Library for reading and writing value-types to specific transient storage slots.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Test} from "forge-std/Test.sol";
 import {TransientSlot} from "@openzeppelin/contracts/utils/TransientSlot.sol";
