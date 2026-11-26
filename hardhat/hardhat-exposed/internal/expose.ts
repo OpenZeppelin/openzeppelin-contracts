@@ -196,8 +196,7 @@ function parseApplicableRemappings(remappings: string[], projectSourcePrefixes: 
   return remappings
     .flatMap(remapping => {
       const groups = remappingRegex.exec(remapping)?.groups as
-        | { context: string | undefined; prefix: string; target: string }
-        | undefined;
+        { context: string | undefined; prefix: string; target: string } | undefined;
       return groups ? [groups] : [];
     })
     .filter(

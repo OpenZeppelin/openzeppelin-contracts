@@ -64,10 +64,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
         bytes signature;
     }
 
-    bytes32 internal constant FORWARD_REQUEST_TYPEHASH =
-        keccak256(
-            "ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,uint48 deadline,bytes data)"
-        );
+    bytes32 internal constant FORWARD_REQUEST_TYPEHASH = keccak256(
+        "ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,uint48 deadline,bytes data)"
+    );
 
     /**
      * @dev Emitted when a `ForwardRequest` is executed.

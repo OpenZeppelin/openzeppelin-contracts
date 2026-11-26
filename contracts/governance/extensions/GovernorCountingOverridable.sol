@@ -18,8 +18,9 @@ import {GovernorVotes} from "./GovernorVotes.sol";
  * the votes cast with their tokens by their delegates.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
-    bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
-        keccak256("OverrideBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason)");
+    bytes32 public constant OVERRIDE_BALLOT_TYPEHASH = keccak256(
+        "OverrideBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason)"
+    );
 
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.

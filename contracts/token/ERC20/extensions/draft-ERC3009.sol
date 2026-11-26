@@ -36,16 +36,15 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The authorization has already been used or canceled
     error ERC3009UsedAuthorization(address authorizer, bytes32 nonce);
 
-    bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
-        keccak256(
-            "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
-        );
-    bytes32 internal constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH =
-        keccak256(
-            "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
-        );
-    bytes32 internal constant CANCEL_AUTHORIZATION_TYPEHASH =
-        keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
+    bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = keccak256(
+        "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
+    );
+    bytes32 internal constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH = keccak256(
+        "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
+    );
+    bytes32 internal constant CANCEL_AUTHORIZATION_TYPEHASH = keccak256(
+        "CancelAuthorization(address authorizer,bytes32 nonce)"
+    );
 
     mapping(address account => mapping(bytes32 nonce => bool used)) private _usedNonces;
 

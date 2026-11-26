@@ -34,8 +34,9 @@ import {Time} from "../../utils/types/Time.sol";
 abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace208;
 
-    bytes32 private constant DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    bytes32 private constant DELEGATION_TYPEHASH = keccak256(
+        "Delegation(address delegatee,uint256 nonce,uint256 expiry)"
+    );
 
     mapping(address account => address) private _delegatee;
 

@@ -392,10 +392,11 @@ contract ERC7540InvariantHandler is Test {
         if (!found) return;
         uint256 shares = vault.totalRedeemShares(epochId);
         // keep the vault solvent: never promise more than the free balance (see {ERC7540-_isSolvent})
-        uint256 free = asset.balanceOf(address(vault)) +
-            vault.totalClaimableDepositAssets() -
-            vault.totalPendingDepositAssets() -
-            vault.totalClaimableRedeemAssets();
+        uint256 free =
+            asset.balanceOf(address(vault)) +
+                vault.totalClaimableDepositAssets() -
+                vault.totalPendingDepositAssets() -
+                vault.totalClaimableRedeemAssets();
         uint256 assets = (shares * bound(rateBps, 1, 30_000)) / 10_000;
         if (assets > free) assets = free;
         try vault.fulfillRedeemEpoch(epochId, assets) {
