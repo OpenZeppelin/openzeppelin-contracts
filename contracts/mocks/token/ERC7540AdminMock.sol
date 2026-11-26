@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.31;
 
-import {ERC7540} from "../../token/ERC20/extensions/ERC7540.sol";
-import {ERC7540AdminDeposit} from "../../token/ERC20/extensions/ERC7540AdminDeposit.sol";
-import {ERC7540AdminRedeem} from "../../token/ERC20/extensions/ERC7540AdminRedeem.sol";
+import {ERC7540} from "../../token/ERC20/extensions/ERC7540/ERC7540.sol";
+import {ERC7540AdminDeposit} from "../../token/ERC20/extensions/ERC7540/ERC7540AdminDeposit.sol";
+import {ERC7540AdminRedeem} from "../../token/ERC20/extensions/ERC7540/ERC7540AdminRedeem.sol";
 
 abstract contract ERC7540AdminMock is ERC7540AdminDeposit, ERC7540AdminRedeem {
     address private immutable _tmpShareHolder;

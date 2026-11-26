@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.31;
 
-import {Math} from "../../../utils/math/Math.sol";
+import {Math} from "../../../../utils/math/Math.sol";
 import {ERC7540} from "./ERC7540.sol";
 
 /**

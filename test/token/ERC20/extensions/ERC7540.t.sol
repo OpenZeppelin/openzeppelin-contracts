@@ -6,7 +6,7 @@ pragma solidity ^0.8.27;
 import {Test} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540.sol";
 import {ERC7540AdminMock} from "@openzeppelin/contracts/mocks/token/ERC7540AdminMock.sol";
 import {ERC7540DelayMock} from "@openzeppelin/contracts/mocks/token/ERC7540DelayMock.sol";
 import {ERC7540EpochMock} from "@openzeppelin/contracts/mocks/token/ERC7540EpochMock.sol";

@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.31;
 
-import {IERC6372} from "../../../interfaces/IERC6372.sol";
-import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
-import {Math} from "../../../utils/math/Math.sol";
-import {SafeCast} from "../../../utils/math/SafeCast.sol";
-import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
-import {Time} from "../../../utils/types/Time.sol";
+import {IERC6372} from "../../../../interfaces/IERC6372.sol";
+import {ERC6372Utils} from "../../../../utils/ERC6372Utils.sol";
+import {Math} from "../../../../utils/math/Math.sol";
+import {SafeCast} from "../../../../utils/math/SafeCast.sol";
+import {Checkpoints} from "../../../../utils/structs/Checkpoints.sol";
+import {Time} from "../../../../utils/types/Time.sol";
 import {ERC7540} from "./ERC7540.sol";
 
 /**

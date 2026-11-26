@@ -8,7 +8,7 @@ import {Test} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540.sol";
 import {ERC7540EpochMock} from "@openzeppelin/contracts/mocks/token/ERC7540EpochMock.sol";
 
 contract EpochVault is ERC7540EpochMock {

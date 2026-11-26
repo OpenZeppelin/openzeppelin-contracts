@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.31;
 
-import {ERC7540} from "../../token/ERC20/extensions/ERC7540.sol";
-import {ERC7540DelayDeposit} from "../../token/ERC20/extensions/ERC7540DelayDeposit.sol";
-import {ERC7540DelayRedeem} from "../../token/ERC20/extensions/ERC7540DelayRedeem.sol";
+import {ERC7540} from "../../token/ERC20/extensions/ERC7540/ERC7540.sol";
+import {ERC7540DelayDeposit} from "../../token/ERC20/extensions/ERC7540/ERC7540DelayDeposit.sol";
+import {ERC7540DelayRedeem} from "../../token/ERC20/extensions/ERC7540/ERC7540DelayRedeem.sol";
 
 abstract contract ERC7540DelayMock is ERC7540DelayDeposit, ERC7540DelayRedeem {
     function clock() public view virtual override(ERC7540DelayDeposit, ERC7540DelayRedeem) returns (uint48) {

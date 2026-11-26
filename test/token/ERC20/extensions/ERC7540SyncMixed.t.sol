@@ -6,13 +6,13 @@ import {Test} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540.sol";
-import {ERC7540AdminDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminDeposit.sol";
-import {ERC7540AdminRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540AdminRedeem.sol";
-import {ERC7540EpochDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochDeposit.sol";
-import {ERC7540EpochRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540EpochRedeem.sol";
-import {ERC7540SyncDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540SyncDeposit.sol";
-import {ERC7540SyncRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540SyncRedeem.sol";
+import {ERC7540} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540.sol";
+import {ERC7540AdminDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540AdminDeposit.sol";
+import {ERC7540AdminRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540AdminRedeem.sol";
+import {ERC7540EpochDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540EpochDeposit.sol";
+import {ERC7540EpochRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540EpochRedeem.sol";
+import {ERC7540SyncDeposit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540SyncDeposit.sol";
+import {ERC7540SyncRedeem} from "@openzeppelin/contracts/token/ERC20/extensions/ERC7540/ERC7540SyncRedeem.sol";
 
 abstract contract CustodyMock is ERC7540 {
     address private immutable _custody;
