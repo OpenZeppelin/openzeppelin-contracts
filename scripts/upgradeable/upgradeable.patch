@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 0408a9fda..7bf53e3a3 100644
+index 8d794c2b0..9637a5205 100644
 --- a/README.md
 +++ b/README.md
 @@ -17,6 +17,9 @@
@@ -102,7 +102,7 @@ index 0408a9fda..7bf53e3a3 100644
  
 @@ -64,10 +67,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
- pragma solidity ^0.8.20;
+ pragma solidity ^0.8.31;
  
 -import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 +import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -146,7 +146,7 @@ index 0f0252dd7..a8785361c 100644
 +  }
  }
 diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-index b818d327b..8cdff61fa 100644
+index f38706b6c..ec90c23cc 100644
 --- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 +++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 @@ -15,6 +15,14 @@ import {ERC3009} from "./draft-ERC3009.sol";
@@ -165,7 +165,7 @@ index b818d327b..8cdff61fa 100644
  abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
      /**
 diff --git a/contracts/token/ERC721/extensions/ERC721Enumerable.sol b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
-index 4cc6d9751..96af07f9c 100644
+index 9dd437e1f..cdd214151 100644
 --- a/contracts/token/ERC721/extensions/ERC721Enumerable.sol
 +++ b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
 @@ -13,6 +13,10 @@ import {IERC721Enumerable} from "./IERC721Enumerable.sol";
@@ -207,20 +207,20 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 66a165221..9a223cadf 100644
+index 232c6404c..044de2c18 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
- pragma solidity ^0.8.24;
+ pragma solidity ^0.8.31;
  
  import {IERC5267} from "../../interfaces/IERC5267.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
  import {MessageHashUtils} from "./MessageHashUtils.sol";
  
  /**
-@@ -25,43 +24,18 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
+@@ -25,44 +24,19 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
-  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+  * https://docs.metamask.io/wallet/how-to/sign-data/[`eth_signTypedDataV4` in MetaMask].
   *
 - * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
 - * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
@@ -237,8 +237,9 @@ index 66a165221..9a223cadf 100644
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
 -
-     bytes32 private constant TYPE_HASH =
-         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+     bytes32 private constant TYPE_HASH = keccak256(
+         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+     );
  
 -    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
 -    // invalidate the cached domain separator if the chain id changes.
@@ -266,7 +267,7 @@ index 66a165221..9a223cadf 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -76,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
+@@ -77,29 +51,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -300,7 +301,7 @@ index 66a165221..9a223cadf 100644
      }
  
      /**
-@@ -149,20 +113,38 @@ abstract contract EIP712 is IERC5267 {
+@@ -150,20 +114,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -348,11 +349,11 @@ index 66a165221..9a223cadf 100644
      }
  }
 diff --git a/hardhat.config.ts b/hardhat.config.ts
-index e66fae29c..490d991e8 100644
+index b9f117e36..6fc8f1f3a 100644
 --- a/hardhat.config.ts
 +++ b/hardhat.config.ts
-@@ -43,7 +43,7 @@ export default defineConfig({
-     hardhatOzContractsHelpers,
+@@ -45,7 +45,7 @@ export default defineConfig({
+     hardhatYul,
    ],
    paths: {
 -    sources: argv.src,
@@ -360,7 +361,7 @@ index e66fae29c..490d991e8 100644
    },
    solidity: {
      version: argv.compiler,
-@@ -96,7 +96,7 @@ export default defineConfig({
+@@ -98,7 +98,7 @@ export default defineConfig({
    },
    exposed: {
      initializers: true,
@@ -370,10 +371,10 @@ index e66fae29c..490d991e8 100644
    },
    docgen: await import('./docs/config.mjs').then(m => m.default),
 diff --git a/package.json b/package.json
-index 8c6a287a2..ef7b67d75 100644
+index ce0707fa4..90bca9d9c 100644
 --- a/package.json
 +++ b/package.json
-@@ -36,7 +36,7 @@
+@@ -37,7 +37,7 @@
    },
    "repository": {
      "type": "git",

@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/utils/ERC4337Utils.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
+import {Bytes} from "../../utils/Bytes.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {Memory} from "../../utils/Memory.sol";
 import {Packing} from "../../utils/Packing.sol";
+import {EIP7702Utils} from "./EIP7702Utils.sol";
 
 /// @dev This is available on all entrypoint since v0.4.0, but is not formally part of the ERC.
 interface IEntryPointExtra {
@@ -219,6 +222,31 @@ library ERC4337Utils {
         return IEntryPointExtra(entrypoint).getUserOpHash(self);
     }
 
+    /**
+     * @dev Hash of the `initCode` component of a {PackedUserOperation}, applying the {IEntryPoint}'s
+     * EIP-7702 substitution. For EIP-7702 senders (`self.initCode` starts with the 20-byte `0x7702`
+     * marker), the leading marker is replaced by the effective delegate read from `self.sender`'s code
+     * (via {EIP7702Utils.fetchDelegate}), mirroring `Eip7702Support._getEip7702InitCodeHashOverride`.
+     * For all other senders, returns `keccak256(self.initCode)`.
+     */
+    function initCodeHash(PackedUserOperation calldata self) internal view returns (bytes32) {
+        // Cache the free memory pointer so the allocations below (initCode copy, and the delegate
+        // buffer on the EIP-7702 branch) do not persist past this function.
+        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
+
+        // Matches Eip7702Support._isEip7702InitCode: the marker is compared over the full 20 bytes, so
+        // the 18 bytes following it must be zero. Shorter initCode is zero-padded by the cast.
+        bytes memory initCode = self.initCode;
+        if (bytes20(initCode) == bytes20(bytes2(0x7702))) {
+            bytes memory delegate = abi.encodePacked(EIP7702Utils.fetchDelegate(self.sender));
+            initCode = initCode.length > 20 ? Bytes.replace(initCode, 0, delegate) : delegate;
+        }
+        bytes32 initCodeHash_ = keccak256(initCode);
+
+        Memory.unsafeSetFreeMemoryPointer(fmp);
+        return initCodeHash_;
+    }
+
     /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
     function factory(PackedUserOperation calldata self) internal pure returns (address) {
         return self.initCode.length < 20 ? address(0) : address(bytes20(self.initCode[0:20]));
@@ -277,15 +305,20 @@ library ERC4337Utils {
     /**
      * @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
      * If a paymaster signature is present, it is excluded from the returned data.
+     *
+     * This mirrors the EntryPoint (v0.9+) `getSignedPaymasterData`: a suffix is only stripped when `paymasterAndData`
+     * is at least 62 bytes long, ends with {PAYMASTER_SIG_MAGIC} and declares a non-zero signature length.
      */
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        bool hasSignature = self.paymasterAndData.length > 9 &&
-            bytes8(self.paymasterAndData[self.paymasterAndData.length - 8:]) == PAYMASTER_SIG_MAGIC;
-        uint256 suffixLength = hasSignature ? _paymasterSignatureSize(self) + 10 : 0;
-        return
-            self.paymasterAndData.length < 52 + suffixLength
-                ? Calldata.emptyBytes()
-                : self.paymasterAndData[52:self.paymasterAndData.length - suffixLength];
+        unchecked {
+            uint256 sigLength = _paymasterSignatureLength(self);
+            uint256 suffixLength = Math.ternary(sigLength == 0, 0, sigLength + 10);
+            // [unchecked] sigLength <= 65535 so suffixLength <= 65545 and 51 + suffixLength cannot overflow
+            return
+                self.paymasterAndData.length > 51 + suffixLength
+                    ? self.paymasterAndData[52:self.paymasterAndData.length - suffixLength]
+                    : Calldata.emptyBytes();
+        }
     }
 
     /**
@@ -293,25 +326,27 @@ library ERC4337Utils {
      * Returns empty bytes if no paymaster signature is present.
      */
     function paymasterSignature(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        if (
-            self.paymasterAndData.length < 10 ||
-            bytes8(self.paymasterAndData[self.paymasterAndData.length - 8:]) != PAYMASTER_SIG_MAGIC
-        ) return Calldata.emptyBytes();
-
-        uint256 sigSize = _paymasterSignatureSize(self);
-        uint256 sigEnd = self.paymasterAndData.length - 10;
-        return
-            self.paymasterAndData.length < 62 + sigSize
-                ? Calldata.emptyBytes()
-                : self.paymasterAndData[sigEnd - sigSize:sigEnd];
+        unchecked {
+            uint256 sigLength = _paymasterSignatureLength(self);
+            uint256 dataLength = self.paymasterAndData.length;
+            // [unchecked] sigLength <= 65535 so 61 + sigLength cannot overflow
+            return
+                (sigLength > 0 && dataLength > 61 + sigLength)
+                    ? self.paymasterAndData[dataLength - sigLength - 10:dataLength - 10]
+                    : Calldata.emptyBytes();
+        }
     }
 
     /**
-     * @dev Returns the size of the paymaster signature in `paymasterAndData` (EntryPoint v0.9+).
-     * Does not check minimum length of `paymasterAndData`.
+     * @dev Returns the declared length of the paymaster signature in `paymasterAndData` (EntryPoint v0.9+), or 0 if
+     * `paymasterAndData` is too short to carry a signature suffix or does not end with {PAYMASTER_SIG_MAGIC}.
+     * Does not check that the declared length fits in `paymasterAndData`.
      */
-    function _paymasterSignatureSize(PackedUserOperation calldata self) private pure returns (uint256) {
+    function _paymasterSignatureLength(PackedUserOperation calldata self) private pure returns (uint256) {
+        uint256 length = self.paymasterAndData.length;
         return
-            uint16(bytes2(self.paymasterAndData[self.paymasterAndData.length - 10:self.paymasterAndData.length - 8]));
+            length > 61 && bytes8(self.paymasterAndData[length - 8:]) == PAYMASTER_SIG_MAGIC
+                ? uint16(bytes2(self.paymasterAndData[length - 10:]))
+                : 0;
     }
 }

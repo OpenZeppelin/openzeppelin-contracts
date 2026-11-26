@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/utils/Votes.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
@@ -33,8 +33,9 @@ import {Time} from "../../utils/types/Time.sol";
 abstract contract Votes is EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace208;
 
-    bytes32 private constant DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    bytes32 private constant DELEGATION_TYPEHASH = keccak256(
+        "Delegation(address delegatee,uint256 nonce,uint256 expiry)"
+    );
 
     mapping(address account => address) private _delegatee;
 
@@ -68,7 +69,7 @@ abstract contract Votes is EIP712, Nonces, IERC5805 {
      */
     function _validateTimepoint(uint256 timepoint) internal view returns (uint48) {
         uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) revert ERC5805FutureLookup(timepoint, currentTimepoint);
+        require(timepoint < currentTimepoint, ERC5805FutureLookup(timepoint, currentTimepoint));
         return SafeCast.toUint48(timepoint);
     }
 
@@ -139,9 +140,7 @@ abstract contract Votes is EIP712, Nonces, IERC5805 {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        if (block.timestamp > expiry) {
-            revert VotesExpiredSignature(expiry);
-        }
+        require(block.timestamp <= expiry, VotesExpiredSignature(expiry));
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,

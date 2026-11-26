@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (token/common/ERC2981.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {IERC2981} from "../../interfaces/IERC2981.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
@@ -92,13 +92,9 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      */
     function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
         uint256 denominator = _feeDenominator();
-        if (feeNumerator > denominator) {
-            // Royalty fee will exceed the sale price
-            revert ERC2981InvalidDefaultRoyalty(feeNumerator, denominator);
-        }
-        if (receiver == address(0)) {
-            revert ERC2981InvalidDefaultRoyaltyReceiver(address(0));
-        }
+        // Royalty fee will exceed the sale price
+        require(feeNumerator <= denominator, ERC2981InvalidDefaultRoyalty(feeNumerator, denominator));
+        require(receiver != address(0), ERC2981InvalidDefaultRoyaltyReceiver(address(0)));
 
         _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
     }
@@ -120,13 +116,9 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      */
     function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
         uint256 denominator = _feeDenominator();
-        if (feeNumerator > denominator) {
-            // Royalty fee will exceed the sale price
-            revert ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator);
-        }
-        if (receiver == address(0)) {
-            revert ERC2981InvalidTokenRoyaltyReceiver(tokenId, address(0));
-        }
+        // Royalty fee will exceed the sale price
+        require(feeNumerator <= denominator, ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator));
+        require(receiver != address(0), ERC2981InvalidTokenRoyaltyReceiver(tokenId, address(0)));
 
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
     }

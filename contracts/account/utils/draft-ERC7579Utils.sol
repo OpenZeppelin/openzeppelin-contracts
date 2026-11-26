@@ -213,33 +213,60 @@ library ERC7579Utils {
                 executionBatch.length := arrayLength
             }
 
-            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
-        }
-    }
+            // Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
+            // within calldatasize. This check is performed when objects are dereferenced. It will not detect
+            // potentially ill-formed objects that point outside of the `executionCalldata` buffer: after its end, if
+            // the buffer is not the last element in msg.data, or before its start, since offsets are added to their
+            // base pointer without any overflow check.
+            // Since the lazy checks are not sufficient, we do an in-depth traversal of the array, checking that
+            // everything is valid.
+            if (arrayLength > 0) {
+                // An item's head is 0x60 bytes long (target, value, and the offset to the calldata), and the
+                // content of an item's calldata is preceded by a 0x20 bytes length slot. The buffer being able to
+                // hold at least one item means that the bounds below, and the comparisons in the loop, cannot
+                // underflow. This is guaranteed by the checks above, so we don't need to check it again:
+                // - if arrayLengthOffset is 0, the array length is read from the first word of the buffer, which
+                //   contains arrayLengthOffset. The array length is then 0, and we don't enter this branch.
+                // - if arrayLengthOffset is between 1 and 31, the array length is read from a word that overlaps
+                //   the first word of the buffer, with the non-zero last byte of arrayLengthOffset shifted up by
+                //   arrayLengthOffset bytes. The array length is then at least 256, and the buffer must be at least
+                //   arrayLengthOffset + 0x20 + 256 * 0x20 bytes long.
+                // - if arrayLengthOffset is at least 32, the buffer must be at least 0x20 + 0x20 + 0x20 bytes long
+                //   (offset, array length, and at least one element pointer).
+                //
+                // if (bufferLength < 0x60) revert ERC7579DecodingError();
 
-    /**
-     * @dev Calldata sanity check
-     *
-     * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
-     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
-     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
-     * that point to the memory space between the end of the `executionCalldata` buffer.
-     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
-     * array, checking that everything is valid.
-     */
-    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
-        if (bound < msg.data.length) {
-            for (uint256 i = 0; i < executionBatch.length; ++i) {
-                Execution calldata item = executionBatch[i];
-                bytes calldata itemCalldata = item.callData;
+                uint256 upperBound = bufferPtr + bufferLength;
+                // Cannot underflow: upperBound - 0x60 >= (bufferPtr + 0x60) - 0x60 >= bufferPtr
+                uint256 itemUpperBound = upperBound - 0x60;
 
-                uint256 itemEnd;
-                uint256 itemCalldataEnd;
-                assembly ("memory-safe") {
-                    itemEnd := add(item, 0x60)
-                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
+                // Like `abi.decode`, offsets must fit in 64 bits. Since the base pointers are within calldata, adding
+                // such an offset cannot overflow, so every pointer resolves forward of its base:
+                // - itemPtr >= executionBatch.offset > bufferPtr
+                // - itemCalldataPtr >= itemPtr + 0x20 > bufferPtr + 0x20
+                // Checking the pointers against the end of the buffer is then enough to keep everything within it.
+                for (uint256 i = 0; i < arrayLength; ++i) {
+                    uint256 itemOffset;
+                    uint256 itemCalldataOffset;
+                    uint256 itemPtr;
+                    uint256 itemCalldataPtr;
+                    uint256 itemCalldataLength;
+                    assembly ("memory-safe") {
+                        itemOffset := calldataload(add(executionBatch.offset, shl(5, i)))
+                        itemPtr := add(executionBatch.offset, itemOffset)
+                        itemCalldataOffset := calldataload(add(itemPtr, 0x40))
+                        let itemCalldataLengthPtr := add(itemPtr, itemCalldataOffset)
+                        itemCalldataPtr := add(itemCalldataLengthPtr, 0x20)
+                        itemCalldataLength := calldataload(itemCalldataLengthPtr)
+                    }
+
+                    if (
+                        (itemOffset | itemCalldataOffset) > type(uint64).max ||
+                        itemPtr > itemUpperBound ||
+                        itemCalldataPtr > upperBound ||
+                        itemCalldataLength > upperBound - itemCalldataPtr
+                    ) revert ERC7579DecodingError();
                 }
-                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
             }
         }
     }

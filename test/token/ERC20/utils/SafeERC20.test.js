@@ -10,6 +10,7 @@ const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
 const value = 100n;
 const data = '0x12345678';
+const shortReturnLengths = [1n, 4n, 31n];
 
 async function fixture() {
   const [hasNoCode, owner, receiver, spender, other] = await ethers.getSigners();
@@ -166,6 +167,35 @@ describe('SafeERC20', function () {
 
     shouldOnlyRevertOnErrors();
   });
+
+  for (const length of shortReturnLengths) {
+    describe(`with token that returns ${length} zero bytes on all calls`, function () {
+      beforeEach(async function () {
+        this.token = await ethers.deployContract('$ERC20ShortReturnMock', [name, symbol, length]);
+        // 15 zero bytes followed by 0x01: if the short return is completed with leftover calldata (the first address
+        // argument), the return buffer reads as `true`.
+        this.account = ethers.getAddress('0x' + '00'.repeat(15) + '01' + 'ab'.repeat(4));
+      });
+
+      it('reverts on transfer', async function () {
+        await expect(this.mock.$safeTransfer(this.token, this.account, 0n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+          .withArgs(this.token);
+      });
+
+      it('reverts on transferFrom', async function () {
+        await expect(this.mock.$safeTransferFrom(this.token, this.account, this.receiver, 0n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+          .withArgs(this.token);
+      });
+
+      it('reverts on forceApprove', async function () {
+        await expect(this.mock.$forceApprove(this.token, this.account, 0n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+          .withArgs(this.token);
+      });
+    });
+  }
 
   describe('with usdt approval behaviour', function () {
     beforeEach(async function () {

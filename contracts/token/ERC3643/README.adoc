@@ -1,0 +1,16 @@
+= ERC-3643
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc3643
+
+This set of contracts is related to the https://eips.ethereum.org/EIPS/eip-3643[ERC-3643 T-REX Token Standard], an institutional grade security token standard.
+
+TIP: For an overview of ERC-3643 tokens and a walk through on how to create a token contract read our xref:ROOT:erc3643.adoc[ERC-3643 guide].
+
+* {ERC3643}: ERC-20 token that provides compliance-driven token transfers with identity verification, freezing capabilities, and regulatory controls.
+
+The interfaces defined by the standard are available in the xref:api:interfaces.adoc#IERC3643[Interfaces] section.
+
+== Core
+
+{{ERC3643}}

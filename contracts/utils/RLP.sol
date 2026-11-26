@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/RLP.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {Bytes} from "./Bytes.sol";
 import {Math} from "./math/Math.sol";
@@ -312,7 +312,7 @@ library RLP {
      */
     function readUint256(Memory.Slice item) internal pure returns (uint256) {
         uint256 length = item.length();
-        require(length <= 33, RLPInvalidEncoding());
+        require(length < 34, RLPInvalidEncoding());
 
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());

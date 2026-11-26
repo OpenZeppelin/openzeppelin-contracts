@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/Paymaster.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
@@ -137,9 +137,8 @@ abstract contract Paymaster is IPaymaster {
 
     /// @dev Ensures the caller is the {entrypoint}.
     function _checkEntryPoint() internal view virtual {
-        if (msg.sender != address(entryPoint())) {
-            revert PaymasterUnauthorized(msg.sender);
-        }
+        address sender = msg.sender;
+        require(sender == address(entryPoint()), PaymasterUnauthorized(sender));
     }
 
     /// @dev Calls {IEntryPointStake-depositTo}.

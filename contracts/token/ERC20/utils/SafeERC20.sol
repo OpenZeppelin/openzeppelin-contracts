@@ -178,7 +178,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.transfer(to, value)` call, relaxing the requirement on the return value: the
-     * return value is optional (but if data is returned, it must not be false).
+     * return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param to The recipient of the tokens
@@ -196,7 +196,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())
@@ -213,7 +213,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.transferFrom(from, to, value)` call, relaxing the requirement on the return
-     * value: the return value is optional (but if data is returned, it must not be false).
+     * value: the return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param from The sender of the tokens
@@ -239,7 +239,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x64, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())
@@ -257,7 +257,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity `token.approve(spender, value)` call, relaxing the requirement on the return value:
-     * the return value is optional (but if data is returned, it must not be false).
+     * the return value is optional (but if data is returned, it must decode to true).
      *
      * @param token The token targeted by the call.
      * @param spender The spender of the tokens
@@ -275,7 +275,7 @@ library SafeERC20 {
             success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
-            if iszero(and(success, eq(mload(0x00), 1))) {
+            if iszero(and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), 1)))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
                     returndatacopy(fmp, 0x00, returndatasize())

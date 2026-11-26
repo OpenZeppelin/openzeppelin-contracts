@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/draft-ERC3009.sol)
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
@@ -36,16 +36,15 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The authorization has already been used or canceled
     error ERC3009UsedAuthorization(address authorizer, bytes32 nonce);
 
-    bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
-        keccak256(
-            "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
-        );
-    bytes32 internal constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH =
-        keccak256(
-            "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
-        );
-    bytes32 internal constant CANCEL_AUTHORIZATION_TYPEHASH =
-        keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
+    bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = keccak256(
+        "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
+    );
+    bytes32 internal constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH = keccak256(
+        "ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
+    );
+    bytes32 internal constant CANCEL_AUTHORIZATION_TYPEHASH = keccak256(
+        "CancelAuthorization(address authorizer,bytes32 nonce)"
+    );
 
     mapping(address account => mapping(bytes32 nonce => bool used)) private _usedNonces;
 

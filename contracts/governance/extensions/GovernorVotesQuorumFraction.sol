@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
@@ -88,9 +88,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual {
         uint256 denominator = quorumDenominator();
-        if (newQuorumNumerator > denominator) {
-            revert GovernorInvalidQuorumFraction(newQuorumNumerator, denominator);
-        }
+        require(newQuorumNumerator <= denominator, GovernorInvalidQuorumFraction(newQuorumNumerator, denominator));
 
         uint256 oldQuorumNumerator = quorumNumerator();
         _quorumNumeratorHistory.push(clock(), SafeCast.toUint208(newQuorumNumerator));

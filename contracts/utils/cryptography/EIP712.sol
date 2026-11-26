@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 import {ShortStrings, ShortString} from "../ShortStrings.sol";
@@ -23,7 +23,7 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
  * the chain id to protect against replay attacks on an eventual fork of the chain.
  *
  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
- * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+ * https://docs.metamask.io/wallet/how-to/sign-data/[`eth_signTypedDataV4` in MetaMask].
  *
  * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
  * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
@@ -38,8 +38,9 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
 abstract contract EIP712 is IERC5267 {
     using ShortStrings for *;
 
-    bytes32 private constant TYPE_HASH =
-        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private constant TYPE_HASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
 
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
     // invalidate the cached domain separator if the chain id changes.

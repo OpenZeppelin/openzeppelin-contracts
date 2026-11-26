@@ -31,6 +31,7 @@
     "test:generation": "scripts/checks/generation.sh",
     "test:inheritance": "hardhat build --noExpose && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
     "test:pragma": "hardhat build --noExpose && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
+    "test:plugins": "mocha --node-option experimental-transform-types 'hardhat/*/test/*.test.js'",
     "coverage": "hardhat test --coverage",
     "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."
@@ -80,7 +81,7 @@
     "eslint-plugin-mocha": "^11.3.0",
     "eta": "^4.6.0",
     "ethers": "^6.16.0",
-    "glob": "^13.0.0",
+    "glob": "^14.0.0",
     "globals": "^17.0.0",
     "graphlib": "^2.1.8",
     "handlebars": "^4.7.9",

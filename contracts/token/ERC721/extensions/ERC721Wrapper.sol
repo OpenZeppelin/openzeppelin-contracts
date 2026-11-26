@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC721, ERC721} from "../ERC721.sol";
 import {IERC721Receiver} from "../IERC721Receiver.sol";
@@ -86,9 +86,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      */
     function _recover(address account, uint256 tokenId) internal virtual returns (uint256) {
         address owner = underlying().ownerOf(tokenId);
-        if (owner != address(this)) {
-            revert ERC721IncorrectOwner(address(this), tokenId, owner);
-        }
+        require(owner == address(this), ERC721IncorrectOwner(address(this), tokenId, owner));
         _safeMint(account, tokenId);
         return tokenId;
     }

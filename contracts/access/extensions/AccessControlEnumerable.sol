@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (access/extensions/AccessControlEnumerable.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC165} from "../../utils/introspection/ERC165.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";

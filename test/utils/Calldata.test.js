@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { TYPES } from '../../scripts/generate/data.js';
 
 const {
   ethers,
@@ -15,11 +16,15 @@ describe('Calldata utilities', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('emptyBytes', async function () {
-    await expect(this.mock.$emptyBytes()).to.eventually.equal('0x');
-  });
+  for (const { name, zero } of Object.values(TYPES).filter(type => !type.size)) {
+    it(`empty${name}`, async function () {
+      await expect(this.mock[`$empty${name}`]()).to.eventually.equal(zero);
+    });
+  }
 
-  it('emptyString', async function () {
-    await expect(this.mock.$emptyString()).to.eventually.equal('');
-  });
+  for (const { name } of Object.values(TYPES).filter(type => !type.upcastTo)) {
+    it(`empty${name}Array`, async function () {
+      await expect(this.mock[`$empty${name}Array`]()).to.eventually.deep.equal([]);
+    });
+  }
 });

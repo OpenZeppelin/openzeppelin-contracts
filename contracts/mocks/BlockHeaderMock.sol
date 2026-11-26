@@ -31,6 +31,8 @@ contract BlockHeaderMultiReadMock {
         uint64 excessBlobGas;
         bytes32 parentBeaconBlockRoot;
         bytes32 requestsHash;
+        bytes32 blockAccessListHash;
+        uint64 slotNumber;
         bool verified;
     }
 
@@ -57,6 +59,8 @@ contract BlockHeaderMultiReadMock {
         result.excessBlobGas = BlockHeader.getExcessBlobGas(fields);
         result.parentBeaconBlockRoot = BlockHeader.getParentBeaconBlockRoot(fields);
         result.requestsHash = BlockHeader.getRequestsHash(fields);
+        result.blockAccessListHash = BlockHeader.getBlockAccessListHash(fields);
+        result.slotNumber = BlockHeader.getSlotNumber(fields);
         result.verified = BlockHeader.verifyBlockHeader(fields, keccak256(headerRLP));
     }
 }

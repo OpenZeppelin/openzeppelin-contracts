@@ -1,14 +1,16 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { MAX_UINT48 } from '../../helpers/constants';
-import { packValidationData, UserOperation } from '../../helpers/erc4337';
+import { ERC4337Helper, packValidationData, UserOperation } from '../../helpers/erc4337';
 import { ValidationRange } from '../../helpers/enums';
+import * as random from '../../helpers/random';
 
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = await network.create();
+} = connection;
 
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 const BLOCK_RANGE_FLAG = 0x800000000000n; // 1n << 47n
@@ -580,6 +582,61 @@ describe('ERC4337Utils', function () {
     }
   });
 
+  describe('initCodeHash', function () {
+    const MARKER = '0x7702000000000000000000000000000000000000';
+
+    beforeEach(async function () {
+      // create an EIP-7702 account instance
+      this.account = await new ERC4337Helper(connection).newAccount(
+        '$AccountEIP7702Mock',
+        ['AccountEIP7702Mock', '1'],
+        { eip7702signer: this.sender },
+      );
+
+      // create an empty user operation for the account
+      this.userOp = await this.account.createUserOp();
+    });
+
+    for (const [name, marker, tail] of [
+      ['short marker', '0x7702', '0x'],
+      ['full marker', MARKER, '0x'],
+      ['marker + initData', MARKER, '0xdeadbeef'],
+    ]) {
+      it(`binds the delegate (${name})`, async function () {
+        const initCode = ethers.concat([marker, tail]);
+
+        // Before delegation
+        const undelegatedSubstitution = ethers.concat([ethers.ZeroAddress, tail]);
+
+        await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+          ethers.keccak256(undelegatedSubstitution),
+        );
+        await expect(this.userOp.hash({ initCode }))
+          .to.be.revertedWithCustomError(this.account.env.entrypoint, 'Eip7702SenderWithoutCode')
+          .withArgs(this.account);
+
+        // After delegation
+        const { delegate } = await this.account.deploy();
+        const delegatedSubstitution = ethers.concat([delegate.target, tail]);
+
+        await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+          ethers.keccak256(delegatedSubstitution),
+        );
+        await expect(this.userOp.hash({ initCode })).to.eventually.equal(
+          await this.userOp.hash({ initCode: delegatedSubstitution }),
+        );
+      });
+    }
+
+    it('ignores the delegate for a non-zero-tail factory', async function () {
+      const initCode = '0x7702aabbccddeeff00112233445566778899aabb'; // 0x7702 prefix but non-zero tail -> not a marker
+
+      await expect(this.utils.$initCodeHash({ ...this.userOp.packed, initCode })).to.eventually.equal(
+        ethers.keccak256(initCode),
+      );
+    });
+  });
+
   describe('userOp values', function () {
     describe('intiCode', function () {
       beforeEach(async function () {
@@ -707,15 +764,27 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
 
+      it('returns full data when paymasterAndData is too short to carry a signature, even if it ends with the magic', async function () {
+        // The EntryPoint (v0.9) only looks for a signature suffix in paymasterAndData that is at least 62 bytes long.
+        // At exactly 62 bytes the declared signature length is necessarily zero, which is also "no signature".
+        const packedUserOp = this.userOp.packed;
+        const staticFields = random.bytes(52); // 52 random bytes
+        const magic = '0x22e325a297439656';
+
+        for (const data of [8, 9, 10].map(dataLength => ethers.zeroPadValue(magic, dataLength))) {
+          packedUserOp.paymasterAndData = ethers.concat([staticFields, data]); // 60, 61 and 62 bytes
+          await expect(this.utils.$paymasterData(packedUserOp)).to.eventually.equal(data);
+          await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+        }
+      });
+
       it('returns empty signature when paymasterAndData length is less than 62 + signature length', async function () {
         const packedUserOp = this.userOp.packed;
-        packedUserOp.paymasterAndData = ethers.concat([
-          '0x437d871626ffaa4f2a3d24eb54fbc9af36c4c75fbf1b69c2d109b1ce43ab3eaa50b8aba09d395e08a8687c940be78d6533536a78', // 52 random bytes
-          // Missing signature
-          '0x0001', // Non zero signature length
-          '0x22e325a297439656', // magic value
-        ]);
+        const staticFields = random.bytes(52); // 52 random bytes
+        const magic = '0x22e325a297439656';
 
+        // Non-zero signature length + Missing signature
+        packedUserOp.paymasterAndData = ethers.concat([staticFields, '0x0001', magic]);
         await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
     });

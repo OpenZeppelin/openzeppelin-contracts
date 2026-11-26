@@ -60,12 +60,14 @@ jobs:
         with:
           name: ${{ github.ref_name }}-upgradeable
           path: ${{ steps.pack.outputs.tarball }}
+      - name: Upgrade npm
+        # OIDC dist-tags need npm >= 11.21.0: bump to the newest release of the installed major, no downgrade/major jump.
+        run: npm install -g "npm@^$(npm -v | cut -d. -f1)" # TODO: remove once runners ship npm >= 11.21.0
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: false
       - name: Create Github Release
         uses: actions/github-script@v9

@@ -29,7 +29,7 @@ export const increaseBy = <ChainTypeT extends ChainType | string>({
 export const increaseTo = <ChainTypeT extends ChainType | string>({
   networkHelpers,
 }: NetworkConnection<ChainTypeT>) => ({
-  blockNumber: networkHelpers.mineUpTo,
+  blockNumber: (to: ethers.BigNumberish, mine = true) => networkHelpers.mineUpTo(mine ? to : ethers.toBigInt(to) - 1n),
   timestamp: (to: ethers.BigNumberish, mine = true) =>
     mine ? networkHelpers.time.increaseTo(to) : networkHelpers.time.setNextBlockTimestamp(to),
 });

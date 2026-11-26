@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Test} from "forge-std/Test.sol";
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
@@ -169,6 +169,16 @@ contract WebAuthnTest is Test {
                 false
             )
         );
+    }
+
+    /// forge-config: default.fuzz.runs = 512
+    function testVerifyTypeIndexOutOfBounds(bytes memory challenge, uint256 seed, uint256 typeIndex) public view {
+        bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
+        string memory clientDataJSON = _encodeClientDataJSON(challenge);
+
+        typeIndex = bound(typeIndex, bytes(clientDataJSON).length - 20, type(uint256).max); // no room for the type field
+
+        assertFalse(_runVerify(seed, challenge, 23, typeIndex, authenticatorData, clientDataJSON, false));
     }
 
     function _runVerify(

@@ -11,6 +11,9 @@ export function buildBaseRoles() {
     SOME_ADMIN: {
       id: 17n,
     },
+    SOME_ADMIN_GUARDIAN: {
+      id: 23n,
+    },
     SOME_GUARDIAN: {
       id: 35n,
     },
@@ -35,6 +38,7 @@ export function buildBaseRoles() {
   roles.SOME.admin = roles.SOME_ADMIN;
 
   // Guardians
+  roles.SOME_ADMIN.guardian = roles.SOME_ADMIN_GUARDIAN;
   roles.SOME.guardian = roles.SOME_GUARDIAN;
 
   return roles;
@@ -45,7 +49,6 @@ export const formatAccess = access => [access[0], access[1].toString()];
 export const MINSETBACK = duration.days(5);
 export const EXPIRATION = duration.weeks(1);
 
-export const EXECUTION_ID_STORAGE_SLOT = await upgradeableSlot('AccessManager', 3n);
 export const CONSUMING_SCHEDULE_STORAGE_SLOT = await upgradeableSlot('AccessManaged', 0n);
 
 /**

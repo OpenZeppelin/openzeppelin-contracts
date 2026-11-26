@@ -1,0 +1,19 @@
+pragma solidity ^0.8.20;
+
+import {Test} from "forge-std/Test.sol";
+import {Calldata} from "@openzeppelin/contracts/utils/Calldata.sol";
+
+contract CalldataTest is Test {
+<%- for (const { type, name } of Object.values(it.TYPES).filter(type => !type.size)) { %>
+    function testEmpty<%= name %>() external pure {
+        assertEq(bytes(Calldata.empty<%= name %>()).length, 0);
+        assertEq(abi.encode(Calldata.empty<%= name %>()), abi.encode(<%= type %>("")));
+    }
+<% } -%>
+<%- for (const { type, name } of Object.values(it.TYPES).filter(type => !type.upcastTo)) { %>
+    function testEmpty<%= name %>Array() external pure {
+        assertEq(Calldata.empty<%= name %>Array().length, 0);
+        assertEq(abi.encode(Calldata.empty<%= name %>Array()), abi.encode(new <%= type %>[](0)));
+    }
+<% } -%>
+}

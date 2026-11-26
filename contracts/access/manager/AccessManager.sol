@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Address} from "../../utils/Address.sol";
 import {Hashes} from "../../utils/cryptography/Hashes.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Multicall} from "../../utils/Multicall.sol";
+import {TransientSlot} from "../../utils/TransientSlot.sol";
 import {Time} from "../../utils/types/Time.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
 import {IAccessManager} from "./IAccessManager.sol";
@@ -64,6 +65,7 @@ import {IAccessManager} from "./IAccessManager.sol";
  */
 contract AccessManager is Multicall, IAccessManager {
     using Time for *;
+    using TransientSlot for *;
 
     // Structure that stores the details for a target contract.
     struct TargetConfig {
@@ -87,7 +89,8 @@ contract AccessManager is Multicall, IAccessManager {
         mapping(address user => Access access) members;
         // Admin who can grant or revoke permissions.
         uint64 admin;
-        // Guardian who can cancel operations targeting functions that need this role.
+        // Guardian who can cancel operations targeting functions that need this role, as well as grant and
+        // revoke operations for roles administered by this role.
         uint64 guardian;
         // Delay in which the role takes effect after being granted.
         Time.Delay grantDelay;
@@ -117,8 +120,8 @@ contract AccessManager is Multicall, IAccessManager {
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // Used to identify operations that are currently being executed via {execute}.
-    // This should be transient storage when supported by the EVM.
-    bytes32 private _executionId;
+    /// @custom:oz-retyped-from bytes32
+    TransientSlot.TBytes32 private _executionId;
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
@@ -130,9 +133,7 @@ contract AccessManager is Multicall, IAccessManager {
     }
 
     constructor(address initialAdmin) {
-        if (initialAdmin == address(0)) {
-            revert AccessManagerInvalidInitialAdmin(address(0));
-        }
+        require(initialAdmin != address(0), AccessManagerInvalidInitialAdmin(address(0)));
 
         // admin is active immediately and without any execution delay.
         _grantRole(ADMIN_ROLE, initialAdmin, 0, 0);
@@ -232,9 +233,7 @@ contract AccessManager is Multicall, IAccessManager {
     // =============================================== ROLE MANAGEMENT ===============================================
     /// @inheritdoc IAccessManager
     function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
         emit RoleLabel(roleId, label);
     }
 
@@ -250,9 +249,7 @@ contract AccessManager is Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
-        if (callerConfirmation != msg.sender) {
-            revert AccessManagerBadConfirmation();
-        }
+        require(callerConfirmation == msg.sender, AccessManagerBadConfirmation());
         _revokeRole(roleId, callerConfirmation);
     }
 
@@ -282,9 +279,7 @@ contract AccessManager is Multicall, IAccessManager {
         uint32 grantDelay,
         uint32 executionDelay
     ) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         bool newMember = _roles[roleId].members[account].since == 0;
         uint48 since;
@@ -312,9 +307,7 @@ contract AccessManager is Multicall, IAccessManager {
      * Emits a {RoleRevoked} event if the account had the role.
      */
     function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         if (_roles[roleId].members[account].since == 0) {
             return false;
@@ -335,9 +328,7 @@ contract AccessManager is Multicall, IAccessManager {
      * anyone to grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].admin = admin;
 
@@ -353,9 +344,7 @@ contract AccessManager is Multicall, IAccessManager {
      * anyone to cancel any scheduled operation for such role.
      */
     function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
-        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != ADMIN_ROLE && roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         _roles[roleId].guardian = guardian;
 
@@ -368,9 +357,7 @@ contract AccessManager is Multicall, IAccessManager {
      * Emits a {RoleGrantDelayChanged} event.
      */
     function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
+        require(roleId != PUBLIC_ROLE, AccessManagerLockedRole(roleId));
 
         uint48 effect;
         (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
@@ -396,11 +383,9 @@ contract AccessManager is Multicall, IAccessManager {
      * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
-        if (selector == IAccessManaged.setAuthority.selector) {
-            // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
-            // ensure the proper delay and admin restrictions are applied.
-            revert AccessManagerLockedFunction(selector);
-        }
+        // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
+        // ensure the proper delay and admin restrictions are applied.
+        require(selector != IAccessManaged.setAuthority.selector, AccessManagerLockedFunction(selector));
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
@@ -492,9 +477,7 @@ contract AccessManager is Multicall, IAccessManager {
      */
     function _checkNotScheduled(bytes32 operationId) private view {
         uint48 prevTimepoint = _schedules[operationId].timepoint;
-        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
-            revert AccessManagerAlreadyScheduled(operationId);
-        }
+        require(prevTimepoint == 0 || _isExpired(prevTimepoint), AccessManagerAlreadyScheduled(operationId));
     }
 
     /// @inheritdoc IAccessManager
@@ -520,14 +503,14 @@ contract AccessManager is Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, _checkSelector(data));
+        bytes32 executionIdBefore = _executionId.tload();
+        _executionId.tstore(_hashExecutionId(target, _checkSelector(data)));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
 
         // Reset execute identifier
-        _executionId = executionIdBefore;
+        _executionId.tstore(executionIdBefore);
 
         return nonce;
     }
@@ -552,10 +535,12 @@ contract AccessManager is Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
-        if (IAccessManaged(msg.sender).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
-            revert AccessManagerUnauthorizedConsume(msg.sender);
-        }
-        _consumeScheduledOp(hashOperation(caller, msg.sender, data));
+        address target = msg.sender;
+        require(
+            IAccessManaged(target).isConsumingScheduledOp() == IAccessManaged.isConsumingScheduledOp.selector,
+            AccessManagerUnauthorizedConsume(target)
+        );
+        _consumeScheduledOp(hashOperation(caller, target, data));
     }
 
     /**
@@ -728,13 +713,13 @@ contract AccessManager is Multicall, IAccessManager {
             return true;
         }
 
-        // if the target is this AccessManager and the call matches an admin-restricted function, allow members
+        // if the target is this AccessManager and the call matches an admin-restricted function, allow guardians
         // of the admin role returned by _getAdminRestrictions to cancel. ADMIN_ROLE was already checked above.
         if (target == address(this)) {
             (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
             if (adminRestricted && roleId != ADMIN_ROLE) {
-                (bool inRole, ) = hasRole(roleId, msg.sender);
-                return inRole;
+                (bool isRoleGuardian, ) = hasRole(getRoleGuardian(roleId), msg.sender);
+                return isRoleGuardian;
             }
         }
 
@@ -745,7 +730,7 @@ contract AccessManager is Multicall, IAccessManager {
      * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
     function _isExecuting(address target, bytes4 selector) private view returns (bool) {
-        return _executionId == _hashExecutionId(target, selector);
+        return _executionId.tload() == _hashExecutionId(target, selector);
     }
 
     /**
