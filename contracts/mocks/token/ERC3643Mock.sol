@@ -6,7 +6,7 @@ import {Ownable} from "../../access/Ownable.sol";
 import {IERC20} from "../../interfaces/IERC20.sol";
 import {IERC3643Identity} from "../../interfaces/IERC3643.sol";
 import {ERC20} from "../../token/ERC20/ERC20.sol";
-import {ERC3643} from "../../token/ERC20/extensions/ERC3643/ERC3643.sol";
+import {ERC3643} from "../../token/ERC3643/ERC3643.sol";
 
 contract ERC3643Mock is ERC3643, Ownable {
     constructor(
