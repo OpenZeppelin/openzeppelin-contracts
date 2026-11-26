@@ -9,7 +9,7 @@ TIP: For an overview of ERC-3643 tokens and a walk through on how to create a to
 
 * {ERC3643}: ERC-20 token that provides compliance-driven token transfers with identity verification, freezing capabilities, and regulatory controls.
 
-The interfaces defined by the standard are available in the xref:interfaces.adoc[Interfaces] section.
+The interfaces defined by the standard are available in the xref:api:interfaces.adoc#IERC3643[Interfaces] section.
 
 == Core
 
