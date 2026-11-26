@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity >0.8.999 <0.10.0;
 
 import {AccountEIP7702WithModulesMock} from "../patched/mocks/account/AccountMock.sol";
 import {EIP712} from "../patched/utils/cryptography/EIP712.sol";

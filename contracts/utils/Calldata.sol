@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v5.3.0) (utils/Calldata.sol)
 // This file was procedurally generated from scripts/generate/templates/Calldata.sol.eta.
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Helper library for manipulating objects in calldata.

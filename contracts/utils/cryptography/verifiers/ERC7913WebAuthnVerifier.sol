@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 import {WebAuthn} from "../WebAuthn.sol";

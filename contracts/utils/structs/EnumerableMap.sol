@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/EnumerableMap.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableMap.sol.eta.
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {EnumerableSet} from "./EnumerableSet.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // This file was procedurally generated from scripts/generate/templates/Calldata.t.sol.eta.
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Test} from "forge-std/Test.sol";
 import {Calldata} from "@openzeppelin/contracts/utils/Calldata.sol";

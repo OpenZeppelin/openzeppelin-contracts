@@ -11,6 +11,7 @@ import { getExposed } from '../internal/expose.ts';
 import { compilationJobToAstOnlyBuildInfo } from '../internal/build-info.ts';
 import { ExposedManifest } from '../internal/manifest.ts';
 import { errorResult, successfulResult } from 'hardhat/utils/result';
+import { compileBuildInfo } from '../../hardhat-local-solc/compile-build-info.ts';
 
 export type * from '../type-extensions.ts';
 
@@ -84,7 +85,7 @@ export default async function generateExposedContracts(
       f.type === ResolvedFileType.NPM_PACKAGE_FILE ? `npm:${userSourceName}` : f.fsPath,
     ).filter(p => rootPathsToExposeSet.has(p));
 
-  const astOnlyBuildInfos = new Map<SolidityBuildInfo, string[]>();
+  const astOnlyBuildInfos = new Map<SolidityBuildInfo, { roots: string[]; compilationJob: CompilationJob }>();
   const compilationJobIds = new Set<string>();
   for (const rootPath of filteredRootPathsToExpose) {
     const compilationJob = compilationJobs.compilationJobsPerFile.get(rootPath)!;
@@ -95,7 +96,10 @@ export default async function generateExposedContracts(
     }
 
     compilationJobIds.add(compilationJobId);
-    astOnlyBuildInfos.set(await compilationJobToAstOnlyBuildInfo(compilationJob), getExposedRoots(compilationJob));
+    astOnlyBuildInfos.set(await compilationJobToAstOnlyBuildInfo(compilationJob), {
+      roots: getExposedRoots(compilationJob),
+      compilationJob,
+    });
   }
 
   const exposedPaths: Set<string> = new Set();
@@ -103,7 +107,7 @@ export default async function generateExposedContracts(
   if (astOnlyBuildInfos.size > 0) spinner.start();
 
   try {
-    for (const [buildInfo, roots] of astOnlyBuildInfos) {
+    for (const [buildInfo, { roots, compilationJob }] of astOnlyBuildInfos) {
       // Sanity check: No exposed contract should be included as part of the
       // sources of the ast-only build-info
       for (const inputSourceName of Object.keys(buildInfo.input.sources)) {
@@ -113,7 +117,7 @@ export default async function generateExposedContracts(
         );
       }
 
-      const buildOutput = await hre.solidity.compileBuildInfo(buildInfo);
+      const buildOutput = await compileBuildInfo(hre, buildInfo, compilationJob.solcConfig);
 
       // A failed compilation produces no sources at all, which would make the AST processing below fail with a
       // confusing error. The errors are not printed here: this build info is a subset of what the build task

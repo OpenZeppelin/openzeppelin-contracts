@@ -1,4 +1,4 @@
-pragma solidity ^0.8.24;
+pragma solidity >0.8.999 <0.10.0;
 
 /**
  * @dev Library for reading and writing value-types to specific transient storage slots.

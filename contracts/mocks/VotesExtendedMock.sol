@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity >0.8.999 <0.10.0;
 
 import {VotesExtended} from "../governance/utils/VotesExtended.sol";
 import {Time} from "../utils/types/Time.sol";

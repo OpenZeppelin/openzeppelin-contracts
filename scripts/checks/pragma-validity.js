@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-import semver from 'semver';
 import pLimit from 'p-limit';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { getContractsMetadata } from '../get-contracts-metadata.js';
-import { compile } from '../solc-versions.js';
+import { compile, minSatisfyingVersion } from '../solc-versions.js';
 
 const {
   argv: { pattern, skipPatterns, verbose, concurrency, _: artifacts },
@@ -33,7 +32,7 @@ Promise.all(
           },
         ),
       source,
-      semver.minVersion(pragma),
+      minSatisfyingVersion(pragma),
     ),
   ),
 ).finally(() => {

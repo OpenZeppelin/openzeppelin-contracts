@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/paymaster/Paymaster.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";

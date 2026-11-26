@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/abstract/BridgeMultiToken.sol)
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
 import {CrosschainLinked} from "../../CrosschainLinked.sol";

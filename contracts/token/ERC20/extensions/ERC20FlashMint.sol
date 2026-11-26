@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC3156FlashBorrower} from "../../../interfaces/IERC3156FlashBorrower.sol";
 import {IERC3156FlashLender} from "../../../interfaces/IERC3156FlashLender.sol";

@@ -1,6 +1,6 @@
 // contracts/MyAccountEIP7702.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Account} from "../../../account/Account.sol";
 import {ERC721Holder} from "../../../token/ERC721/utils/ERC721Holder.sol";

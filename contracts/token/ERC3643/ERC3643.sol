@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.31;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC3643, IERC3643IdentityRegistry, IERC3643Compliance, IERC3643Identity} from "../../interfaces/IERC3643.sol";
 import {Math} from "../../utils/math/Math.sol";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity >0.8.999 <0.10.0;
 
 import {IERC7786GatewaySource, IERC7786Recipient} from "../../interfaces/IERC7786.sol";
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";

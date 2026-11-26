@@ -1,7 +1,7 @@
 // contracts/MyFactoryAccount.sol
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.999 <0.10.0;
 
 import {Clones} from "../../../proxy/Clones.sol";
 import {Address} from "../../../utils/Address.sol";
