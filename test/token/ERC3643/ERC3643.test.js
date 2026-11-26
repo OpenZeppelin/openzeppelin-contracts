@@ -1,8 +1,8 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
-import * as random from '../../../helpers/random';
-import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
+import * as random from '../../helpers/random';
+import { shouldBehaveLikeERC20 } from '../ERC20/ERC20.behavior';
 
 const {
   ethers,

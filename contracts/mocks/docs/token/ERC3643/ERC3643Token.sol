@@ -4,7 +4,7 @@ pragma solidity ^0.8.31;
 
 import {AccessControl} from "../../../../access/AccessControl.sol";
 import {ERC20} from "../../../../token/ERC20/ERC20.sol";
-import {ERC3643} from "../../../../token/ERC20/extensions/ERC3643/ERC3643.sol";
+import {ERC3643} from "../../../../token/ERC3643/ERC3643.sol";
 
 contract ERC3643Token is ERC3643, AccessControl {
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");

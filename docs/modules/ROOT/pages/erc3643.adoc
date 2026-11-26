@@ -2,7 +2,7 @@
 
 https://eips.ethereum.org/EIPS/eip-3643[ERC-3643] defines permissioned tokens: ERC-20 tokens that can only be held by verified investors and only move in ways the issuer's rules allow. It is the standard behind T-REX and is typically used to represent regulated assets such as securities or fund shares.
 
-OpenZeppelin Contracts provides the token, xref:api:token/ERC20.adoc#ERC3643[`ERC3643`], its interface, xref:api:interfaces.adoc#IERC3643[`IERC3643`], and the interfaces of the other components the standard defines, such as xref:api:interfaces.adoc#IERC3643IdentityRegistry[`IERC3643IdentityRegistry`] and xref:api:interfaces.adoc#IERC3643Compliance[`IERC3643Compliance`]. The identity registry and the compliance contract are left to the issuer's stack.
+OpenZeppelin Contracts provides the token, xref:api:token/ERC3643.adoc#ERC3643[`ERC3643`], its interface, xref:api:interfaces.adoc#IERC3643[`IERC3643`], and the interfaces of the other components the standard defines, such as xref:api:interfaces.adoc#IERC3643IdentityRegistry[`IERC3643IdentityRegistry`] and xref:api:interfaces.adoc#IERC3643Compliance[`IERC3643Compliance`]. The identity registry and the compliance contract are left to the issuer's stack.
 
 [[how-it-works]]
 == How it works
@@ -27,11 +27,11 @@ On top of the ERC-20 functions, the token exposes the operations an issuer's age
 [[building-a-token]]
 == Building an ERC-3643 token
 
-xref:api:token/ERC20.adoc#ERC3643[`ERC3643`] is abstract: it leaves the authorization of the issuer's operations to the inheriting contract through the `_checkAdmin` hook, which must revert when the caller is not allowed to call the current function. ERC-3643 gives the token configuration (name, symbol, onchain ID, identity registry and compliance) to the owner and every other operation to agents. The following token maps the owner to `DEFAULT_ADMIN_ROLE` and the agents to an `AGENT_ROLE`, using xref:api:access.adoc#AccessControl[`AccessControl`]:
+xref:api:token/ERC3643.adoc#ERC3643[`ERC3643`] is abstract: it leaves the authorization of the issuer's operations to the inheriting contract through the `_checkAdmin` hook, which must revert when the caller is not allowed to call the current function. ERC-3643 gives the token configuration (name, symbol, onchain ID, identity registry and compliance) to the owner and every other operation to agents. The following token maps the owner to `DEFAULT_ADMIN_ROLE` and the agents to an `AGENT_ROLE`, using xref:api:access.adoc#AccessControl[`AccessControl`]:
 
 [source,solidity]
 ----
-include::api:example$token/ERC20/ERC3643Token.sol[]
+include::api:example$token/ERC3643/ERC3643Token.sol[]
 ----
 
 The hook is called by every function that needs authorization, so it discriminates between them through `msg.sig`. A token that must expose the ERC-173 `owner` and the xref:api:interfaces.adoc#IERC3643AgentRole[`IERC3643AgentRole`] functions adds them on top. As another example, xref:api:access.adoc#AccessManaged[`AccessManaged`] gives each function its own role. Batch functions reach the hook with their own selector.

@@ -2,15 +2,10 @@
 
 pragma solidity ^0.8.31;
 
-import {
-    IERC3643,
-    IERC3643IdentityRegistry,
-    IERC3643Compliance,
-    IERC3643Identity
-} from "../../../../interfaces/IERC3643.sol";
-import {Math} from "../../../../utils/math/Math.sol";
-import {Pausable} from "../../../../utils/Pausable.sol";
-import {ERC20} from "../../ERC20.sol";
+import {IERC3643, IERC3643IdentityRegistry, IERC3643Compliance, IERC3643Identity} from "../../interfaces/IERC3643.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {Pausable} from "../../utils/Pausable.sol";
+import {ERC20} from "../ERC20/ERC20.sol";
 
 /**
  * @dev Base implementation of https://eips.ethereum.org/EIPS/eip-3643[ERC-3643], a permissioned
