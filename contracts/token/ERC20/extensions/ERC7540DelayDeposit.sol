@@ -125,9 +125,8 @@ abstract contract ERC7540DelayDeposit is ERC7540, IERC6372 {
      * Minting the full {maxMint} consumes all of the claimable assets.
      */
     function _consumeClaimableMint(uint256 shares, address controller) internal virtual override returns (uint256) {
-        uint256 assets = shares == maxMint(controller)
-            ? maxDeposit(controller)
-            : _convertToAssets(shares, Math.Rounding.Ceil);
+        uint256 assets =
+            shares == maxMint(controller) ? maxDeposit(controller) : _convertToAssets(shares, Math.Rounding.Ceil);
         _claimedDeposits[controller] += assets;
         return assets;
     }
