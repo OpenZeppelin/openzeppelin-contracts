@@ -218,7 +218,7 @@ index 232c6404c..044de2c18 100644
  import {MessageHashUtils} from "./MessageHashUtils.sol";
  
  /**
-@@ -25,43 +24,18 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
+@@ -25,44 +24,19 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/wallet/how-to/sign-data/[`eth_signTypedDataV4` in MetaMask].
   *
@@ -237,8 +237,9 @@ index 232c6404c..044de2c18 100644
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
 -
-     bytes32 private constant TYPE_HASH =
-         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+     bytes32 private constant TYPE_HASH = keccak256(
+         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+     );
  
 -    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
 -    // invalidate the cached domain separator if the chain id changes.
@@ -266,7 +267,7 @@ index 232c6404c..044de2c18 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -76,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
+@@ -77,29 +51,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -300,7 +301,7 @@ index 232c6404c..044de2c18 100644
      }
  
      /**
-@@ -149,20 +113,38 @@ abstract contract EIP712 is IERC5267 {
+@@ -150,20 +114,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
