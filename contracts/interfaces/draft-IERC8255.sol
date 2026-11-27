@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.6.1) (interfaces/draft-IERC8255.sol)
+
+pragma solidity >=0.6.2;
+
+import {IERC20} from "./IERC20.sol";
+
+/**
+ * @dev Expiring Approval Extension for ERC-20 (https://eips.ethereum.org/EIPS/eip-8255[ERC-8255]).
+ *
+ * WARNING: This is a draft interface. The corresponding ERC is still subject to changes.
+ */
+interface IERC8255 is IERC20 {
+    /**
+     * @dev Optional event emitted when an approval expiration is set.
+     */
+    event ApprovalExpiration(address indexed owner, address indexed spender, uint64 expiration);
+
+    /**
+     * @dev Returns the maximum approval duration, in seconds.
+     */
+    function maxApprovalDuration() external pure returns (uint32);
+
+    /**
+     * @dev Returns the stored approval expiration timestamp and allowance for `spender` over `owner` tokens.
+     *
+     * NOTE: Implementations that support legacy-compatible spenders may return the current block timestamp as the
+     * expiration for a designated spender instead of the stored expiration.
+     */
+    function allowanceAndExpiration(
+        address owner,
+        address spender
+    ) external view returns (uint64 expiration, uint256 allowance);
+
+    /**
+     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the caller's tokens for `duration`
+     * seconds.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits an {IERC20-Approval} event.
+     */
+    function approveForDuration(address spender, uint256 value, uint32 duration) external returns (bool);
+}
