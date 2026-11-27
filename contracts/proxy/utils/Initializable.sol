@@ -76,6 +76,9 @@ abstract contract Initializable {
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.Initializable")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant INITIALIZABLE_STORAGE = 0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00;
 
+    // Mask for the `_initializing` boolean in `InitializableStorage`.
+    uint256 private constant INITIALIZING_MASK = 1 << 64;
+
     /**
      * @dev The contract is already initialized.
      */
@@ -120,13 +123,12 @@ abstract contract Initializable {
         if (!initialSetup && !construction) {
             revert InvalidInitialization();
         }
-        $._initialized = 1;
         if (isTopLevelCall) {
-            $._initializing = true;
+            _setInitialized(1, true);
         }
         _;
         if (isTopLevelCall) {
-            $._initializing = false;
+            _setInitialized(1, false);
             emit Initialized(1);
         }
     }
@@ -156,10 +158,9 @@ abstract contract Initializable {
         if ($._initializing || $._initialized >= version) {
             revert InvalidInitialization();
         }
-        $._initialized = version;
-        $._initializing = true;
+        _setInitialized(version, true);
         _;
-        $._initializing = false;
+        _setInitialized(version, false);
         emit Initialized(version);
     }
 
@@ -197,7 +198,7 @@ abstract contract Initializable {
             revert InvalidInitialization();
         }
         if ($._initialized != type(uint64).max) {
-            $._initialized = type(uint64).max;
+            _setInitialized(type(uint64).max, false);
             emit Initialized(type(uint64).max);
         }
     }
@@ -233,6 +234,18 @@ abstract contract Initializable {
         bytes32 slot = _initializableStorageSlot();
         assembly {
             $.slot := slot
+        }
+    }
+
+    /**
+     * @dev Stores the initialized version and initializing flag in a single write.
+     */
+    function _setInitialized(uint64 version, bool initializing) private {
+        uint256 value = uint256(version) | (initializing ? INITIALIZING_MASK : 0);
+        bytes32 slot = _initializableStorageSlot();
+
+        assembly {
+            sstore(slot, value)
         }
     }
 }
