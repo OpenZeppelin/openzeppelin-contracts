@@ -13,7 +13,7 @@ export function getContractsMetadata(
   // definitions with minimal IO operations.
   const metadata = Object.fromEntries(
     artifacts.flatMap(artifact => {
-      const { output: solcOutput } = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '..', artifact)));
+      const { output: solcOutput } = JSON.parse(fs.readFileSync(artifact));
       return Object.keys(solcOutput?.contracts ?? {})
         .filter(
           source =>
