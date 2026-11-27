@@ -37,7 +37,33 @@ contract CheckpointsTrace256Test is Test {
         assertEq(_value, value);
     }
 
+    // The general push and lookup tests model traces without compaction.
+    function _pushWithoutCompaction(uint256 key, uint256 value) internal {
+        uint256 length = _ckpts.length();
+        if (length > 1) {
+            vm.assume(key != _ckpts.pos(uint32(length - 1))._key || value != _ckpts.pos(uint32(length - 2))._value);
+        }
+        _ckpts.push(key, value);
+    }
+
     // tests
+    function testUpdateLastCheckpointToPreviousValue() public {
+        _ckpts.push(100, 5);
+        _ckpts.push(101, 6);
+
+        (uint256 oldValue, uint256 newValue) = _ckpts.push(101, 5);
+        assertEq(oldValue, 6);
+        assertEq(newValue, 5);
+        assertEq(_ckpts.length(), 1, "redundant checkpoint should be removed");
+        _assertLatestCheckpoint(true, 100, 5);
+        assertEq(_ckpts.upperLookup(101), 5);
+        assertEq(_ckpts.upperLookupRecent(101), 5);
+        assertEq(_ckpts.lowerLookup(101), 0);
+
+        _ckpts.push(101, 7);
+        _assertLatestCheckpoint(true, 101, 7);
+    }
+
     function testPush(uint256[] memory keys, uint256[] memory values, uint256 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
@@ -54,7 +80,7 @@ contract CheckpointsTrace256Test is Test {
             if (i > 0 && key == keys[i - 1]) ++duplicates;
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // check length & latest
             assertEq(_ckpts.length(), i + 1 - duplicates);
@@ -93,7 +119,7 @@ contract CheckpointsTrace256Test is Test {
             uint256 value = values[i % values.length];
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // track expected result of lookups
             if (key <= lookup) {
@@ -145,7 +171,33 @@ contract CheckpointsTrace224Test is Test {
         assertEq(_value, value);
     }
 
+    // The general push and lookup tests model traces without compaction.
+    function _pushWithoutCompaction(uint32 key, uint224 value) internal {
+        uint256 length = _ckpts.length();
+        if (length > 1) {
+            vm.assume(key != _ckpts.pos(uint32(length - 1))._key || value != _ckpts.pos(uint32(length - 2))._value);
+        }
+        _ckpts.push(key, value);
+    }
+
     // tests
+    function testUpdateLastCheckpointToPreviousValue() public {
+        _ckpts.push(100, 5);
+        _ckpts.push(101, 6);
+
+        (uint224 oldValue, uint224 newValue) = _ckpts.push(101, 5);
+        assertEq(oldValue, 6);
+        assertEq(newValue, 5);
+        assertEq(_ckpts.length(), 1, "redundant checkpoint should be removed");
+        _assertLatestCheckpoint(true, 100, 5);
+        assertEq(_ckpts.upperLookup(101), 5);
+        assertEq(_ckpts.upperLookupRecent(101), 5);
+        assertEq(_ckpts.lowerLookup(101), 0);
+
+        _ckpts.push(101, 7);
+        _assertLatestCheckpoint(true, 101, 7);
+    }
+
     function testPush(uint32[] memory keys, uint224[] memory values, uint32 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
@@ -162,7 +214,7 @@ contract CheckpointsTrace224Test is Test {
             if (i > 0 && key == keys[i - 1]) ++duplicates;
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // check length & latest
             assertEq(_ckpts.length(), i + 1 - duplicates);
@@ -201,7 +253,7 @@ contract CheckpointsTrace224Test is Test {
             uint224 value = values[i % values.length];
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // track expected result of lookups
             if (key <= lookup) {
@@ -253,7 +305,33 @@ contract CheckpointsTrace208Test is Test {
         assertEq(_value, value);
     }
 
+    // The general push and lookup tests model traces without compaction.
+    function _pushWithoutCompaction(uint48 key, uint208 value) internal {
+        uint256 length = _ckpts.length();
+        if (length > 1) {
+            vm.assume(key != _ckpts.pos(uint32(length - 1))._key || value != _ckpts.pos(uint32(length - 2))._value);
+        }
+        _ckpts.push(key, value);
+    }
+
     // tests
+    function testUpdateLastCheckpointToPreviousValue() public {
+        _ckpts.push(100, 5);
+        _ckpts.push(101, 6);
+
+        (uint208 oldValue, uint208 newValue) = _ckpts.push(101, 5);
+        assertEq(oldValue, 6);
+        assertEq(newValue, 5);
+        assertEq(_ckpts.length(), 1, "redundant checkpoint should be removed");
+        _assertLatestCheckpoint(true, 100, 5);
+        assertEq(_ckpts.upperLookup(101), 5);
+        assertEq(_ckpts.upperLookupRecent(101), 5);
+        assertEq(_ckpts.lowerLookup(101), 0);
+
+        _ckpts.push(101, 7);
+        _assertLatestCheckpoint(true, 101, 7);
+    }
+
     function testPush(uint48[] memory keys, uint208[] memory values, uint48 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
@@ -270,7 +348,7 @@ contract CheckpointsTrace208Test is Test {
             if (i > 0 && key == keys[i - 1]) ++duplicates;
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // check length & latest
             assertEq(_ckpts.length(), i + 1 - duplicates);
@@ -309,7 +387,7 @@ contract CheckpointsTrace208Test is Test {
             uint208 value = values[i % values.length];
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // track expected result of lookups
             if (key <= lookup) {
@@ -361,7 +439,33 @@ contract CheckpointsTrace160Test is Test {
         assertEq(_value, value);
     }
 
+    // The general push and lookup tests model traces without compaction.
+    function _pushWithoutCompaction(uint96 key, uint160 value) internal {
+        uint256 length = _ckpts.length();
+        if (length > 1) {
+            vm.assume(key != _ckpts.pos(uint32(length - 1))._key || value != _ckpts.pos(uint32(length - 2))._value);
+        }
+        _ckpts.push(key, value);
+    }
+
     // tests
+    function testUpdateLastCheckpointToPreviousValue() public {
+        _ckpts.push(100, 5);
+        _ckpts.push(101, 6);
+
+        (uint160 oldValue, uint160 newValue) = _ckpts.push(101, 5);
+        assertEq(oldValue, 6);
+        assertEq(newValue, 5);
+        assertEq(_ckpts.length(), 1, "redundant checkpoint should be removed");
+        _assertLatestCheckpoint(true, 100, 5);
+        assertEq(_ckpts.upperLookup(101), 5);
+        assertEq(_ckpts.upperLookupRecent(101), 5);
+        assertEq(_ckpts.lowerLookup(101), 0);
+
+        _ckpts.push(101, 7);
+        _assertLatestCheckpoint(true, 101, 7);
+    }
+
     function testPush(uint96[] memory keys, uint160[] memory values, uint96 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
@@ -378,7 +482,7 @@ contract CheckpointsTrace160Test is Test {
             if (i > 0 && key == keys[i - 1]) ++duplicates;
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // check length & latest
             assertEq(_ckpts.length(), i + 1 - duplicates);
@@ -417,7 +521,7 @@ contract CheckpointsTrace160Test is Test {
             uint160 value = values[i % values.length];
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // track expected result of lookups
             if (key <= lookup) {

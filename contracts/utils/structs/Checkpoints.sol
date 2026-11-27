@@ -31,6 +31,9 @@ library Checkpoints {
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace256 so that it is stored as the checkpoint.
      *
+     * Updating the last checkpoint to the previous checkpoint's value removes the last checkpoint.
+     * The last stored key then becomes the previous checkpoint's key.
+     *
      * Returns previous value and new value.
      *
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint256).max` key set will disable the
@@ -129,7 +132,7 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-     * or by updating the last one.
+     * by updating the last one, or by removing it when it repeats the previous value.
      */
     function _insert(
         Checkpoint256[] storage self,
@@ -150,7 +153,11 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                last._value = value;
+                if (len > 1 && _unsafeAccess(self, len - 2)._value == value) {
+                    self.pop();
+                } else {
+                    last._value = value;
+                }
             } else {
                 self.push(Checkpoint256({_key: key, _value: value}));
             }
@@ -233,6 +240,9 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
+     *
+     * Updating the last checkpoint to the previous checkpoint's value removes the last checkpoint.
+     * The last stored key then becomes the previous checkpoint's key.
      *
      * Returns previous value and new value.
      *
@@ -332,7 +342,7 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-     * or by updating the last one.
+     * by updating the last one, or by removing it when it repeats the previous value.
      */
     function _insert(
         Checkpoint224[] storage self,
@@ -353,7 +363,11 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                last._value = value;
+                if (len > 1 && _unsafeAccess(self, len - 2)._value == value) {
+                    self.pop();
+                } else {
+                    last._value = value;
+                }
             } else {
                 self.push(Checkpoint224({_key: key, _value: value}));
             }
@@ -436,6 +450,9 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace208 so that it is stored as the checkpoint.
+     *
+     * Updating the last checkpoint to the previous checkpoint's value removes the last checkpoint.
+     * The last stored key then becomes the previous checkpoint's key.
      *
      * Returns previous value and new value.
      *
@@ -535,7 +552,7 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-     * or by updating the last one.
+     * by updating the last one, or by removing it when it repeats the previous value.
      */
     function _insert(
         Checkpoint208[] storage self,
@@ -556,7 +573,11 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                last._value = value;
+                if (len > 1 && _unsafeAccess(self, len - 2)._value == value) {
+                    self.pop();
+                } else {
+                    last._value = value;
+                }
             } else {
                 self.push(Checkpoint208({_key: key, _value: value}));
             }
@@ -639,6 +660,9 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
+     *
+     * Updating the last checkpoint to the previous checkpoint's value removes the last checkpoint.
+     * The last stored key then becomes the previous checkpoint's key.
      *
      * Returns previous value and new value.
      *
@@ -738,7 +762,7 @@ library Checkpoints {
 
     /**
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-     * or by updating the last one.
+     * by updating the last one, or by removing it when it repeats the previous value.
      */
     function _insert(
         Checkpoint160[] storage self,
@@ -759,7 +783,11 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                last._value = value;
+                if (len > 1 && _unsafeAccess(self, len - 2)._value == value) {
+                    self.pop();
+                } else {
+                    last._value = value;
+                }
             } else {
                 self.push(Checkpoint160({_key: key, _value: value}));
             }

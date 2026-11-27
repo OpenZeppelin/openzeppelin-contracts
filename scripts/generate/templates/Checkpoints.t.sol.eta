@@ -35,7 +35,33 @@ contract CheckpointsTrace<%= size %>Test is Test {
         assertEq(_value, value);
     }
 
+    // The general push and lookup tests model traces without compaction.
+    function _pushWithoutCompaction(uint<%= keySize %> key, uint<%= size %> value) internal {
+        uint256 length = _ckpts.length();
+        if (length > 1) {
+            vm.assume(key != _ckpts.pos(uint32(length - 1))._key || value != _ckpts.pos(uint32(length - 2))._value);
+        }
+        _ckpts.push(key, value);
+    }
+
     // tests
+    function testUpdateLastCheckpointToPreviousValue() public {
+        _ckpts.push(100, 5);
+        _ckpts.push(101, 6);
+
+        (uint<%= size %> oldValue, uint<%= size %> newValue) = _ckpts.push(101, 5);
+        assertEq(oldValue, 6);
+        assertEq(newValue, 5);
+        assertEq(_ckpts.length(), 1, "redundant checkpoint should be removed");
+        _assertLatestCheckpoint(true, 100, 5);
+        assertEq(_ckpts.upperLookup(101), 5);
+        assertEq(_ckpts.upperLookupRecent(101), 5);
+        assertEq(_ckpts.lowerLookup(101), 0);
+
+        _ckpts.push(101, 7);
+        _assertLatestCheckpoint(true, 101, 7);
+    }
+
     function testPush(uint<%= keySize %>[] memory keys, uint<%= size %>[] memory values, uint<%= keySize %> pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
@@ -52,7 +78,7 @@ contract CheckpointsTrace<%= size %>Test is Test {
             if (i > 0 && key == keys[i - 1]) ++duplicates;
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // check length & latest
             assertEq(_ckpts.length(), i + 1 - duplicates);
@@ -91,7 +117,7 @@ contract CheckpointsTrace<%= size %>Test is Test {
             uint<%= size %> value = values[i % values.length];
 
             // push
-            _ckpts.push(key, value);
+            _pushWithoutCompaction(key, value);
 
             // track expected result of lookups
             if (key <= lookup) {
