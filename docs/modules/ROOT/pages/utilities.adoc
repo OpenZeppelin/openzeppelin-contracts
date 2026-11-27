@@ -267,6 +267,81 @@ Some use cases require more powerful data structures than the arrays and mapping
 
 The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
+=== Efficient Storage with BitMaps
+
+The xref:api:utils.adoc#BitMaps[`BitMaps`] library provides a collection of gas-efficient data structures that pack multiple values into single storage slots. This approach can significantly reduce gas costs by minimizing storage operations, especially when dealing with sequential indices.
+
+==== Using BitMaps for Boolean Flags
+
+The most common use case is `BitMap` for storing boolean flags efficiently:
+
+[source,solidity]
+----
+using BitMaps for BitMaps.BitMap;
+
+contract VotingContract {
+    BitMaps.BitMap private _hasVoted;
+    
+    function vote(uint256 proposalId) external {
+        require(!_hasVoted.get(proposalId), "Already voted");
+        _hasVoted.set(proposalId);
+        // ... voting logic
+    }
+    
+    function hasVoted(uint256 proposalId) external view returns (bool) {
+        return _hasVoted.get(proposalId);
+    }
+}
+----
+
+==== Working with Small Integer Values
+
+For scenarios requiring small integer values, use the appropriate map type. For example, storing user roles that fit in 2 bits:
+
+[source,solidity]
+----
+using BitMaps for BitMaps.PairMap;
+
+contract AccessControl {
+    // 0: no access, 1: read, 2: write, 3: admin
+    BitMaps.PairMap private _userRoles;
+    
+    function setUserRole(uint256 userId, uint8 role) external {
+        require(role <= 3, "Invalid role");
+        _userRoles.set(userId, role);
+    }
+    
+    function getUserRole(uint256 userId) external view returns (uint8) {
+        return _userRoles.get(userId);
+    }
+}
+----
+
+==== Handling Larger Values
+
+For larger values, use the appropriate sized map. Here's an example with time delays that fit in 32 bits:
+
+[source,solidity]
+----
+using BitMaps for BitMaps.Uint32Map;
+
+contract DelaysTracker {
+    BitMaps.Uint32Map private _delays;
+    
+    function recordDelay(uint256 id) external {
+        _delays.set(id, 12 hours);
+    }
+    
+    function getDelay(uint256 id) external view returns (uint32) {
+        return _delays.get(id);
+    }
+}
+----
+
+IMPORTANT: Values larger than the map's bit size are truncated. For example, setting a value of 16 in a `NibbleMap` (4-bit) will result in 0. Always ensure your values fit within the allocated bits.
+
+TIP: BitMaps are most efficient when indices are sequential or clustered, as they share storage slots. Sparse indices may not provide significant gas savings over regular mappings.
+
 === Building a Merkle Tree
 
 Building an on-chain Merkle Tree allows developers to keep track of the history of roots in a decentralized manner. For these cases, the xref:api:utils.adoc#MerkleTree[`MerkleTree`] includes a predefined structure with functions to manipulate the tree (e.g. pushing values or resetting the tree).
