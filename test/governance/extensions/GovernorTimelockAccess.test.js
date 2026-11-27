@@ -468,7 +468,7 @@ describe('GovernorTimelockAccess', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
             if (await this.mock.proposalNeedsQueuing(this.proposal.id)) {
-              expect(await this.helper.queue())
+              await expect(await this.helper.queue())
                 .to.emit(this.mock, 'ProposalQueued')
                 .withArgs(this.proposal.id, anyValue);
             }

@@ -256,7 +256,7 @@ describe('Strings', function () {
     });
 
     it('parseUint invalid range', async function () {
-      expect(this.mock.$parseUint('12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseUint('12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       expect(await this.mock.$tryParseUint('12', 3, 2)).to.deep.equal([false, 0n]);
     });
 
@@ -297,7 +297,7 @@ describe('Strings', function () {
     });
 
     it('parseInt invalid range', async function () {
-      expect(this.mock.$parseInt('-12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseInt('-12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       expect(await this.mock.$tryParseInt('-12', 3, 2)).to.deep.equal([false, 0n]);
     });
 
@@ -329,7 +329,7 @@ describe('Strings', function () {
     });
 
     it('parseHexUint invalid begin and end', async function () {
-      expect(this.mock.$parseHexUint('0x', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('0x', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       expect(await this.mock.$tryParseHexUint('0x', 3, 2)).to.deep.equal([false, 0n]);
     });
 
