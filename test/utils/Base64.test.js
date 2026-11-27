@@ -79,13 +79,36 @@ describe('Base64', function () {
     await expect(this.mock.$decode('dGVzd\x00=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
       .withArgs(getHexCode('\x00'));
+    // input length 4k+1: the last character is not consumed by the decoding loop, but must still be validated
+    for (const input of ['@', 'TWFu@', 'TWFu\x00']) {
+      await expect(this.mock.$decode(input))
+        .to.be.revertedWithCustomError(helper, 'InvalidBase64Char')
+        .withArgs(getHexCode(input.at(-1)));
+    }
   });
 
   it('tryDecode returns a success flag instead of reverting', async function () {
     await expect(this.mock.$tryDecode('TWFu')).to.eventually.deep.equal([true, ethers.hexlify(Buffer.from('Man'))]);
     await expect(this.mock.$tryDecode('')).to.eventually.deep.equal([true, '0x']);
+    // input length 4k+1 with a valid last character: still decoded, the trailing 6 bits are dropped (as Buffer does)
+    await expect(this.mock.$tryDecode('TWFuQ')).to.eventually.deep.equal([
+      true,
+      ethers.hexlify(Buffer.from('TWFuQ', 'base64')),
+    ]);
 
-    for (const input of ['@WFu', 'T@Fu', 'TW@u', 'TWF@', 'dGVzd*==', 'dGVzd{==', 'dGVzd@==', 'dGVzd\x00==']) {
+    for (const input of [
+      '@WFu',
+      'T@Fu',
+      'TW@u',
+      'TWF@',
+      'dGVzd*==',
+      'dGVzd{==',
+      'dGVzd@==',
+      'dGVzd\x00==',
+      '@',
+      'TWFu@',
+      'TWFu\x00',
+    ]) {
       await expect(this.mock.$tryDecode(input)).to.eventually.deep.equal([false, '0x']);
     }
   });
