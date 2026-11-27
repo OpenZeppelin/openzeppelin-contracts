@@ -87,6 +87,20 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         return "";
     }
 
+    /**
+     * @dev Sets the name of the token collection.
+     */
+    function _setName(string memory name_) internal virtual {
+        _name = name_;
+    }
+
+    /**
+     * @dev Sets the symbol of the token collection.
+     */
+    function _setSymbol(string memory symbol_) internal virtual {
+        _symbol = symbol_;
+    }
+
     /// @inheritdoc IERC721
     function approve(address to, uint256 tokenId) public virtual {
         _approve(to, tokenId, _msgSender());
