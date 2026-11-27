@@ -15,6 +15,18 @@ export default [
     plugins: { mocha },
     rules: {
       'mocha/no-async-suite': 'error',
+      'mocha/no-exclusive-tests': 'error',
+      'mocha/no-pending-tests': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          // A chai matcher that returns a promise (`eventually`, `reverted*`, `emit`, balance changes) must be
+          // awaited or returned, otherwise its failure surfaces as an unhandled rejection, possibly in another test.
+          selector:
+            'ExpressionStatement > CallExpression:has(CallExpression[callee.name="expect"]):has(MemberExpression[property.name=/^(eventually|rejected|rejectedWith|reverted|revertedWith|revertedWithCustomError|revertedWithPanic|revertedWithoutReason|emit|changeTokenBalance|changeTokenBalances|changeEtherBalance|changeEtherBalances)$/]):not(:has(FunctionExpression)):not(:has(ArrowFunctionExpression))',
+          message: 'Async chai matcher must be awaited or returned.',
+        },
+      ],
     },
   },
   {
