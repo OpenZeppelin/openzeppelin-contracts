@@ -32,7 +32,7 @@ for (const [filepath, needsPrettier] of Object.entries({
   'test/utils/SlotDerivation.t.sol': false,
   'test/utils/structs/Checkpoints.t.sol': false,
 })) {
-  console.log(`Generating ${filepath}...`);
+  console.log(`Generating ${filepath}`);
   const template = `${path.basename(filepath)}.eta`;
   const input = path.relative(repoRoot, path.join(templatesDir, template));
   const version =
