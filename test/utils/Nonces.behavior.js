@@ -7,12 +7,12 @@ export function shouldBehaveLikeNonces() {
     const other = ethers.Wallet.createRandom();
 
     it('gets a nonce', async function () {
-      expect(this.mock.nonces(sender)).to.eventually.equal(0n);
+      await expect(this.mock.nonces(sender)).to.eventually.equal(0n);
     });
 
     describe('_useNonce', function () {
       it('increments a nonce', async function () {
-        expect(this.mock.nonces(sender)).to.eventually.equal(0n);
+        await expect(this.mock.nonces(sender)).to.eventually.equal(0n);
 
         const eventName = ['return$_useNonce', 'return$_useNonce_address'].find(name =>
           this.mock.interface.getEvent(name),
