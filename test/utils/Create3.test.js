@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { artifacts, network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { RevertType } from '../helpers/enums';
@@ -8,7 +8,9 @@ const {
   networkHelpers: { loadFixture, takeSnapshot },
 } = await network.create();
 
-const PROXY_INITCODE_HASH = '0x57a34f6e879358dd76825d6700df87013ad6a3fb43c0d0c602f70a8772c153bd';
+const PROXY_INITCODE_HASH = await artifacts
+  .readArtifact('contracts/utils/Create3.yul:Create3Proxy')
+  .then(({ bytecode }) => ethers.keccak256(bytecode));
 const getCreate3Address = (deployer, salt) =>
   ethers.getCreateAddress({ from: ethers.getCreate2Address(deployer, salt, PROXY_INITCODE_HASH), nonce: 1 });
 

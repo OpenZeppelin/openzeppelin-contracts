@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { artifacts, network } from 'hardhat';
 import { expect } from 'chai';
 import * as random from '../helpers/random';
 
@@ -12,17 +12,12 @@ async function fixture() {
   const [admin, receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$RelayedCall');
+  const artifact = await artifacts.readArtifact('contracts/utils/RelayedCall.yul:Relayer');
   const computeRelayerAddress = (salt = ethers.ZeroHash) =>
     ethers.getCreate2Address(
       mock.target,
       salt,
-      ethers.keccak256(
-        ethers.concat([
-          '0x60475f8160095f39f373',
-          mock.target,
-          '0x331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3',
-        ]),
-      ),
+      ethers.keccak256(ethers.concat([artifact.bytecode, ethers.zeroPadValue(mock.target, 32)])),
     );
 
   const authority = await ethers.deployContract('$AccessManager', [admin]);

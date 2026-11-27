@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { artifacts, network } from 'hardhat';
 import { expect } from 'chai';
 import * as random from '../../helpers/random';
 import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
@@ -15,8 +15,9 @@ async function fixture() {
   const factory = await ethers.deployContract('$ERC1967Clones');
   const implementation = await ethers.deployContract('DummyImplementation');
   const erc1967 = await ethers.getContractFactory('$ERC1967Utils');
+  const artifact = await artifacts.readArtifact('contracts/proxy/ERC1967/ERC1967Clones.yul:ERC1967Clone');
 
-  return { admin, nonContractAddress, factory, erc1967, implementation };
+  return { admin, nonContractAddress, factory, erc1967, implementation, artifact };
 }
 
 describe('ERC1967Clones', function () {
@@ -76,6 +77,15 @@ describe('ERC1967Clones', function () {
       this.createProxy = async (implementation, initData, opts = {}) => {
         const salt = ethers.Typed.bytes32(opts.salt ?? random.bytes32());
         const predictedAddress = await this.factory.$predictDeterministicAddress(implementation, salt);
+
+        // initcode is the compiled Yul, followed by the ABI-encoded implementation
+        const initcode = ethers.concat([
+          this.artifact.bytecode,
+          ethers.zeroPadValue(await ethers.resolveAddress(implementation), 32),
+        ]);
+        expect(predictedAddress).to.equal(
+          ethers.getCreate2Address(this.factory.target, salt.value, ethers.keccak256(initcode)),
+        );
         const deploymentTx = await this.factory.$cloneDeterministic(implementation, salt);
 
         await expect(deploymentTx)

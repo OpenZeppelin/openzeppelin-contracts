@@ -22,46 +22,12 @@ import {LowLevelCall} from "./LowLevelCall.sol";
  * See {Create2} for counterfactual deployments that include the bytecodehash in the computation of the address.
  */
 library Create3 {
-    /**
-     * ===================================[ PROXY CODE ]===================================
-     * Offset | Opcode      | Mnemonic         | Stack           | Memory
-     * -------|-------------|------------------|-----------------|-------------------------
-     * 0x00   | 36          | CALLDATASIZE     | cds             |
-     * 0x01   | 5F          | PUSH0            | 0 cds           |
-     * 0x02   | 5F          | PUSH0            | 0 0 cds         |
-     * 0x03   | 37          | CALLDATACOPY     |                 | [0..cds): calldata
-     * 0x04   | 36          | CALLDATASIZE     | cds             | [0..cds): calldata
-     * 0x05   | 5F          | PUSH0            | 0 cds           | [0..cds): calldata
-     * 0x06   | 34          | CALLVALUE        | value 0 cds     | [0..cds): calldata
-     * 0x07   | f0          | CREATE           | addr            | [0..cds): calldata
-     * 0x08   | 6012        | PUSH1 0x12       | 0x12 addr       |
-     * 0x0A   | 57          | JUMPI            |                 |
-     * 0x0B   | 3D          | RETURNDATASIZE   | rds             |
-     * 0x0C   | 5F          | PUSH0            | 0 rds           |
-     * 0x0D   | 5F          | PUSH0            | 0 0 rds         |
-     * 0x0E   | 3E          | RETURNDATACOPY   |                 | [0..rds): returndata
-     * 0x0F   | 3D          | RETURNDATASIZE   | rds             | [0..rds): returndata
-     * 0x10   | 5F          | PUSH0            | 0 rds           | [0..rds): returndata
-     * 0x11   | FD          | REVERT           |                 |
-     * 0x12   | 5b          | JUMPDEST         |                 |
-     * 0x13   | 00          | STOP             |                 |
-     *
-     * ================================[ DEPLOYMENT CODE ]=================================
-     * Offset | Opcode      | Mnemonic         | Stack           | Memory
-     * -------|-------------|------------------|-----------------|-------------------------
-     * 0x00   | 73 bytecode | PUSH20 bytecode  | bytecode        |
-     * 0x15   | 5F          | PUSH0            | 0 bytecode      |
-     * 0x16   | 52          | MSTORE           |                 | [0x0C..0x20): bytecode
-     * 0x17   | 6014        | PUSH1 0x14       | 0x14            | [0x0C..0x20): bytecode
-     * 0x19   | 600C        | PUSH1 0x0C       | 0x0C 0x14       | [0x0C..0x20): bytecode
-     * 0x1B   | f3          | RETURN           |                 | [0x0C..0x20): bytecode
-     */
-    /// @dev The proxy initialization code.
-    bytes28 private constant PROXY_INITCODE = 0x73365f5f37365f34f06012573d5f5f3e3d5ffd5b005f526014600cf3;
+    /// @dev The proxy initialization code, compiled from contracts/utils/Create3.yul.
+    bytes31 private constant PROXY_INITCODE = 0x601580600a5f395ff3fe365f8037365f34f015600d57005b3d5f803e3d5ffd;
 
     /// @dev Hash of the `PROXY_INITCODE`.
-    /// Equivalent to `keccak256(hex"73365f5f37365f34f06012573d5f5f3e3d5ffd5b005f526014600cf3")`.
-    bytes32 internal constant PROXY_INITCODE_HASH = 0x57a34f6e879358dd76825d6700df87013ad6a3fb43c0d0c602f70a8772c153bd;
+    /// Equivalent to `keccak256(hex"601580600a5f395ff3fe365f8037365f34f015600d57005b3d5f803e3d5ffd")`.
+    bytes32 internal constant PROXY_INITCODE_HASH = 0xb56da43b2dfe60d1d765a0bfb4a9229d65a18ebdf9294827fe0abbe34490d5b4;
 
     /**
      * @dev There's no code to deploy.
