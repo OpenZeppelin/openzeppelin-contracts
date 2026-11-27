@@ -104,6 +104,7 @@ import {ERC20} from "../ERC20/ERC20.sol";
  * both and enforces them in {_checkAdmin}. The token must also be an agent of its identity
  * registry, since {recoveryAddress} registers and deletes identities there.
  */
+/// @custom:namespace-override erc3643.storage.ERC3643Token
 abstract contract ERC3643 is ERC20, Pausable, IERC3643 {
     mapping(address account => bool) private _frozen;
     mapping(address account => uint256) private _frozenTokens;
