@@ -64,10 +64,8 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
 
     /**
      * @dev Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC-721 transfers to
-     * this contract.
-     *
-     * In case there's data attached, it validates that the operator is this contract, so only trusted data
-     * is accepted from {depositFor}.
+     * this contract. The wrapped token is minted to `from`, whoever the operator is. The `operator` and `data`
+     * arguments are ignored.
      *
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
      * for recovering in that scenario.
