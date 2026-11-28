@@ -44,7 +44,9 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {SignerERC7913} from "@openzeppelin/contracts/utils/cryptography/signers/SignerERC7913.sol";
 
 contract MyAccountERC7913 is Account, EIP712, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
-    constructor() EIP712("MyAccount7913", "1") {}
+    constructor(bytes memory signer) EIP712("MyAccount7913", "1") SignerERC7913(signer) {
+        _disableInitializers();
+    }
 
     function initialize(bytes memory signer) public initializer {
         _setSigner(signer);
@@ -97,9 +99,14 @@ contract MyAccountMultiSigner is
     ERC1155Holder,
     Initializable
 {
-    constructor() EIP712("MyAccountMultiSigner", "1") {}
+    constructor(
+        bytes[] memory signers,
+        uint64 threshold
+    ) EIP712("MyAccountMultiSigner", "1") MultiSignerERC7913(signers, threshold) {
+        _disableInitializers();
+    }
 
-    function initialize(bytes[] memory signers, uint256 threshold) public initializer {
+    function initialize(bytes[] memory signers, uint64 threshold) public initializer {
         _addSigners(signers);
         _setThreshold(threshold);
     }
@@ -112,7 +119,7 @@ contract MyAccountMultiSigner is
         _removeSigners(signers);
     }
 
-    function setThreshold(uint256 threshold) public onlyEntryPointOrSelf {
+    function setThreshold(uint64 threshold) public onlyEntryPointOrSelf {
         _setThreshold(threshold);
     }
 
@@ -165,9 +172,15 @@ contract MyAccountMultiSignerWeighted is
     ERC1155Holder,
     Initializable
 {
-    constructor() EIP712("MyAccountMultiSignerWeighted", "1") {}
+    constructor(
+        bytes[] memory signers,
+        uint64[] memory weights,
+        uint64 threshold
+    ) EIP712("MyAccountMultiSignerWeighted", "1") MultiSignerERC7913Weighted(signers, weights, threshold) {
+        _disableInitializers();
+    }
 
-    function initialize(bytes[] memory signers, uint256[] memory weights, uint256 threshold) public initializer {
+    function initialize(bytes[] memory signers, uint64[] memory weights, uint64 threshold) public initializer {
         _addSigners(signers);
         _setSignerWeights(signers, weights);
         _setThreshold(threshold);
@@ -181,11 +194,11 @@ contract MyAccountMultiSignerWeighted is
         _removeSigners(signers);
     }
 
-    function setThreshold(uint256 threshold) public onlyEntryPointOrSelf {
+    function setThreshold(uint64 threshold) public onlyEntryPointOrSelf {
         _setThreshold(threshold);
     }
 
-    function setSignerWeights(bytes[] memory signers, uint256[] memory weights) public onlyEntryPointOrSelf {
+    function setSignerWeights(bytes[] memory signers, uint64[] memory weights) public onlyEntryPointOrSelf {
         _setSignerWeights(signers, weights);
     }
 
@@ -217,7 +230,7 @@ To create a multisig account, you need to:
 
 1. Define your signers
 2. Determine your threshold
-3. Initialize your account with these parameters
+3. Pass these parameters to the constructor when deploying the account directly, or to `initialize` when the account is a clone of it that a factory deploys and initializes in the same transaction
 
 The example below demonstrates setting up a 2-of-3 multisig account with different types of signers:
 
@@ -248,9 +261,9 @@ function setupMultisigAccount() external {
     signers[2] = rsaSigner;
     
     // Set threshold to 2 (2-of-3 multisig)
-    uint256 threshold = 2;
+    uint64 threshold = 2;
     
-    // Initialize the account
+    // Initialize the account (a clone, see above)
     myMultisigAccount.initialize(signers, threshold);
 }
 ----
@@ -268,15 +281,15 @@ function setupWeightedMultisigAccount() external {
     signers[2] = rsaSigner;
     
     // Assign weights to signers (Alice:1, Bob:2, Charlie:3)
-    uint256[] memory weights = new uint256[](3);
+    uint64[] memory weights = new uint64[](3);
     weights[0] = 1;
     weights[1] = 2;
     weights[2] = 3;
     
     // Set threshold to 4 (requires at least Bob+Charlie or all three)
-    uint256 threshold = 4;
+    uint64 threshold = 4;
     
-    // Initialize the weighted account
+    // Initialize the weighted account (a clone, see above)
     myWeightedMultisigAccount.initialize(signers, weights, threshold);
 }
 ----
