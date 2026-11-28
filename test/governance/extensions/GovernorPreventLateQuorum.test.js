@@ -78,6 +78,32 @@ describe('GovernorPreventLateQuorum', function () {
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.equal(quorum);
         expect(await this.mock.lateQuorumVoteExtension()).to.equal(lateQuorumVoteExtension);
+
+        await expect(
+          ethers.deployContract('$GovernorPreventLateQuorumMock', [
+            name,
+            votingDelay,
+            votingPeriod,
+            0n,
+            this.token,
+            votingPeriod + 1n,
+            quorum,
+          ]),
+        )
+          .to.be.revertedWithCustomError(this.mock, 'GovernorPreventLateQuorumVoteExtensionTooLarge')
+          .withArgs(votingPeriod + 1n, votingPeriod);
+
+        const reversedMock = await ethers.deployContract('$GovernorPreventLateQuorumReversedMock', [
+          name,
+          this.token,
+          lateQuorumVoteExtension,
+          votingDelay,
+          votingPeriod,
+          0n,
+          quorum,
+        ]);
+        expect(await reversedMock.lateQuorumVoteExtension()).to.equal(lateQuorumVoteExtension);
+        expect(await reversedMock.votingPeriod()).to.equal(votingPeriod);
       });
 
       it('nominal workflow unaffected', async function () {
