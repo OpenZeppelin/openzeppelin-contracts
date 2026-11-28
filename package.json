@@ -58,7 +58,7 @@
     "node": "^22.12 || ^24 || >=26"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/changelog-github": "^2.0.0",
     "@changesets/cli": "^3.0.0",
     "@changesets/pre": "^3.0.0",
     "@changesets/read": "^1.0.0",
